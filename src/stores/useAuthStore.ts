@@ -19,7 +19,11 @@ interface AuthState {
   user: User | null
   isAuthenticated: boolean
   sessionExpiredAt: number | null
+  accessToken: string | null
+  refreshToken: string | null
   login: (user: User) => void
+  loginWithTokens: (accessToken: string, refreshToken: string, user: User) => void
+  setTokens: (accessToken: string, refreshToken: string, user: User) => void
   logout: (reason?: 'manual' | 'session_expired') => void
   hasPermission: (permission: string) => boolean
   hasRole: (roles: Role[]) => boolean
@@ -31,14 +35,30 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       sessionExpiredAt: null,
+      accessToken: null,
+      refreshToken: null,
 
       login: (user) => set({ user, isAuthenticated: true, sessionExpiredAt: null }),
+
+      loginWithTokens: (accessToken, refreshToken, user) =>
+        set({
+          accessToken,
+          refreshToken,
+          user,
+          isAuthenticated: true,
+          sessionExpiredAt: null,
+        }),
+
+      setTokens: (accessToken, refreshToken, user) =>
+        set({ accessToken, refreshToken, user }),
 
       logout: (reason = 'manual') => {
         clearSessionTimeout()
         set({
           user: null,
           isAuthenticated: false,
+          accessToken: null,
+          refreshToken: null,
           sessionExpiredAt: reason === 'session_expired' ? Date.now() : null,
         })
       },
@@ -69,6 +89,7 @@ export const useAuthActions = () =>
   useAuthStore(
     useShallow((state) => ({
       login: state.login,
+      loginWithTokens: state.loginWithTokens,
       logout: state.logout,
       hasPermission: state.hasPermission,
       hasRole: state.hasRole,

@@ -4,7 +4,8 @@ import './styles/globals.css'
 import App from './App'
 
 async function enableMocking() {
-  if (import.meta.env.DEV) {
+  // Only start MSW when explicitly enabled via env var
+  if (import.meta.env.VITE_USE_MOCK_API === 'true') {
     try {
       console.log('[MSW] Loading mock service worker...')
       const { worker } = await import('./mocks/browser')
@@ -14,6 +15,8 @@ async function enableMocking() {
     } catch (error) {
       console.error('[MSW] Failed to start:', error)
     }
+  } else {
+    console.log('[App] Using real API (MSW disabled)')
   }
 }
 

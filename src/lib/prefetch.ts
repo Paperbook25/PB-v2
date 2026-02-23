@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
+import { apiGet } from './api-client'
 
 // Singleton query client instance for prefetching
 let queryClient: QueryClient | null = null
@@ -97,8 +98,7 @@ export async function prefetchDashboardData() {
     client.prefetchQuery({
       queryKey: dashboardKeys.stats(),
       queryFn: async () => {
-        const res = await fetch('/api/dashboard/stats')
-        const json = await res.json()
+        const json = await apiGet<{ data: any }>('/api/dashboard/stats')
         return json.data
       },
       staleTime: 15 * 60 * 1000,
@@ -106,8 +106,7 @@ export async function prefetchDashboardData() {
     client.prefetchQuery({
       queryKey: dashboardKeys.quickStats(),
       queryFn: async () => {
-        const res = await fetch('/api/dashboard/quick-stats')
-        const json = await res.json()
+        const json = await apiGet<{ data: any }>('/api/dashboard/quick-stats')
         return json.data
       },
       staleTime: 15 * 60 * 1000,

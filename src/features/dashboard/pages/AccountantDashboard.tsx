@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { apiGet } from '@/lib/api-client'
 import {
   IndianRupee,
   TrendingUp,
@@ -40,8 +41,7 @@ export function AccountantDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard', 'accountant-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/accountant-stats')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/accountant-stats')
       return json.data
     },
   })
@@ -50,8 +50,7 @@ export function AccountantDashboard() {
   const { data: todayCollection } = useQuery({
     queryKey: ['dashboard', 'today-collection'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/today-collection')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/today-collection')
       return json.data
     },
   })
@@ -60,8 +59,7 @@ export function AccountantDashboard() {
   const { data: collectionTrends } = useQuery({
     queryKey: ['dashboard', 'collection-trends'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/collection-trends')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/collection-trends')
       return json.data
     },
   })
@@ -70,8 +68,7 @@ export function AccountantDashboard() {
   const { data: pendingDues } = useQuery({
     queryKey: ['dashboard', 'pending-dues'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/pending-dues')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/pending-dues')
       return json.data
     },
   })
@@ -80,8 +77,7 @@ export function AccountantDashboard() {
   const { data: transactions } = useQuery({
     queryKey: ['dashboard', 'recent-transactions'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/recent-transactions')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/recent-transactions')
       return json.data
     },
   })

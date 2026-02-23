@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { apiGet } from '@/lib/api-client'
 import {
   Calendar,
   ClipboardCheck,
@@ -87,8 +88,7 @@ export function StudentDashboard() {
   const { data: announcements } = useQuery({
     queryKey: ['dashboard', 'announcements'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/announcements')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/announcements')
       return json.data
     },
   })
@@ -97,8 +97,7 @@ export function StudentDashboard() {
   const { data: events } = useQuery({
     queryKey: ['dashboard', 'events'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/events')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/events')
       return json.data
     },
   })
@@ -107,8 +106,7 @@ export function StudentDashboard() {
   const { data: courses } = useQuery({
     queryKey: ['dashboard', 'student-courses'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/student-courses')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/student-courses')
       return json.data
     },
   })
@@ -117,8 +115,7 @@ export function StudentDashboard() {
   const { data: assignments } = useQuery({
     queryKey: ['dashboard', 'student-assignments'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/student-assignments')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/student-assignments')
       return json.data
     },
   })
@@ -127,8 +124,7 @@ export function StudentDashboard() {
   const { data: transport } = useQuery({
     queryKey: ['dashboard', 'student-transport'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/student-transport')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/student-transport')
       return json.data
     },
   })

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { apiGet } from '@/lib/api-client'
 import {
   BookOpen,
   BookMarked,
@@ -42,8 +43,7 @@ export function LibrarianDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard', 'librarian-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/librarian-stats')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/librarian-stats')
       return json.data
     },
   })
@@ -52,8 +52,7 @@ export function LibrarianDashboard() {
   const { data: circulation } = useQuery({
     queryKey: ['dashboard', 'circulation-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/circulation-stats')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/circulation-stats')
       return json.data
     },
   })
@@ -62,8 +61,7 @@ export function LibrarianDashboard() {
   const { data: overdueBooks } = useQuery({
     queryKey: ['dashboard', 'overdue-books'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/overdue-books')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/overdue-books')
       return json.data
     },
   })
@@ -72,8 +70,7 @@ export function LibrarianDashboard() {
   const { data: reservations } = useQuery({
     queryKey: ['dashboard', 'pending-reservations'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/pending-reservations')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/pending-reservations')
       return json.data
     },
   })
@@ -82,8 +79,7 @@ export function LibrarianDashboard() {
   const { data: recentActivity } = useQuery({
     queryKey: ['dashboard', 'library-activity'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/library-activity')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/library-activity')
       return json.data
     },
   })

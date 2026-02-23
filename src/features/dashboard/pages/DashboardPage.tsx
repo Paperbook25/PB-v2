@@ -1,5 +1,6 @@
 import { memo, useMemo, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { apiGet } from '@/lib/api-client'
 import {
   GraduationCap,
   Users,
@@ -209,8 +210,7 @@ const FeeCollectionSection = memo(function FeeCollectionSection({ stats }: FeeCo
   const { data: feeData, isLoading: feeLoading } = useQuery({
     queryKey: ['dashboard', 'fee-collection'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/fee-collection')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/fee-collection')
       return json.data
     },
   })
@@ -218,8 +218,7 @@ const FeeCollectionSection = memo(function FeeCollectionSection({ stats }: FeeCo
   const { data: paymentMethods } = useQuery({
     queryKey: ['dashboard', 'payment-methods'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/payment-methods')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/payment-methods')
       return json.data
     },
   })
@@ -227,8 +226,7 @@ const FeeCollectionSection = memo(function FeeCollectionSection({ stats }: FeeCo
   const { data: recentTransactions } = useQuery({
     queryKey: ['dashboard', 'fee-transactions'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/fee-transactions')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/fee-transactions')
       return json.data
     },
   })
@@ -401,8 +399,7 @@ const QuickStatsSection = memo(function QuickStatsSection() {
   const { data: quickStats, isLoading } = useQuery({
     queryKey: ['dashboard', 'quick-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/quick-stats')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/quick-stats')
       return json.data
     },
   })
@@ -463,8 +460,7 @@ export function DashboardPage() {
   const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useQuery({
     queryKey: ['dashboard', 'stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/stats')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/stats')
       return json.data
     },
   })
@@ -472,8 +468,7 @@ export function DashboardPage() {
   const { data: attendanceData } = useQuery({
     queryKey: ['dashboard', 'attendance'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/attendance')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/attendance')
       return json.data
     },
   })
@@ -481,8 +476,7 @@ export function DashboardPage() {
   const { data: announcements } = useQuery({
     queryKey: ['dashboard', 'announcements'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/announcements')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/announcements')
       return json.data
     },
   })
@@ -490,8 +484,7 @@ export function DashboardPage() {
   const { data: events } = useQuery({
     queryKey: ['dashboard', 'events'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/events')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/events')
       return json.data
     },
   })
@@ -499,8 +492,7 @@ export function DashboardPage() {
   const { data: activities } = useQuery({
     queryKey: ['dashboard', 'activities'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/activities')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/activities')
       return json.data
     },
   })

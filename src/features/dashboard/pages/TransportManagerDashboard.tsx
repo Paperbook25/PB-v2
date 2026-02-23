@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { apiGet } from '@/lib/api-client'
 import {
   Bus,
   Users,
@@ -38,8 +39,7 @@ export function TransportManagerDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard', 'transport-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/transport-stats')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/transport-stats')
       return json.data
     },
   })
@@ -48,8 +48,7 @@ export function TransportManagerDashboard() {
   const { data: fleetStatus } = useQuery({
     queryKey: ['dashboard', 'fleet-status'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/fleet-status')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/fleet-status')
       return json.data
     },
   })
@@ -58,8 +57,7 @@ export function TransportManagerDashboard() {
   const { data: maintenanceAlerts } = useQuery({
     queryKey: ['dashboard', 'maintenance-alerts'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/maintenance-alerts')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/maintenance-alerts')
       return json.data
     },
   })
@@ -68,8 +66,7 @@ export function TransportManagerDashboard() {
   const { data: routePerformance } = useQuery({
     queryKey: ['dashboard', 'route-performance'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/route-performance')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/route-performance')
       return json.data
     },
   })
@@ -78,8 +75,7 @@ export function TransportManagerDashboard() {
   const { data: drivers } = useQuery({
     queryKey: ['dashboard', 'driver-status'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/driver-status')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/driver-status')
       return json.data
     },
   })

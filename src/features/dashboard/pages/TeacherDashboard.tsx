@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { apiGet } from '@/lib/api-client'
 import {
   Clock,
   ClipboardCheck,
@@ -40,8 +41,7 @@ export function TeacherDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard', 'teacher-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/teacher-stats')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/teacher-stats')
       return json.data
     },
   })
@@ -49,8 +49,7 @@ export function TeacherDashboard() {
   const { data: schedule, isLoading: scheduleLoading } = useQuery({
     queryKey: ['dashboard', 'teacher-schedule'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/teacher-schedule')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/teacher-schedule')
       return json.data
     },
   })
@@ -58,8 +57,7 @@ export function TeacherDashboard() {
   const { data: classes } = useQuery({
     queryKey: ['dashboard', 'teacher-classes'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/teacher-classes')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/teacher-classes')
       return json.data
     },
   })
@@ -67,8 +65,7 @@ export function TeacherDashboard() {
   const { data: tasks } = useQuery({
     queryKey: ['dashboard', 'teacher-tasks'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/teacher-tasks')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/teacher-tasks')
       return json.data
     },
   })
@@ -76,8 +73,7 @@ export function TeacherDashboard() {
   const { data: announcements } = useQuery({
     queryKey: ['dashboard', 'announcements'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/announcements')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/announcements')
       return json.data
     },
   })
@@ -86,8 +82,7 @@ export function TeacherDashboard() {
   const { data: strugglingStudents } = useQuery({
     queryKey: ['dashboard', 'struggling-students'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/struggling-students')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/struggling-students')
       return json.data
     },
   })
@@ -96,8 +91,7 @@ export function TeacherDashboard() {
   const { data: pendingGrades } = useQuery({
     queryKey: ['dashboard', 'pending-grades'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/pending-grades')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/pending-grades')
       return json.data
     },
   })

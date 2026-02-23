@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { apiGet } from '@/lib/api-client'
 import {
   Calendar,
   ClipboardCheck,
@@ -58,8 +59,7 @@ export function ParentDashboard() {
   const { data: announcements } = useQuery({
     queryKey: ['dashboard', 'announcements'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/announcements')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/announcements')
       return json.data
     },
   })
@@ -68,8 +68,7 @@ export function ParentDashboard() {
   const { data: events } = useQuery({
     queryKey: ['dashboard', 'events'],
     queryFn: async () => {
-      const res = await fetch('/api/dashboard/events')
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>('/api/dashboard/events')
       return json.data
     },
   })
@@ -78,8 +77,7 @@ export function ParentDashboard() {
   const { data: timetable } = useQuery({
     queryKey: ['dashboard', 'child-timetable', selectedChild],
     queryFn: async () => {
-      const res = await fetch(`/api/dashboard/child-timetable?studentId=${selectedChild}`)
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>(`/api/dashboard/child-timetable?studentId=${selectedChild}`)
       return json.data
     },
     enabled: !!selectedChild,
@@ -89,8 +87,7 @@ export function ParentDashboard() {
   const { data: assignments } = useQuery({
     queryKey: ['dashboard', 'child-assignments', selectedChild],
     queryFn: async () => {
-      const res = await fetch(`/api/dashboard/child-assignments?studentId=${selectedChild}`)
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>(`/api/dashboard/child-assignments?studentId=${selectedChild}`)
       return json.data
     },
     enabled: !!selectedChild,
@@ -100,8 +97,7 @@ export function ParentDashboard() {
   const { data: teachers } = useQuery({
     queryKey: ['dashboard', 'child-teachers', selectedChild],
     queryFn: async () => {
-      const res = await fetch(`/api/dashboard/child-teachers?studentId=${selectedChild}`)
-      const json = await res.json()
+      const json = await apiGet<{ data: any }>(`/api/dashboard/child-teachers?studentId=${selectedChild}`)
       return json.data
     },
     enabled: !!selectedChild,

@@ -1,0 +1,35 @@
+# Render Blueprint - Single instance deployment (web service + PostgreSQL)
+# Deploy: connect your repo on Render and it auto-detects this file
+
+databases:
+  - name: paperbook-db
+    plan: free
+    databaseName: paperbook
+    user: paperbook
+
+services:
+  - type: web
+    name: paperbook-app
+    runtime: node
+    plan: free
+    buildCommand: ./render-build.sh
+    startCommand: cd server && node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: paperbook-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRY
+        value: "15m"
+      - key: JWT_REFRESH_EXPIRY
+        value: "7d"
+      - key: CORS_ORIGIN
+        value: "*"

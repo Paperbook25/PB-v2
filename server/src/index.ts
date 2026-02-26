@@ -1,9 +1,14 @@
 import express from 'express'
 import cors from 'cors'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { existsSync } from 'fs'
 import { env } from './config/env.js'
 import { prisma } from './config/db.js'
 import routes from './routes/index.js'
 import { errorMiddleware } from './middleware/error.middleware.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const app = express()
 
@@ -24,6 +29,18 @@ app.use(express.urlencoded({ extended: true }))
 
 // API routes
 app.use('/api', routes)
+
+// In production, serve the frontend build
+if (env.isProd) {
+  const clientDist = resolve(__dirname, '../../client-dist')
+  if (existsSync(clientDist)) {
+    app.use(express.static(clientDist))
+    // SPA fallback: serve index.html for all non-API routes
+    app.get('*', (_req, res) => {
+      res.sendFile(resolve(clientDist, 'index.html'))
+    })
+  }
+}
 
 // Error handling (must be last)
 app.use(errorMiddleware)

@@ -86,7 +86,8 @@ src/
 │   ├── settings/        # App settings
 │   ├── staff/           # Staff management
 │   ├── students/        # Student management
-│   ├── timetable/       # Timetable
+│   ├── school-website/  # Public school website builder
+│   ├── timetable/       # Timetable + AI planner
 │   ├── transport/       # Transport management
 │   └── visitors/        # Visitor management
 ├── hooks/               # Custom React hooks
@@ -180,11 +181,94 @@ npm run test -- src/lib/validation.test.ts
 
 ## Environment Variables
 
-Create a `.env.development` or `.env.production` file:
+### Frontend
+
+Create a `.env.development` or `.env.production` file in the project root:
 
 ```env
 VITE_API_URL=http://localhost:3001/api
 VITE_ENABLE_MSW=true
+```
+
+### Backend
+
+Copy the example env file and update values:
+
+```bash
+cp server/.env.example server/.env
+```
+
+Required variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | — |
+| `JWT_SECRET` | Secret for signing access tokens | — |
+| `JWT_REFRESH_SECRET` | Secret for signing refresh tokens | — |
+| `PORT` | Server port | `3001` |
+| `CORS_ORIGIN` | Allowed frontend origin | `http://localhost:5173` |
+
+## Local AI Setup (Ollama)
+
+PaperBook uses [Ollama](https://ollama.com) to run AI features locally — no cloud API keys needed. This powers the AI website builder, executive assistant, and timetable planner.
+
+### 1. Install Ollama
+
+```bash
+# macOS
+brew install ollama
+
+# Linux
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Windows — download from https://ollama.com/download
+```
+
+### 2. Pull a model
+
+```bash
+ollama pull qwen2.5:14b
+```
+
+> You can use a smaller model if your machine has limited RAM:
+> - `qwen2.5:7b` — needs ~8 GB RAM
+> - `qwen2.5:14b` — needs ~16 GB RAM (recommended)
+> - `llama3.1:8b` — alternative, needs ~8 GB RAM
+
+### 3. Start Ollama
+
+```bash
+ollama serve
+```
+
+Ollama runs on `http://localhost:11434` by default.
+
+### 4. Configure in `.env`
+
+Add these to your `server/.env`:
+
+```env
+LLM_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5:14b
+```
+
+If you pulled a different model, update `OLLAMA_MODEL` to match.
+
+### Using a cloud LLM instead
+
+If you prefer to use OpenAI or Anthropic instead of a local model, set the API key:
+
+```env
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+```
+
+or
+
+```env
+LLM_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 ## Code Quality

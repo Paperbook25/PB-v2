@@ -117,6 +117,10 @@ const ParentPortalPage = lazy(() => import('@/features/parent-portal').then(m =>
 // Documents
 const DocumentsPage = lazy(() => import('@/features/documents').then(m => ({ default: m.DocumentsPage })))
 
+// School Website
+const SchoolWebsiteBuilderPage = lazy(() => import('@/features/school-website/pages/SchoolWebsiteBuilderPage').then(m => ({ default: m.SchoolWebsiteBuilderPage })))
+const PublicSchoolPage = lazy(() => import('@/features/school-website/pages/PublicSchoolPage').then(m => ({ default: m.PublicSchoolPage })))
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -186,6 +190,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/apply" element={<LazyRoute><PublicApplicationPage /></LazyRoute>} />
+          <Route path="/s/:slug" element={<LazyRoute><PublicSchoolPage /></LazyRoute>} />
 
           <Route
             path="/"
@@ -1037,14 +1042,31 @@ export default function App() {
             }
           />
 
-          {/* Timetable - Redirect to Management module */}
+          {/* Calendar */}
+          <Route
+            path="/calendar"
+            element={
+              <RoleProtectedRoute allowedRoles={ALL_ROLES}>
+                <LazyRoute><TimetablePage /></LazyRoute>
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/calendar/*"
+            element={
+              <RoleProtectedRoute allowedRoles={ALL_ROLES}>
+                <LazyRoute><TimetablePage /></LazyRoute>
+              </RoleProtectedRoute>
+            }
+          />
+          {/* Timetable - Redirect to Calendar */}
           <Route
             path="/timetable"
-            element={<Navigate to="/management?tab=schedule" replace />}
+            element={<Navigate to="/calendar" replace />}
           />
           <Route
             path="/timetable/*"
-            element={<Navigate to="/management?tab=schedule" replace />}
+            element={<Navigate to="/calendar" replace />}
           />
 
           {/* Parent Portal */}
@@ -1061,6 +1083,16 @@ export default function App() {
             element={
               <RoleProtectedRoute allowedRoles={['parent', 'teacher', 'admin', 'principal']}>
                 <LazyRoute><ParentPortalPage /></LazyRoute>
+              </RoleProtectedRoute>
+            }
+          />
+
+          {/* School Website Builder */}
+          <Route
+            path="/school-website"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin', 'principal']}>
+                <LazyRoute><SchoolWebsiteBuilderPage /></LazyRoute>
               </RoleProtectedRoute>
             }
           />

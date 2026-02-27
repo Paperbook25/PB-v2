@@ -1,4 +1,4 @@
-import { memo, useMemo, useCallback } from 'react'
+import { memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '@/lib/api-client'
 import {
@@ -20,19 +20,12 @@ import {
   Clock,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AnimatedCounter } from '@/components/ui/animated-counter'
-import { Sparkline } from '@/components/ui/sparkline'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ErrorCard } from '@/components/ErrorBoundary'
-import { MetricCard } from '@/components/ui/metric-card'
-import { DonutChart } from '@/components/ui/donut-chart'
-import { ProgressRing } from '@/components/ui/progress-ring'
-import { cn, formatCurrency, formatDate } from '@/lib/utils'
-import { quickStatColors, statusColors } from '@/lib/design-tokens'
+import { formatCurrency, formatDate } from '@/lib/utils'
+import { useAuthStore } from '@/stores/useAuthStore'
 import {
   BarChart,
   Bar,
@@ -42,22 +35,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-
-// Sample sparkline data for trends - moved outside component to prevent recreation
-const SPARKLINE_DATA: Record<string, number[]> = {
-  students: [45, 52, 49, 63, 58, 72, 68],
-  staff: [22, 24, 23, 25, 24, 26, 27],
-  fees: [150, 180, 165, 210, 195, 240, 220],
-  attendance: [92, 88, 94, 91, 89, 93, 91],
-}
-
-// Quick actions config - moved outside component to prevent recreation
-const QUICK_ACTIONS = [
-  { label: 'Add Student', icon: UserPlus, href: '/students/new', color: 'var(--color-module-students)' },
-  { label: 'Mark Attendance', icon: ClipboardCheck, href: '/attendance', color: 'var(--color-module-attendance)' },
-  { label: 'Collect Fee', icon: IndianRupee, href: '/finance/collection', color: 'var(--color-module-finance)' },
-  { label: 'New Admission', icon: GraduationCap, href: '/admissions/new', color: 'var(--color-module-admissions)' },
-] as const
 
 // Format relative time - extracted as pure function
 function formatRelativeTime(timestamp: string): string {
@@ -80,82 +57,78 @@ function formatLakhs(n: number): string {
   return n.toLocaleString()
 }
 
-type StatCardVariant = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'purple' | 'orange' | 'cyan'
+// Quick actions config - moved outside component to prevent recreation
+const QUICK_ACTIONS = [
+  { label: 'Add Student', icon: UserPlus, href: '/students/new' },
+  { label: 'Mark Attendance', icon: ClipboardCheck, href: '/attendance' },
+  { label: 'Collect Fee', icon: IndianRupee, href: '/finance/collection' },
+  { label: 'New Admission', icon: GraduationCap, href: '/admissions/new' },
+] as const
 
-interface StatCardProps {
-  title: string
-  value: number
-  change?: { value: number; trend: 'up' | 'down' }
-  icon: React.ElementType
-  href?: string
-  variant?: StatCardVariant
-  prefix?: string
-  suffix?: string
-  formatFn?: (n: number) => string
-  sparklineData?: number[]
-  iconColor?: string
-}
-
+// Simple stat card for the top row
 function StatCard({
-  title,
+  label,
   value,
   change,
   icon: Icon,
   href,
-  variant = 'primary',
-  prefix,
-  suffix,
-  formatFn,
-  sparklineData: trendData,
-  iconColor,
-}: StatCardProps) {
-  const content = (
-    <div className={cn('stat-card', `stat-card-${variant}`)}>
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <p className="stat-label">{title}</p>
-          <div className="stat-value">
-            <AnimatedCounter
-              value={value}
-              prefix={prefix}
-              suffix={suffix}
-              formatFn={formatFn}
-              duration={1200}
-            />
-          </div>
+}: {
+  label: string
+  value: string
+  change?: { value: number; trend: 'up' | 'down' }
+  icon: React.ElementType
+  href?: string
+}) {
+  const inner = (
+    <Card className="p-5 hover:shadow-sm hover:translate-y-0 transition-none">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{label}</p>
+          <p className="text-2xl font-semibold text-gray-900 mt-1">{value}</p>
           {change && (
-            <div className={cn('mt-2', change.trend === 'up' ? 'trend-up' : 'trend-down')}>
+            <p className={`text-xs mt-1 flex items-center gap-1 ${change.trend === 'up' ? 'text-green-600' : 'text-red-500'}`}>
               {change.trend === 'up' ? (
                 <TrendingUp className="h-3 w-3" />
               ) : (
                 <TrendingDown className="h-3 w-3" />
               )}
-              <span>{change.value}% from last month</span>
-            </div>
+              {change.trend === 'up' ? '+' : '-'}{change.value}% from last month
+            </p>
           )}
         </div>
-        <div className="flex flex-col items-end gap-3">
-          <div
-            className="icon-box text-white"
-            style={{ backgroundColor: iconColor || 'var(--color-primary)' }}
-          >
-            <Icon className="h-5 w-5" />
-          </div>
-          {trendData && (
-            <Sparkline
-              data={trendData}
-              width={60}
-              height={20}
-              color={iconColor || 'var(--color-primary)'}
-              showArea
-            />
-          )}
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+          <Icon className="h-4 w-4" />
         </div>
       </div>
-    </div>
+    </Card>
   )
 
-  return href ? <Link to={href} className="block">{content}</Link> : content
+  return href ? <Link to={href} className="block">{inner}</Link> : inner
+}
+
+// Quick stat pill for the small info row
+function QuickStatPill({
+  icon: Icon,
+  value,
+  label,
+}: {
+  icon: React.ElementType
+  value: number
+  label: string
+}) {
+  return (
+    <Card className="p-4 hover:shadow-sm hover:translate-y-0 transition-none">
+      <div className="flex items-center gap-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+          <Icon className="h-4 w-4" />
+        </div>
+        <div>
+          <p className="text-lg font-semibold text-gray-900">{value}</p>
+          <p className="text-xs text-gray-500">{label}</p>
+        </div>
+      </div>
+    </Card>
+  )
 }
 
 const QuickActions = memo(function QuickActions() {
@@ -163,34 +136,25 @@ const QuickActions = memo(function QuickActions() {
     <div className="flex items-center gap-2">
       {QUICK_ACTIONS.map((action) => (
         <Link key={action.label} to={action.href}>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 h-9 px-3 hover:shadow-md transition-all"
-          >
-            <div
-              className="flex h-5 w-5 items-center justify-center rounded text-white"
-              style={{ backgroundColor: action.color }}
-            >
-              <action.icon className="h-3 w-3" />
-            </div>
-            <span className="hidden sm:inline text-xs font-medium">{action.label}</span>
-          </Button>
+          <button className="inline-flex items-center gap-2 h-9 px-3 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+            <action.icon className="h-3.5 w-3.5 text-gray-500" />
+            <span className="hidden sm:inline">{action.label}</span>
+          </button>
         </Link>
       ))}
     </div>
   )
 })
 
-// Custom tooltip component for charts - memoized
+// Custom tooltip component for charts
 const ChartTooltip = memo(function ChartTooltip({ active, payload, label, formatter }: any) {
   if (!active || !payload?.length) return null
 
   return (
-    <div className="chart-tooltip">
-      <p className="text-sm font-medium mb-1">{label}</p>
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3">
+      <p className="text-sm font-medium text-gray-900 mb-1">{label}</p>
       {payload.map((entry: any, index: number) => (
-        <p key={index} className="text-sm" style={{ color: entry.color }}>
+        <p key={index} className="text-sm text-gray-600">
           {entry.name}: {formatter ? formatter(entry.value) : entry.value}
         </p>
       ))}
@@ -198,7 +162,7 @@ const ChartTooltip = memo(function ChartTooltip({ active, payload, label, format
   )
 })
 
-// Fee Collection Section Component - accepts stats as prop to avoid duplicate query
+// Fee Collection Section Component
 interface FeeCollectionSectionProps {
   stats: {
     totalFeeCollected?: number
@@ -233,89 +197,87 @@ const FeeCollectionSection = memo(function FeeCollectionSection({ stats }: FeeCo
 
   const totalCollected = stats?.totalFeeCollected || 0
   const pendingFees = stats?.pendingFees || 0
-  const targetAmount = 5400000 // 54L target
+  const targetAmount = 5400000
   const collectionProgress = Math.round((totalCollected / targetAmount) * 100)
 
   return (
-    <>
-      <div className="section-header">
-        <div className="section-header-bar" style={{ backgroundColor: 'var(--color-module-finance)' }} />
-        <h2 className="section-header-title">Fee Collection Overview</h2>
-      </div>
+    <div className="mb-8">
+      <h2 className="text-base font-semibold text-gray-900 mb-4">Fee Collection Overview</h2>
 
-      {/* Bento Grid Layout */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-6">
-        {/* Row 1: Three Metric Cards */}
-        <MetricCard
-          title="Total Collected"
-          value={`₹${formatLakhs(totalCollected)}`}
-          trend={{ value: 18, direction: 'up' }}
-          icon={<IndianRupee className="h-5 w-5" />}
-          variant="amber"
-        />
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-4">
+        {/* Total Collected */}
+        <Card className="p-5 hover:shadow-sm hover:translate-y-0 transition-none">
+          <p className="text-sm text-gray-500">Total Collected</p>
+          <p className="text-2xl font-semibold text-gray-900 mt-1">{formatLakhs(totalCollected)}</p>
+          <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+            <TrendingUp className="h-3 w-3" />
+            +18% from last month
+          </p>
+        </Card>
 
-        <MetricCard
-          title="Pending Fees"
-          value={`₹${formatLakhs(pendingFees)}`}
-          trend={{ value: 12, direction: 'down' }}
-          icon={<Clock className="h-5 w-5" />}
-          variant="rose"
-        />
+        {/* Pending Fees */}
+        <Card className="p-5 hover:shadow-sm hover:translate-y-0 transition-none">
+          <p className="text-sm text-gray-500">Pending Fees</p>
+          <p className="text-2xl font-semibold text-gray-900 mt-1">{formatLakhs(pendingFees)}</p>
+          <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+            <TrendingDown className="h-3 w-3" />
+            -12% from last month
+          </p>
+        </Card>
 
-        <MetricCard
-          title="Collection Progress"
-          value=""
-          variant="green"
-          className="flex items-center"
-        >
-          <div className="flex items-center gap-4 mt-2">
-            <ProgressRing
-              progress={collectionProgress}
-              size={80}
-              strokeWidth={8}
-              color={statusColors.success}
-              showPercentage
-            />
-            <div className="text-xs text-muted-foreground">
-              <p>Target: ₹{formatLakhs(targetAmount)}</p>
-              <p className="mt-1">Collected: ₹{formatLakhs(totalCollected)}</p>
+        {/* Collection Progress */}
+        <Card className="p-5 hover:shadow-sm hover:translate-y-0 transition-none">
+          <p className="text-sm text-gray-500">Collection Progress</p>
+          <p className="text-2xl font-semibold text-gray-900 mt-1">{collectionProgress}%</p>
+          <div className="mt-2">
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-indigo-600 rounded-full transition-all"
+                style={{ width: `${Math.min(collectionProgress, 100)}%` }}
+              />
+            </div>
+            <div className="flex justify-between mt-1.5">
+              <span className="text-xs text-gray-400">Collected: {formatLakhs(totalCollected)}</span>
+              <span className="text-xs text-gray-400">Target: {formatLakhs(targetAmount)}</span>
             </div>
           </div>
-        </MetricCard>
+        </Card>
+      </div>
 
-        {/* Row 2: Monthly Trend Bar Chart */}
-        <Card className="md:col-span-2 lg:col-span-2" style={{ backgroundColor: 'var(--color-module-students-light)' }}>
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
+        {/* Monthly Trend Chart */}
+        <Card className="lg:col-span-2 hover:shadow-sm hover:translate-y-0 transition-none">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Monthly Trend</CardTitle>
-            <CardDescription>Fee collection by month</CardDescription>
+            <CardTitle className="text-sm font-medium text-gray-900">Monthly Trend</CardTitle>
+            <p className="text-xs text-gray-500">Fee collection by month</p>
           </CardHeader>
           <CardContent>
             {feeLoading ? (
               <Skeleton className="h-[180px] w-full" />
             ) : (
-              <ResponsiveContainer width="100%" height={180} className="fee-bar-chart">
+              <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={feeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                   <XAxis
                     dataKey="month"
-                    tick={{ fill: '#64748b', fontSize: 11 }}
+                    tick={{ fill: '#94a3b8', fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fill: '#64748b', fontSize: 11 }}
+                    tick={{ fill: '#94a3b8', fontSize: 11 }}
                     axisLine={false}
                     tickLine={false}
                     tickFormatter={(v) => `${v / 100000}L`}
                   />
                   <Tooltip
                     content={<ChartTooltip formatter={formatCurrency} />}
-                    cursor={{ fill: 'rgba(245, 158, 11, 0.1)' }}
+                    cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
                   />
                   <Bar
                     dataKey="collected"
-                    fill="#f59e0b"
-                    radius={[6, 6, 0, 0]}
+                    fill="#6366f1"
+                    radius={[4, 4, 0, 0]}
                     name="Collected"
                   />
                 </BarChart>
@@ -324,77 +286,98 @@ const FeeCollectionSection = memo(function FeeCollectionSection({ stats }: FeeCo
           </CardContent>
         </Card>
 
-        {/* Payment Methods Donut */}
-        <Card style={{ backgroundColor: 'var(--color-status-info-light)' }}>
+        {/* Payment Methods */}
+        <Card className="hover:shadow-sm hover:translate-y-0 transition-none">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Payment Methods</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-900">Payment Methods</CardTitle>
           </CardHeader>
           <CardContent>
             {paymentMethods ? (
-              <DonutChart
-                data={paymentMethods}
-                size={160}
-                strokeWidth={16}
-                centerValue={`₹${formatLakhs(paymentMethods.reduce((sum: number, p: any) => sum + p.value, 0))}`}
-                centerLabel="Total"
-                showLegend
-                legendPosition="bottom"
-              />
+              <div className="space-y-3">
+                {paymentMethods.map((method: any) => {
+                  const total = paymentMethods.reduce((sum: number, p: any) => sum + p.value, 0)
+                  const pct = total > 0 ? Math.round((method.value / total) * 100) : 0
+                  return (
+                    <div key={method.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-700">{method.name}</span>
+                        <span className="text-sm font-medium text-gray-900">{pct}%</span>
+                      </div>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${pct}%`,
+                            backgroundColor: method.color || '#6366f1',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+                <div className="pt-2 border-t border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Total</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      {formatLakhs(paymentMethods.reduce((sum: number, p: any) => sum + p.value, 0))}
+                    </span>
+                  </div>
+                </div>
+              </div>
             ) : (
               <Skeleton className="h-[200px] w-full" />
             )}
           </CardContent>
         </Card>
-
-        {/* Recent Transactions */}
-        <Card className="md:col-span-2 lg:col-span-3">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-base flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                Recent Transactions
-              </CardTitle>
-            </div>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/finance/collection">
-                View All
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {recentTransactions?.slice(0, 4).map((txn: any) => (
-                <div key={txn.id} className="transaction-item">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white">
-                    <CheckCircle2 className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      <span className="text-emerald-600 font-semibold">₹{txn.amount.toLocaleString()}</span>
-                      {' '}from {txn.studentName} ({txn.class})
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      via {txn.paymentMethod} • {formatRelativeTime(txn.timestamp)}
-                    </p>
-                  </div>
-                </div>
-              )) || (
-                <>
-                  <Skeleton className="h-14 w-full" />
-                  <Skeleton className="h-14 w-full" />
-                  <Skeleton className="h-14 w-full" />
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
       </div>
-    </>
+
+      {/* Recent Transactions */}
+      <Card className="mt-4 hover:shadow-sm hover:translate-y-0 transition-none">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <CardTitle className="text-sm font-medium text-gray-900 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-gray-400" />
+            Recent Transactions
+          </CardTitle>
+          <Link
+            to="/finance/collection"
+            className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+          >
+            View All
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </CardHeader>
+        <CardContent>
+          <div className="divide-y divide-gray-100">
+            {recentTransactions?.slice(0, 4).map((txn: any) => (
+              <div key={txn.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-50 text-green-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-900">
+                    <span className="font-medium">{formatLakhs(txn.amount)}</span>
+                    {' '}from {txn.studentName} ({txn.class})
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    via {txn.paymentMethod} -- {formatRelativeTime(txn.timestamp)}
+                  </p>
+                </div>
+              </div>
+            )) || (
+              <>
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 })
 
-// Quick Stats Section - memoized
+// Quick Stats Section
 const QuickStatsSection = memo(function QuickStatsSection() {
   const { data: quickStats, isLoading } = useQuery({
     queryKey: ['dashboard', 'quick-stats'],
@@ -405,58 +388,35 @@ const QuickStatsSection = memo(function QuickStatsSection() {
   })
 
   const stats = [
-    {
-      icon: Cake,
-      value: quickStats?.todayBirthdays || 0,
-      label: 'Birthdays Today',
-      color: quickStatColors.birthdays,
-    },
-    {
-      icon: FileText,
-      value: quickStats?.pendingLeaveRequests || 0,
-      label: 'Leave Requests',
-      color: quickStatColors.leaveRequests,
-    },
-    {
-      icon: BookOpen,
-      value: quickStats?.overdueBooks || 0,
-      label: 'Overdue Books',
-      color: quickStatColors.overdueBooks,
-    },
-    {
-      icon: ClipboardCheck,
-      value: quickStats?.upcomingExams || 0,
-      label: 'Exams This Week',
-      color: quickStatColors.exams,
-    },
+    { icon: Cake, value: quickStats?.todayBirthdays || 0, label: 'Birthdays Today' },
+    { icon: FileText, value: quickStats?.pendingLeaveRequests || 0, label: 'Leave Requests' },
+    { icon: BookOpen, value: quickStats?.overdueBooks || 0, label: 'Overdue Books' },
+    { icon: ClipboardCheck, value: quickStats?.upcomingExams || 0, label: 'Exams This Week' },
   ]
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-24 w-full" />
+          <Skeleton key={i} className="h-20 w-full rounded-xl" />
         ))}
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       {stats.map((stat) => (
-        <div key={stat.label} className="quick-stat-card">
-          <stat.icon className="h-5 w-5 mb-2" style={{ color: stat.color }} />
-          <div className="quick-stat-value" style={{ color: stat.color }}>
-            {stat.value}
-          </div>
-          <div className="quick-stat-label">{stat.label}</div>
-        </div>
+        <QuickStatPill key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
       ))}
     </div>
   )
 })
 
 export function DashboardPage() {
+  const user = useAuthStore((state) => state.user)
+  const userName = user?.name?.split(' ')[0] || 'there'
+
   const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useQuery({
     queryKey: ['dashboard', 'stats'],
     queryFn: async () => {
@@ -498,18 +458,18 @@ export function DashboardPage() {
   })
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <PageHeader
         title="Dashboard"
-        description="Welcome back! Here's an overview of your school."
+        description={`Welcome back, ${userName}`}
         actions={<QuickActions />}
       />
 
       {/* Quick Stats Row */}
       <QuickStatsSection />
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+      {/* Main Stats Grid */}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
         {statsError ? (
           <div className="col-span-full">
             <ErrorCard
@@ -520,211 +480,140 @@ export function DashboardPage() {
           </div>
         ) : statsLoading ? (
           Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="stat-card stat-card-primary">
-              <div className="flex justify-between items-start">
-                <div>
-                  <Skeleton className="h-4 w-24 mb-2" />
-                  <Skeleton className="h-8 w-20" />
-                </div>
-                <Skeleton className="h-10 w-10 rounded-xl" />
-              </div>
-            </div>
+            <Card key={i} className="p-5 hover:shadow-sm hover:translate-y-0 transition-none">
+              <Skeleton className="h-4 w-24 mb-2" />
+              <Skeleton className="h-8 w-20" />
+            </Card>
           ))
         ) : (
           <>
             <StatCard
-              title="Total Students"
-              value={stats?.totalStudents || 0}
+              label="Total Students"
+              value={String(stats?.totalStudents || 0)}
               change={{ value: 12, trend: 'up' }}
               icon={GraduationCap}
               href="/students"
-              variant="primary"
-              iconColor="var(--color-module-students)"
-              sparklineData={SPARKLINE_DATA.students}
             />
             <StatCard
-              title="Total Staff"
-              value={stats?.totalStaff || 0}
+              label="Total Staff"
+              value={String(stats?.totalStaff || 0)}
               change={{ value: 3, trend: 'up' }}
               icon={Users}
               href="/staff"
-              variant="success"
-              iconColor="var(--color-module-staff)"
-              sparklineData={SPARKLINE_DATA.staff}
             />
             <StatCard
-              title="Fee Collected"
-              value={stats?.totalFeeCollected || 0}
+              label="Fee Collected"
+              value={`${formatLakhs(stats?.totalFeeCollected || 0)}`}
               change={{ value: 8, trend: 'up' }}
               icon={IndianRupee}
               href="/finance"
-              variant="warning"
-              iconColor="var(--color-module-finance)"
-              prefix="₹"
-              formatFn={(n) => {
-                if (n >= 100000) return `${(n / 100000).toFixed(1)}L`
-                if (n >= 1000) return `${(n / 1000).toFixed(1)}K`
-                return n.toFixed(0)
-              }}
-              sparklineData={SPARKLINE_DATA.fees}
             />
             <StatCard
-              title="Today's Attendance"
-              value={stats?.attendanceToday || 0}
+              label="Today's Attendance"
+              value={`${stats?.attendanceToday || 0}%`}
               change={{ value: 2, trend: 'down' }}
               icon={ClipboardCheck}
               href="/attendance"
-              variant="orange"
-              iconColor="var(--color-module-attendance)"
-              suffix="%"
-              sparklineData={SPARKLINE_DATA.attendance}
             />
           </>
         )}
       </div>
 
-      {/* Fee Collection Section - Redesigned */}
+      {/* Fee Collection Section */}
       <FeeCollectionSection stats={stats} />
 
       {/* Attendance & Events */}
-      <div className="section-header">
-        <div className="section-header-bar" style={{ backgroundColor: 'var(--color-module-attendance)' }} />
-        <h2 className="section-header-title">Attendance & Events</h2>
-      </div>
-      <div className="grid gap-6 lg:grid-cols-3 mb-6">
+      <h2 className="text-base font-semibold text-gray-900 mb-4">Attendance & Events</h2>
+      <div className="grid gap-4 lg:grid-cols-3 mb-8">
         {/* Weekly Attendance */}
-        <Card style={{ backgroundColor: 'var(--color-module-attendance-light)' }}>
-          <CardHeader>
-            <CardTitle>Weekly Attendance</CardTitle>
-            <CardDescription>This week's attendance trend</CardDescription>
+        <Card className="hover:shadow-sm hover:translate-y-0 transition-none">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-900">Weekly Attendance</CardTitle>
+            <p className="text-xs text-gray-500">This week's attendance trend</p>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={attendanceData}>
-                <defs>
-                  <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.9}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.4}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 12 }} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
-                <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="present" fill="url(#colorAttendance)" name="Present %" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }} />
+                <Bar dataKey="present" fill="#6366f1" name="Present %" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Announcements */}
-        <Card style={{ backgroundColor: 'var(--color-module-communication-light)' }}>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-4 w-4" style={{ color: 'var(--color-module-communication)' }} />
-                Announcements
-              </CardTitle>
-            </div>
+        <Card className="hover:shadow-sm hover:translate-y-0 transition-none">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900 flex items-center gap-2">
+              <Bell className="h-4 w-4 text-gray-400" />
+              Announcements
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {announcements?.slice(0, 3).map((item: any) => (
-              <div key={item.id} className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant={
-                      item.priority === 'high'
-                        ? 'destructive'
-                        : item.priority === 'medium'
-                        ? 'default'
-                        : 'secondary'
-                    }
-                    className="text-[10px] px-1.5 py-0"
-                  >
-                    {item.priority}
-                  </Badge>
-                  <span className="text-sm font-medium truncate">{item.title}</span>
+          <CardContent>
+            <div className="divide-y divide-gray-100">
+              {announcements?.slice(0, 3).map((item: any) => (
+                <div key={item.id} className="py-3 first:pt-0 last:pb-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    {item.priority === 'high' && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-50 text-red-700">
+                        {item.priority}
+                      </span>
+                    )}
+                    {item.priority === 'medium' && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700">
+                        {item.priority}
+                      </span>
+                    )}
+                    {item.priority === 'low' && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-50 text-gray-600">
+                        {item.priority}
+                      </span>
+                    )}
+                    <span className="text-sm font-medium text-gray-900 truncate">{item.title}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 line-clamp-2">{item.content}</p>
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">{item.content}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </CardContent>
         </Card>
 
         {/* Upcoming Events */}
-        <Card style={{ backgroundColor: 'var(--color-module-academic-light)' }}>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" style={{ color: 'var(--color-module-academic)' }} />
-                Upcoming Events
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {events?.slice(0, 4).map((event: any) => {
-              const eventColor = event.type === 'exam'
-                ? 'var(--color-module-exams)'
-                : event.type === 'meeting'
-                ? 'var(--color-module-communication)'
-                : event.type === 'holiday'
-                ? 'var(--color-module-attendance)'
-                : 'var(--color-module-academic)'
-              return (
-                <div key={event.id} className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold"
-                    style={{ backgroundColor: eventColor }}
-                  >
-                    {new Date(event.date).getDate()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{event.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(event.date, { weekday: 'short', month: 'short', day: 'numeric' })}
-                    </p>
-                  </div>
-                </div>
-              )
-            })}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="section-header">
-        <div className="section-header-bar" style={{ backgroundColor: 'var(--color-module-reports)' }} />
-        <h2 className="section-header-title">Recent Activity</h2>
-      </div>
-      <div className="mb-6">
-        <Card style={{ backgroundColor: 'var(--color-module-reports-light)' }}>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-4 w-4" style={{ color: 'var(--color-module-reports)' }} />
-                Activity Log
-              </CardTitle>
-              <CardDescription>Latest actions across the system</CardDescription>
-            </div>
-            <Button variant="ghost" size="sm">
-              View All
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Button>
+        <Card className="hover:shadow-sm hover:translate-y-0 transition-none">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900 flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-gray-400" />
+              Upcoming Events
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {activities?.map((activity: any) => (
-                <div key={activity.id} className="flex items-start gap-4">
-                  <div
-                    className="w-2 h-2 mt-2 rounded-full animate-pulse-live"
-                    style={{ backgroundColor: 'var(--color-primary)' }}
-                  />
+            <div className="divide-y divide-gray-100">
+              {events?.slice(0, 4).map((event: any) => (
+                <div key={event.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                  <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-gray-50 border border-gray-200">
+                    <span className="text-xs font-semibold text-gray-900 leading-none">
+                      {new Date(event.date).getDate()}
+                    </span>
+                    <span className="text-[10px] text-gray-500 uppercase leading-none mt-0.5">
+                      {new Date(event.date).toLocaleString('en', { month: 'short' })}
+                    </span>
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm">
-                      <span className="font-medium">{activity.action}:</span> {activity.description}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {activity.user.name} • {formatDate(activity.timestamp, { hour: 'numeric', minute: 'numeric' })}
+                    <p className="text-sm font-medium text-gray-900 truncate">{event.title}</p>
+                    <p className="text-xs text-gray-500">
+                      {formatDate(event.date, { weekday: 'short', month: 'short', day: 'numeric' })}
                     </p>
                   </div>
                 </div>
@@ -733,6 +622,39 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Activity */}
+      <h2 className="text-base font-semibold text-gray-900 mb-4">Recent Activity</h2>
+      <Card className="mb-6 hover:shadow-sm hover:translate-y-0 transition-none">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <CardTitle className="text-sm font-medium text-gray-900 flex items-center gap-2">
+            <Activity className="h-4 w-4 text-gray-400" />
+            Activity Log
+          </CardTitle>
+          <button className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1">
+            View All
+            <ArrowRight className="h-3 w-3" />
+          </button>
+        </CardHeader>
+        <CardContent>
+          <div className="divide-y divide-gray-100">
+            {activities?.map((activity: any) => (
+              <div key={activity.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                <div className="w-1.5 h-1.5 mt-2 rounded-full bg-indigo-400 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-900">
+                    <span className="font-medium">{activity.action}:</span>{' '}
+                    {activity.description}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {activity.user.name} -- {formatDate(activity.timestamp, { hour: 'numeric', minute: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

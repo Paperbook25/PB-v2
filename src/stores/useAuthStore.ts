@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/react/shallow'
 import type { User, Role } from '@/types/common.types'
 import { clearSessionTimeout } from '@/lib/security'
+import { usePermissionStore } from './usePermissionStore'
 
 const rolePermissions: Record<Role, string[]> = {
   admin: ['*'],
@@ -54,6 +55,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: (reason = 'manual') => {
         clearSessionTimeout()
+        usePermissionStore.getState().setPermissions([])
         set({
           user: null,
           isAuthenticated: false,

@@ -31,6 +31,12 @@ import { clubsHandlers } from './handlers/clubs.handlers'
 import { complaintsHandlers } from './handlers/complaints.handlers'
 import { facilitiesHandlers } from './handlers/facilities.handlers'
 import { scholarshipsHandlers } from './handlers/scholarships.handlers'
+import { addonHandlers } from './handlers/addon.handlers'
+import { calendarHandlers } from './handlers/calendar.handlers'
+import { permissionHandlers } from './handlers/permission.handlers'
+import { aiPlannerHandlers } from './handlers/ai-planner.handlers'
+import { agentChatHandlers } from './handlers/agent-chat.handlers'
+import { schoolWebsiteHandlers } from './handlers/school-website.handlers'
 import { applications } from './data/admissions.data'
 import { getUserContext, isParent } from './utils/auth-context'
 import { studentFees } from './data/finance.data'
@@ -925,4 +931,4 @@ const handlers = [
   }),
 ]
 
-export const worker = setupWorker(...handlers, ...admissionsHandlers, ...staffHandlers, ...libraryHandlers, ...financeHandlers, ...settingsHandlers, ...integrationsHandlers, ...examsHandlers, ...attendanceHandlers, ...studentsHandlers, ...transportHandlers, ...lmsHandlers, ...hostelHandlers, ...visitorsHandlers, ...inventoryHandlers, ...alumniHandlers, ...questionBankHandlers, ...communicationHandlers, ...behaviorHandlers, ...reportsHandlers, ...timetableHandlers, ...parentPortalHandlers, ...documentsHandlers, ...clubsHandlers, ...complaintsHandlers, ...facilitiesHandlers, ...scholarshipsHandlers)
+export const worker = setupWorker(...handlers, ...admissionsHandlers, ...staffHandlers, ...libraryHandlers, ...financeHandlers, ...settingsHandlers, ...integrationsHandlers, ...examsHandlers, ...attendanceHandlers, ...studentsHandlers, ...transportHandlers, ...lmsHandlers, ...hostelHandlers, ...visitorsHandlers, ...inventoryHandlers, ...alumniHandlers, ...questionBankHandlers, ...communicationHandlers, ...behaviorHandlers, ...reportsHandlers, ...timetableHandlers, ...parentPortalHandlers, ...documentsHandlers, ...clubsHandlers, ...complaintsHandlers, ...facilitiesHandlers, ...scholarshipsHandlers, ...addonHandlers, ...calendarHandlers, ...permissionHandlers, ...aiPlannerHandlers, ...agentChatHandlers, ...schoolWebsiteHandlers)

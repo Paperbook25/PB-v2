@@ -13,6 +13,12 @@ import dashboardRoutes, { notificationRouter } from './dashboard.routes.js'
 import admissionRoutes, { admissionPublicRouter } from './admission.routes.js'
 import { examRouter, gradeScaleRouter, reportCardRouter, studentExamRouter } from './exam.routes.js'
 import { questionBankRouter, onlineExamRouter } from './question-bank.routes.js'
+import addonRoutes from './addon.routes.js'
+import calendarRoutes from './calendar.routes.js'
+import permissionRoutes from './permission.routes.js'
+import aiPlannerRoutes from './ai-planner.routes.js'
+import agentRoutes from './agent.routes.js'
+import websiteRoutes, { websitePublicRouter } from './school-website.routes.js'
 
 const router = Router()
 
@@ -39,6 +45,25 @@ router.use('/grade-scales', gradeScaleRouter)
 router.use('/report-cards', reportCardRouter)
 router.use('/question-bank', questionBankRouter)
 router.use('/online-exams', onlineExamRouter)
+
+// Addon / License System
+router.use('/addons', addonRoutes)
+
+// Calendar view (Google Calendar-style)
+router.use('/calendar', calendarRoutes)
+
+// RBAC Permissions
+router.use('/permissions', permissionRoutes)
+
+// AI Timetable Planner
+router.use('/ai-planner', aiPlannerRoutes)
+
+// AI Agent Framework
+router.use('/agents', agentRoutes)
+
+// School Website Builder
+router.use('/school-website', websiteRoutes)
+router.use('/public/school-website', websitePublicRouter)
 
 // Health check
 router.get('/health', (_req, res) => {

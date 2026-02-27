@@ -11,6 +11,7 @@ import {
 } from '../utils/jwt.js'
 import { AppError } from '../utils/errors.js'
 import type { LoginInput, ForgotPasswordInput, ResetPasswordInput } from '../validators/auth.validators.js'
+import { getRolePermissionSlugs } from './permission.service.js'
 
 export interface AuthTokens {
   accessToken: string
@@ -28,6 +29,8 @@ export interface AuthTokens {
     rollNumber?: number | null
     childIds?: string[]
   }
+  enabledAddons: string[]
+  permissions: string[]
 }
 
 export async function login(
@@ -99,6 +102,20 @@ export async function login(
     },
   }).catch(() => {})
 
+  // Fetch enabled addons for the school
+  const school = await prisma.schoolProfile.findFirst()
+  let enabledAddons: string[] = []
+  if (school) {
+    const schoolAddons = await prisma.schoolAddon.findMany({
+      where: { schoolId: school.id, enabled: true },
+      include: { addon: { select: { slug: true } } },
+    })
+    enabledAddons = schoolAddons.map(sa => sa.addon.slug)
+  }
+
+  // Fetch role permissions
+  const permissionSlugs = await getRolePermissionSlugs(user.role)
+
   return {
     accessToken,
     refreshToken,
@@ -115,6 +132,8 @@ export async function login(
       rollNumber: user.rollNumber,
       childIds,
     },
+    enabledAddons,
+    permissions: permissionSlugs,
   }
 }
 
@@ -204,6 +223,20 @@ export async function refreshTokens(
     try { childIds = JSON.parse(user.childIds) } catch { /* ignore */ }
   }
 
+  // Fetch enabled addons for the school
+  const school = await prisma.schoolProfile.findFirst()
+  let enabledAddons: string[] = []
+  if (school) {
+    const schoolAddons = await prisma.schoolAddon.findMany({
+      where: { schoolId: school.id, enabled: true },
+      include: { addon: { select: { slug: true } } },
+    })
+    enabledAddons = schoolAddons.map(sa => sa.addon.slug)
+  }
+
+  // Fetch role permissions
+  const permissionSlugs = await getRolePermissionSlugs(user.role)
+
   return {
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
@@ -220,6 +253,8 @@ export async function refreshTokens(
       rollNumber: user.rollNumber,
       childIds,
     },
+    enabledAddons,
+    permissions: permissionSlugs,
   }
 }
 

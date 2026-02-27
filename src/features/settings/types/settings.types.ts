@@ -274,7 +274,7 @@ export interface UpdateEmailTemplateRequest {
 
 // ==================== SETTINGS SECTIONS ====================
 
-export type SettingsSection = 'general' | 'communication' | 'integrations'
+export type SettingsSection = 'general' | 'communication' | 'integrations' | 'modules' | 'permissions'
 export type GeneralTab = 'school' | 'academic' | 'calendar' | 'classes' | 'users' | 'templates' | 'notifications' | 'audit' | 'backup' | 'appearance' | 'campuses' | 'retention' | 'compliance' | 'health' | 'feature-flags'
 export type CommunicationTab = 'dashboard' | 'announcements' | 'messages' | 'circulars' | 'surveys' | 'emergency' | 'events'
 export type IntegrationsTab = 'sms' | 'email' | 'payment' | 'whatsapp' | 'biometric' | 'webhooks' | 'api-keys'

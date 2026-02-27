@@ -1,0 +1,374 @@
+import { useState, useEffect, useRef, useCallback } from 'react'
+import type { WebsiteSection, SectionType } from '../types/school-website.types'
+import { SECTION_TYPES } from '../types/school-website.types'
+import { Check, Loader2 } from 'lucide-react'
+
+interface SectionEditorPanelProps {
+  section: WebsiteSection
+  onUpdate: (content: Record<string, unknown>, title?: string) => void
+}
+
+function useAutoSave(
+  section: WebsiteSection,
+  onUpdate: (content: Record<string, unknown>, title?: string) => void,
+) {
+  const [fields, setFields] = useState<Record<string, unknown>>(section.content as Record<string, unknown> || {})
+  const [title, setTitle] = useState(section.title || '')
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const fieldsRef = useRef(fields)
+  const titleRef = useRef(title)
+  fieldsRef.current = fields
+  titleRef.current = title
+
+  // Reset when section changes
+  useEffect(() => {
+    setFields(section.content as Record<string, unknown> || {})
+    setTitle(section.title || '')
+    setSaveStatus('idle')
+  }, [section.id, section.content, section.title])
+
+  const triggerSave = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      setSaveStatus('saving')
+      onUpdate(fieldsRef.current, titleRef.current || undefined)
+      setTimeout(() => setSaveStatus('saved'), 300)
+      setTimeout(() => setSaveStatus('idle'), 2000)
+    }, 800)
+  }, [onUpdate])
+
+  const updateFields = useCallback((newFields: Record<string, unknown>) => {
+    setFields(newFields)
+    triggerSave()
+  }, [triggerSave])
+
+  const updateTitle = useCallback((newTitle: string) => {
+    setTitle(newTitle)
+    triggerSave()
+  }, [triggerSave])
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [])
+
+  return { fields, setFields: updateFields, title, setTitle: updateTitle, saveStatus }
+}
+
+function TextField({ label, value, onChange, multiline = false, hint }: {
+  label: string; value: string; onChange: (v: string) => void; multiline?: boolean; hint?: string
+}) {
+  return (
+    <div className="space-y-1">
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      {hint && <p className="text-xs text-gray-400">{hint}</p>}
+      {multiline ? (
+        <textarea
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          rows={4}
+          className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        />
+      ) : (
+        <input
+          type="text"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        />
+      )}
+    </div>
+  )
+}
+
+function CheckboxField({ label, value, onChange, hint }: {
+  label: string; value: boolean; onChange: (v: boolean) => void; hint?: string
+}) {
+  return (
+    <label className="flex items-start gap-2.5 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={value}
+        onChange={e => onChange(e.target.checked)}
+        className="rounded mt-0.5"
+      />
+      <div>
+        <span className="text-sm text-gray-700">{label}</span>
+        {hint && <p className="text-xs text-gray-400">{hint}</p>}
+      </div>
+    </label>
+  )
+}
+
+// ==================== Section Editors ====================
+
+function HeroEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <TextField label="Main Heading" value={String(fields.headline || '')} onChange={v => setFields({ ...fields, headline: v })} hint="The big text visitors see first" />
+      <TextField label="Description" value={String(fields.subtitle || '')} onChange={v => setFields({ ...fields, subtitle: v })} multiline hint="A short description below the heading" />
+      <TextField label="Background Image URL" value={String(fields.backgroundImage || '')} onChange={v => setFields({ ...fields, backgroundImage: v })} hint="Paste a link to an image (optional)" />
+      <TextField label="Button Text" value={String(fields.ctaText || '')} onChange={v => setFields({ ...fields, ctaText: v })} hint="Text shown on the button (e.g. Apply Now)" />
+      <TextField label="Button Link" value={String(fields.ctaLink || '')} onChange={v => setFields({ ...fields, ctaLink: v })} hint="Where the button takes visitors (e.g. /apply)" />
+    </div>
+  )
+}
+
+function AboutEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.body || '')} onChange={v => setFields({ ...fields, body: v })} multiline hint="Tell visitors about your school" />
+      <TextField label="Image URL" value={String(fields.image || '')} onChange={v => setFields({ ...fields, image: v })} hint="A photo of your school (optional)" />
+      <TextField label="Our Mission" value={String(fields.mission || '')} onChange={v => setFields({ ...fields, mission: v })} multiline hint="What your school aims to achieve" />
+      <TextField label="Our Vision" value={String(fields.vision || '')} onChange={v => setFields({ ...fields, vision: v })} multiline hint="Where your school is headed" />
+    </div>
+  )
+}
+
+function StatsEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  const items = (fields.items as Array<{ label: string; value: string; icon: string }>) || []
+
+  const updateItem = (index: number, key: string, value: string) => {
+    const updated = [...items]
+    updated[index] = { ...updated[index], [key]: value }
+    setFields({ ...fields, items: updated })
+  }
+
+  const addItem = () => setFields({ ...fields, items: [...items, { label: '', value: '', icon: '' }] })
+  const removeItem = (i: number) => setFields({ ...fields, items: items.filter((_, idx) => idx !== i) })
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-gray-400">Add key numbers that highlight your school's achievements</p>
+      {items.map((item, i) => (
+        <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">Highlight #{i + 1}</span>
+            <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+          </div>
+          <TextField label="Name" value={item.label} onChange={v => updateItem(i, 'label', v)} hint="e.g. Students, Teachers, Years" />
+          <TextField label="Number" value={item.value} onChange={v => updateItem(i, 'value', v)} hint="e.g. 2,500+, 150+, 98.5%" />
+        </div>
+      ))}
+      <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another highlight</button>
+    </div>
+  )
+}
+
+function AdmissionsEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.body || '')} onChange={v => setFields({ ...fields, body: v })} multiline hint="Information about admissions process" />
+      <TextField label="Button Text" value={String(fields.ctaText || '')} onChange={v => setFields({ ...fields, ctaText: v })} hint="e.g. Apply Now, Learn More" />
+      <TextField label="Button Link" value={String(fields.ctaLink || '')} onChange={v => setFields({ ...fields, ctaLink: v })} hint="Where the button takes visitors" />
+      <CheckboxField label="Show Application Form" value={Boolean(fields.showApplicationForm)} onChange={v => setFields({ ...fields, showApplicationForm: v })} hint="Display the online application form on this page" />
+    </div>
+  )
+}
+
+function TestimonialsEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  const items = (fields.items as Array<{ name: string; role: string; quote: string; avatar: string }>) || []
+
+  const updateItem = (index: number, key: string, value: string) => {
+    const updated = [...items]
+    updated[index] = { ...updated[index], [key]: value }
+    setFields({ ...fields, items: updated })
+  }
+
+  const addItem = () => setFields({ ...fields, items: [...items, { name: '', role: '', quote: '', avatar: '' }] })
+  const removeItem = (i: number) => setFields({ ...fields, items: items.filter((_, idx) => idx !== i) })
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-gray-400">Add reviews from parents or students about your school</p>
+      {items.map((item, i) => (
+        <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">Review #{i + 1}</span>
+            <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+          </div>
+          <TextField label="Person's Name" value={item.name} onChange={v => updateItem(i, 'name', v)} />
+          <TextField label="Who they are" value={item.role} onChange={v => updateItem(i, 'role', v)} hint="e.g. Parent, Class 8" />
+          <TextField label="What they said" value={item.quote} onChange={v => updateItem(i, 'quote', v)} multiline />
+          <TextField label="Photo URL" value={item.avatar} onChange={v => updateItem(i, 'avatar', v)} hint="Link to their photo (optional)" />
+        </div>
+      ))}
+      <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another review</button>
+    </div>
+  )
+}
+
+function GalleryEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  const images = (fields.images as Array<{ url: string; caption: string }>) || []
+  const layout = String(fields.layout || 'grid')
+
+  const updateImage = (index: number, key: string, value: string) => {
+    const updated = [...images]
+    updated[index] = { ...updated[index], [key]: value }
+    setFields({ ...fields, images: updated })
+  }
+
+  const addImage = () => setFields({ ...fields, images: [...images, { url: '', caption: '' }] })
+  const removeImage = (i: number) => setFields({ ...fields, images: images.filter((_, idx) => idx !== i) })
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">Display Style</label>
+        <select value={layout} onChange={e => setFields({ ...fields, layout: e.target.value })} className="w-full px-3 py-2 border rounded-lg text-sm">
+          <option value="grid">Grid (equal size)</option>
+          <option value="masonry">Masonry (mixed sizes)</option>
+        </select>
+      </div>
+      {images.map((img, i) => (
+        <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">Photo #{i + 1}</span>
+            <button onClick={() => removeImage(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+          </div>
+          <TextField label="Image URL" value={img.url} onChange={v => updateImage(i, 'url', v)} hint="Paste a link to the image" />
+          <TextField label="Caption" value={img.caption} onChange={v => updateImage(i, 'caption', v)} hint="Brief description of the photo" />
+        </div>
+      ))}
+      <button onClick={addImage} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another photo</button>
+    </div>
+  )
+}
+
+function EventsEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-gray-400">Events are automatically pulled from your school calendar</p>
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">Number of events to show</label>
+        <input
+          type="number"
+          value={Number(fields.showCount || 5)}
+          onChange={e => setFields({ ...fields, showCount: Number(e.target.value) })}
+          className="w-full px-3 py-2 border rounded-lg text-sm"
+          min={1} max={20}
+        />
+      </div>
+      <CheckboxField label="Include past events" value={Boolean(fields.showPast)} onChange={v => setFields({ ...fields, showPast: v })} hint="Show events that have already happened" />
+    </div>
+  )
+}
+
+function NewsEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  const items = (fields.items as Array<{ title: string; body: string; date: string; image: string }>) || []
+
+  const updateItem = (index: number, key: string, value: string) => {
+    const updated = [...items]
+    updated[index] = { ...updated[index], [key]: value }
+    setFields({ ...fields, items: updated })
+  }
+
+  const addItem = () => setFields({ ...fields, items: [...items, { title: '', body: '', date: new Date().toISOString().split('T')[0], image: '' }] })
+  const removeItem = (i: number) => setFields({ ...fields, items: items.filter((_, idx) => idx !== i) })
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-gray-400">Share news and announcements with visitors</p>
+      {items.map((item, i) => (
+        <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-600">Article #{i + 1}</span>
+            <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+          </div>
+          <TextField label="Title" value={item.title} onChange={v => updateItem(i, 'title', v)} />
+          <TextField label="Content" value={item.body} onChange={v => updateItem(i, 'body', v)} multiline />
+          <TextField label="Date" value={item.date} onChange={v => updateItem(i, 'date', v)} hint="When this was published" />
+          <TextField label="Image URL" value={item.image} onChange={v => updateItem(i, 'image', v)} hint="Link to an image (optional)" />
+        </div>
+      ))}
+      <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another article</button>
+    </div>
+  )
+}
+
+function ContactEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <CheckboxField label="Show contact form" value={Boolean(fields.showForm)} onChange={v => setFields({ ...fields, showForm: v })} hint="Let visitors send you a message" />
+      <CheckboxField label="Show map" value={Boolean(fields.showMap)} onChange={v => setFields({ ...fields, showMap: v })} hint="Display a map with your location" />
+      <TextField label="Map Embed Code" value={String(fields.mapEmbed || '')} onChange={v => setFields({ ...fields, mapEmbed: v })} multiline hint="Paste the embed code from Google Maps" />
+      <TextField label="Address & Contact Info" value={String(fields.additionalInfo || '')} onChange={v => setFields({ ...fields, additionalInfo: v })} multiline hint="Your school's address, phone, and email" />
+    </div>
+  )
+}
+
+function FacultyEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-gray-400">Teacher information is automatically pulled from your school records</p>
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline hint="An introduction about your teaching staff" />
+      <CheckboxField label="Show all teachers" value={Boolean(fields.showAll)} onChange={v => setFields({ ...fields, showAll: v })} hint="Display the full list of teaching staff" />
+    </div>
+  )
+}
+
+function CustomHtmlEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-gray-400">For advanced users — add custom HTML content</p>
+      <TextField label="HTML Content" value={String(fields.html || '')} onChange={v => setFields({ ...fields, html: v })} multiline />
+    </div>
+  )
+}
+
+const EDITOR_MAP: Record<SectionType, React.FC<{ fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }>> = {
+  hero: HeroEditor,
+  about: AboutEditor,
+  stats: StatsEditor,
+  admissions: AdmissionsEditor,
+  faculty: FacultyEditor,
+  gallery: GalleryEditor,
+  testimonials: TestimonialsEditor,
+  events: EventsEditor,
+  news: NewsEditor,
+  contact: ContactEditor,
+  custom_html: CustomHtmlEditor,
+}
+
+export function SectionEditorPanel({ section, onUpdate }: SectionEditorPanelProps) {
+  const { fields, setFields, title, setTitle, saveStatus } = useAutoSave(section, onUpdate)
+
+  const Editor = EDITOR_MAP[section.type as SectionType]
+  const sectionMeta = SECTION_TYPES.find(st => st.value === section.type)
+
+  return (
+    <div className="space-y-5 max-w-2xl">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-semibold text-gray-900">{sectionMeta?.label || section.type.replace('_', ' ')}</h3>
+          {sectionMeta && <p className="text-xs text-gray-400 mt-0.5">{sectionMeta.description}</p>}
+        </div>
+        <div className="flex items-center gap-1.5 text-xs text-gray-400">
+          {saveStatus === 'saving' && (
+            <>
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Saving...
+            </>
+          )}
+          {saveStatus === 'saved' && (
+            <>
+              <Check className="h-3 w-3 text-green-500" />
+              <span className="text-green-600">Saved</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      <TextField
+        label="Section Title"
+        value={title}
+        onChange={setTitle}
+        hint="The heading shown above this section (optional)"
+      />
+
+      {Editor ? <Editor fields={fields} setFields={setFields} /> : (
+        <p className="text-gray-500 text-sm">No editor available for this section type.</p>
+      )}
+    </div>
+  )
+}

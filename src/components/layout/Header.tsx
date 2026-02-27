@@ -1,6 +1,5 @@
-import { Search, Moon, Sun, Menu, LogOut, User, Settings } from 'lucide-react'
+import { Moon, Sun, Menu, LogOut, User, Settings, Bot } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -15,9 +14,25 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { getInitials } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
 import { NotificationCenter } from './NotificationCenter'
+import { AppLauncher } from './AppLauncher'
+
+function roleBadgeLabel(role?: string): string {
+  if (!role) return 'User'
+  const map: Record<string, string> = {
+    admin: 'Admin',
+    principal: 'Principal',
+    teacher: 'Teacher',
+    accountant: 'Accountant',
+    librarian: 'Librarian',
+    transport_manager: 'Transport',
+    student: 'Student',
+    parent: 'Parent',
+  }
+  return map[role] || role.charAt(0).toUpperCase() + role.slice(1)
+}
 
 export function Header() {
-  const { theme, setTheme, openCommandPalette, setSidebarMobileOpen } = useUIStore()
+  const { theme, setTheme, setSidebarMobileOpen } = useUIStore()
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
 
@@ -27,53 +42,67 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b-2 border-primary/20 bg-primary/5 backdrop-blur supports-[backdrop-filter]:bg-primary/[0.03] px-4 lg:px-6 dark:bg-primary/10 dark:border-primary/20">
-      {/* Left side - Mobile menu & Search */}
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-30 flex h-12 items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 lg:px-5">
+      {/* Left side */}
+      <div className="flex items-center gap-3 min-w-0">
+        {/* Mobile menu button */}
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden"
+          className="lg:hidden h-8 w-8 shrink-0"
           onClick={() => setSidebarMobileOpen(true)}
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         </Button>
 
-        <div className="hidden md:flex items-center">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search... (⌘K)"
-              className="w-64 pl-9 bg-muted/50"
-              onFocus={openCommandPalette}
-              readOnly
-            />
-          </div>
-        </div>
+        {/* Brand name */}
+        <span className="hidden lg:inline text-sm font-semibold text-gray-900 dark:text-gray-100">
+          PaperBook
+        </span>
+
+        {/* Separator */}
+        <div className="hidden lg:block w-px h-4 bg-gray-200 dark:bg-gray-700" />
+
+        {/* Role badge */}
+        {user?.role && (
+          <span className="hidden lg:inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+            {roleBadgeLabel(user.role)}
+          </span>
+        )}
+
+        {/* Mobile brand */}
+        <span className="lg:hidden text-sm font-semibold text-gray-900 dark:text-gray-100">
+          PaperBook
+        </span>
       </div>
 
-      {/* Right side - Actions */}
-      <div className="flex items-center gap-2">
-        {/* Mobile Search */}
+      {/* Right side */}
+      <div className="flex items-center gap-1">
+        {/* App Launcher */}
+        <AppLauncher />
+
+        {/* AI Assistant */}
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
-          onClick={openCommandPalette}
+          className="h-8 w-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          onClick={() => useUIStore.getState().toggleAgentChat()}
+          title="AI Assistant (Cmd+J)"
         >
-          <Search className="h-5 w-5" />
+          <Bot className="h-4 w-4" />
         </Button>
 
         {/* Theme Toggle */}
         <Button
           variant="ghost"
           size="icon"
+          className="h-8 w-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         >
           {theme === 'dark' ? (
-            <Sun className="h-5 w-5" />
+            <Sun className="h-4 w-4" />
           ) : (
-            <Moon className="h-5 w-5" />
+            <Moon className="h-4 w-4" />
           )}
         </Button>
 
@@ -83,10 +112,12 @@ export function Header() {
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-              <Avatar className="h-9 w-9">
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full ml-1">
+              <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.avatar} alt={user?.name} />
-                <AvatarFallback>{user ? getInitials(user.name) : 'U'}</AvatarFallback>
+                <AvatarFallback className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                  {user ? getInitials(user.name) : 'U'}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>

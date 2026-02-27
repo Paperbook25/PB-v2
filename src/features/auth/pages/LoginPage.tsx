@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Eye, EyeOff, BookOpen } from 'lucide-react'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { usePermissionStore } from '@/stores/usePermissionStore'
 import type { Role } from '@/types/common.types'
 
 const USE_MOCK_API = import.meta.env.VITE_USE_MOCK_API === 'true'
@@ -130,6 +128,9 @@ export function LoginPage() {
         childIds: data.user.childIds,
       })
 
+      // Store granular permissions from the backend
+      usePermissionStore.getState().setPermissions(data.permissions || [])
+
       setIsLoading(false)
       navigate('/')
     } catch {
@@ -145,120 +146,112 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-[#f9fafb] p-4">
+      <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="text-center">
-          <img src="/logo.svg" alt="PaperBook" className="h-16 w-16 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold">PaperBook</h1>
-          <p className="text-muted-foreground mt-1">School Management System</p>
+        <div className="flex flex-col items-center mb-8">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white mb-4">
+            <BookOpen className="h-5 w-5" />
+          </div>
+          <h1 className="text-xl font-semibold text-gray-900">Sign in to PaperBook</h1>
+          <p className="text-sm text-gray-500 mt-1">Enter your credentials to access your account</p>
         </div>
 
         {/* Login Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome back</CardTitle>
-            <CardDescription>Sign in to your account to continue</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/20 rounded-md">
-                  {error}
-                </div>
-              )}
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+          <form onSubmit={handleLogin} className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-100">
+                {error}
+              </div>
+            )}
 
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@paperbook.in"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="admin@paperbook.in"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-colors"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 pr-10 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-colors"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign in'}
-              </Button>
-            </form>
-
-            {/* Demo Accounts */}
-            <div className="mt-6 pt-6 border-t">
-              <p className="text-sm text-muted-foreground text-center mb-3">
-                Quick demo login
-              </p>
-
-              {/* Staff Accounts */}
-              <p className="text-xs text-muted-foreground mb-2">Staff</p>
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                {staffAccounts.map((account) => (
-                  <Button
-                    key={account.role}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => handleDemoLogin(account)}
-                  >
-                    {account.label}
-                  </Button>
-                ))}
-              </div>
-
-              {/* Student & Parent Accounts */}
-              <p className="text-xs text-muted-foreground mb-2">Student / Parent</p>
-              <div className="grid grid-cols-2 gap-2">
-                {userAccounts.map((account) => (
-                  <Button
-                    key={account.role}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => handleDemoLogin(account)}
-                  >
-                    {account.label}
-                  </Button>
-                ))}
+                <button
+                  type="button"
+                  className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        <p className="text-center text-sm text-muted-foreground">
-          {USE_MOCK_API ? 'Demo mode - No real authentication required' : 'Password: demo123'}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Signing in...' : 'Continue'}
+            </button>
+          </form>
+        </div>
+
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-[#f9fafb] px-3 text-gray-400 uppercase tracking-wide">or</span>
+          </div>
+        </div>
+
+        {/* Demo Accounts */}
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-400 mb-3">
+            Demo Accounts
+          </p>
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden divide-y divide-gray-100">
+            {demoAccounts.map((account) => (
+              <button
+                key={account.role}
+                type="button"
+                onClick={() => handleDemoLogin(account)}
+                className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-sm font-medium text-gray-700">{account.label}</span>
+                <span className="text-xs text-gray-400">{account.email}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer hint */}
+        <p className="text-center text-xs text-gray-400 mt-6">
+          {USE_MOCK_API ? 'Demo mode -- no real authentication required' : 'Password: demo123'}
         </p>
       </div>
     </div>

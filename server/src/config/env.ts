@@ -15,6 +15,13 @@ export const env = {
   JWT_ACCESS_EXPIRY: process.env.JWT_ACCESS_EXPIRY || '15m',
   JWT_REFRESH_EXPIRY: process.env.JWT_REFRESH_EXPIRY || '7d',
 
+  // AI / LLM
+  LLM_PROVIDER: process.env.LLM_PROVIDER || 'ollama',
+  OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+  OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'qwen2.5:14b',
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
+
   // Server
   PORT: parseInt(process.env.PORT || '3001', 10),
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',

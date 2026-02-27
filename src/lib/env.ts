@@ -10,7 +10,7 @@ const envSchema = z.object({
     .string()
     .url('VITE_API_URL must be a valid URL')
     .optional()
-    .default('http://localhost:3001/api'),
+    .default('http://localhost:3002/api'),
 
   // Feature Flags
   VITE_ENABLE_MSW: z

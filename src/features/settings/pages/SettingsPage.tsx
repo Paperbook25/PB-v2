@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import { Settings, MessageSquare, Plug } from 'lucide-react'
+import { Settings, MessageSquare, Plug, Blocks, Shield } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useAuthStore } from '@/stores/useAuthStore'
@@ -15,6 +15,8 @@ import { AcademicCalendar } from '../components/AcademicCalendar'
 import { EmailTemplateManager } from '../components/EmailTemplateManager'
 import { CommunicationSection } from '../components/CommunicationSection'
 import { IntegrationsSection } from '../components/IntegrationsSection'
+import { AddonManager } from '../components/AddonManager'
+import { RolePermissionsManager } from '../components/RolePermissionsManager'
 import type { SettingsSection, GeneralTab, CommunicationTab, IntegrationsTab } from '../types/settings.types'
 
 export function SettingsPage() {
@@ -29,10 +31,14 @@ export function SettingsPage() {
   const canAccessGeneral = hasRole(['admin', 'principal'])
   const canAccessCommunication = hasRole(['admin', 'principal', 'teacher'])
   const canAccessIntegrations = hasRole(['admin', 'principal'])
+  const canAccessModules = hasRole(['admin'])
+  const canAccessPermissions = hasRole(['admin', 'principal'])
 
   // Define visible sections based on role
   const sections = [
     { value: 'general', label: 'General', icon: Settings, visible: canAccessGeneral },
+    { value: 'permissions', label: 'Permissions', icon: Shield, visible: canAccessPermissions },
+    { value: 'modules', label: 'Modules', icon: Blocks, visible: canAccessModules },
     { value: 'communication', label: 'Communication', icon: MessageSquare, visible: canAccessCommunication },
     { value: 'integrations', label: 'Integrations', icon: Plug, visible: canAccessIntegrations },
   ].filter(s => s.visible)
@@ -96,6 +102,20 @@ export function SettingsPage() {
               </TabsContent>
             )}
 
+            {/* Permissions Section */}
+            {canAccessPermissions && (
+              <TabsContent value="permissions" className="mt-0">
+                <RolePermissionsManager />
+              </TabsContent>
+            )}
+
+            {/* Modules Section */}
+            {canAccessModules && (
+              <TabsContent value="modules" className="mt-0">
+                <AddonManager />
+              </TabsContent>
+            )}
+
             {/* Communication Section */}
             {canAccessCommunication && (
               <TabsContent value="communication" className="mt-0">
@@ -118,6 +138,12 @@ export function SettingsPage() {
         <div className="mt-6">
           {effectiveTab === 'general' && canAccessGeneral && (
             <GeneralSection activeTab={generalSubTab} onTabChange={handleGeneralTabChange} />
+          )}
+          {effectiveTab === 'permissions' && canAccessPermissions && (
+            <RolePermissionsManager />
+          )}
+          {effectiveTab === 'modules' && canAccessModules && (
+            <AddonManager />
           )}
           {effectiveTab === 'communication' && canAccessCommunication && (
             <CommunicationSection activeTab={communicationSubTab} onTabChange={handleCommunicationTabChange} />

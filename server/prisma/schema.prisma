@@ -169,6 +169,8 @@ model SchoolProfile {
   createdAt         DateTime         @default(now()) @map("created_at")
   updatedAt         DateTime         @updatedAt @map("updated_at")
 
+  schoolAddons SchoolAddon[]
+
   @@map("school_profiles")
 }
 
@@ -2059,4 +2061,139 @@ model OnlineExamAttempt {
   @@index([examId])
   @@index([studentId])
   @@map("online_exam_attempts")
+}
+
+// ============================================================================
+// Addon / License System
+// ============================================================================
+
+model Addon {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  name        String
+  description String?
+  icon        String?  // lucide icon name
+  category    String   @default("general") // academic, operations, communication, extras
+  isCore      Boolean  @default(false) @map("is_core") // core modules can't be disabled
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  schoolAddons SchoolAddon[]
+
+  @@index([category])
+  @@index([slug])
+  @@map("addons")
+}
+
+model SchoolAddon {
+  id        String   @id @default(uuid())
+  schoolId  String   @map("school_id")
+  addonId   String   @map("addon_id")
+  enabled   Boolean  @default(true)
+  enabledAt DateTime @default(now()) @map("enabled_at")
+  enabledBy String?  @map("enabled_by")
+
+  school SchoolProfile @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  addon  Addon         @relation(fields: [addonId], references: [id], onDelete: Cascade)
+
+  @@unique([schoolId, addonId])
+  @@index([schoolId])
+  @@map("school_addons")
+}
+
+// ============================================================================
+// RBAC - Permissions
+// ============================================================================
+
+model Permission {
+  id          String   @id @default(uuid())
+  slug        String   @unique  // e.g., "students.view", "students.create", "finance.approve"
+  name        String             // e.g., "View Students"
+  description String?
+  module      String             // e.g., "students", "finance", "attendance"
+  action      String             // e.g., "view", "create", "edit", "delete", "approve", "export"
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  rolePermissions RolePermission[]
+
+  @@index([module])
+  @@index([slug])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String   @id @default(uuid())
+  role         Role     // uses the existing Role enum
+  permissionId String   @map("permission_id")
+  granted      Boolean  @default(true)
+  grantedBy    String?  @map("granted_by")
+  grantedAt    DateTime @default(now()) @map("granted_at")
+
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+  @@index([role])
+  @@map("role_permissions")
+}
+
+// ============================================================================
+// School Website Builder
+// ============================================================================
+
+model WebsitePage {
+  id          String   @id @default(uuid())
+  slug        String   @unique               // "home", "about", "admissions", "contact"
+  title       String
+  isPublished Boolean  @default(false) @map("is_published")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  sections WebsiteSection[]
+  @@map("website_pages")
+}
+
+model WebsiteSection {
+  id        String   @id @default(uuid())
+  pageId    String   @map("page_id")
+  type      String                           // "hero","about","gallery","testimonials","events","admissions","faculty","news","contact","stats","custom_html"
+  title     String?
+  content   Json                             // section-type-specific data
+  sortOrder Int      @default(0) @map("sort_order")
+  isVisible Boolean  @default(true) @map("is_visible")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  page WebsitePage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  @@map("website_sections")
+}
+
+model WebsiteSettings {
+  id              String   @id @default(uuid())
+  template        String   @default("classic")  // "classic", "modern", "minimal"
+  primaryColor    String   @default("#1e40af") @map("primary_color")
+  accentColor     String   @default("#f59e0b") @map("accent_color")
+  fontFamily      String   @default("Inter") @map("font_family")
+  customDomain    String?  @map("custom_domain")
+  metaTitle       String?  @map("meta_title")
+  metaDescription String?  @map("meta_description")
+  socialLinks     Json     @default("{}") @map("social_links")
+  headerHtml      String?  @db.Text @map("header_html")
+  footerHtml      String?  @db.Text @map("footer_html")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  @@map("website_settings")
+}
+
+model WebsiteMedia {
+  id        String   @id @default(uuid())
+  fileName  String   @map("file_name")
+  url       String   @db.Text                 // base64 data URL or external URL
+  mimeType  String?  @map("mime_type")
+  fileSize  Int?     @map("file_size")
+  altText   String?  @map("alt_text")
+  createdAt DateTime @default(now()) @map("created_at")
+  @@map("website_media")
 }

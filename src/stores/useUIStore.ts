@@ -9,6 +9,7 @@ interface UIState {
   sidebarMobileOpen: boolean
   theme: Theme
   commandPaletteOpen: boolean
+  agentChatOpen: boolean
 
   toggleSidebar: () => void
   setSidebarCollapsed: (collapsed: boolean) => void
@@ -17,6 +18,9 @@ interface UIState {
   openCommandPalette: () => void
   closeCommandPalette: () => void
   toggleCommandPalette: () => void
+  openAgentChat: () => void
+  closeAgentChat: () => void
+  toggleAgentChat: () => void
 }
 
 export const useUIStore = create<UIState>()(
@@ -26,6 +30,7 @@ export const useUIStore = create<UIState>()(
       sidebarMobileOpen: false,
       theme: 'light',
       commandPaletteOpen: false,
+      agentChatOpen: false,
 
       toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
@@ -44,6 +49,9 @@ export const useUIStore = create<UIState>()(
       openCommandPalette: () => set({ commandPaletteOpen: true }),
       closeCommandPalette: () => set({ commandPaletteOpen: false }),
       toggleCommandPalette: () => set((state) => ({ commandPaletteOpen: !state.commandPaletteOpen })),
+      openAgentChat: () => set({ agentChatOpen: true }),
+      closeAgentChat: () => set({ agentChatOpen: false }),
+      toggleAgentChat: () => set((state) => ({ agentChatOpen: !state.agentChatOpen })),
     }),
     {
       name: 'paperbook-ui',
@@ -60,6 +68,7 @@ export const useSidebarCollapsed = () => useUIStore((state) => state.sidebarColl
 export const useSidebarMobileOpen = () => useUIStore((state) => state.sidebarMobileOpen)
 export const useTheme = () => useUIStore((state) => state.theme)
 export const useCommandPaletteOpen = () => useUIStore((state) => state.commandPaletteOpen)
+export const useAgentChatOpen = () => useUIStore((state) => state.agentChatOpen)
 export const useUIActions = () =>
   useUIStore(
     useShallow((state) => ({
@@ -70,5 +79,8 @@ export const useUIActions = () =>
       openCommandPalette: state.openCommandPalette,
       closeCommandPalette: state.closeCommandPalette,
       toggleCommandPalette: state.toggleCommandPalette,
+      openAgentChat: state.openAgentChat,
+      closeAgentChat: state.closeAgentChat,
+      toggleAgentChat: state.toggleAgentChat,
     }))
   )

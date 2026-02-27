@@ -201,7 +201,12 @@ async function main() {
   await prisma.notificationPreference.deleteMany()
   await prisma.backupConfig.deleteMany()
   await prisma.themeConfig.deleteMany()
+  await prisma.schoolAddon.deleteMany()
+  await prisma.addon.deleteMany()
   await prisma.schoolProfile.deleteMany()
+  // RBAC permission tables
+  await prisma.rolePermission.deleteMany()
+  await prisma.permission.deleteMany()
   // Phase 1 tables
   await prisma.auditLog.deleteMany()
   await prisma.passwordReset.deleteMany()
@@ -1608,6 +1613,29 @@ async function main() {
       },
     })
   }
+
+  // Seed addons
+  const { seedAddons } = await import('../../src/services/addon.service.js')
+  await seedAddons()
+
+  // Enable all addons for the school by default
+  const school = await prisma.schoolProfile.findFirst()
+  if (school) {
+    const addons = await prisma.addon.findMany()
+    for (const addon of addons) {
+      await prisma.schoolAddon.upsert({
+        where: { schoolId_addonId: { schoolId: school.id, addonId: addon.id } },
+        update: { enabled: true },
+        create: { schoolId: school.id, addonId: addon.id, enabled: true, enabledBy: 'seed' },
+      })
+    }
+  }
+  console.log('[Seed] Created addons and enabled all for school')
+
+  // Seed RBAC permissions
+  const { seedPermissions } = await import('../../src/services/permission.service.js')
+  await seedPermissions()
+  console.log('[Seed] Created permissions and default role assignments')
 
   console.log('\n[Seed] Complete!')
   console.log(`  - ${seedUsers.length} users`)

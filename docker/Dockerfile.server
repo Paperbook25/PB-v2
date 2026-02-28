@@ -1,0 +1,77 @@
+# =============================================================================
+# Paperbook Server — multi-stage Dockerfile
+# =============================================================================
+# Stage 1: Install dependencies
+# Stage 2: Development (tsx watch) or Production (node dist/)
+# =============================================================================
+
+# ---------- Base ----------
+FROM node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+# ---------- Dependencies ----------
+FROM base AS deps
+
+# Copy workspace config
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY turbo.json ./
+
+# Copy all package.json files for workspace resolution
+COPY apps/server/package.json ./apps/server/
+COPY apps/school/package.json ./apps/school/
+COPY apps/admin/package.json ./apps/admin/
+COPY apps/mobile/package.json ./apps/mobile/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/tsconfig/package.json ./packages/tsconfig/
+
+# Install all dependencies
+RUN pnpm install --frozen-lockfile
+
+# ---------- Build shared packages ----------
+FROM deps AS builder
+
+# Copy source code
+COPY packages/ ./packages/
+COPY apps/server/ ./apps/server/
+
+# Generate Prisma client
+RUN pnpm --filter @paperbook/server db:generate
+
+# Build TypeScript (server + shared packages)
+RUN pnpm --filter @paperbook/server build
+
+# ---------- Development ----------
+FROM deps AS development
+
+# Copy all source code
+COPY packages/ ./packages/
+COPY apps/server/ ./apps/server/
+
+# Generate Prisma client
+RUN pnpm --filter @paperbook/server db:generate
+
+EXPOSE 3001
+
+# Run with tsx watch for hot-reload
+CMD ["pnpm", "--filter", "@paperbook/server", "dev"]
+
+# ---------- Production ----------
+FROM base AS production
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/server/node_modules ./apps/server/node_modules
+COPY --from=builder /app/apps/server/dist ./apps/server/dist
+COPY --from=builder /app/apps/server/prisma ./apps/server/prisma
+COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
+COPY --from=builder /app/packages/ ./packages/
+
+# Re-generate Prisma client for the production stage
+COPY --from=deps /app/apps/server/node_modules/.prisma ./apps/server/node_modules/.prisma
+
+WORKDIR /app/apps/server
+EXPOSE 3001
+
+CMD ["node", "dist/index.js"]

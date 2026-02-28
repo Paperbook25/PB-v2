@@ -1,0 +1,610 @@
+@import "tailwindcss";
+
+@theme {
+  /* ============================================
+     COLOR SYSTEM - WorkOS-style clean palette
+     ============================================ */
+
+  /* Primary - Indigo accent */
+  --color-primary: #6366f1;
+  --color-primary-foreground: #ffffff;
+  --color-primary-light: #eef2ff;
+
+  /* Secondary - Light grey */
+  --color-secondary: #f3f4f6;
+  --color-secondary-foreground: #374151;
+
+  /* Accent - Very light indigo for hover states */
+  --color-accent: #eef2ff;
+  --color-accent-foreground: #4338ca;
+
+  /* Semantic Colors */
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f59e0b;
+  --color-warning-foreground: #1f2937;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-info-foreground: #ffffff;
+
+  /* Background & Surface */
+  --color-background: #f9fafb;
+  --color-foreground: #111827;
+  --color-card: #ffffff;
+  --color-card-foreground: #111827;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #111827;
+  --color-muted: #f3f4f6;
+  --color-muted-foreground: #6b7280;
+
+  /* Border & Input */
+  --color-border: #e5e7eb;
+  --color-input: #e5e7eb;
+  --color-ring: #6366f1;
+
+  /* Sidebar - Light grey (WorkOS style) */
+  --color-sidebar: #f8f9fa;
+  --color-sidebar-foreground: #374151;
+  --color-sidebar-accent: #eef2ff;
+  --color-sidebar-accent-foreground: #4338ca;
+  --color-sidebar-border: #e5e7eb;
+  --color-sidebar-muted: #6b7280;
+
+  /* Module Colors - Primary */
+  --color-module-academic: #6d28d9;
+  --color-module-students: #6d28d9;
+  --color-module-staff: #4f46e5;
+  --color-module-admissions: #4f46e5;
+  --color-module-finance: #f59e0b;
+  --color-module-attendance: #10b981;
+  --color-module-lms: #10b981;
+  --color-module-library: #0d9488;
+  --color-module-operations: #0d9488;
+  --color-module-exams: #e11d48;
+  --color-module-transport: #f97316;
+  --color-module-behavior: #f97316;
+  --color-module-communication: #0ea5e9;
+  --color-module-reports: #0ea5e9;
+  --color-module-parent-portal: #ec4899;
+  --color-module-hostel: #64748b;
+  --color-module-inventory: #64748b;
+  --color-module-alumni: #06b6d4;
+  --color-module-documents: #78716c;
+  --color-module-settings: #78716c;
+  --color-module-visitors: #84cc16;
+  --color-module-integrations: #8b5cf6;
+  --color-module-timetable: #8b5cf6;
+  --color-module-management: #8b5cf6;
+  --color-module-dashboard: #6366f1;
+  --color-module-people: #6d28d9;
+
+  /* Status Colors */
+  --color-status-success: #22c55e;
+  --color-status-success-light: #dcfce7;
+  --color-status-warning: #f59e0b;
+  --color-status-warning-light: #fef3c7;
+  --color-status-error: #ef4444;
+  --color-status-error-light: #fee2e2;
+  --color-status-info: #3b82f6;
+  --color-status-info-light: #dbeafe;
+  --color-status-pending: #f59e0b;
+  --color-status-pending-light: #fef9c3;
+  --color-status-maintenance: #eab308;
+  --color-status-maintenance-light: #fef9c3;
+  --color-status-overdue: #dc2626;
+  --color-status-overdue-light: #fee2e2;
+  --color-status-inactive: #6b7280;
+  --color-status-inactive-light: #f3f4f6;
+
+  /* Chart Colors */
+  --color-chart-1: #6366f1;
+  --color-chart-2: #22c55e;
+  --color-chart-3: #f59e0b;
+  --color-chart-4: #ec4899;
+  --color-chart-5: #06b6d4;
+  --color-chart-6: #3b82f6;
+  --color-chart-7: #f97316;
+  --color-chart-8: #8b5cf6;
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+.dark {
+  --color-background: #0f1117;
+  --color-foreground: #f9fafb;
+  --color-card: #1a1d27;
+  --color-card-foreground: #f9fafb;
+  --color-popover: #1a1d27;
+  --color-popover-foreground: #f9fafb;
+  --color-primary: #818cf8;
+  --color-primary-foreground: #ffffff;
+  --color-primary-light: rgba(129, 140, 248, 0.15);
+  --color-secondary: #1e2130;
+  --color-secondary-foreground: #d1d5db;
+  --color-muted: #1e2130;
+  --color-muted-foreground: #9ca3af;
+  --color-accent: #1e1b4b;
+  --color-accent-foreground: #a5b4fc;
+  --color-border: #2d3148;
+  --color-input: #2d3148;
+  --color-ring: #818cf8;
+  --color-destructive: #ef4444;
+  --color-info: #60a5fa;
+
+  /* Sidebar - Dark */
+  --color-sidebar: #141720;
+  --color-sidebar-foreground: #d1d5db;
+  --color-sidebar-border: #2d3148;
+  --color-sidebar-accent: #1e1b4b;
+  --color-sidebar-accent-foreground: #a5b4fc;
+  --color-sidebar-muted: #6b7280;
+
+  /* Dark mode status light variants */
+  --color-status-success-light: rgba(34, 197, 94, 0.15);
+  --color-status-warning-light: rgba(245, 158, 11, 0.15);
+  --color-status-error-light: rgba(239, 68, 68, 0.15);
+  --color-status-info-light: rgba(59, 130, 246, 0.15);
+  --color-status-pending-light: rgba(245, 158, 11, 0.15);
+  --color-status-maintenance-light: rgba(234, 179, 8, 0.15);
+  --color-status-overdue-light: rgba(220, 38, 38, 0.15);
+  --color-status-inactive-light: rgba(107, 114, 128, 0.15);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* ============================================
+   ANIMATIONS - Minimal, professional
+   ============================================ */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fade-in 0.15s ease-out;
+}
+
+.animate-pulse-live {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+.animate-spinner {
+  animation: spinner 0.6s linear infinite;
+}
+
+/* ============================================
+   STAT CARD - Clean, flat style
+   ============================================ */
+
+.stat-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  border-top-width: 3px;
+}
+
+/* Color variants for top border */
+.stat-card-primary { border-top-color: var(--color-module-students); }
+.stat-card-success { border-top-color: var(--color-module-attendance); }
+.stat-card-warning { border-top-color: var(--color-module-finance); }
+.stat-card-danger { border-top-color: var(--color-module-exams); }
+.stat-card-info { border-top-color: var(--color-module-communication); }
+.stat-card-purple { border-top-color: #a855f7; }
+.stat-card-orange { border-top-color: #f97316; }
+.stat-card-cyan { border-top-color: #06b6d4; }
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  color: var(--color-muted-foreground);
+  margin-top: 0.25rem;
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+
+.progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-muted);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--color-primary);
+  transition: width 0.4s ease;
+}
+
+/* ============================================
+   TREND INDICATORS
+   ============================================ */
+
+.trend-up {
+  color: #22c55e;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.trend-down {
+  color: #ef4444;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ============================================
+   ICON CONTAINERS
+   ============================================ */
+
+.icon-box {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-box-sm {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 4px;
+}
+
+.icon-box-lg {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 8px;
+}
+
+/* ============================================
+   CHART TOOLTIP
+   ============================================ */
+
+.chart-tooltip {
+  background: #ffffff !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.8125rem !important;
+}
+
+.dark .chart-tooltip {
+  background: #1a1d27 !important;
+}
+
+/* ============================================
+   SECTION HEADERS
+   ============================================ */
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.section-header-bar {
+  height: 3px;
+  width: 1.5rem;
+  border-radius: 2px;
+}
+
+.section-header-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+/* Section label - WorkOS style small caps label */
+.section-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted-foreground);
+  padding: 0.5rem 0.75rem;
+}
+
+/* ============================================
+   WORKOS-STYLE TABLE
+   ============================================ */
+
+.workos-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.workos-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--color-muted-foreground);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-muted);
+}
+
+.workos-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.875rem;
+}
+
+.workos-table tr:hover {
+  background-color: var(--color-muted);
+}
+
+.workos-table tr:hover td {
+  background-color: var(--color-muted);
+}
+
+/* ============================================
+   STATUS DOTS
+   ============================================ */
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot-active {
+  background-color: #22c55e;
+}
+
+.status-dot-inactive {
+  background-color: #9ca3af;
+}
+
+.status-dot-error {
+  background-color: #ef4444;
+}
+
+.status-dot-warning {
+  background-color: #f59e0b;
+}
+
+.status-dot-info {
+  background-color: #6366f1;
+}
+
+.status-dot-pending {
+  background-color: #f59e0b;
+}
+
+/* ============================================
+   QUICK ACTION BUTTONS - Simplified
+   ============================================ */
+
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.quick-action:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-accent);
+}
+
+.quick-action-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.quick-action-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  color: var(--color-foreground);
+}
+
+/* ============================================
+   BENTO / MODULE CARD - Simplified
+   ============================================ */
+
+.bento-card {
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  transition: border-color 0.15s ease;
+}
+
+.bento-card:hover {
+  border-color: var(--color-primary);
+}
+
+.bento-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+/* ============================================
+   FEE BENTO GRID
+   ============================================ */
+
+.fee-bento-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .fee-bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .fee-bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   TRANSACTION LIST - Simplified
+   ============================================ */
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.transaction-item:hover {
+  background-color: var(--color-muted);
+}
+
+/* ============================================
+   QUICK STATS - Simplified
+   ============================================ */
+
+.quick-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.quick-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+.quick-stat-label {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  margin-top: 0.125rem;
+}
+
+/* ============================================
+   METRIC CARD - Clean, no overlays
+   ============================================ */
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

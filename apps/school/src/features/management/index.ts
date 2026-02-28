@@ -1,0 +1,5 @@
+export { ManagementPage } from './pages/ManagementPage'
+export { ScheduleSection } from './components/ScheduleSection'
+export { DocsSection } from './components/DocsSection'
+export { AlumniSection } from './components/AlumniSection'
+export * from './types/management.types'

@@ -1,0 +1,17 @@
+{
+  "name": "@paperbook/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./security": "./src/security.ts"
+  },
+  "devDependencies": {
+    "@paperbook/tsconfig": "workspace:*",
+    "typescript": "~5.6.2"
+  },
+  "dependencies": {
+    "zustand": "^5.0.2"
+  }
+}

@@ -1,9 +1,11 @@
-# Dependencies
+# Dependencies (installed in container)
 node_modules
+**/node_modules
 
-# Build output
+# Build output (built in container)
 dist
 build
+.turbo
 
 # Git
 .git
@@ -26,20 +28,24 @@ coverage
 *.md
 !README.md
 
-# Environment files
+# Environment files (secrets — never copy into image)
 .env
 .env.*
 !.env.example
+apps/server/.env
 
 # Logs
 *.log
 npm-debug.log*
+pnpm-debug.log*
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Docker files (not needed in container)
-Dockerfile*
+# Docker files
 docker-compose*.yml
 .dockerignore
+
+# Claude config
+.claude/

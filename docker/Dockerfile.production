@@ -1,0 +1,79 @@
+# =============================================================================
+# Paperbook — Production Dockerfile (single container)
+# =============================================================================
+# Builds both frontends (school + admin) as static assets, then serves them
+# alongside the Express API from a single container.
+#
+# Usage:
+#   docker build -f docker/Dockerfile.production -t paperbook .
+#   docker run -p 3001:3001 -e DATABASE_URL=... paperbook
+# =============================================================================
+
+# ---------- Base ----------
+FROM node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+# ---------- Dependencies ----------
+FROM base AS deps
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
+COPY apps/server/package.json ./apps/server/
+COPY apps/school/package.json ./apps/school/
+COPY apps/admin/package.json ./apps/admin/
+COPY apps/mobile/package.json ./apps/mobile/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/tsconfig/package.json ./packages/tsconfig/
+
+RUN pnpm install --frozen-lockfile
+
+# ---------- Build everything ----------
+FROM deps AS builder
+
+COPY . .
+
+# Generate Prisma client
+RUN pnpm --filter @paperbook/server db:generate
+
+# Build all packages and apps in dependency order
+RUN pnpm build
+
+# ---------- Production runtime ----------
+FROM node:20-alpine AS production
+
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+# Copy only what's needed for production
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/pnpm-workspace.yaml ./
+
+# Server runtime
+COPY --from=builder /app/apps/server/dist ./apps/server/dist
+COPY --from=builder /app/apps/server/prisma ./apps/server/prisma
+COPY --from=builder /app/apps/server/package.json ./apps/server/
+COPY --from=builder /app/apps/server/node_modules ./apps/server/node_modules
+
+# Built frontend assets (served by Express in production)
+COPY --from=builder /app/apps/school/dist ./apps/server/client-dist
+COPY --from=builder /app/apps/admin/dist ./apps/server/admin-dist
+
+# Shared packages
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/
+
+# Security: run as non-root
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -S appuser -u 1001 -G appgroup
+USER appuser
+
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+
+WORKDIR /app/apps/server
+CMD ["node", "dist/index.js"]

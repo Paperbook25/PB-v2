@@ -1,0 +1,36 @@
+# =============================================================================
+# Paperbook Admin Portal — Dockerfile
+# =============================================================================
+# Runs the Vite dev server for local development.
+# For production, build the static assets and serve via Nginx/CDN instead.
+# =============================================================================
+
+FROM node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+# Copy workspace config
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY turbo.json ./
+
+# Copy all package.json files for workspace resolution
+COPY apps/server/package.json ./apps/server/
+COPY apps/school/package.json ./apps/school/
+COPY apps/admin/package.json ./apps/admin/
+COPY apps/mobile/package.json ./apps/mobile/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/api-client/package.json ./packages/api-client/
+COPY packages/tsconfig/package.json ./packages/tsconfig/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source
+COPY packages/ ./packages/
+COPY apps/admin/ ./apps/admin/
+
+EXPOSE 5174
+
+# Vite dev server — bound to 0.0.0.0 so Docker can expose it
+CMD ["pnpm", "--filter", "@paperbook/admin", "dev", "--", "--host", "0.0.0.0"]

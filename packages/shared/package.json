@@ -1,0 +1,17 @@
+{
+  "name": "@paperbook/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./types": "./src/types/index.ts",
+    "./validators": "./src/validators/index.ts"
+  },
+  "devDependencies": {
+    "@paperbook/tsconfig": "workspace:*",
+    "typescript": "~5.6.2"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  }
+}

@@ -20,14 +20,12 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  LayoutDashboard,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -1132,35 +1130,10 @@ function DetentionsSubTab() {
 // ============================================
 export function BehaviorTab({ subTab, onSubTabChange }: BehaviorTabProps) {
   return (
-    <Tabs value={subTab} onValueChange={(v) => onSubTabChange(v as BehaviorSubTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full gap-1">
-        <TabsTrigger variant="secondary" value="dashboard" className="flex items-center gap-2">
-          <LayoutDashboard className="h-4 w-4 hidden sm:block" />
-          Dashboard
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="incidents" className="flex items-center gap-2">
-          <FileWarning className="h-4 w-4 hidden sm:block" />
-          Incidents
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="detentions" className="flex items-center gap-2">
-          <Clock className="h-4 w-4 hidden sm:block" />
-          Detentions
-        </TabsTrigger>
-      </TabsList>
-
-      <div className="mt-6">
-        <TabsContent value="dashboard" className="mt-0">
-          <DashboardSubTab />
-        </TabsContent>
-
-        <TabsContent value="incidents" className="mt-0">
-          <IncidentsSubTab />
-        </TabsContent>
-
-        <TabsContent value="detentions" className="mt-0">
-          <DetentionsSubTab />
-        </TabsContent>
-      </div>
-    </Tabs>
+    <div className="space-y-4">
+      {subTab === 'dashboard' && <DashboardSubTab />}
+      {subTab === 'incidents' && <IncidentsSubTab />}
+      {subTab === 'detentions' && <DetentionsSubTab />}
+    </div>
   )
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { FolderPlus, Upload, Star, Archive, Clock } from 'lucide-react'
+import { FolderPlus, Upload } from 'lucide-react'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { DocumentStatsCards } from '@/features/documents/components/DocumentStatsCards'
 import { DocumentBrowser } from '@/features/documents/components/DocumentBrowser'
@@ -28,22 +27,7 @@ export function DocsSection({ activeTab, onTabChange }: DocsSectionProps) {
   const [moveDocument, setMoveDocument] = useState<Document | null>(null)
 
   return (
-    <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as DocsTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
-        <TabsTrigger variant="secondary" value="browse" className="flex items-center gap-2">
-          <Archive className="h-4 w-4" />
-          Browse
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="starred" className="flex items-center gap-2">
-          <Star className="h-4 w-4" />
-          Starred
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="recent" className="flex items-center gap-2">
-          <Clock className="h-4 w-4" />
-          Recent Activity
-        </TabsTrigger>
-      </TabsList>
-
+    <>
       <div className="mt-6 space-y-6">
         {/* Action buttons */}
         {canManageDocuments && (
@@ -61,27 +45,25 @@ export function DocsSection({ activeTab, onTabChange }: DocsSectionProps) {
 
         <DocumentStatsCards />
 
-        <TabsContent value="browse" className="mt-0">
+        {activeTab === 'browse' && (
           <DocumentBrowser
             currentFolderId={currentFolderId}
             onFolderOpen={setCurrentFolderId}
             onEdit={setEditDocument}
             onMove={setMoveDocument}
           />
-        </TabsContent>
+        )}
 
-        <TabsContent value="starred" className="mt-0">
+        {activeTab === 'starred' && (
           <DocumentBrowser
             currentFolderId={undefined}
             onFolderOpen={setCurrentFolderId}
             onEdit={setEditDocument}
             onMove={setMoveDocument}
           />
-        </TabsContent>
+        )}
 
-        <TabsContent value="recent" className="mt-0">
-          <DocumentActivityList limit={50} />
-        </TabsContent>
+        {activeTab === 'recent' && <DocumentActivityList limit={50} />}
       </div>
 
       {/* Dialogs */}
@@ -108,6 +90,6 @@ export function DocsSection({ activeTab, onTabChange }: DocsSectionProps) {
         onOpenChange={(open) => !open && setMoveDocument(null)}
         document={moveDocument}
       />
-    </Tabs>
+    </>
   )
 }

@@ -4,7 +4,6 @@ import { Plus, FileSpreadsheet, ClipboardList, Settings, Download, Eye, CheckCir
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -138,31 +137,9 @@ export function ExamsPage() {
         }
       />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="list" className="flex items-center gap-2">
-            <ClipboardList className="h-4 w-4 hidden sm:block" />
-            All Exams
-          </TabsTrigger>
-          <TabsTrigger value="online" className="flex items-center gap-2">
-            <Monitor className="h-4 w-4 hidden sm:block" />
-            Online Exams
-          </TabsTrigger>
-          <TabsTrigger value="marks" className="flex items-center gap-2">
-            <FileSpreadsheet className="h-4 w-4 hidden sm:block" />
-            Marks Entry
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            Report Cards
-          </TabsTrigger>
-          <TabsTrigger value="grades" className="flex items-center gap-2">
-            <Settings className="h-4 w-4 hidden sm:block" />
-            Grades
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6">
-          <TabsContent value="list" className="mt-0 space-y-4">
+      <div className="mt-6">
+        {activeTab === 'list' && (
+          <div className="space-y-4">
             {/* Filters */}
             <div className="flex flex-wrap gap-4">
               <Input
@@ -273,9 +250,10 @@ export function ExamsPage() {
                 </div>
               </div>
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="online" className="mt-0">
+        {activeTab === 'online' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
@@ -316,10 +294,10 @@ export function ExamsPage() {
                 </div>
               )}
             </div>
-          </TabsContent>
+        )}
 
-          <TabsContent value="marks" className="mt-0">
-            {examsLoading ? (
+        {activeTab === 'marks' && (
+            examsLoading ? (
               <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <Skeleton key={i} className="h-24 w-full" />
@@ -373,11 +351,11 @@ export function ExamsPage() {
                   ))}
                 </div>
               </div>
-            )}
-          </TabsContent>
+            )
+        )}
 
-          <TabsContent value="reports" className="mt-0">
-            {examsLoading ? (
+        {activeTab === 'reports' && (
+            examsLoading ? (
               <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <Skeleton key={i} className="h-24 w-full" />
@@ -439,11 +417,11 @@ export function ExamsPage() {
                   ))}
                 </div>
               </div>
-            )}
-          </TabsContent>
+            )
+        )}
 
-          <TabsContent value="grades" className="mt-0">
-            {gradeScalesLoading ? (
+        {activeTab === 'grades' && (
+            gradeScalesLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-32 w-full" />
                 <Skeleton className="h-32 w-full" />
@@ -475,10 +453,9 @@ export function ExamsPage() {
                 isCreating={createGradeScale.isPending}
                 isUpdating={updateGradeScale.isPending}
               />
-            )}
-          </TabsContent>
-        </div>
-      </Tabs>
+            )
+        )}
+      </div>
     </div>
   )
 }

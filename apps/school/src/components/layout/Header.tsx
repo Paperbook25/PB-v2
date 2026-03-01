@@ -13,9 +13,10 @@ import {
 import { useUIStore } from '@/stores/useUIStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { getInitials } from '@/lib/utils'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { NotificationCenter } from './NotificationCenter'
 import { AppLauncher } from './AppLauncher'
+import { getModuleFromPath } from '@/config/module-nav'
 
 function roleBadgeLabel(role?: string): string {
   if (!role) return 'User'
@@ -36,6 +37,9 @@ export function Header() {
   const { theme, setTheme, setSidebarMobileOpen } = useUIStore()
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const activeModule = getModuleFromPath(location.pathname)
 
   const handleLogout = async () => {
     await signOut().catch(() => {})
@@ -65,17 +69,33 @@ export function Header() {
         {/* Separator */}
         <div className="hidden lg:block w-px h-4 bg-gray-200 dark:bg-gray-700" />
 
-        {/* Role badge */}
-        {user?.role && (
+        {/* Active module indicator OR role badge */}
+        {activeModule ? (
+          <div className="hidden lg:inline-flex items-center gap-1.5 rounded-md bg-indigo-50 dark:bg-indigo-500/15 px-2 py-0.5">
+            <activeModule.icon className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" strokeWidth={1.75} />
+            <span className="text-xs font-medium text-indigo-700 dark:text-indigo-300">
+              {activeModule.name}
+            </span>
+          </div>
+        ) : user?.role ? (
           <span className="hidden lg:inline-flex items-center rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400">
             {roleBadgeLabel(user.role)}
           </span>
-        )}
+        ) : null}
 
-        {/* Mobile brand */}
-        <span className="lg:hidden text-sm font-semibold text-gray-900 dark:text-gray-100">
-          PaperBook
-        </span>
+        {/* Mobile: module name or brand */}
+        {activeModule ? (
+          <div className="lg:hidden flex items-center gap-1.5">
+            <activeModule.icon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" strokeWidth={1.75} />
+            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              {activeModule.name}
+            </span>
+          </div>
+        ) : (
+          <span className="lg:hidden text-sm font-semibold text-gray-900 dark:text-gray-100">
+            PaperBook
+          </span>
+        )}
       </div>
 
       {/* Right side */}

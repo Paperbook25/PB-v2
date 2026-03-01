@@ -1338,7 +1338,7 @@ function QuestionBankTab() {
 // Main LmsMainPage Component
 // ============================================
 export function LmsMainPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { hasRole } = useAuthStore()
 
@@ -1347,10 +1347,6 @@ export function LmsMainPage() {
 
   // Check if user can see question bank tab
   const canSeeQuestionBank = hasRole(['admin', 'principal', 'teacher'])
-
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value })
-  }
 
   const getHeaderAction = () => {
     switch (activeTab) {
@@ -1376,64 +1372,19 @@ export function LmsMainPage() {
         moduleColor="lms"
       />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className={`grid w-full ${canSeeQuestionBank ? 'grid-cols-6' : 'grid-cols-5'}`}>
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 hidden sm:block" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="courses" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 hidden sm:block" />
-            Courses
-          </TabsTrigger>
-          <TabsTrigger value="live-classes" className="flex items-center gap-2">
-            <Video className="h-4 w-4 hidden sm:block" />
-            Live Classes
-          </TabsTrigger>
-          <TabsTrigger value="enrollments" className="flex items-center gap-2">
-            <Users className="h-4 w-4 hidden sm:block" />
-            Enrollments
-          </TabsTrigger>
-          <TabsTrigger value="assignments" className="flex items-center gap-2">
-            <Target className="h-4 w-4 hidden sm:block" />
-            Assignments
-          </TabsTrigger>
-          {canSeeQuestionBank && (
-            <TabsTrigger value="question-bank" className="flex items-center gap-2">
-              <FileUp className="h-4 w-4 hidden sm:block" />
-              Question Bank
-            </TabsTrigger>
-          )}
-        </TabsList>
+      <div className="mt-6">
+        {activeTab === 'dashboard' && <DashboardTab />}
 
-        <div className="mt-6">
-          <TabsContent value="dashboard" className="mt-0">
-            <DashboardTab />
-          </TabsContent>
+        {activeTab === 'courses' && <CoursesTab />}
 
-          <TabsContent value="courses" className="mt-0">
-            <CoursesTab />
-          </TabsContent>
+        {activeTab === 'live-classes' && <LiveClassesTab />}
 
-          <TabsContent value="live-classes" className="mt-0">
-            <LiveClassesTab />
-          </TabsContent>
+        {activeTab === 'enrollments' && <EnrollmentsTab />}
 
-          <TabsContent value="enrollments" className="mt-0">
-            <EnrollmentsTab />
-          </TabsContent>
+        {activeTab === 'assignments' && <AssignmentsTab />}
 
-          <TabsContent value="assignments" className="mt-0">
-            <AssignmentsTab />
-          </TabsContent>
-
-          {canSeeQuestionBank && (
-            <TabsContent value="question-bank" className="mt-0">
-              <QuestionBankTab />
-            </TabsContent>
-          )}
-        </div>
-      </Tabs>
+        {canSeeQuestionBank && activeTab === 'question-bank' && <QuestionBankTab />}
+      </div>
     </div>
   )
 }

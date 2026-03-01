@@ -1,5 +1,4 @@
 import { ReactNode, useEffect, useState } from 'react'
-import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { CommandPalette } from './CommandPalette'
 import { AgentChatDrawer } from './AgentChat/AgentChatDrawer'
@@ -10,12 +9,13 @@ import { apiGet } from '@/lib/api-client'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
-const SIDEBAR_WIDTH_EXPANDED = 220
+const SIDEBAR_WIDTH_EXPANDED = 240
 const SIDEBAR_WIDTH_COLLAPSED = 56
 const LG_BREAKPOINT = 1024
 
 interface AppShellProps {
   children: ReactNode
+  sidebar?: ReactNode
 }
 
 function useIsDesktop() {
@@ -74,7 +74,7 @@ function ImpersonationBanner() {
   )
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, sidebar }: AppShellProps) {
   const { theme } = useUIStore()
   const sidebarCollapsed = useSidebarCollapsed()
   const isDesktop = useIsDesktop()
@@ -132,7 +132,7 @@ export function AppShell({ children }: AppShellProps) {
         <ImpersonationBanner />
 
         {/* Sidebar */}
-        <Sidebar />
+        {sidebar}
 
         {/* Main content area - offset by sidebar width on desktop, full width on mobile */}
         <div

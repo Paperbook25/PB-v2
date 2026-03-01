@@ -20,8 +20,6 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  LayoutDashboard,
-  Shield,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,7 +27,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -1144,17 +1141,13 @@ function DetentionsTab() {
 // Main BehaviorMainPage Component
 // ============================================
 export function BehaviorMainPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { hasRole } = useAuthStore()
   const canManageBehavior = hasRole(['admin', 'principal', 'teacher'])
 
   // Primary tab
   const activeTab = (searchParams.get('tab') as PrimaryTab) || 'dashboard'
-
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value })
-  }
 
   const getHeaderActions = () => {
     if (!canManageBehavior) return undefined
@@ -1188,36 +1181,11 @@ export function BehaviorMainPage() {
         moduleColor="behavior"
       />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <LayoutDashboard className="h-4 w-4 hidden sm:block" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="incidents" className="flex items-center gap-2">
-            <FileWarning className="h-4 w-4 hidden sm:block" />
-            Incidents
-          </TabsTrigger>
-          <TabsTrigger value="detentions" className="flex items-center gap-2">
-            <Clock className="h-4 w-4 hidden sm:block" />
-            Detentions
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6">
-          <TabsContent value="dashboard" className="mt-0">
-            <DashboardTab />
-          </TabsContent>
-
-          <TabsContent value="incidents" className="mt-0">
-            <IncidentsTab />
-          </TabsContent>
-
-          <TabsContent value="detentions" className="mt-0">
-            <DetentionsTab />
-          </TabsContent>
-        </div>
-      </Tabs>
+      <div className="mt-6">
+        {activeTab === 'dashboard' && <DashboardTab />}
+        {activeTab === 'incidents' && <IncidentsTab />}
+        {activeTab === 'detentions' && <DetentionsTab />}
+      </div>
     </div>
   )
 }

@@ -7,13 +7,6 @@ import {
   FileText,
   Loader2,
   AlertCircle,
-  ClipboardCheck,
-  BarChart3,
-  CalendarDays,
-  AlertTriangle,
-  Bell,
-  Fingerprint,
-  Calendar,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -557,84 +549,14 @@ function LeaveManagementContent() {
 export function AttendanceTab({ subTab, onSubTabChange }: AttendanceTabProps) {
   return (
     <div className="space-y-4">
-      <Tabs value={subTab} onValueChange={(v) => onSubTabChange(v as AttendanceSubTab)}>
-        <TabsList variant="secondary" className="flex flex-wrap w-full gap-1">
-          <TabsTrigger variant="secondary" value="mark" className="flex items-center gap-1">
-            <ClipboardCheck className="h-4 w-4 hidden sm:block" />
-            <span className="hidden md:inline">Mark</span>
-            <span className="md:hidden">Mark</span>
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="period" className="flex items-center gap-1">
-            <Calendar className="h-4 w-4 hidden sm:block" />
-            <span className="hidden md:inline">Period</span>
-            <span className="md:hidden">Period</span>
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="reports" className="flex items-center gap-1">
-            <BarChart3 className="h-4 w-4 hidden sm:block" />
-            <span className="hidden md:inline">Reports</span>
-            <span className="md:hidden">Reports</span>
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="leave" className="flex items-center gap-1">
-            <CalendarDays className="h-4 w-4 hidden sm:block" />
-            <span className="hidden md:inline">Leave</span>
-            <span className="md:hidden">Leave</span>
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="alerts" className="flex items-center gap-1">
-            <AlertTriangle className="h-4 w-4 hidden sm:block" />
-            <span className="hidden md:inline">Alerts</span>
-            <span className="md:hidden">Alerts</span>
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="late" className="flex items-center gap-1">
-            <Clock className="h-4 w-4 hidden sm:block" />
-            <span className="hidden md:inline">Late</span>
-            <span className="md:hidden">Late</span>
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="notifications" className="flex items-center gap-1">
-            <Bell className="h-4 w-4 hidden sm:block" />
-            <span className="hidden md:inline">Notify</span>
-            <span className="md:hidden">Notify</span>
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="biometric" className="flex items-center gap-1">
-            <Fingerprint className="h-4 w-4 hidden sm:block" />
-            <span className="hidden md:inline">Biometric</span>
-            <span className="md:hidden">Bio</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6">
-          <TabsContent value="mark" className="mt-0">
-            <MarkAttendanceContent />
-          </TabsContent>
-
-          <TabsContent value="period" className="mt-0">
-            <PeriodAttendanceManager />
-          </TabsContent>
-
-          <TabsContent value="reports" className="mt-0">
-            <ReportsContent />
-          </TabsContent>
-
-          <TabsContent value="leave" className="mt-0">
-            <LeaveManagementContent />
-          </TabsContent>
-
-          <TabsContent value="alerts" className="mt-0">
-            <ShortageAlertManager />
-          </TabsContent>
-
-          <TabsContent value="late" className="mt-0">
-            <LateDetectionManager />
-          </TabsContent>
-
-          <TabsContent value="notifications" className="mt-0">
-            <NotificationManager />
-          </TabsContent>
-
-          <TabsContent value="biometric" className="mt-0">
-            <BiometricDeviceManager />
-          </TabsContent>
-        </div>
-      </Tabs>
+      {subTab === 'mark' && <MarkAttendanceContent />}
+      {subTab === 'period' && <PeriodAttendanceManager />}
+      {subTab === 'reports' && <ReportsContent />}
+      {subTab === 'leave' && <LeaveManagementContent />}
+      {subTab === 'alerts' && <ShortageAlertManager />}
+      {subTab === 'late' && <LateDetectionManager />}
+      {subTab === 'notifications' && <NotificationManager />}
+      {subTab === 'biometric' && <BiometricDeviceManager />}
     </div>
   )
 }

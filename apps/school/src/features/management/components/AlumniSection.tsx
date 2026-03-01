@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -93,52 +92,13 @@ interface AlumniSectionProps {
 
 export function AlumniSection({ activeTab, onTabChange }: AlumniSectionProps) {
   return (
-    <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as AlumniTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
-        <TabsTrigger variant="secondary" value="directory" className="flex items-center gap-2">
-          <Users className="h-4 w-4" />
-          Directory
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="batches" className="flex items-center gap-2">
-          <GraduationCap className="h-4 w-4" />
-          Batches
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="achievements" className="flex items-center gap-2">
-          <Trophy className="h-4 w-4" />
-          Achievements
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="contributions" className="flex items-center gap-2">
-          <Heart className="h-4 w-4" />
-          Contributions
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="events" className="flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
-          Events
-        </TabsTrigger>
-      </TabsList>
-
-      <div className="mt-6">
-        <TabsContent value="directory" className="mt-0">
-          <DirectoryTab />
-        </TabsContent>
-
-        <TabsContent value="batches" className="mt-0">
-          <BatchesTab />
-        </TabsContent>
-
-        <TabsContent value="achievements" className="mt-0">
-          <AchievementsTab />
-        </TabsContent>
-
-        <TabsContent value="contributions" className="mt-0">
-          <ContributionsTab />
-        </TabsContent>
-
-        <TabsContent value="events" className="mt-0">
-          <EventsTab />
-        </TabsContent>
-      </div>
-    </Tabs>
+    <div className="mt-6">
+      {activeTab === 'directory' && <DirectoryTab />}
+      {activeTab === 'batches' && <BatchesTab />}
+      {activeTab === 'achievements' && <AchievementsTab />}
+      {activeTab === 'contributions' && <ContributionsTab />}
+      {activeTab === 'events' && <EventsTab />}
+    </div>
   )
 }
 

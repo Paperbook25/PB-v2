@@ -10,11 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-  Bookmark,
-  Monitor,
-  ScanLine,
-  History,
-  IndianRupee,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Button } from '@/components/ui/button'
@@ -28,10 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { cn } from '@/lib/utils'
 
 import { BookCard } from '../components/BookCard'
 import { BookDetailDialog } from '../components/BookDetailDialog'
@@ -431,7 +424,7 @@ function FinesTab() {
 // Main LibraryPage Component
 // ============================================
 export function LibraryPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const { hasRole } = useAuthStore()
   const canManageLibrary = hasRole(['admin', 'principal', 'librarian'])
 
@@ -453,11 +446,6 @@ export function LibraryPage() {
   // Data hooks for stats
   const { data: statsData, isLoading: statsLoading } = useLibraryStats()
   const stats = statsData?.data
-
-  // Tab change handler
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value })
-  }
 
   // Handlers
   const handleBookClick = (book: Book) => {
@@ -615,82 +603,32 @@ export function LibraryPage() {
         </Card>
       </div>
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="catalog" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 hidden sm:block" />
-            Catalog
-          </TabsTrigger>
-          <TabsTrigger value="issued" className="flex items-center gap-2">
-            <BookMarked className="h-4 w-4 hidden sm:block" />
-            Issued
-          </TabsTrigger>
-          <TabsTrigger value="reservations" className="flex items-center gap-2">
-            <Bookmark className="h-4 w-4 hidden sm:block" />
-            Reservations
-          </TabsTrigger>
-          <TabsTrigger value="digital" className="flex items-center gap-2">
-            <Monitor className="h-4 w-4 hidden sm:block" />
-            Digital
-          </TabsTrigger>
-          <TabsTrigger value="fines" className="flex items-center gap-2">
-            <IndianRupee className="h-4 w-4 hidden sm:block" />
-            Fines
-          </TabsTrigger>
-          <TabsTrigger value="scanner" className="flex items-center gap-2">
-            <ScanLine className="h-4 w-4 hidden sm:block" />
-            Scanner
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="h-4 w-4 hidden sm:block" />
-            History
-          </TabsTrigger>
-        </TabsList>
+      <div className="mt-6">
+        {activeTab === 'catalog' && (
+          <CatalogTab
+            onBookClick={handleBookClick}
+            onIssueBook={() => setIssueBookDialogOpen(true)}
+            onAddBook={() => setAddBookDialogOpen(true)}
+          />
+        )}
 
-        <div className="mt-6">
-          {/* Catalog Tab */}
-          <TabsContent value="catalog" className="mt-0">
-            <CatalogTab
-              onBookClick={handleBookClick}
-              onIssueBook={() => setIssueBookDialogOpen(true)}
-              onAddBook={() => setAddBookDialogOpen(true)}
-            />
-          </TabsContent>
+        {activeTab === 'issued' && (
+          <IssuedBooksTab
+            onReturnBook={handleReturnBook}
+            onRenewBook={handleRenewBook}
+          />
+        )}
 
-          {/* Issued Books Tab */}
-          <TabsContent value="issued" className="mt-0">
-            <IssuedBooksTab
-              onReturnBook={handleReturnBook}
-              onRenewBook={handleRenewBook}
-            />
-          </TabsContent>
+        {activeTab === 'reservations' && <ReservationManager />}
 
-          {/* Reservations Tab */}
-          <TabsContent value="reservations" className="mt-0">
-            <ReservationManager />
-          </TabsContent>
+        {activeTab === 'digital' && <DigitalLibraryView />}
 
-          {/* Digital Library Tab */}
-          <TabsContent value="digital" className="mt-0">
-            <DigitalLibraryView />
-          </TabsContent>
+        {activeTab === 'fines' && <FinesTab />}
 
-          {/* Fines Tab */}
-          <TabsContent value="fines" className="mt-0">
-            <FinesTab />
-          </TabsContent>
+        {activeTab === 'scanner' && <BarcodeScannerView />}
 
-          {/* Scanner Tab */}
-          <TabsContent value="scanner" className="mt-0">
-            <BarcodeScannerView />
-          </TabsContent>
-
-          {/* Reading History Tab */}
-          <TabsContent value="history" className="mt-0">
-            <ReadingHistoryView />
-          </TabsContent>
-        </div>
-      </Tabs>
+        {activeTab === 'history' && <ReadingHistoryView />}
+      </div>
 
       {/* Dialogs */}
       <BookDetailDialog

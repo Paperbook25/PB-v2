@@ -36,7 +36,7 @@ export function LoginPage() {
         // Session cookie is now set. Fetch the user's school-level profile
         // (the server resolves the org membership role via schoolAuthMiddleware).
         try {
-          const meRes = await fetch('/api/auth/me', { credentials: 'include' })
+          const meRes = await fetch('/api/me', { credentials: 'include' })
           if (meRes.ok) {
             const me = await meRes.json()
             login({

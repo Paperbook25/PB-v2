@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import {
@@ -85,34 +84,23 @@ export function ScheduleSection({ activeTab, onTabChange }: ScheduleSectionProps
   const periodName = periods.find((p) => p.id === entryPeriodId)?.name || ''
 
   return (
-    <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as ScheduleTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
-        <TabsTrigger variant="secondary" value="timetables">Class Timetables</TabsTrigger>
-        <TabsTrigger variant="secondary" value="teachers">Teacher View</TabsTrigger>
-        <TabsTrigger variant="secondary" value="rooms">Room View</TabsTrigger>
-        <TabsTrigger variant="secondary" value="substitutions">Substitutions</TabsTrigger>
-      </TabsList>
-
+    <>
       <div className="mt-6 space-y-6">
         {viewMode === 'list' ? (
           <>
             <TimetableStatsCards />
 
-            <TabsContent value="timetables" className="mt-0">
+            {activeTab === 'timetables' && (
               <TimetableList onView={handleView} onEdit={handleEdit} onCreate={handleCreate} />
-            </TabsContent>
+            )}
 
-            <TabsContent value="teachers" className="mt-0">
-              <TeacherTimetableView />
-            </TabsContent>
+            {activeTab === 'teachers' && <TeacherTimetableView />}
 
-            <TabsContent value="rooms" className="mt-0">
-              <RoomTimetableView />
-            </TabsContent>
+            {activeTab === 'rooms' && <RoomTimetableView />}
 
-            <TabsContent value="substitutions" className="mt-0">
+            {activeTab === 'substitutions' && (
               <SubstitutionList onCreate={() => setSubstitutionFormOpen(true)} />
-            </TabsContent>
+            )}
           </>
         ) : (
           <>
@@ -173,6 +161,6 @@ export function ScheduleSection({ activeTab, onTabChange }: ScheduleSectionProps
         onOpenChange={setSubstitutionFormOpen}
         onSuccess={() => setSubstitutionFormOpen(false)}
       />
-    </Tabs>
+    </>
   )
 }

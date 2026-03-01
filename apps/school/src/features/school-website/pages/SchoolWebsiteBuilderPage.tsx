@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
-import { Sparkles, Globe, Settings, Layout, Loader2 } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { Sparkles, Globe, Loader2 } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { PageBuilder } from '../components/PageBuilder'
 import { WebsiteSettingsPanel } from '../components/WebsiteSettingsPanel'
@@ -31,7 +32,16 @@ const TEMPLATES: { value: TemplateStyle; label: string; description: string; pre
 type Tab = 'pages' | 'settings'
 
 export function SchoolWebsiteBuilderPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('pages')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = (searchParams.get('tab') || 'pages') as Tab
+  const setActiveTab = useCallback((tab: Tab) => {
+    if (tab === 'pages') {
+      // Default tab — remove ?tab param for clean URL
+      setSearchParams({}, { replace: true })
+    } else {
+      setSearchParams({ tab }, { replace: true })
+    }
+  }, [setSearchParams])
   const [showAIDialog, setShowAIDialog] = useState(false)
   const { currentPage, hasPages, isLoading } = useSchoolWebsite()
 
@@ -176,33 +186,7 @@ export function SchoolWebsiteBuilderPage() {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b">
-        <button
-          onClick={() => setActiveTab('pages')}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition ${
-            activeTab === 'pages'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <Layout className="h-4 w-4" />
-          Pages
-        </button>
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition ${
-            activeTab === 'settings'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <Settings className="h-4 w-4" />
-          Look & Feel
-        </button>
-      </div>
-
-      {/* Content */}
+      {/* Content — switched by sidebar ?tab= param */}
       {activeTab === 'pages' && <PageBuilder />}
       {activeTab === 'settings' && (
         <div className="p-6 bg-white border rounded-lg">

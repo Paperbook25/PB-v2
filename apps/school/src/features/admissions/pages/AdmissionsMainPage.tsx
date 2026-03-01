@@ -7,13 +7,6 @@ import {
   Eye,
   MoreHorizontal,
   ArrowRight,
-  FileText,
-  Kanban,
-  GraduationCap,
-  Clock,
-  MessageSquare,
-  IndianRupee,
-  BarChart3,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,7 +14,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -631,15 +623,11 @@ function AnalyticsTab() {
 // Main AdmissionsMainPage Component
 // ============================================
 export function AdmissionsMainPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
   // Primary tab
   const activeTab = (searchParams.get('tab') as AdmissionTab) || 'applications'
-
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value })
-  }
 
   return (
     <div>
@@ -658,68 +646,21 @@ export function AdmissionsMainPage() {
         }
       />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="applications" className="flex items-center gap-2">
-            <FileText className="h-4 w-4 hidden sm:block" />
-            Applications
-          </TabsTrigger>
-          <TabsTrigger value="pipeline" className="flex items-center gap-2">
-            <Kanban className="h-4 w-4 hidden sm:block" />
-            Pipeline
-          </TabsTrigger>
-          <TabsTrigger value="entrance-exams" className="flex items-center gap-2">
-            <GraduationCap className="h-4 w-4 hidden sm:block" />
-            Exams
-          </TabsTrigger>
-          <TabsTrigger value="waitlist" className="flex items-center gap-2">
-            <Clock className="h-4 w-4 hidden sm:block" />
-            Waitlist
-          </TabsTrigger>
-          <TabsTrigger value="communications" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 hidden sm:block" />
-            Comms
-          </TabsTrigger>
-          <TabsTrigger value="payments" className="flex items-center gap-2">
-            <IndianRupee className="h-4 w-4 hidden sm:block" />
-            Payments
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 hidden sm:block" />
-            Analytics
-          </TabsTrigger>
-        </TabsList>
+      <div className="mt-6">
+        {activeTab === 'applications' && <ApplicationsTab />}
 
-        <div className="mt-6">
-          <TabsContent value="applications" className="mt-0">
-            <ApplicationsTab />
-          </TabsContent>
+        {activeTab === 'pipeline' && <PipelineTab />}
 
-          <TabsContent value="pipeline" className="mt-0">
-            <PipelineTab />
-          </TabsContent>
+        {activeTab === 'entrance-exams' && <EntranceExamsTab />}
 
-          <TabsContent value="entrance-exams" className="mt-0">
-            <EntranceExamsTab />
-          </TabsContent>
+        {activeTab === 'waitlist' && <WaitlistTab />}
 
-          <TabsContent value="waitlist" className="mt-0">
-            <WaitlistTab />
-          </TabsContent>
+        {activeTab === 'communications' && <CommunicationsTab />}
 
-          <TabsContent value="communications" className="mt-0">
-            <CommunicationsTab />
-          </TabsContent>
+        {activeTab === 'payments' && <PaymentsTab />}
 
-          <TabsContent value="payments" className="mt-0">
-            <PaymentsTab />
-          </TabsContent>
-
-          <TabsContent value="analytics" className="mt-0">
-            <AnalyticsTab />
-          </TabsContent>
-        </div>
-      </Tabs>
+        {activeTab === 'analytics' && <AnalyticsTab />}
+      </div>
     </div>
   )
 }

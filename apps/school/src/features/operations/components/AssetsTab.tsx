@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -45,9 +44,6 @@ import {
   Check,
   Truck,
   Star,
-  LayoutDashboard,
-  Boxes,
-  ClipboardList,
 } from 'lucide-react'
 import {
   useInventoryStats,
@@ -1382,51 +1378,12 @@ function VendorsSubTab() {
 // ============================================
 export function AssetsTab({ subTab, onSubTabChange }: AssetsTabProps) {
   return (
-    <Tabs value={subTab} onValueChange={(v) => onSubTabChange(v as AssetsSubTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
-        <TabsTrigger variant="secondary" value="dashboard" className="flex items-center gap-2">
-          <LayoutDashboard className="h-4 w-4 hidden sm:block" />
-          Dashboard
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="assets" className="flex items-center gap-2">
-          <Package className="h-4 w-4 hidden sm:block" />
-          Assets
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="stock" className="flex items-center gap-2">
-          <Boxes className="h-4 w-4 hidden sm:block" />
-          Stock
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="purchase-orders" className="flex items-center gap-2">
-          <ClipboardList className="h-4 w-4 hidden sm:block" />
-          Purchase Orders
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="vendors" className="flex items-center gap-2">
-          <Users className="h-4 w-4 hidden sm:block" />
-          Vendors
-        </TabsTrigger>
-      </TabsList>
-
-      <div className="mt-6">
-        <TabsContent value="dashboard" className="mt-0">
-          <DashboardSubTab />
-        </TabsContent>
-
-        <TabsContent value="assets" className="mt-0">
-          <AssetsSubTab />
-        </TabsContent>
-
-        <TabsContent value="stock" className="mt-0">
-          <StockSubTab />
-        </TabsContent>
-
-        <TabsContent value="purchase-orders" className="mt-0">
-          <PurchaseOrdersSubTab />
-        </TabsContent>
-
-        <TabsContent value="vendors" className="mt-0">
-          <VendorsSubTab />
-        </TabsContent>
-      </div>
-    </Tabs>
+    <div className="mt-6">
+      {subTab === 'dashboard' && <DashboardSubTab />}
+      {subTab === 'assets' && <AssetsSubTab />}
+      {subTab === 'stock' && <StockSubTab />}
+      {subTab === 'purchase-orders' && <PurchaseOrdersSubTab />}
+      {subTab === 'vendors' && <VendorsSubTab />}
+    </div>
   )
 }

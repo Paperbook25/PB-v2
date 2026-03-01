@@ -12,7 +12,6 @@ import {
   ArrowUpCircle,
   Users,
   UserCheck,
-  GraduationCap,
   FileText,
   Heart,
   IdCard,
@@ -26,7 +25,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -666,60 +664,12 @@ function IDCardsContent() {
 export function StudentsTab({ subTab, onSubTabChange }: StudentsTabProps) {
   return (
     <div className="space-y-4">
-      <Tabs value={subTab} onValueChange={(v) => onSubTabChange(v as StudentSubTab)}>
-        <TabsList variant="secondary" className="flex flex-wrap w-full">
-          <TabsTrigger variant="secondary" value="dashboard" className="gap-2">
-            <GraduationCap className="h-4 w-4" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="list" className="gap-2">
-            <Users className="h-4 w-4" />
-            All Students
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="documents" className="gap-2">
-            <FileText className="h-4 w-4" />
-            Documents
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="health" className="gap-2">
-            <Heart className="h-4 w-4" />
-            Health
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="promotions" className="gap-2">
-            <ArrowUpCircle className="h-4 w-4" />
-            Promotions
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="idcards" className="gap-2">
-            <IdCard className="h-4 w-4" />
-            ID Cards
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-4">
-          <TabsContent value="dashboard" className="mt-0">
-            <StudentsDashboardContent />
-          </TabsContent>
-
-          <TabsContent value="list" className="mt-0">
-            <StudentsListContent />
-          </TabsContent>
-
-          <TabsContent value="documents" className="mt-0">
-            <DocumentsContent />
-          </TabsContent>
-
-          <TabsContent value="health" className="mt-0">
-            <HealthRecordsContent />
-          </TabsContent>
-
-          <TabsContent value="promotions" className="mt-0">
-            <PromotionsContent />
-          </TabsContent>
-
-          <TabsContent value="idcards" className="mt-0">
-            <IDCardsContent />
-          </TabsContent>
-        </div>
-      </Tabs>
+      {subTab === 'dashboard' && <StudentsDashboardContent />}
+      {subTab === 'list' && <StudentsListContent />}
+      {subTab === 'documents' && <DocumentsContent />}
+      {subTab === 'health' && <HealthRecordsContent />}
+      {subTab === 'promotions' && <PromotionsContent />}
+      {subTab === 'idcards' && <IDCardsContent />}
     </div>
   )
 }

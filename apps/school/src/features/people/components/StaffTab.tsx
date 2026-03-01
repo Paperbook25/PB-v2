@@ -9,11 +9,8 @@ import {
   Pencil,
   Trash2,
   Users,
-  ClipboardCheck,
   CalendarDays,
-  IndianRupee,
   Clock,
-  RefreshCw,
   ClipboardList,
   BarChart3,
   CheckCircle,
@@ -1229,72 +1226,32 @@ export function StaffTab({ subTab, nestedTab, onSubTabChange, onNestedTabChange 
 
   return (
     <div className="space-y-4">
-      <Tabs value={subTab} onValueChange={(v) => onSubTabChange(v as StaffSubTab)}>
-        <TabsList variant="secondary" className="flex flex-wrap w-full">
-          <TabsTrigger variant="secondary" value="list" className="flex items-center gap-2">
-            <Users className="h-4 w-4 hidden sm:block" />
-            All Staff
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="attendance" className="flex items-center gap-2">
-            <ClipboardCheck className="h-4 w-4 hidden sm:block" />
-            Attendance
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="leave" className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 hidden sm:block" />
-            Leave
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="payroll" className="flex items-center gap-2">
-            <IndianRupee className="h-4 w-4 hidden sm:block" />
-            Payroll
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="timetable" className="flex items-center gap-2">
-            <Clock className="h-4 w-4 hidden sm:block" />
-            Timetable
-          </TabsTrigger>
-          <TabsTrigger variant="secondary" value="substitutions" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4 hidden sm:block" />
-            Substitutions
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6">
-          <TabsContent value="list" className="mt-0">
-            <StaffListTab />
-          </TabsContent>
-
-          <TabsContent value="attendance" className="mt-0">
-            <AttendanceTabContent
-              subTab={attendanceSubTab}
-              onSubTabChange={(tab) => onNestedTabChange(tab)}
-            />
-          </TabsContent>
-
-          <TabsContent value="leave" className="mt-0">
-            <LeaveTabContent
-              subTab={leaveSubTab}
-              onSubTabChange={(tab) => onNestedTabChange(tab)}
-            />
-          </TabsContent>
-
-          <TabsContent value="payroll" className="mt-0">
-            <PayrollTabContent
-              subTab={payrollSubTab}
-              onSubTabChange={(tab) => onNestedTabChange(tab)}
-            />
-          </TabsContent>
-
-          <TabsContent value="timetable" className="mt-0">
-            <TimetableTabContent
-              subTab={timetableSubTab}
-              onSubTabChange={(tab) => onNestedTabChange(tab)}
-            />
-          </TabsContent>
-
-          <TabsContent value="substitutions" className="mt-0">
-            <SubstitutionsTabContent />
-          </TabsContent>
-        </div>
-      </Tabs>
+      {subTab === 'list' && <StaffListTab />}
+      {subTab === 'attendance' && (
+        <AttendanceTabContent
+          subTab={attendanceSubTab}
+          onSubTabChange={(tab) => onNestedTabChange(tab)}
+        />
+      )}
+      {subTab === 'leave' && (
+        <LeaveTabContent
+          subTab={leaveSubTab}
+          onSubTabChange={(tab) => onNestedTabChange(tab)}
+        />
+      )}
+      {subTab === 'payroll' && (
+        <PayrollTabContent
+          subTab={payrollSubTab}
+          onSubTabChange={(tab) => onNestedTabChange(tab)}
+        />
+      )}
+      {subTab === 'timetable' && (
+        <TimetableTabContent
+          subTab={timetableSubTab}
+          onSubTabChange={(tab) => onNestedTabChange(tab)}
+        />
+      )}
+      {subTab === 'substitutions' && <SubstitutionsTabContent />}
     </div>
   )
 }

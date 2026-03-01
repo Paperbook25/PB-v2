@@ -1,6 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import { GraduationCap, Users, ClipboardCheck, AlertCircle, Shield } from 'lucide-react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AlertCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -178,18 +177,9 @@ export function PeoplePage() {
   // Check if user is student or parent
   const isStudentOrParent = user?.role === 'student' || user?.role === 'parent'
 
-  // Filter visible tabs by role
-  const visibleTabs = [
-    { value: 'students', label: 'Students', icon: GraduationCap, roles: ['admin', 'principal', 'teacher'] as const },
-    { value: 'staff', label: 'Staff', icon: Users, roles: ['admin', 'principal'] as const },
-    { value: 'attendance', label: 'Attendance', icon: ClipboardCheck, roles: ['admin', 'principal', 'teacher'] as const },
-    { value: 'behavior', label: 'Behavior', icon: Shield, roles: ['admin', 'principal', 'teacher'] as const },
-  ].filter(t => hasRole([...t.roles]))
-
-  // Handle tab changes
-  const handlePrimaryTabChange = (value: string) => {
-    setSearchParams({ tab: value })
-  }
+  // Role checks for tab access (sidebar handles visibility, but we still guard rendering)
+  const canSeeStaff = hasRole(['admin', 'principal'])
+  const canSeeBehavior = hasRole(['admin', 'principal', 'teacher'])
 
   const handleStudentsSubTabChange = (value: StudentSubTab) => {
     setSearchParams({ tab: 'students', subtab: value })
@@ -231,48 +221,38 @@ export function PeoplePage() {
         moduleColor="students"
       />
 
-      <Tabs value={activeTab} onValueChange={handlePrimaryTabChange} className="mt-6">
-        <TabsList className={`grid w-full grid-cols-${visibleTabs.length}`}>
-          {visibleTabs.map(tab => (
-            <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      {/* Content — switched by sidebar ?tab= and ?subtab= params */}
+      <div className="mt-6">
+        {activeTab === 'students' && (
+          <StudentsTab
+            subTab={studentSubTab}
+            onSubTabChange={handleStudentsSubTabChange}
+          />
+        )}
 
-        <div className="mt-6">
-          <TabsContent value="students" className="mt-0">
-            <StudentsTab
-              subTab={studentSubTab}
-              onSubTabChange={handleStudentsSubTabChange}
-            />
-          </TabsContent>
+        {activeTab === 'staff' && canSeeStaff && (
+          <StaffTab
+            subTab={staffSubTab}
+            nestedTab={nestedTab}
+            onSubTabChange={handleStaffSubTabChange}
+            onNestedTabChange={handleStaffNestedTabChange}
+          />
+        )}
 
-          <TabsContent value="staff" className="mt-0">
-            <StaffTab
-              subTab={staffSubTab}
-              nestedTab={nestedTab}
-              onSubTabChange={handleStaffSubTabChange}
-              onNestedTabChange={handleStaffNestedTabChange}
-            />
-          </TabsContent>
+        {activeTab === 'attendance' && (
+          <AttendanceTab
+            subTab={attendanceSubTab}
+            onSubTabChange={handleAttendanceSubTabChange}
+          />
+        )}
 
-          <TabsContent value="attendance" className="mt-0">
-            <AttendanceTab
-              subTab={attendanceSubTab}
-              onSubTabChange={handleAttendanceSubTabChange}
-            />
-          </TabsContent>
-
-          <TabsContent value="behavior" className="mt-0">
-            <BehaviorTab
-              subTab={behaviorSubTab}
-              onSubTabChange={handleBehaviorSubTabChange}
-            />
-          </TabsContent>
-        </div>
-      </Tabs>
+        {activeTab === 'behavior' && canSeeBehavior && (
+          <BehaviorTab
+            subTab={behaviorSubTab}
+            onSubTabChange={handleBehaviorSubTabChange}
+          />
+        )}
+      </div>
     </div>
   )
 }

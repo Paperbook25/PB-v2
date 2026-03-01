@@ -6,12 +6,10 @@ import {
   ClipboardList,
   AlertTriangle,
   Calendar,
-  LayoutDashboard,
   ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/useAuthStore'
 import {
@@ -31,63 +29,20 @@ interface CommunicationSectionProps {
   onTabChange: (tab: CommunicationTab) => void
 }
 
-export function CommunicationSection({ activeTab, onTabChange }: CommunicationSectionProps) {
+export function CommunicationSection({ activeTab }: CommunicationSectionProps) {
   const { hasRole } = useAuthStore()
   const canSeeEmergency = hasRole(['admin', 'principal'])
 
-  const tabs = [
-    { value: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
-    { value: 'announcements' as const, label: 'Announcements', icon: Megaphone },
-    { value: 'messages' as const, label: 'Messages', icon: MessageSquare },
-    { value: 'circulars' as const, label: 'Circulars', icon: FileText },
-    { value: 'surveys' as const, label: 'Surveys', icon: ClipboardList },
-    ...(canSeeEmergency ? [{ value: 'emergency' as const, label: 'Emergency', icon: AlertTriangle }] : []),
-    { value: 'events' as const, label: 'Events', icon: Calendar },
-  ]
-
   return (
-    <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as CommunicationTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
-        {tabs.map((tab) => (
-          <TabsTrigger variant="secondary" key={tab.value} value={tab.value} className="flex items-center gap-2">
-            <tab.icon className="h-4 w-4" />
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-
-      <div className="mt-6">
-        <TabsContent value="dashboard" className="mt-0">
-          <DashboardTab />
-        </TabsContent>
-
-        <TabsContent value="announcements" className="mt-0">
-          <AnnouncementsTab />
-        </TabsContent>
-
-        <TabsContent value="messages" className="mt-0">
-          <MessagesTab />
-        </TabsContent>
-
-        <TabsContent value="circulars" className="mt-0">
-          <CircularsTab />
-        </TabsContent>
-
-        <TabsContent value="surveys" className="mt-0">
-          <SurveysTab />
-        </TabsContent>
-
-        {canSeeEmergency && (
-          <TabsContent value="emergency" className="mt-0">
-            <EmergencyTab />
-          </TabsContent>
-        )}
-
-        <TabsContent value="events" className="mt-0">
-          <EventsTab />
-        </TabsContent>
-      </div>
-    </Tabs>
+    <>
+      {activeTab === 'dashboard' && <DashboardTab />}
+      {activeTab === 'announcements' && <AnnouncementsTab />}
+      {activeTab === 'messages' && <MessagesTab />}
+      {activeTab === 'circulars' && <CircularsTab />}
+      {activeTab === 'surveys' && <SurveysTab />}
+      {activeTab === 'emergency' && canSeeEmergency && <EmergencyTab />}
+      {activeTab === 'events' && <EventsTab />}
+    </>
   )
 }
 

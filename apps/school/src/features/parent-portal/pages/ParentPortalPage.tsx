@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useSearchParams } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/PageHeader'
 import {
   ParentPortalStatsCards,
@@ -14,7 +14,8 @@ import { useAuthStore } from '@/stores/useAuthStore'
 
 export function ParentPortalPage() {
   const { user } = useAuthStore()
-  const [activeTab, setActiveTab] = useState('messages')
+  const [searchParams] = useSearchParams()
+  const activeTab = searchParams.get('tab') || 'messages'
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false)
 
@@ -45,53 +46,46 @@ export function ParentPortalPage() {
 
       <ParentPortalStatsCards parentId={parentId} />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="messages">Messages</TabsTrigger>
-          <TabsTrigger value="meetings">Meetings</TabsTrigger>
-          <TabsTrigger value="progress">Progress</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="messages" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-340px)]">
-            <div className="lg:col-span-1">
-              <ConversationList
-                onSelectConversation={handleSelectConversation}
-                selectedConversationId={selectedConversation?.id}
+      {/* Content — switched by sidebar ?tab= param */}
+      {activeTab === 'messages' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-340px)]">
+          <div className="lg:col-span-1">
+            <ConversationList
+              onSelectConversation={handleSelectConversation}
+              selectedConversationId={selectedConversation?.id}
+            />
+          </div>
+          <div className="lg:col-span-2">
+            {selectedConversation ? (
+              <ChatView
+                conversation={selectedConversation}
+                currentUserId={parentId}
+                currentUserName={parentName}
+                currentUserType="parent"
               />
-            </div>
-            <div className="lg:col-span-2">
-              {selectedConversation ? (
-                <ChatView
-                  conversation={selectedConversation}
-                  currentUserId={parentId}
-                  currentUserName={parentName}
-                  currentUserType="parent"
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center bg-muted/30 rounded-lg border-2 border-dashed">
-                  <p className="text-muted-foreground">
-                    Select a conversation to start messaging
-                  </p>
-                </div>
-              )}
-            </div>
+            ) : (
+              <div className="h-full flex items-center justify-center bg-muted/30 rounded-lg border-2 border-dashed">
+                <p className="text-muted-foreground">
+                  Select a conversation to start messaging
+                </p>
+              </div>
+            )}
           </div>
-        </TabsContent>
+        </div>
+      )}
 
-        <TabsContent value="meetings" className="mt-6">
-          <MeetingsList
-            onSchedule={() => setScheduleDialogOpen(true)}
-            onViewDetails={handleViewMeetingDetails}
-          />
-        </TabsContent>
+      {activeTab === 'meetings' && (
+        <MeetingsList
+          onSchedule={() => setScheduleDialogOpen(true)}
+          onViewDetails={handleViewMeetingDetails}
+        />
+      )}
 
-        <TabsContent value="progress" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ProgressReportCard />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {activeTab === 'progress' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ProgressReportCard />
+        </div>
+      )}
 
       <ScheduleMeetingDialog
         open={scheduleDialogOpen}

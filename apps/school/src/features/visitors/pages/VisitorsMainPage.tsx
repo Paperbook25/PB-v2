@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -44,9 +43,6 @@ import {
   XCircle,
   CheckCircle,
   AlertCircle,
-  ClipboardList,
-  BarChart3,
-  ShieldCheck,
   Calendar,
 } from 'lucide-react'
 import {
@@ -1268,14 +1264,10 @@ function PreApprovedTab() {
 // Main VisitorsMainPage Component
 // ============================================
 export function VisitorsMainPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
 
   // Get active tab from URL or default to 'checkin'
   const activeTab = (searchParams.get('tab') as VisitorTab) || 'checkin'
-
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value })
-  }
 
   return (
     <div>
@@ -1286,44 +1278,12 @@ export function VisitorsMainPage() {
         moduleColor="visitors"
       />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="checkin" className="flex items-center gap-2">
-            <UserCheck className="h-4 w-4 hidden sm:block" />
-            Check-In
-          </TabsTrigger>
-          <TabsTrigger value="logs" className="flex items-center gap-2">
-            <ClipboardList className="h-4 w-4 hidden sm:block" />
-            Logs
-          </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 hidden sm:block" />
-            Reports
-          </TabsTrigger>
-          <TabsTrigger value="preapproved" className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 hidden sm:block" />
-            Pre-Approved
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6">
-          <TabsContent value="checkin" className="mt-0">
-            <CheckInTab />
-          </TabsContent>
-
-          <TabsContent value="logs" className="mt-0">
-            <LogsTab />
-          </TabsContent>
-
-          <TabsContent value="reports" className="mt-0">
-            <ReportsTab />
-          </TabsContent>
-
-          <TabsContent value="preapproved" className="mt-0">
-            <PreApprovedTab />
-          </TabsContent>
-        </div>
-      </Tabs>
+      <div className="mt-6">
+        {activeTab === 'checkin' && <CheckInTab />}
+        {activeTab === 'logs' && <LogsTab />}
+        {activeTab === 'reports' && <ReportsTab />}
+        {activeTab === 'preapproved' && <PreApprovedTab />}
+      </div>
     </div>
   )
 }

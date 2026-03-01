@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { requireTenant } from '../middleware/tenant.middleware.js'
+import { schoolAuthMiddleware } from '../middleware/school-auth.middleware.js'
 import authRoutes from './auth.routes.js'
 import userRoutes from './user.routes.js'
 import auditRoutes from './audit.routes.js'
@@ -23,6 +24,17 @@ import websiteRoutes, { websitePublicRouter } from './school-website.routes.js'
 import adminRoutes from './admin/index.js'
 
 const router = Router()
+
+// --- Session endpoint (returns current user with school-level role) ---
+router.get('/me', schoolAuthMiddleware, (req, res) => {
+  res.json({
+    id: req.user!.userId,
+    email: req.user!.email,
+    name: req.user!.name,
+    role: req.user!.role,
+    organizationId: req.user!.organizationId,
+  })
+})
 
 // --- Public / unscoped routes (no tenant enforcement) ---
 router.use('/auth', authRoutes)

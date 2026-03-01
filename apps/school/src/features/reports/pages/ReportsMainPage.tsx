@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   FileText,
-  BarChart3,
   Calendar,
   Download,
   Clock,
@@ -25,7 +24,6 @@ import {
   Pause,
   Play,
   ClipboardList,
-  History,
   AlertTriangle,
   CreditCard,
   UserCheck,
@@ -1624,55 +1622,18 @@ export function ReportsMainPage() {
         }
       />
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4 hidden sm:block" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="templates" className="flex items-center gap-2">
-            <FileText className="h-4 w-4 hidden sm:block" />
-            Templates
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="h-4 w-4 hidden sm:block" />
-            History
-          </TabsTrigger>
-          <TabsTrigger value="scheduled" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 hidden sm:block" />
-            Scheduled
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 hidden sm:block" />
-            Analytics
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6">
-          <TabsContent value="dashboard" className="mt-0">
-            <DashboardTab />
-          </TabsContent>
-
-          <TabsContent value="templates" className="mt-0">
-            <TemplatesTab />
-          </TabsContent>
-
-          <TabsContent value="history" className="mt-0">
-            <HistoryTab />
-          </TabsContent>
-
-          <TabsContent value="scheduled" className="mt-0">
-            <ScheduledTab />
-          </TabsContent>
-
-          <TabsContent value="analytics" className="mt-0">
-            <AnalyticsTab
-              subTab={analyticsSubTab}
-              onSubTabChange={(tab) => handleSubTabChange('analytics', tab)}
-            />
-          </TabsContent>
-        </div>
-      </Tabs>
+      <div className="mt-6">
+        {activeTab === 'dashboard' && <DashboardTab />}
+        {activeTab === 'templates' && <TemplatesTab />}
+        {activeTab === 'history' && <HistoryTab />}
+        {activeTab === 'scheduled' && <ScheduledTab />}
+        {activeTab === 'analytics' && (
+          <AnalyticsTab
+            subTab={analyticsSubTab}
+            onSubTabChange={(tab) => handleSubTabChange('analytics', tab)}
+          />
+        )}
+      </div>
     </div>
   )
 }

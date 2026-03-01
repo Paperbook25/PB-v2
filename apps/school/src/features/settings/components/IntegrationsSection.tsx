@@ -1,6 +1,5 @@
 import { MessageSquare, Mail, CreditCard, MessageCircle, Fingerprint, Webhook, Key } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,70 +16,17 @@ interface IntegrationsSectionProps {
   onTabChange: (tab: IntegrationsTab) => void
 }
 
-export function IntegrationsSection({ activeTab, onTabChange }: IntegrationsSectionProps) {
+export function IntegrationsSection({ activeTab }: IntegrationsSectionProps) {
   return (
-    <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as IntegrationsTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
-        <TabsTrigger variant="secondary" value="sms" className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 hidden sm:block" />
-          SMS
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="email" className="flex items-center gap-2">
-          <Mail className="h-4 w-4 hidden sm:block" />
-          Email
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="payment" className="flex items-center gap-2">
-          <CreditCard className="h-4 w-4 hidden sm:block" />
-          Payment
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="whatsapp" className="flex items-center gap-2">
-          <MessageCircle className="h-4 w-4 hidden sm:block" />
-          WhatsApp
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="biometric" className="flex items-center gap-2">
-          <Fingerprint className="h-4 w-4 hidden sm:block" />
-          Biometric
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="webhooks" className="flex items-center gap-2">
-          <Webhook className="h-4 w-4 hidden sm:block" />
-          Webhooks
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="api-keys" className="flex items-center gap-2">
-          <Key className="h-4 w-4 hidden sm:block" />
-          API Keys
-        </TabsTrigger>
-      </TabsList>
-
-      <div className="mt-6">
-        <TabsContent value="sms" className="mt-0">
-          <SMSTab />
-        </TabsContent>
-
-        <TabsContent value="email" className="mt-0">
-          <EmailTab />
-        </TabsContent>
-
-        <TabsContent value="payment" className="mt-0">
-          <PaymentTab />
-        </TabsContent>
-
-        <TabsContent value="whatsapp" className="mt-0">
-          <WhatsAppTab />
-        </TabsContent>
-
-        <TabsContent value="biometric" className="mt-0">
-          <BiometricTab />
-        </TabsContent>
-
-        <TabsContent value="webhooks" className="mt-0">
-          <WebhooksTab />
-        </TabsContent>
-
-        <TabsContent value="api-keys" className="mt-0">
-          <APIKeysTab />
-        </TabsContent>
-      </div>
-    </Tabs>
+    <>
+      {activeTab === 'sms' && <SMSTab />}
+      {activeTab === 'email' && <EmailTab />}
+      {activeTab === 'payment' && <PaymentTab />}
+      {activeTab === 'whatsapp' && <WhatsAppTab />}
+      {activeTab === 'biometric' && <BiometricTab />}
+      {activeTab === 'webhooks' && <WebhooksTab />}
+      {activeTab === 'api-keys' && <APIKeysTab />}
+    </>
   )
 }
 

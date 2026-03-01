@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
@@ -1787,59 +1786,13 @@ function AttendanceSubTab() {
 // ============================================
 export function HostelTab({ subTab, onSubTabChange }: HostelTabProps) {
   return (
-    <Tabs value={subTab} onValueChange={(v) => onSubTabChange(v as HostelSubTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
-        <TabsTrigger variant="secondary" value="dashboard" className="flex items-center gap-2">
-          <Building2 className="h-4 w-4 hidden sm:block" />
-          Dashboard
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="rooms" className="flex items-center gap-2">
-          <BedDouble className="h-4 w-4 hidden sm:block" />
-          Rooms
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="allocations" className="flex items-center gap-2">
-          <Users className="h-4 w-4 hidden sm:block" />
-          Allocations
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="fees" className="flex items-center gap-2">
-          <IndianRupee className="h-4 w-4 hidden sm:block" />
-          Fees
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="mess" className="flex items-center gap-2">
-          <Utensils className="h-4 w-4 hidden sm:block" />
-          Mess
-        </TabsTrigger>
-        <TabsTrigger variant="secondary" value="attendance" className="flex items-center gap-2">
-          <UserCheck className="h-4 w-4 hidden sm:block" />
-          Attendance
-        </TabsTrigger>
-      </TabsList>
-
-      <div className="mt-6">
-        <TabsContent value="dashboard" className="mt-0">
-          <DashboardSubTab />
-        </TabsContent>
-
-        <TabsContent value="rooms" className="mt-0">
-          <RoomsSubTab />
-        </TabsContent>
-
-        <TabsContent value="allocations" className="mt-0">
-          <AllocationsSubTab />
-        </TabsContent>
-
-        <TabsContent value="fees" className="mt-0">
-          <FeesSubTab />
-        </TabsContent>
-
-        <TabsContent value="mess" className="mt-0">
-          <MessSubTab />
-        </TabsContent>
-
-        <TabsContent value="attendance" className="mt-0">
-          <AttendanceSubTab />
-        </TabsContent>
-      </div>
-    </Tabs>
+    <div className="mt-6">
+      {subTab === 'dashboard' && <DashboardSubTab />}
+      {subTab === 'rooms' && <RoomsSubTab />}
+      {subTab === 'allocations' && <AllocationsSubTab />}
+      {subTab === 'fees' && <FeesSubTab />}
+      {subTab === 'mess' && <MessSubTab />}
+      {subTab === 'attendance' && <AttendanceSubTab />}
+    </div>
   )
 }

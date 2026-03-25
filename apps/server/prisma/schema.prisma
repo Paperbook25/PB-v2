@@ -2589,3 +2589,574 @@ model WebsiteAnalytics {
   @@index([date])
   @@map("website_analytics")
 }
+
+// ============================================================================
+// Communication Models
+// ============================================================================
+
+model Announcement {
+  id             String    @id @default(uuid())
+  organizationId String?   @map("organization_id")
+  title          String
+  body           String    @db.Text
+  type           String    @default("general") // general, academic, emergency, event
+  priority       String    @default("normal") // low, normal, high, urgent
+  targetAudience String    @default("all") @map("target_audience") // all, students, parents, staff, class_specific
+  targetClasses  Json?     @map("target_classes") // string[] of class IDs
+  attachmentUrl  String?   @map("attachment_url") @db.Text
+  isPublished    Boolean   @default(false) @map("is_published")
+  publishedAt    DateTime? @map("published_at")
+  publishedBy    String?   @map("published_by")
+  expiresAt      DateTime? @map("expires_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([type])
+  @@index([isPublished])
+  @@map("announcements")
+}
+
+model Circular {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  circularNumber String   @map("circular_number")
+  title          String
+  body           String   @db.Text
+  category       String   @default("academic") // academic, administrative, exam, holiday, fee, general
+  fileUrl        String?  @map("file_url") @db.Text
+  issuedBy       String?  @map("issued_by")
+  issuedDate     DateTime @default(now()) @map("issued_date") @db.Date
+  targetAudience String   @default("all") @map("target_audience")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([category])
+  @@map("circulars")
+}
+
+// ============================================================================
+// Library Management
+// ============================================================================
+
+model LibraryBook {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  isbn           String?
+  title          String
+  author         String
+  publisher      String?
+  category       String   @default("general") // textbook, reference, fiction, non_fiction, periodical
+  subject        String?
+  language       String   @default("English")
+  totalCopies    Int      @default(1) @map("total_copies")
+  availableCopies Int     @default(1) @map("available_copies")
+  shelfLocation  String?  @map("shelf_location")
+  coverImage     String?  @map("cover_image") @db.Text
+  addedDate      DateTime @default(now()) @map("added_date") @db.Date
+  status         String   @default("available") // available, all_issued, damaged, lost
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  issues LibraryIssue[]
+  @@index([organizationId])
+  @@index([category])
+  @@index([status])
+  @@map("library_books")
+}
+
+model LibraryIssue {
+  id             String    @id @default(uuid())
+  organizationId String?   @map("organization_id")
+  bookId         String    @map("book_id")
+  borrowerType   String    @map("borrower_type") // student, staff
+  borrowerId     String    @map("borrower_id")
+  borrowerName   String    @map("borrower_name")
+  issueDate      DateTime  @default(now()) @map("issue_date") @db.Date
+  dueDate        DateTime  @map("due_date") @db.Date
+  returnDate     DateTime? @map("return_date") @db.Date
+  status         String    @default("issued") // issued, returned, overdue, lost
+  fineAmount     Decimal?  @map("fine_amount") @db.Decimal(8,2)
+  finePaid       Boolean   @default(false) @map("fine_paid")
+  issuedBy       String?   @map("issued_by")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  book LibraryBook @relation(fields: [bookId], references: [id])
+  @@index([organizationId])
+  @@index([bookId])
+  @@index([borrowerId])
+  @@index([status])
+  @@map("library_issues")
+}
+
+// ============================================================================
+// Transport Management
+// ============================================================================
+
+model TransportRoute {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  name           String
+  description    String?  @db.Text
+  vehicleNumber  String?  @map("vehicle_number")
+  vehicleType    String   @default("bus") @map("vehicle_type")
+  driverName     String?  @map("driver_name")
+  driverPhone    String?  @map("driver_phone")
+  attendantName  String?  @map("attendant_name")
+  capacity       Int      @default(40)
+  currentStudents Int     @default(0) @map("current_students")
+  fee            Decimal? @db.Decimal(10,2)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  stops TransportStop[]
+  @@index([organizationId])
+  @@index([isActive])
+  @@map("transport_routes")
+}
+
+model TransportStop {
+  id        String   @id @default(uuid())
+  routeId   String   @map("route_id")
+  name      String
+  area      String?
+  pickupTime  String? @map("pickup_time")
+  dropTime    String? @map("drop_time")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  route TransportRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  @@index([routeId])
+  @@map("transport_stops")
+}
+
+// ============================================================================
+// School Documents
+// ============================================================================
+
+model SchoolDocument {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  title          String
+  description    String?  @db.Text
+  category       String   @default("general") // policy, form, template, report, certificate, general
+  fileUrl        String   @map("file_url") @db.Text
+  fileType       String?  @map("file_type")
+  fileSize       Int?     @map("file_size")
+  uploadedBy     String?  @map("uploaded_by")
+  isPublic       Boolean  @default(false) @map("is_public")
+  downloadCount  Int      @default(0) @map("download_count")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([category])
+  @@map("school_documents")
+}
+
+// ============================================================================
+// Visitor Management
+// ============================================================================
+
+model VisitorLog {
+  id             String    @id @default(uuid())
+  organizationId String?   @map("organization_id")
+  name           String
+  phone          String?
+  email          String?
+  purpose        String    @default("general") // general, parent_meeting, vendor, official, interview, other
+  hostName       String?   @map("host_name")
+  hostDepartment String?   @map("host_department")
+  idType         String?   @map("id_type")
+  idNumber       String?   @map("id_number")
+  photoUrl       String?   @map("photo_url") @db.Text
+  checkInAt      DateTime  @default(now()) @map("check_in_at")
+  checkOutAt     DateTime? @map("check_out_at")
+  badge          String?
+  notes          String?   @db.Text
+  status         String    @default("checked_in") // checked_in, checked_out, denied
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([checkInAt])
+  @@map("visitor_logs")
+}
+
+// ============================================================================
+// Complaints / Grievances
+// ============================================================================
+
+model Complaint {
+  id              String    @id @default(uuid())
+  organizationId  String?   @map("organization_id")
+  complaintNumber String    @map("complaint_number")
+  title           String
+  description     String    @db.Text
+  category        String    @default("general") // academic, infrastructure, safety, bullying, staff, fee, transport, other
+  priority        String    @default("medium") // low, medium, high, critical
+  status          String    @default("open") // open, in_progress, resolved, closed, escalated
+  filedBy         String    @map("filed_by")
+  filedByName     String    @map("filed_by_name")
+  filedByRole     String    @map("filed_by_role") // student, parent, staff
+  assignedTo      String?   @map("assigned_to")
+  assignedToName  String?   @map("assigned_to_name")
+  resolution      String?   @db.Text
+  resolvedAt      DateTime? @map("resolved_at")
+  resolvedBy      String?   @map("resolved_by")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([category])
+  @@index([priority])
+  @@map("complaints")
+}
+
+// ============================================================================
+// Inventory / Assets
+// ============================================================================
+
+model InventoryItem {
+  id            String    @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  name          String
+  category      String    @default("general") // furniture, electronics, sports, lab, stationery, cleaning, other
+  description   String?   @db.Text
+  quantity      Int       @default(0)
+  unit          String    @default("pieces")
+  location      String?
+  purchaseDate  DateTime? @map("purchase_date") @db.Date
+  purchasePrice Decimal?  @map("purchase_price") @db.Decimal(10, 2)
+  vendorName    String?   @map("vendor_name")
+  condition     String    @default("good") // new, good, fair, poor, damaged, disposed
+  warrantyExpiry DateTime? @map("warranty_expiry") @db.Date
+  assetCode     String?   @map("asset_code")
+  minStock      Int       @default(0) @map("min_stock")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([category])
+  @@index([condition])
+  @@map("inventory_items")
+}
+
+// ============================================================================
+// Hostel Management
+// ============================================================================
+
+model HostelRoom {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  roomNumber     String   @map("room_number")
+  block          String?
+  floor          Int      @default(0)
+  roomType       String   @default("regular") @map("room_type") // regular, deluxe, ac, non_ac
+  capacity       Int      @default(4)
+  occupied       Int      @default(0)
+  fee            Decimal? @db.Decimal(10, 2)
+  status         String   @default("available") // available, full, maintenance, closed
+  amenities      Json?    @default("[]")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  allocations HostelAllocation[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@map("hostel_rooms")
+}
+
+model HostelAllocation {
+  id             String    @id @default(uuid())
+  organizationId String?   @map("organization_id")
+  roomId         String    @map("room_id")
+  studentId      String    @map("student_id")
+  studentName    String    @map("student_name")
+  className      String?   @map("class_name")
+  allocatedDate  DateTime  @default(now()) @map("allocated_date") @db.Date
+  vacatedDate    DateTime? @map("vacated_date") @db.Date
+  status         String    @default("active") // active, vacated, transferred
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  room HostelRoom @relation(fields: [roomId], references: [id])
+
+  @@index([organizationId])
+  @@index([roomId])
+  @@index([studentId])
+  @@index([status])
+  @@map("hostel_allocations")
+}
+
+// ============================================================================
+// Behavior Records
+// ============================================================================
+
+model BehaviorRecord {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  studentId      String   @map("student_id")
+  studentName    String   @map("student_name")
+  className      String?  @map("class_name")
+  type           String   @default("positive") // positive, negative, neutral
+  category       String   @default("general") // discipline, academics, sports, leadership, attendance, bullying, other
+  description    String   @db.Text
+  points         Int      @default(0)
+  reportedBy     String   @map("reported_by")
+  reportedByName String   @map("reported_by_name")
+  date           DateTime @default(now()) @db.Date
+  actionTaken    String?  @map("action_taken") @db.Text
+  parentNotified Boolean  @default(false) @map("parent_notified")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([studentId])
+  @@index([type])
+  @@index([category])
+  @@index([date])
+  @@map("behavior_records")
+}
+
+// ============================================================================
+// LMS — Learning Management System
+// ============================================================================
+
+model Course {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  title          String
+  description    String?  @db.Text
+  subjectId      String?  @map("subject_id")
+  classId        String?  @map("class_id")
+  teacherId      String?  @map("teacher_id")
+  teacherName    String?  @map("teacher_name")
+  coverImage     String?  @map("cover_image") @db.Text
+  status         String   @default("draft") // draft, published, archived
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  lessons     CourseLesson[]
+  assignments Assignment[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@map("courses")
+}
+
+model CourseLesson {
+  id        String   @id @default(uuid())
+  courseId   String   @map("course_id")
+  title     String
+  content   String?  @db.Text
+  videoUrl  String?  @map("video_url") @db.Text
+  fileUrl   String?  @map("file_url") @db.Text
+  sortOrder Int      @default(0) @map("sort_order")
+  duration  Int?     // minutes
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@map("course_lessons")
+}
+
+model Assignment {
+  id             String    @id @default(uuid())
+  organizationId String?   @map("organization_id")
+  courseId        String?   @map("course_id")
+  title          String
+  description    String?   @db.Text
+  dueDate        DateTime? @map("due_date")
+  totalMarks     Int       @default(100) @map("total_marks")
+  classId        String?   @map("class_id")
+  subjectId      String?   @map("subject_id")
+  teacherId      String?   @map("teacher_id")
+  status         String    @default("draft") // draft, published, closed
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  course      Course?                @relation(fields: [courseId], references: [id])
+  submissions AssignmentSubmission[]
+
+  @@index([organizationId])
+  @@index([courseId])
+  @@map("assignments")
+}
+
+model AssignmentSubmission {
+  id           String    @id @default(uuid())
+  assignmentId String    @map("assignment_id")
+  studentId    String    @map("student_id")
+  studentName  String    @map("student_name")
+  content      String?   @db.Text
+  fileUrl      String?   @map("file_url") @db.Text
+  marks        Int?
+  feedback     String?   @db.Text
+  status       String    @default("submitted") // submitted, graded, returned
+  submittedAt  DateTime  @default(now()) @map("submitted_at")
+  gradedAt     DateTime? @map("graded_at")
+  gradedBy     String?   @map("graded_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@index([assignmentId])
+  @@index([studentId])
+  @@map("assignment_submissions")
+}
+
+// ============================================================================
+// Alumni
+// ============================================================================
+
+model AlumniRecord {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  name           String
+  email          String?
+  phone          String?
+  batch          String   // e.g. "2020"
+  className      String?  @map("class_name")
+  currentOrg     String?  @map("current_org")
+  currentRole    String?  @map("current_role")
+  location       String?
+  linkedinUrl    String?  @map("linkedin_url")
+  photoUrl       String?  @map("photo_url") @db.Text
+  achievement    String?  @db.Text
+  isVerified     Boolean  @default(false) @map("is_verified")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([batch])
+  @@map("alumni_records")
+}
+
+// ============================================================================
+// Clubs & Activities
+// ============================================================================
+
+model Club {
+  id              String   @id @default(uuid())
+  organizationId  String?  @map("organization_id")
+  name            String
+  description     String?  @db.Text
+  category        String   @default("academic") // academic, sports, cultural, community, technology
+  coordinatorId   String?  @map("coordinator_id")
+  coordinatorName String?  @map("coordinator_name")
+  meetingDay      String?  @map("meeting_day")
+  meetingTime     String?  @map("meeting_time")
+  location        String?
+  maxMembers      Int?     @map("max_members")
+  currentMembers  Int      @default(0) @map("current_members")
+  coverImage      String?  @map("cover_image") @db.Text
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([category])
+  @@map("clubs")
+}
+
+// ============================================================================
+// Facilities
+// ============================================================================
+
+model Facility {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  name           String
+  type           String   @default("general") // classroom, lab, library, sports, auditorium, cafeteria, medical, other
+  description    String?  @db.Text
+  location       String?
+  capacity       Int?
+  isBookable     Boolean  @default(false) @map("is_bookable")
+  status         String   @default("available") // available, occupied, maintenance, closed
+  imageUrl       String?  @map("image_url") @db.Text
+  amenities      Json?    @default("[]")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  bookings FacilityBooking[]
+
+  @@index([organizationId])
+  @@index([type])
+  @@index([status])
+  @@map("facilities")
+}
+
+model FacilityBooking {
+  id           String   @id @default(uuid())
+  facilityId   String   @map("facility_id")
+  bookedBy     String   @map("booked_by")
+  bookedByName String   @map("booked_by_name")
+  purpose      String?
+  date         DateTime @db.Date
+  startTime    String   @map("start_time")
+  endTime      String   @map("end_time")
+  status       String   @default("confirmed") // confirmed, cancelled
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@index([facilityId])
+  @@index([date])
+  @@map("facility_bookings")
+}
+
+// ============================================================================
+// Scholarships
+// ============================================================================
+
+model Scholarship {
+  id                String   @id @default(uuid())
+  organizationId    String?  @map("organization_id")
+  name              String
+  description       String?  @db.Text
+  type              String   @default("merit") // merit, need_based, sports, cultural, minority, sibling
+  amount            Decimal  @db.Decimal(10, 2)
+  percentage        Int?     // discount percentage (alternative to fixed amount)
+  eligibility       String?  @db.Text
+  maxRecipients     Int?     @map("max_recipients")
+  currentRecipients Int      @default(0) @map("current_recipients")
+  academicYear      String?  @map("academic_year")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  recipients ScholarshipRecipient[]
+
+  @@index([organizationId])
+  @@index([type])
+  @@map("scholarships")
+}
+
+model ScholarshipRecipient {
+  id            String    @id @default(uuid())
+  scholarshipId String    @map("scholarship_id")
+  studentId     String    @map("student_id")
+  studentName   String    @map("student_name")
+  className     String?   @map("class_name")
+  amount        Decimal   @db.Decimal(10, 2)
+  status        String    @default("active") // active, revoked, completed
+  awardedDate   DateTime  @default(now()) @map("awarded_date") @db.Date
+  revokedDate   DateTime? @map("revoked_date") @db.Date
+  revokeReason  String?   @map("revoke_reason") @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id])
+
+  @@index([scholarshipId])
+  @@index([studentId])
+  @@map("scholarship_recipients")
+}

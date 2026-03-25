@@ -24,6 +24,23 @@ import websiteRoutes, { websitePublicRouter } from './school-website.routes.js'
 import blogRouter, { blogPublicRouter } from './blog.routes.js'
 import { contactRouter, contactPublicRouter } from './contact.routes.js'
 import domainRouter from './domain.routes.js'
+import communicationRoutes from './communication.routes.js'
+import reportRoutes from './report.routes.js'
+import leaveRoutes from './leave.routes.js'
+import libraryRouter from './library.routes.js'
+import transportRouter from './transport.routes.js'
+import documentRouter from './document.routes.js'
+import visitorRouter from './visitor.routes.js'
+import complaintRouter from './complaint.routes.js'
+import inventoryRouter from './inventory.routes.js'
+import hostelRouter from './hostel.routes.js'
+import behaviorRouter from './behavior.routes.js'
+import lmsRouter from './lms.routes.js'
+import parentPortalRouter from './parent-portal.routes.js'
+import alumniRouter from './alumni.routes.js'
+import clubRouter from './club.routes.js'
+import facilityRouter from './facility.routes.js'
+import scholarshipRouter from './scholarship.routes.js'
 import adminRoutes from './admin/index.js'
 
 const router = Router()
@@ -91,6 +108,57 @@ router.use('/public/blog', blogPublicRouter) // Public endpoint — no tenant en
 
 // Custom Domain Management
 router.use('/domains', requireTenant, domainRouter)
+
+// Communication (Announcements + Circulars)
+router.use('/communication', requireTenant, communicationRoutes)
+
+// Reports (aggregated data)
+router.use('/reports', requireTenant, reportRoutes)
+
+// Leave Management (staff)
+router.use('/leave', requireTenant, leaveRoutes)
+
+// Library Management
+router.use('/library', requireTenant, libraryRouter)
+
+// Transport Management
+router.use('/transport', requireTenant, transportRouter)
+
+// School Documents
+router.use('/documents', requireTenant, documentRouter)
+
+// Visitor Management
+router.use('/visitors', requireTenant, visitorRouter)
+
+// Complaints / Grievances
+router.use('/complaints', requireTenant, complaintRouter)
+
+// Inventory / Assets
+router.use('/inventory', requireTenant, inventoryRouter)
+
+// Hostel Management
+router.use('/hostel', requireTenant, hostelRouter)
+
+// Behavior Records
+router.use('/behavior', requireTenant, behaviorRouter)
+
+// LMS (Learning Management System)
+router.use('/lms', requireTenant, lmsRouter)
+
+// Parent Portal
+router.use('/parent-portal', requireTenant, parentPortalRouter)
+
+// Alumni Management
+router.use('/alumni', requireTenant, alumniRouter)
+
+// Clubs & Activities
+router.use('/clubs', requireTenant, clubRouter)
+
+// Facilities Management
+router.use('/facilities', requireTenant, facilityRouter)
+
+// Scholarships
+router.use('/scholarships', requireTenant, scholarshipRouter)
 
 // Contact Submissions
 router.use('/contact', requireTenant, contactRouter)

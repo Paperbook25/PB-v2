@@ -3160,3 +3160,81 @@ model ScholarshipRecipient {
   @@index([studentId])
   @@map("scholarship_recipients")
 }
+
+// ============================================================================
+// Form Analytics (conversion funnel tracking)
+// ============================================================================
+
+model FormAnalytics {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  formType       String   @map("form_type") // admission, contact, newsletter
+  sessionId      String   @map("session_id")
+  fieldName      String   @map("field_name")
+  action         String   // started, completed, abandoned
+  timestamp      DateTime @default(now())
+  metadata       Json?    // device, referrer, page slug
+
+  @@index([organizationId])
+  @@index([formType])
+  @@index([sessionId])
+  @@index([timestamp])
+  @@map("form_analytics")
+}
+
+// ============================================================================
+// Email Campaign / Drip System
+// ============================================================================
+
+model EmailCampaign {
+  id             String   @id @default(uuid())
+  organizationId String?  @map("organization_id")
+  name           String
+  description    String?  @db.Text
+  trigger        String   @default("manual") // manual, admission_inquiry, contact_form, fee_overdue, event_registration
+  status         String   @default("draft")  // draft, active, paused, completed
+  targetAudience String   @default("all")    @map("target_audience") // all, parents, students, staff, leads
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  steps EmailCampaignStep[]
+  logs  EmailCampaignLog[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@map("email_campaigns")
+}
+
+model EmailCampaignStep {
+  id         String   @id @default(uuid())
+  campaignId String   @map("campaign_id")
+  sortOrder  Int      @default(0) @map("sort_order")
+  delayDays  Int      @default(0) @map("delay_days")
+  subject    String
+  body       String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  campaign EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@map("email_campaign_steps")
+}
+
+model EmailCampaignLog {
+  id             String    @id @default(uuid())
+  campaignId     String    @map("campaign_id")
+  stepId         String?   @map("step_id")
+  recipientEmail String    @map("recipient_email")
+  recipientName  String?   @map("recipient_name")
+  status         String    @default("pending") // pending, sent, failed, opened, clicked
+  sentAt         DateTime? @map("sent_at")
+  openedAt       DateTime? @map("opened_at")
+  error          String?   @db.Text
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  campaign EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([status])
+  @@map("email_campaign_logs")
+}

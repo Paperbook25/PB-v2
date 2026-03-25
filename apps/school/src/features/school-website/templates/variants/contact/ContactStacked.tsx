@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import type { VariantProps } from '../../section-variants'
 import { spacingClass, radiusClass, cardClass, field } from '../shared'
+import { useFormTracking } from '../../../components/FormTracker'
+import { useLanguage } from '../../../i18n/LanguageContext'
 
 export function ContactStacked({ section, theme }: VariantProps) {
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const { trackSubmit, getTrackingProps } = useFormTracking('contact')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,6 +25,7 @@ export function ContactStacked({ section, theme }: VariantProps) {
         }),
       })
       if (res.ok) {
+        trackSubmit()
         setSubmitStatus('sent')
         setFormData({ name: '', email: '', subject: '', message: '' })
       } else {
@@ -75,17 +80,19 @@ export function ContactStacked({ section, theme }: VariantProps) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <input
                   type="text"
-                  placeholder="Your Name"
+                  placeholder={t('contact.name')}
                   value={formData.name}
                   onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  {...getTrackingProps('name')}
                   className={`w-full border border-gray-300 px-4 py-2.5 text-sm outline-none ${radiusClass(theme.cornerRadius)}`}
                   required
                 />
                 <input
                   type="email"
-                  placeholder="Email Address"
+                  placeholder={t('contact.email')}
                   value={formData.email}
                   onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  {...getTrackingProps('email')}
                   className={`w-full border border-gray-300 px-4 py-2.5 text-sm outline-none ${radiusClass(theme.cornerRadius)}`}
                   required
                 />
@@ -95,13 +102,15 @@ export function ContactStacked({ section, theme }: VariantProps) {
                 placeholder="Subject"
                 value={formData.subject}
                 onChange={e => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+                {...getTrackingProps('subject')}
                 className={`w-full border border-gray-300 px-4 py-2.5 text-sm outline-none ${radiusClass(theme.cornerRadius)}`}
               />
               <textarea
-                placeholder="Your Message"
+                placeholder={t('contact.message')}
                 rows={5}
                 value={formData.message}
                 onChange={e => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                {...getTrackingProps('message')}
                 className={`w-full border border-gray-300 px-4 py-2.5 text-sm outline-none ${radiusClass(theme.cornerRadius)}`}
                 required
               />
@@ -109,7 +118,7 @@ export function ContactStacked({ section, theme }: VariantProps) {
               {/* Status messages */}
               {submitStatus === 'sent' && (
                 <p className="text-sm text-green-600 text-center font-medium">
-                  Thank you! We'll get back to you within 24 hours.
+                  {t('contact.success')}
                 </p>
               )}
               {submitStatus === 'error' && (
@@ -132,7 +141,7 @@ export function ContactStacked({ section, theme }: VariantProps) {
                     </svg>
                     Sending...
                   </span>
-                ) : 'Send Message'}
+                ) : t('contact.send')}
               </button>
             </div>
           </form>

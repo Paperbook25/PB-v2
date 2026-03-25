@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as contactService from '../services/contact.service.js'
+import * as emailCampaignService from '../services/email-campaign.service.js'
 import { AppError } from '../utils/errors.js'
 import {
   submitContactSchema,
@@ -22,6 +23,10 @@ export async function submitContact(req: Request, res: Response, next: NextFunct
     const schoolId = getSchoolId(req)
     const input = submitContactSchema.parse(req.body)
     const contact = await contactService.submitContact(schoolId, input)
+
+    // Fire-and-forget: trigger email campaigns for contact form submissions
+    emailCampaignService.processTrigger(schoolId, 'contact_form', input.email, input.name).catch(() => {})
+
     res.status(201).json({ data: contact })
   } catch (err) { next(err) }
 }

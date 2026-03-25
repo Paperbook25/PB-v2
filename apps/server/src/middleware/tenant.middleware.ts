@@ -322,4 +322,5 @@ export const TENANT_SCOPED_MODELS = [
   'CalendarEvent', 'AcademicYear', 'Class', 'Section', 'Subject',
   'SchoolAddon', 'Permission', 'RolePermission',
   'WebsitePage', 'WebsiteSection', 'WebsiteSettings', 'WebsiteMedia',
+  'FormAnalytics',
 ]

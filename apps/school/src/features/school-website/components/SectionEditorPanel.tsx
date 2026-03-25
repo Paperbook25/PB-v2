@@ -944,6 +944,25 @@ function DownloadsEditor({ fields, setFields }: EditorProps) {
   )
 }
 
+function SocialFeedEditor({ fields, setFields }: EditorProps) {
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-gray-400">Add links to your social media profiles. Visitors will see cards linking to each platform.</p>
+      <TextField label="Instagram URL" value={String(fields.instagramUrl || '')} onChange={v => setFields({ ...fields, instagramUrl: v })} hint="e.g. https://instagram.com/yourschool" />
+      <TextField label="Facebook URL" value={String(fields.facebookUrl || '')} onChange={v => setFields({ ...fields, facebookUrl: v })} hint="e.g. https://facebook.com/yourschool" />
+      <TextField label="Twitter / X URL" value={String(fields.twitterUrl || '')} onChange={v => setFields({ ...fields, twitterUrl: v })} hint="e.g. https://x.com/yourschool" />
+      <TextField label="YouTube Channel URL" value={String(fields.youtubeChannelUrl || '')} onChange={v => setFields({ ...fields, youtubeChannelUrl: v })} hint="e.g. https://youtube.com/@yourschool" />
+      <SelectField
+        label="Layout"
+        value={String(fields.layout || 'grid')}
+        onChange={v => setFields({ ...fields, layout: v })}
+        options={[{ value: 'grid', label: 'Grid' }, { value: 'carousel', label: 'Carousel' }]}
+      />
+      <CheckboxField label="Show Follow Buttons" value={fields.showFollowButtons !== false} onChange={v => setFields({ ...fields, showFollowButtons: v })} hint="Display follow/subscribe buttons on each card" />
+    </div>
+  )
+}
+
 const EDITOR_MAP: Record<SectionType, React.FC<{ fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }>> = {
   hero: HeroEditor,
   about: AboutEditor,
@@ -973,6 +992,7 @@ const EDITOR_MAP: Record<SectionType, React.FC<{ fields: Record<string, unknown>
   alumni: GenericItemsEditor,
   virtual_tour: GenericItemsEditor,
   cta_banner: GenericItemsEditor,
+  social_feed: SocialFeedEditor,
 }
 
 export function SectionEditorPanel({ section, onUpdate }: SectionEditorPanelProps) {

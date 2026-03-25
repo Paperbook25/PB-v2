@@ -8,6 +8,8 @@ import { AIGenerateDialog } from '../components/AIGenerateDialog'
 import { BlogManager } from '../components/BlogManager'
 import { LeadDashboard } from '../components/LeadDashboard'
 import { AnalyticsDashboard } from '../components/AnalyticsDashboard'
+import { FormAnalyticsDashboard } from '../components/FormAnalyticsDashboard'
+import { EmailCampaignManager } from '../components/EmailCampaignManager'
 import { useSchoolWebsite } from '../hooks/useSchoolWebsite'
 import type { TemplateStyle } from '../types/school-website.types'
 
@@ -32,7 +34,7 @@ const TEMPLATES: { value: TemplateStyle; label: string; description: string; pre
   },
 ]
 
-type Tab = 'pages' | 'settings' | 'blog' | 'leads' | 'analytics'
+type Tab = 'pages' | 'settings' | 'blog' | 'leads' | 'analytics' | 'form-analytics' | 'campaigns'
 
 export function SchoolWebsiteBuilderPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -210,6 +212,8 @@ export function SchoolWebsiteBuilderPage() {
       {activeTab === 'blog' && <BlogManager />}
       {activeTab === 'leads' && <LeadDashboard />}
       {activeTab === 'analytics' && <AnalyticsDashboard />}
+      {activeTab === 'form-analytics' && <FormAnalyticsDashboard />}
+      {activeTab === 'campaigns' && <EmailCampaignManager />}
 
       {/* AI Dialog (for regeneration after initial setup) */}
       {showAIDialog && currentPage && (

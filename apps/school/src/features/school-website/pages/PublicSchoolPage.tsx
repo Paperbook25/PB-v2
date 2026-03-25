@@ -4,10 +4,12 @@ import { usePublicPage, usePublicPages, usePublicSettings } from '../api/school-
 import { SectionRenderer } from '../components/SectionRenderers'
 import { SeoHead } from '../components/SeoHead'
 import { WhatsAppWidget } from '../components/WhatsAppWidget'
+import { ChatWidget } from '../components/ChatWidget'
 import { AnnouncementBar } from '../components/AnnouncementBar'
 import { getTemplateConfig } from '../templates/registry'
 import type { TemplateTheme } from '../templates/registry'
 import type { ContactContent } from '../types/school-website.types'
+import { LanguageProvider, useLanguage } from '../i18n/LanguageContext'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -111,6 +113,7 @@ function MobileDrawer({
   schoolName,
   logoUrl,
 }: NavProps & { isOpen: boolean; onClose: () => void }) {
+  const { t } = useLanguage()
   return (
     <>
       {/* Overlay */}
@@ -168,19 +171,35 @@ function MobileDrawer({
               </Link>
             ))}
           </nav>
-          <div className="mt-8 pt-6 border-t border-gray-100">
+          <div className="mt-6 flex justify-center">
+            <LanguageToggle />
+          </div>
+          <div className="mt-4 pt-6 border-t border-gray-100">
             <Link
               to="/apply"
               onClick={onClose}
               className="block w-full text-center px-6 py-3 rounded-xl text-white text-sm font-semibold transition-all hover:opacity-90"
               style={{ backgroundColor: accentColor }}
             >
-              Apply Now
+              {t('nav.apply')}
             </Link>
           </div>
         </div>
       </div>
     </>
+  )
+}
+
+function LanguageToggle() {
+  const { language, setLanguage } = useLanguage()
+  return (
+    <button
+      onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
+      className="text-xs px-2.5 py-1 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors font-medium"
+      aria-label={language === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+    >
+      {language === 'en' ? '\u0939\u093F\u0902\u0926\u0940' : 'English'}
+    </button>
   )
 }
 
@@ -201,6 +220,7 @@ function HamburgerButton({ onClick, color = '#374151' }: { onClick: () => void; 
 function SolidNav(props: NavProps) {
   const { logoUrl, schoolName, primaryColor, accentColor, publishedPages, currentSlug } = props
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { t } = useLanguage()
 
   return (
     <>
@@ -243,12 +263,13 @@ function SolidNav(props: NavProps) {
               ))}
             </div>
             <div className="flex items-center gap-3">
+              <LanguageToggle />
               <Link
                 to="/apply"
                 className="hidden sm:inline-flex px-5 py-2 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90 hover:shadow-md"
                 style={{ backgroundColor: accentColor }}
               >
-                Apply Now
+                {t('nav.apply')}
               </Link>
               <HamburgerButton onClick={() => setMobileOpen(true)} />
             </div>
@@ -263,6 +284,7 @@ function SolidNav(props: NavProps) {
 function FloatingNav(props: NavProps) {
   const { logoUrl, schoolName, primaryColor, accentColor, publishedPages, currentSlug } = props
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { t } = useLanguage()
 
   return (
     <>
@@ -300,12 +322,13 @@ function FloatingNav(props: NavProps) {
                 ))}
               </div>
               <div className="flex items-center gap-3">
+                <LanguageToggle />
                 <Link
                   to="/apply"
                   className="hidden sm:inline-flex px-5 py-2 rounded-full text-white text-sm font-semibold transition-all hover:opacity-90 hover:shadow-md"
                   style={{ backgroundColor: accentColor }}
                 >
-                  Apply Now
+                  {t('nav.apply')}
                 </Link>
                 <HamburgerButton onClick={() => setMobileOpen(true)} />
               </div>
@@ -322,6 +345,7 @@ function TransparentNav(props: NavProps) {
   const { logoUrl, schoolName, primaryColor, accentColor, publishedPages, currentSlug } = props
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 80)
@@ -389,12 +413,13 @@ function TransparentNav(props: NavProps) {
               ))}
             </div>
             <div className="flex items-center gap-3">
+              <LanguageToggle />
               <Link
                 to="/apply"
                 className="hidden sm:inline-flex px-5 py-2 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90 hover:shadow-md"
                 style={{ backgroundColor: accentColor }}
               >
-                Apply Now
+                {t('nav.apply')}
               </Link>
               <HamburgerButton onClick={() => setMobileOpen(true)} color={textColor} />
             </div>
@@ -435,6 +460,7 @@ function RichFooter({
   socialLinks,
   contactInfo,
 }: FooterProps) {
+  const { t } = useLanguage()
   const footerBg = darkenColor(primaryColor, 0.35)
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
@@ -495,7 +521,7 @@ function RichFooter({
 
           {/* Column 2: Quick Links */}
           <div>
-            <h4 className="font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Quick Links</h4>
+            <h4 className="font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">{t('footer.quickLinks')}</h4>
             <nav className="flex flex-col gap-2.5">
               {publishedPages.map(p => (
                 <Link
@@ -514,7 +540,7 @@ function RichFooter({
 
           {/* Column 3: Contact Info */}
           <div>
-            <h4 className="font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Contact Info</h4>
+            <h4 className="font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">{t('footer.contactInfo')}</h4>
             <div className="space-y-3">
               {addressText && (
                 <div className="flex gap-2.5 text-sm text-white/60">
@@ -550,7 +576,7 @@ function RichFooter({
 
           {/* Column 4: Newsletter */}
           <div>
-            <h4 className="font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">Newsletter</h4>
+            <h4 className="font-semibold text-sm uppercase tracking-wider text-white/80 mb-5">{t('footer.newsletter')}</h4>
             <p className="text-sm text-white/50 mb-4">
               Stay updated with the latest news, events, and announcements.
             </p>
@@ -583,7 +609,7 @@ function RichFooter({
                   className="w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90"
                   style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}
                 >
-                  Subscribe
+                  {t('footer.subscribe')}
                 </button>
               </form>
             )}
@@ -593,14 +619,14 @@ function RichFooter({
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-white/40">
-            &copy; {new Date().getFullYear()} {schoolName}. All rights reserved.
+            &copy; {new Date().getFullYear()} {schoolName}. {t('footer.rights')}
           </p>
           <div className="flex items-center gap-4 text-xs text-white/30">
             <a href="#" className="hover:text-white/60 transition-colors">Privacy Policy</a>
             <span>&middot;</span>
             <a href="#" className="hover:text-white/60 transition-colors">Terms of Service</a>
             <span>&middot;</span>
-            <span>Powered by <strong className="text-white/50">PaperBook</strong></span>
+            <span>{t('footer.poweredBy')}</span>
           </div>
         </div>
       </div>
@@ -644,6 +670,14 @@ function ScrollToTopButton({ accentColor }: { accentColor: string }) {
 // ---------------------------------------------------------------------------
 
 export function PublicSchoolPage() {
+  return (
+    <LanguageProvider>
+      <PublicSchoolPageInner />
+    </LanguageProvider>
+  )
+}
+
+function PublicSchoolPageInner() {
   const { slug = 'home' } = useParams()
   const { data: page, isLoading, isError } = usePublicPage(slug)
   const { data: pages } = usePublicPages()
@@ -831,6 +865,9 @@ export function PublicSchoolPage() {
         socialLinks={socialLinks}
         contactInfo={contactInfo}
       />
+
+      {/* ===== CHATBOT WIDGET ===== */}
+      <ChatWidget primaryColor={primaryColor} accentColor={accentColor} schoolName={schoolName} />
 
       {/* ===== WHATSAPP WIDGET ===== */}
       {whatsappNumber && (

@@ -166,12 +166,22 @@ export interface VirtualTourContent { description: string; items: TourStop[]; pr
 
 export interface CtaBannerContent { headline: string; subtitle: string; ctaText: string; ctaLink: string; secondaryCtaText: string; secondaryCtaLink: string; backgroundImage: string; backgroundColor: string; style: 'full' | 'contained' }
 
+export interface SocialFeedContent {
+  instagramUrl: string
+  facebookUrl: string
+  twitterUrl: string
+  youtubeChannelUrl: string
+  layout: 'grid' | 'carousel'
+  showFollowButtons: boolean
+}
+
 export type SectionType =
   | 'hero' | 'about' | 'stats' | 'admissions' | 'faculty' | 'gallery'
   | 'testimonials' | 'events' | 'news' | 'contact' | 'custom_html'
   | 'courses' | 'results' | 'fee_structure' | 'accreditation' | 'infrastructure'
   | 'placements' | 'leadership' | 'downloads' | 'faq' | 'transport'
   | 'student_life' | 'safety' | 'alumni' | 'virtual_tour' | 'cta_banner'
+  | 'social_feed'
 
 export type SectionContent =
   | HeroContent | AboutContent | StatsContent | AdmissionsContent
@@ -181,6 +191,7 @@ export type SectionContent =
   | InfrastructureContent | PlacementsContent | LeadershipContent | DownloadsContent
   | FaqContent | TransportContent | StudentLifeContent | SafetyContent
   | AlumniContent | VirtualTourContent | CtaBannerContent
+  | SocialFeedContent
 
 // ==================== Models ====================
 
@@ -270,4 +281,5 @@ export const SECTION_TYPES: { value: SectionType; label: string; description: st
   { value: 'alumni', label: 'Alumni Network', description: 'Feature notable alumni and success stories', icon: 'Users' },
   { value: 'virtual_tour', label: 'Virtual Tour', description: 'Offer video tours and 360-degree campus views', icon: 'Video' },
   { value: 'cta_banner', label: 'Call to Action', description: 'Add conversion-focused banners and CTAs', icon: 'Megaphone' },
+  { value: 'social_feed', label: 'Social Media Feed', description: 'Embed links to your social media profiles', icon: 'Share2' },
 ]

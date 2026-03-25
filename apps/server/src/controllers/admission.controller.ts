@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as admissionService from '../services/admission.service.js'
+import * as emailCampaignService from '../services/email-campaign.service.js'
 import { AppError } from '../utils/errors.js'
 import {
   listApplicationsSchema, changeStatusSchema, addDocumentSchema,
@@ -257,6 +258,13 @@ export async function publicApply(req: Request, res: Response, next: NextFunctio
       throw AppError.badRequest('No school context. Public apply requires a school subdomain.')
     }
     const result = await admissionService.publicApply(schoolId, req.body as CreateApplicationInput)
+
+    // Fire-and-forget: trigger email campaigns for admission inquiries
+    const body = req.body as CreateApplicationInput
+    if (body.email) {
+      emailCampaignService.processTrigger(schoolId, 'admission_inquiry', body.email, body.studentName).catch(() => {})
+    }
+
     res.status(201).json(result)
   } catch (err) { next(err) }
 }

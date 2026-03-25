@@ -25,6 +25,7 @@ export const sectionTypeEnum = z.enum([
   'courses', 'results', 'fee_structure', 'accreditation', 'infrastructure',
   'placements', 'leadership', 'downloads', 'faq', 'transport',
   'student_life', 'safety', 'alumni', 'virtual_tour', 'cta_banner',
+  'social_feed',
 ])
 
 export const createSectionSchema = z.object({

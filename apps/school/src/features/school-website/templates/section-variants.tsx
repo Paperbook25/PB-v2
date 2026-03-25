@@ -126,6 +126,10 @@ import { CtaBannerFull } from './variants/cta_banner/CtaBannerFull'
 import { CtaBannerContained } from './variants/cta_banner/CtaBannerContained'
 import { CtaBannerMinimal } from './variants/cta_banner/CtaBannerMinimal'
 
+// ==================== Social Feed variants ====================
+import { SocialFeedGrid } from './variants/social_feed/SocialFeedGrid'
+import { SocialFeedCarousel } from './variants/social_feed/SocialFeedCarousel'
+
 // ==================== Variant map ====================
 
 export const VARIANT_MAP: Record<string, Record<string, ComponentType<VariantProps>>> = {
@@ -245,6 +249,10 @@ export const VARIANT_MAP: Record<string, Record<string, ComponentType<VariantPro
     full: CtaBannerFull,
     contained: CtaBannerContained,
     minimal: CtaBannerMinimal,
+  },
+  social_feed: {
+    grid: SocialFeedGrid,
+    carousel: SocialFeedCarousel,
   },
 }
 

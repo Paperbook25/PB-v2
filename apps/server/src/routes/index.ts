@@ -23,6 +23,8 @@ import agentRoutes from './agent.routes.js'
 import websiteRoutes, { websitePublicRouter } from './school-website.routes.js'
 import blogRouter, { blogPublicRouter } from './blog.routes.js'
 import { contactRouter, contactPublicRouter } from './contact.routes.js'
+import { formAnalyticsRouter, formAnalyticsPublicRouter } from './form-analytics.routes.js'
+import { chatbotPublicRouter } from './chatbot.routes.js'
 import domainRouter from './domain.routes.js'
 import communicationRoutes from './communication.routes.js'
 import reportRoutes from './report.routes.js'
@@ -41,6 +43,7 @@ import alumniRouter from './alumni.routes.js'
 import clubRouter from './club.routes.js'
 import facilityRouter from './facility.routes.js'
 import scholarshipRouter from './scholarship.routes.js'
+import emailCampaignRouter from './email-campaign.routes.js'
 import adminRoutes from './admin/index.js'
 
 const router = Router()
@@ -163,6 +166,16 @@ router.use('/scholarships', requireTenant, scholarshipRouter)
 // Contact Submissions
 router.use('/contact', requireTenant, contactRouter)
 router.use('/public/contact', contactPublicRouter) // Public endpoint — no tenant enforcement
+
+// Form Analytics (conversion funnel tracking)
+router.use('/form-analytics', requireTenant, formAnalyticsRouter)
+router.use('/public/form-analytics', formAnalyticsPublicRouter) // Public endpoint — no tenant enforcement
+
+// Chatbot (public, rate limited)
+router.use('/public/chat', chatbotPublicRouter) // Public endpoint — no tenant enforcement
+
+// Email Campaigns / Drip System
+router.use('/email-campaigns', requireTenant, emailCampaignRouter)
 
 // Super Admin Panel (better-auth protected — has its own auth)
 router.use('/admin', adminRoutes)

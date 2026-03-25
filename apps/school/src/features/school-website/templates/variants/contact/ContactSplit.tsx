@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import type { VariantProps } from '../../section-variants'
 import { spacingClass, radiusClass, field } from '../shared'
+import { useFormTracking } from '../../../components/FormTracker'
+import { useLanguage } from '../../../i18n/LanguageContext'
 
 export function ContactSplit({ section, theme }: VariantProps) {
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const { trackField, trackSubmit, getTrackingProps } = useFormTracking('contact')
   const showMap = field<boolean>(section.content, 'showMap', false)
   const showForm = field<boolean>(section.content, 'showForm', true)
   const mapEmbed = field(section.content, 'mapEmbed', '')
@@ -35,6 +39,7 @@ export function ContactSplit({ section, theme }: VariantProps) {
         }),
       })
       if (res.ok) {
+        trackSubmit()
         setSubmitStatus('sent')
         setFormData({ name: '', email: '', phone: '', message: '' })
       } else {
@@ -190,13 +195,14 @@ export function ContactSplit({ section, theme }: VariantProps) {
                   {/* Name */}
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                      Full Name
+                      {t('contact.name')}
                     </label>
                     <input
                       type="text"
                       placeholder="John Doe"
                       value={formData.name}
                       onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      {...getTrackingProps('name')}
                       className={`w-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400 focus:bg-white ${radiusClass(theme.cornerRadius)}`}
                       required
                     />
@@ -205,13 +211,14 @@ export function ContactSplit({ section, theme }: VariantProps) {
                   {/* Email */}
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                      Email Address
+                      {t('contact.email')}
                     </label>
                     <input
                       type="email"
                       placeholder="john@example.com"
                       value={formData.email}
                       onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      {...getTrackingProps('email')}
                       className={`w-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400 focus:bg-white ${radiusClass(theme.cornerRadius)}`}
                       required
                     />
@@ -220,13 +227,14 @@ export function ContactSplit({ section, theme }: VariantProps) {
                   {/* Phone */}
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                      Phone Number
+                      {t('contact.phone')}
                     </label>
                     <input
                       type="tel"
                       placeholder="+91 98765 43210"
                       value={formData.phone}
                       onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      {...getTrackingProps('phone')}
                       className={`w-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400 focus:bg-white ${radiusClass(theme.cornerRadius)}`}
                     />
                   </div>
@@ -234,13 +242,14 @@ export function ContactSplit({ section, theme }: VariantProps) {
                   {/* Message */}
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                      Message
+                      {t('contact.message')}
                     </label>
                     <textarea
                       placeholder="Tell us how we can help..."
                       rows={4}
                       value={formData.message}
                       onChange={e => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                      {...getTrackingProps('message')}
                       className={`w-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400 focus:bg-white ${radiusClass(theme.cornerRadius)}`}
                       required
                     />
@@ -249,7 +258,7 @@ export function ContactSplit({ section, theme }: VariantProps) {
                   {/* Status messages */}
                   {submitStatus === 'sent' && (
                     <p className="text-sm text-green-600 text-center font-medium">
-                      Thank you! We'll get back to you within 24 hours.
+                      {t('contact.success')}
                     </p>
                   )}
                   {submitStatus === 'error' && (
@@ -273,7 +282,7 @@ export function ContactSplit({ section, theme }: VariantProps) {
                         </svg>
                         Sending...
                       </span>
-                    ) : 'Send Message'}
+                    ) : t('contact.send')}
                   </button>
 
                   <p className="text-center text-xs text-gray-400">

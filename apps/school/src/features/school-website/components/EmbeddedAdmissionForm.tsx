@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
+import { useFormTracking } from './FormTracker'
 
 // ==================== Schema ====================
 
@@ -88,6 +89,7 @@ export function EmbeddedAdmissionForm({
   const [submitted, setSubmitted] = useState(false)
   const [applicationNumber, setApplicationNumber] = useState('')
   const { toast } = useToast()
+  const { trackField, trackSubmit, getTrackingProps } = useFormTracking('admission')
 
   const form = useForm<FormData>({
     resolver: zodResolver(fullSchema),
@@ -160,6 +162,7 @@ export function EmbeddedAdmissionForm({
       }
 
       const result = await response.json()
+      trackSubmit()
       setApplicationNumber(result.data?.applicationNumber || result.applicationNumber || '')
       setSubmitted(true)
     } catch (err) {
@@ -281,6 +284,7 @@ export function EmbeddedAdmissionForm({
                 id="emb-studentName"
                 placeholder="Full name of the student"
                 {...register('studentName')}
+                {...getTrackingProps('studentName')}
               />
               {errors.studentName && (
                 <p className="text-sm text-red-600">{errors.studentName.message}</p>
@@ -295,6 +299,7 @@ export function EmbeddedAdmissionForm({
                 id="emb-dateOfBirth"
                 type="date"
                 {...register('dateOfBirth')}
+                {...getTrackingProps('dateOfBirth')}
               />
               {errors.dateOfBirth && (
                 <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>
@@ -334,6 +339,7 @@ export function EmbeddedAdmissionForm({
                 type="email"
                 placeholder="student@example.com"
                 {...register('email')}
+                {...getTrackingProps('email')}
               />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -350,6 +356,7 @@ export function EmbeddedAdmissionForm({
               type="tel"
               placeholder="10-digit phone number"
               {...register('phone')}
+              {...getTrackingProps('phone')}
             />
             {errors.phone && (
               <p className="text-sm text-red-600">{errors.phone.message}</p>
@@ -393,6 +400,7 @@ export function EmbeddedAdmissionForm({
               id="emb-previousSchool"
               placeholder="Name of previous school"
               {...register('previousSchool')}
+              {...getTrackingProps('previousSchool')}
             />
             {errors.previousSchool && (
               <p className="text-sm text-red-600">{errors.previousSchool.message}</p>
@@ -407,6 +415,7 @@ export function EmbeddedAdmissionForm({
               id="emb-previousClass"
               placeholder="e.g., Class 5"
               {...register('previousClass')}
+              {...getTrackingProps('previousClass')}
             />
             {errors.previousClass && (
               <p className="text-sm text-red-600">{errors.previousClass.message}</p>
@@ -427,6 +436,7 @@ export function EmbeddedAdmissionForm({
                 id="emb-fatherName"
                 placeholder="Father's full name"
                 {...register('fatherName')}
+                {...getTrackingProps('fatherName')}
               />
               {errors.fatherName && (
                 <p className="text-sm text-red-600">{errors.fatherName.message}</p>
@@ -441,6 +451,7 @@ export function EmbeddedAdmissionForm({
                 id="emb-motherName"
                 placeholder="Mother's full name"
                 {...register('motherName')}
+                {...getTrackingProps('motherName')}
               />
               {errors.motherName && (
                 <p className="text-sm text-red-600">{errors.motherName.message}</p>
@@ -458,6 +469,7 @@ export function EmbeddedAdmissionForm({
                 type="tel"
                 placeholder="10-digit phone number"
                 {...register('guardianPhone')}
+                {...getTrackingProps('guardianPhone')}
               />
               {errors.guardianPhone && (
                 <p className="text-sm text-red-600">{errors.guardianPhone.message}</p>
@@ -473,6 +485,7 @@ export function EmbeddedAdmissionForm({
                 type="email"
                 placeholder="guardian@example.com"
                 {...register('guardianEmail')}
+                {...getTrackingProps('guardianEmail')}
               />
               {errors.guardianEmail && (
                 <p className="text-sm text-red-600">{errors.guardianEmail.message}</p>

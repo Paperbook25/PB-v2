@@ -549,6 +549,8 @@ export const MODULE_NAV: Record<string, ModuleNavConfig> = {
       { type: 'item', name: 'Look & Feel', href: '/school-website?tab=settings', icon: Paintbrush },
       { type: 'item', name: 'Leads', href: '/school-website?tab=leads', icon: Users },
       { type: 'item', name: 'Analytics', href: '/school-website?tab=analytics', icon: LineChart },
+      { type: 'item', name: 'Form Analytics', href: '/school-website?tab=form-analytics', icon: Target },
+      { type: 'item', name: 'Email Campaigns', href: '/school-website?tab=campaigns', icon: Mail },
     ],
   },
 

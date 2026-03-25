@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api-client'
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
 import type { PaginatedResponse } from '@/types/common.types'
 import type {
   Book,
@@ -94,16 +94,19 @@ export interface MyFinesResponse {
 
 // ==================== USER-SCOPED ENDPOINTS ====================
 
+// TODO: Backend not implemented — returns placeholder
 export async function fetchMyIssuedBooks(): Promise<{ data: IssuedBook[] }> {
-  return apiGet(`${API_BASE}/my-books`)
+  return { data: [] }
 }
 
+// TODO: Backend not implemented — returns placeholder
 export async function fetchMyChildrenBooks(): Promise<{ data: ChildBooksData[] }> {
-  return apiGet(`${API_BASE}/my-children-books`)
+  return { data: [] }
 }
 
+// TODO: Backend not implemented — returns placeholder
 export async function fetchMyLibraryFines(): Promise<{ data: MyFinesResponse }> {
-  return apiGet(`${API_BASE}/my-fines`)
+  return { data: { fines: [], summary: { totalFines: 0, pendingFines: 0, paidFines: 0 } } }
 }
 
 // ==================== BOOKS CRUD ====================
@@ -163,35 +166,27 @@ export async function returnBook(
   return apiPost<{ data: IssuedBook; fine: Fine | null }>(`${API_BASE}/return/${issuedBookId}`)
 }
 
+// TODO: Backend not implemented — returns placeholder
 export async function renewBook(
-  issuedBookId: string,
-  newDueDate?: string
+  _issuedBookId: string,
+  _newDueDate?: string
 ): Promise<RenewBookResponse> {
-  return apiPost<RenewBookResponse>(`${API_BASE}/renew/${issuedBookId}`, {
-    issuedBookId,
-    newDueDate,
-  })
+  return { success: false, message: 'Feature coming soon' } as unknown as RenewBookResponse
 }
 
 // ==================== FINES ====================
+// TODO: Backend not implemented — fines management returns placeholders
 
-export async function fetchFines(filters: FineFilters = {}): Promise<PaginatedResponse<Fine>> {
-  const params = new URLSearchParams()
-
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-
-  return apiGet<PaginatedResponse<Fine>>(`${API_BASE}/fines?${params.toString()}`)
+export async function fetchFines(_filters: FineFilters = {}): Promise<PaginatedResponse<Fine>> {
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Fine>
 }
 
-export async function updateFine(id: string, data: UpdateFineRequest): Promise<{ data: Fine }> {
-  return apiPatch<{ data: Fine }>(`${API_BASE}/fines/${id}`, data)
+export async function updateFine(_id: string, _data: UpdateFineRequest): Promise<{ data: Fine }> {
+  return { data: {} as Fine }
 }
 
-export async function deleteFine(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/fines/${id}`)
+export async function deleteFine(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 // ==================== STATS & UTILITY ====================
@@ -200,454 +195,357 @@ export async function fetchLibraryStats(): Promise<{ data: LibraryStats }> {
   return apiGet<{ data: LibraryStats }>(`${API_BASE}/stats`)
 }
 
+// TODO: Backend not implemented — returns placeholder
 export async function fetchAvailableStudents(
-  search?: string
+  _search?: string
 ): Promise<{ data: StudentForLibrary[] }> {
-  const params = search ? `?search=${encodeURIComponent(search)}` : ''
-  return apiGet<{ data: StudentForLibrary[] }>(`${API_BASE}/students${params}`)
+  return { data: [] }
 }
 
 // ==================== RESERVATIONS ====================
+// TODO: Backend not implemented — reservations returns placeholders
 
 export async function fetchReservations(
-  filters: { search?: string; status?: string; page?: number; limit?: number } = {}
+  _filters: { search?: string; status?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<BookReservation>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-
-  return apiGet<PaginatedResponse<BookReservation>>(`${API_BASE}/reservations?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<BookReservation>
 }
 
-export async function createReservation(data: CreateReservationRequest): Promise<{ data: BookReservation }> {
-  return apiPost<{ data: BookReservation }>(`${API_BASE}/reservations`, data)
+export async function createReservation(_data: CreateReservationRequest): Promise<{ data: BookReservation }> {
+  return { data: {} as BookReservation }
 }
 
-export async function cancelReservation(id: string): Promise<{ data: BookReservation }> {
-  return apiPatch<{ data: BookReservation }>(`${API_BASE}/reservations/${id}/cancel`)
+export async function cancelReservation(_id: string): Promise<{ data: BookReservation }> {
+  return { data: {} as BookReservation }
 }
 
 // ==================== READING HISTORY & RECOMMENDATIONS ====================
+// TODO: Backend not implemented — reading history & recommendations return placeholders
 
 export async function fetchReadingHistory(
-  filters: { studentId?: string; category?: string; page?: number; limit?: number } = {}
+  _filters: { studentId?: string; category?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<ReadingRecord>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.studentId) params.set('studentId', filters.studentId)
-  if (filters.category && filters.category !== 'all') params.set('category', filters.category)
-
-  return apiGet<PaginatedResponse<ReadingRecord>>(`${API_BASE}/reading-history?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<ReadingRecord>
 }
 
-export async function fetchStudentReadingReport(studentId: string): Promise<{ data: StudentReadingReport }> {
-  return apiGet<{ data: StudentReadingReport }>(`${API_BASE}/reading-report/${studentId}`)
+export async function fetchStudentReadingReport(_studentId: string): Promise<{ data: StudentReadingReport }> {
+  return { data: {} as StudentReadingReport }
 }
 
-export async function fetchBookRecommendations(studentId: string): Promise<{ data: BookRecommendation[] }> {
-  return apiGet<{ data: BookRecommendation[] }>(`${API_BASE}/recommendations/${studentId}`)
+export async function fetchBookRecommendations(_studentId: string): Promise<{ data: BookRecommendation[] }> {
+  return { data: [] }
 }
 
 // ==================== DIGITAL LIBRARY ====================
+// TODO: Backend not implemented — digital library returns placeholders
 
 export async function fetchDigitalBooks(
-  filters: DigitalBookFilters = {}
+  _filters: DigitalBookFilters = {}
 ): Promise<PaginatedResponse<DigitalBook>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.search) params.set('search', filters.search)
-  if (filters.category && filters.category !== 'all') params.set('category', filters.category)
-  if (filters.format && filters.format !== 'all') params.set('format', filters.format)
-
-  return apiGet<PaginatedResponse<DigitalBook>>(`${API_BASE}/digital?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<DigitalBook>
 }
 
-export async function recordDigitalAccess(id: string): Promise<{ data: DigitalBook }> {
-  return apiPost<{ data: DigitalBook }>(`${API_BASE}/digital/${id}/access`)
+export async function recordDigitalAccess(_id: string): Promise<{ data: DigitalBook }> {
+  return { data: {} as DigitalBook }
 }
 
 // ==================== OVERDUE NOTIFICATIONS ====================
+// TODO: Backend not implemented — overdue notification management returns placeholders
 
 export async function fetchOverdueNotifications(
-  filters: { channel?: string; status?: string; page?: number; limit?: number } = {}
+  _filters: { channel?: string; status?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<OverdueNotification>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.channel && filters.channel !== 'all') params.set('channel', filters.channel)
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-
-  return apiGet<PaginatedResponse<OverdueNotification>>(`${API_BASE}/notifications?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<OverdueNotification>
 }
 
 export async function fetchNotificationConfig(): Promise<{ data: NotificationConfig }> {
-  return apiGet<{ data: NotificationConfig }>(`${API_BASE}/notifications/config`)
+  return { data: {} as NotificationConfig }
 }
 
-export async function updateNotificationConfig(data: Partial<NotificationConfig>): Promise<{ data: NotificationConfig }> {
-  return apiPut<{ data: NotificationConfig }>(`${API_BASE}/notifications/config`, data)
+export async function updateNotificationConfig(_data: Partial<NotificationConfig>): Promise<{ data: NotificationConfig }> {
+  return { data: {} as NotificationConfig }
 }
 
 export async function sendOverdueNotification(
-  issuedBookId: string,
-  channel: string
+  _issuedBookId: string,
+  _channel: string
 ): Promise<{ data: OverdueNotification }> {
-  return apiPost<{ data: OverdueNotification }>(`${API_BASE}/notifications/send`, { issuedBookId, channel })
+  return { data: {} as OverdueNotification }
 }
 
 // ==================== BARCODE SCANNING ====================
+// TODO: Backend not implemented — barcode scanning returns placeholder
 
-export async function scanBarcode(isbn: string): Promise<{ data: BarcodeScanResult }> {
-  return apiGet<{ data: BarcodeScanResult }>(`${API_BASE}/scan/${encodeURIComponent(isbn)}`)
+export async function scanBarcode(_isbn: string): Promise<{ data: BarcodeScanResult }> {
+  return { data: {} as BarcodeScanResult }
 }
 
 // ==================== RFID TRACKING ====================
+// TODO: Backend not implemented — RFID tracking returns placeholders
 
 export async function fetchRFIDTags(
-  filters: { bookId?: string; status?: string; search?: string; page?: number; limit?: number } = {}
+  _filters: { bookId?: string; status?: string; search?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<RFIDTag>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.bookId) params.set('bookId', filters.bookId)
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-  if (filters.search) params.set('search', filters.search)
-
-  return apiGet<PaginatedResponse<RFIDTag>>(`${API_BASE}/rfid/tags?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<RFIDTag>
 }
 
-export async function fetchRFIDTag(id: string): Promise<{ data: RFIDTag }> {
-  return apiGet<{ data: RFIDTag }>(`${API_BASE}/rfid/tags/${id}`)
+export async function fetchRFIDTag(_id: string): Promise<{ data: RFIDTag }> {
+  return { data: {} as RFIDTag }
 }
 
-export async function createRFIDTag(data: CreateRFIDTagRequest): Promise<{ data: RFIDTag }> {
-  return apiPost<{ data: RFIDTag }>(`${API_BASE}/rfid/tags`, data)
+export async function createRFIDTag(_data: CreateRFIDTagRequest): Promise<{ data: RFIDTag }> {
+  return { data: {} as RFIDTag }
 }
 
-export async function updateRFIDTag(id: string, data: UpdateRFIDTagRequest): Promise<{ data: RFIDTag }> {
-  return apiPatch<{ data: RFIDTag }>(`${API_BASE}/rfid/tags/${id}`, data)
+export async function updateRFIDTag(_id: string, _data: UpdateRFIDTagRequest): Promise<{ data: RFIDTag }> {
+  return { data: {} as RFIDTag }
 }
 
-export async function deleteRFIDTag(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/rfid/tags/${id}`)
+export async function deleteRFIDTag(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function fetchRFIDGates(): Promise<{ data: RFIDGate[] }> {
-  return apiGet<{ data: RFIDGate[] }>(`${API_BASE}/rfid/gates`)
+  return { data: [] }
 }
 
-export async function fetchRFIDScans(filters: RFIDScanFilters = {}): Promise<PaginatedResponse<RFIDScan>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.gateId) params.set('gateId', filters.gateId)
-  if (filters.scanType && filters.scanType !== 'all') params.set('scanType', filters.scanType)
-  if (filters.isAlert !== undefined) params.set('isAlert', String(filters.isAlert))
-  if (filters.startDate) params.set('startDate', filters.startDate)
-  if (filters.endDate) params.set('endDate', filters.endDate)
-
-  return apiGet<PaginatedResponse<RFIDScan>>(`${API_BASE}/rfid/scans?${params.toString()}`)
+export async function fetchRFIDScans(_filters: RFIDScanFilters = {}): Promise<PaginatedResponse<RFIDScan>> {
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<RFIDScan>
 }
 
-export async function simulateRFIDScan(tagId: string, gateId: string): Promise<{ data: RFIDScan }> {
-  return apiPost<{ data: RFIDScan }>(`${API_BASE}/rfid/scan`, { tagId, gateId })
+export async function simulateRFIDScan(_tagId: string, _gateId: string): Promise<{ data: RFIDScan }> {
+  return { data: {} as RFIDScan }
 }
 
 // ==================== INTER-LIBRARY LOANS ====================
+// TODO: Backend not implemented — inter-library loan system returns placeholders
 
 export async function fetchPartnerLibraries(
-  filters: { status?: string; search?: string; page?: number; limit?: number } = {}
+  _filters: { status?: string; search?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<PartnerLibrary>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-  if (filters.search) params.set('search', filters.search)
-
-  return apiGet<PaginatedResponse<PartnerLibrary>>(`${API_BASE}/ill/partners?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<PartnerLibrary>
 }
 
-export async function fetchPartnerLibrary(id: string): Promise<{ data: PartnerLibrary }> {
-  return apiGet<{ data: PartnerLibrary }>(`${API_BASE}/ill/partners/${id}`)
+export async function fetchPartnerLibrary(_id: string): Promise<{ data: PartnerLibrary }> {
+  return { data: {} as PartnerLibrary }
 }
 
-export async function createPartnerLibrary(data: CreatePartnerLibraryRequest): Promise<{ data: PartnerLibrary }> {
-  return apiPost<{ data: PartnerLibrary }>(`${API_BASE}/ill/partners`, data)
+export async function createPartnerLibrary(_data: CreatePartnerLibraryRequest): Promise<{ data: PartnerLibrary }> {
+  return { data: {} as PartnerLibrary }
 }
 
 export async function updatePartnerLibrary(
-  id: string,
-  data: UpdatePartnerLibraryRequest
+  _id: string,
+  _data: UpdatePartnerLibraryRequest
 ): Promise<{ data: PartnerLibrary }> {
-  return apiPut<{ data: PartnerLibrary }>(`${API_BASE}/ill/partners/${id}`, data)
+  return { data: {} as PartnerLibrary }
 }
 
-export async function deletePartnerLibrary(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/ill/partners/${id}`)
+export async function deletePartnerLibrary(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function fetchInterLibraryLoans(
-  filters: InterLibraryLoanFilters = {}
+  _filters: InterLibraryLoanFilters = {}
 ): Promise<PaginatedResponse<InterLibraryLoan>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.direction && filters.direction !== 'all') params.set('direction', filters.direction)
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-  if (filters.partnerLibraryId) params.set('partnerLibraryId', filters.partnerLibraryId)
-  if (filters.search) params.set('search', filters.search)
-
-  return apiGet<PaginatedResponse<InterLibraryLoan>>(`${API_BASE}/ill/loans?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<InterLibraryLoan>
 }
 
-export async function fetchInterLibraryLoan(id: string): Promise<{ data: InterLibraryLoan }> {
-  return apiGet<{ data: InterLibraryLoan }>(`${API_BASE}/ill/loans/${id}`)
+export async function fetchInterLibraryLoan(_id: string): Promise<{ data: InterLibraryLoan }> {
+  return { data: {} as InterLibraryLoan }
 }
 
 export async function createInterLibraryLoan(
-  data: CreateInterLibraryLoanRequest
+  _data: CreateInterLibraryLoanRequest
 ): Promise<{ data: InterLibraryLoan }> {
-  return apiPost<{ data: InterLibraryLoan }>(`${API_BASE}/ill/loans`, data)
+  return { data: {} as InterLibraryLoan }
 }
 
 export async function updateInterLibraryLoan(
-  id: string,
-  data: UpdateInterLibraryLoanRequest
+  _id: string,
+  _data: UpdateInterLibraryLoanRequest
 ): Promise<{ data: InterLibraryLoan }> {
-  return apiPatch<{ data: InterLibraryLoan }>(`${API_BASE}/ill/loans/${id}`, data)
+  return { data: {} as InterLibraryLoan }
 }
 
 // ==================== READING CHALLENGES / GAMIFICATION ====================
+// TODO: Backend not implemented — gamification system returns placeholders
 
 export async function fetchReadingChallenges(
-  filters: { status?: string; type?: string; page?: number; limit?: number } = {}
+  _filters: { status?: string; type?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<ReadingChallenge>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-  if (filters.type && filters.type !== 'all') params.set('type', filters.type)
-
-  return apiGet<PaginatedResponse<ReadingChallenge>>(`${API_BASE}/challenges?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<ReadingChallenge>
 }
 
-export async function fetchReadingChallenge(id: string): Promise<{ data: ReadingChallenge }> {
-  return apiGet<{ data: ReadingChallenge }>(`${API_BASE}/challenges/${id}`)
+export async function fetchReadingChallenge(_id: string): Promise<{ data: ReadingChallenge }> {
+  return { data: {} as ReadingChallenge }
 }
 
 export async function createReadingChallenge(
-  data: CreateReadingChallengeRequest
+  _data: CreateReadingChallengeRequest
 ): Promise<{ data: ReadingChallenge }> {
-  return apiPost<{ data: ReadingChallenge }>(`${API_BASE}/challenges`, data)
+  return { data: {} as ReadingChallenge }
 }
 
 export async function updateReadingChallenge(
-  id: string,
-  data: UpdateReadingChallengeRequest
+  _id: string,
+  _data: UpdateReadingChallengeRequest
 ): Promise<{ data: ReadingChallenge }> {
-  return apiPatch<{ data: ReadingChallenge }>(`${API_BASE}/challenges/${id}`, data)
+  return { data: {} as ReadingChallenge }
 }
 
-export async function deleteReadingChallenge(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/challenges/${id}`)
+export async function deleteReadingChallenge(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function fetchChallengeProgress(
-  challengeId: string,
-  filters: { page?: number; limit?: number } = {}
+  _challengeId: string,
+  _filters: { page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<ChallengeProgress>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-
-  return apiGet<PaginatedResponse<ChallengeProgress>>(
-    `${API_BASE}/challenges/${challengeId}/progress?${params.toString()}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<ChallengeProgress>
 }
 
-export async function fetchStudentChallengeProgress(studentId: string): Promise<{ data: ChallengeProgress[] }> {
-  return apiGet<{ data: ChallengeProgress[] }>(`${API_BASE}/challenges/student/${studentId}`)
+export async function fetchStudentChallengeProgress(_studentId: string): Promise<{ data: ChallengeProgress[] }> {
+  return { data: [] }
 }
 
-export async function joinChallenge(challengeId: string, studentId: string): Promise<{ data: ChallengeProgress }> {
-  return apiPost<{ data: ChallengeProgress }>(`${API_BASE}/challenges/${challengeId}/join`, { studentId })
+export async function joinChallenge(_challengeId: string, _studentId: string): Promise<{ data: ChallengeProgress }> {
+  return { data: {} as ChallengeProgress }
 }
 
 export async function fetchBadges(
-  filters: { category?: string; rarity?: string; page?: number; limit?: number } = {}
+  _filters: { category?: string; rarity?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<Badge>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.category && filters.category !== 'all') params.set('category', filters.category)
-  if (filters.rarity && filters.rarity !== 'all') params.set('rarity', filters.rarity)
-
-  return apiGet<PaginatedResponse<Badge>>(`${API_BASE}/badges?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Badge>
 }
 
-export async function fetchStudentBadges(studentId: string): Promise<{ data: StudentBadge[] }> {
-  return apiGet<{ data: StudentBadge[] }>(`${API_BASE}/badges/student/${studentId}`)
+export async function fetchStudentBadges(_studentId: string): Promise<{ data: StudentBadge[] }> {
+  return { data: [] }
 }
 
 export async function fetchStudentGamificationProfile(
-  studentId: string
+  _studentId: string
 ): Promise<{ data: StudentGamificationProfile }> {
-  return apiGet<{ data: StudentGamificationProfile }>(`${API_BASE}/gamification/profile/${studentId}`)
+  return { data: {} as StudentGamificationProfile }
 }
 
 export async function fetchLeaderboard(
-  period: 'weekly' | 'monthly' | 'all_time' = 'weekly'
+  _period: 'weekly' | 'monthly' | 'all_time' = 'weekly'
 ): Promise<{ data: Leaderboard }> {
-  return apiGet<{ data: Leaderboard }>(`${API_BASE}/gamification/leaderboard?period=${period}`)
+  return { data: {} as Leaderboard }
 }
 
 // ==================== BOOK RECOMMENDATIONS ====================
+// TODO: Backend not implemented — enhanced recommendation engine returns placeholders
 
 export async function fetchEnhancedRecommendations(
-  studentId: string,
-  filters: { source?: string; limit?: number } = {}
+  _studentId: string,
+  _filters: { source?: string; limit?: number } = {}
 ): Promise<{ data: EnhancedBookRecommendation[] }> {
-  const params = new URLSearchParams()
-  if (filters.source && filters.source !== 'all') params.set('source', filters.source)
-  if (filters.limit) params.set('limit', String(filters.limit))
-
-  return apiGet<{ data: EnhancedBookRecommendation[] }>(
-    `${API_BASE}/recommendations/enhanced/${studentId}?${params.toString()}`
-  )
+  return { data: [] }
 }
 
-export async function fetchReadingPreferences(studentId: string): Promise<{ data: ReadingPreference }> {
-  return apiGet<{ data: ReadingPreference }>(`${API_BASE}/recommendations/preferences/${studentId}`)
+export async function fetchReadingPreferences(_studentId: string): Promise<{ data: ReadingPreference }> {
+  return { data: {} as ReadingPreference }
 }
 
 export async function updateReadingPreferences(
-  studentId: string,
-  data: UpdateReadingPreferenceRequest
+  _studentId: string,
+  _data: UpdateReadingPreferenceRequest
 ): Promise<{ data: ReadingPreference }> {
-  return apiPut<{ data: ReadingPreference }>(`${API_BASE}/recommendations/preferences/${studentId}`, data)
+  return { data: {} as ReadingPreference }
 }
 
 export async function fetchRecommendationSettings(): Promise<{ data: RecommendationSettings }> {
-  return apiGet<{ data: RecommendationSettings }>(`${API_BASE}/recommendations/settings`)
+  return { data: {} as RecommendationSettings }
 }
 
 export async function updateRecommendationSettings(
-  data: Partial<RecommendationSettings>
+  _data: Partial<RecommendationSettings>
 ): Promise<{ data: RecommendationSettings }> {
-  return apiPut<{ data: RecommendationSettings }>(`${API_BASE}/recommendations/settings`, data)
+  return { data: {} as RecommendationSettings }
 }
 
 // ==================== E-READER INTEGRATION ====================
+// TODO: Backend not implemented — e-reader integration returns placeholders
 
-export async function fetchEReaderDevices(filters: EReaderFilters = {}): Promise<PaginatedResponse<EReaderDevice>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.deviceType && filters.deviceType !== 'all') params.set('deviceType', filters.deviceType)
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-  if (filters.assignedToType && filters.assignedToType !== 'all') params.set('assignedToType', filters.assignedToType)
-  if (filters.search) params.set('search', filters.search)
-
-  return apiGet<PaginatedResponse<EReaderDevice>>(`${API_BASE}/ereader/devices?${params.toString()}`)
+export async function fetchEReaderDevices(_filters: EReaderFilters = {}): Promise<PaginatedResponse<EReaderDevice>> {
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<EReaderDevice>
 }
 
-export async function fetchEReaderDevice(id: string): Promise<{ data: EReaderDevice }> {
-  return apiGet<{ data: EReaderDevice }>(`${API_BASE}/ereader/devices/${id}`)
+export async function fetchEReaderDevice(_id: string): Promise<{ data: EReaderDevice }> {
+  return { data: {} as EReaderDevice }
 }
 
-export async function createEReaderDevice(data: CreateEReaderDeviceRequest): Promise<{ data: EReaderDevice }> {
-  return apiPost<{ data: EReaderDevice }>(`${API_BASE}/ereader/devices`, data)
+export async function createEReaderDevice(_data: CreateEReaderDeviceRequest): Promise<{ data: EReaderDevice }> {
+  return { data: {} as EReaderDevice }
 }
 
 export async function updateEReaderDevice(
-  id: string,
-  data: UpdateEReaderDeviceRequest
+  _id: string,
+  _data: UpdateEReaderDeviceRequest
 ): Promise<{ data: EReaderDevice }> {
-  return apiPatch<{ data: EReaderDevice }>(`${API_BASE}/ereader/devices/${id}`, data)
+  return { data: {} as EReaderDevice }
 }
 
-export async function deleteEReaderDevice(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/ereader/devices/${id}`)
+export async function deleteEReaderDevice(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function assignEReaderDevice(data: AssignEReaderRequest): Promise<{ data: EReaderDevice }> {
-  return apiPost<{ data: EReaderDevice }>(`${API_BASE}/ereader/devices/assign`, data)
+export async function assignEReaderDevice(_data: AssignEReaderRequest): Promise<{ data: EReaderDevice }> {
+  return { data: {} as EReaderDevice }
 }
 
-export async function unassignEReaderDevice(deviceId: string): Promise<{ data: EReaderDevice }> {
-  return apiPost<{ data: EReaderDevice }>(`${API_BASE}/ereader/devices/${deviceId}/unassign`)
+export async function unassignEReaderDevice(_deviceId: string): Promise<{ data: EReaderDevice }> {
+  return { data: {} as EReaderDevice }
 }
 
-export async function syncEReaderDevice(deviceId: string): Promise<{ data: EReaderSyncLog }> {
-  return apiPost<{ data: EReaderSyncLog }>(`${API_BASE}/ereader/devices/${deviceId}/sync`)
+export async function syncEReaderDevice(_deviceId: string): Promise<{ data: EReaderSyncLog }> {
+  return { data: {} as EReaderSyncLog }
 }
 
 export async function fetchEBookLicenses(
-  filters: EBookLicenseFilters = {}
+  _filters: EBookLicenseFilters = {}
 ): Promise<PaginatedResponse<EBookLicense>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.licenseType && filters.licenseType !== 'all') params.set('licenseType', filters.licenseType)
-  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
-  if (filters.search) params.set('search', filters.search)
-
-  return apiGet<PaginatedResponse<EBookLicense>>(`${API_BASE}/ereader/licenses?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<EBookLicense>
 }
 
-export async function fetchEBookLicense(id: string): Promise<{ data: EBookLicense }> {
-  return apiGet<{ data: EBookLicense }>(`${API_BASE}/ereader/licenses/${id}`)
+export async function fetchEBookLicense(_id: string): Promise<{ data: EBookLicense }> {
+  return { data: {} as EBookLicense }
 }
 
-export async function createEBookLicense(data: CreateEBookLicenseRequest): Promise<{ data: EBookLicense }> {
-  return apiPost<{ data: EBookLicense }>(`${API_BASE}/ereader/licenses`, data)
+export async function createEBookLicense(_data: CreateEBookLicenseRequest): Promise<{ data: EBookLicense }> {
+  return { data: {} as EBookLicense }
 }
 
 export async function updateEBookLicense(
-  id: string,
-  data: UpdateEBookLicenseRequest
+  _id: string,
+  _data: UpdateEBookLicenseRequest
 ): Promise<{ data: EBookLicense }> {
-  return apiPatch<{ data: EBookLicense }>(`${API_BASE}/ereader/licenses/${id}`, data)
+  return { data: {} as EBookLicense }
 }
 
-export async function deleteEBookLicense(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/ereader/licenses/${id}`)
+export async function deleteEBookLicense(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function checkoutEBook(data: EBookCheckoutRequest): Promise<{ data: EBookCheckout }> {
-  return apiPost<{ data: EBookCheckout }>(`${API_BASE}/ereader/checkout`, data)
+export async function checkoutEBook(_data: EBookCheckoutRequest): Promise<{ data: EBookCheckout }> {
+  return { data: {} as EBookCheckout }
 }
 
-export async function returnEBook(checkoutId: string): Promise<{ data: EBookCheckout }> {
-  return apiPost<{ data: EBookCheckout }>(`${API_BASE}/ereader/checkout/${checkoutId}/return`)
+export async function returnEBook(_checkoutId: string): Promise<{ data: EBookCheckout }> {
+  return { data: {} as EBookCheckout }
 }
 
 export async function fetchEBookCheckouts(
-  filters: { userId?: string; licenseId?: string; isActive?: boolean; page?: number; limit?: number } = {}
+  _filters: { userId?: string; licenseId?: string; isActive?: boolean; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<EBookCheckout>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-  if (filters.userId) params.set('userId', filters.userId)
-  if (filters.licenseId) params.set('licenseId', filters.licenseId)
-  if (filters.isActive !== undefined) params.set('isActive', String(filters.isActive))
-
-  return apiGet<PaginatedResponse<EBookCheckout>>(`${API_BASE}/ereader/checkouts?${params.toString()}`)
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<EBookCheckout>
 }
 
 export async function fetchEReaderSyncLogs(
-  deviceId: string,
-  filters: { page?: number; limit?: number } = {}
+  _deviceId: string,
+  _filters: { page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<EReaderSyncLog>> {
-  const params = new URLSearchParams()
-  if (filters.page) params.set('page', String(filters.page))
-  if (filters.limit) params.set('limit', String(filters.limit))
-
-  return apiGet<PaginatedResponse<EReaderSyncLog>>(
-    `${API_BASE}/ereader/devices/${deviceId}/sync-logs?${params.toString()}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<EReaderSyncLog>
 }

@@ -489,6 +489,7 @@ export const MODULE_NAV: Record<string, ModuleNavConfig> = {
       },
       { type: 'item', name: 'Permissions', href: '/settings?tab=permissions', icon: Lock, roles: ['admin', 'principal'] },
       { type: 'item', name: 'Modules', href: '/settings?tab=modules', icon: Puzzle, roles: ['admin'] },
+      { type: 'item', name: 'Subscription', href: '/settings?tab=subscription', icon: CreditCard, roles: ['admin'] },
       {
         type: 'group',
         name: 'Communication',

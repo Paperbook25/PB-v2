@@ -45,6 +45,7 @@ import facilityRouter from './facility.routes.js'
 import scholarshipRouter from './scholarship.routes.js'
 import emailCampaignRouter from './email-campaign.routes.js'
 import { requireAddon } from '../middleware/addon.middleware.js'
+import subscriptionRoutes from './subscription.routes.js'
 import adminRoutes from './admin/index.js'
 
 const router = Router()
@@ -89,6 +90,9 @@ router.use('/online-exams', requireTenant, onlineExamRouter)
 
 // Addon / License System
 router.use('/addons', requireTenant, addonRoutes)
+
+// Subscription / Plan Management
+router.use('/subscription', requireTenant, subscriptionRoutes)
 
 // Calendar view (Google Calendar-style)
 router.use('/calendar', requireTenant, calendarRoutes)

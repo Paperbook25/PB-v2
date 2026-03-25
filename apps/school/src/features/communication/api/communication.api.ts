@@ -111,37 +111,30 @@ export async function deleteAnnouncement(id: string): Promise<{ success: boolean
   return apiDelete<{ success: boolean }>(`${API_BASE}/announcements/${id}`)
 }
 
-export async function acknowledgeAnnouncement(id: string): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/announcements/${id}/acknowledge`)
+// TODO: Backend not implemented — announcement acknowledgement returns placeholder
+export async function acknowledgeAnnouncement(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 // ===== Conversations & Messages =====
-export async function fetchConversations(
-  filters: ConversationFilters = {}
-): Promise<PaginatedResponse<Conversation>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.type) params.set('type', filters.type)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
+// TODO: Backend not implemented — messaging system returns placeholders
 
-  return apiGet<PaginatedResponse<Conversation>>(
-    `${API_BASE}/conversations?${params.toString()}`
-  )
+export async function fetchConversations(
+  _filters: ConversationFilters = {}
+): Promise<PaginatedResponse<Conversation>> {
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Conversation>
 }
 
 export async function fetchMessages(
-  conversationId: string,
-  page = 1,
-  limit = 50
+  _conversationId: string,
+  _page = 1,
+  _limit = 50
 ): Promise<PaginatedResponse<Message>> {
-  return apiGet<PaginatedResponse<Message>>(
-    `${API_BASE}/conversations/${conversationId}/messages?page=${page}&limit=${limit}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 50, totalPages: 0 } } as PaginatedResponse<Message>
 }
 
-export async function sendMessage(data: SendMessageRequest): Promise<{ data: Message }> {
-  return apiPost<{ data: Message }>(`${API_BASE}/messages`, data)
+export async function sendMessage(_data: SendMessageRequest): Promise<{ data: Message }> {
+  return { data: {} as Message }
 }
 
 // ===== Circulars =====
@@ -182,517 +175,411 @@ export async function deleteCircular(id: string): Promise<{ success: boolean }> 
 }
 
 // ===== Surveys =====
+// TODO: Backend not implemented — survey system returns placeholders
+
 export async function fetchSurveys(
-  filters: SurveyFilters = {}
+  _filters: SurveyFilters = {}
 ): Promise<PaginatedResponse<Survey>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
-
-  return apiGet<PaginatedResponse<Survey>>(
-    `${API_BASE}/surveys?${params.toString()}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Survey>
 }
 
-export async function fetchSurvey(id: string): Promise<{ data: Survey }> {
-  return apiGet<{ data: Survey }>(`${API_BASE}/surveys/${id}`)
+export async function fetchSurvey(_id: string): Promise<{ data: Survey }> {
+  return { data: {} as Survey }
 }
 
-export async function createSurvey(data: CreateSurveyRequest): Promise<{ data: Survey }> {
-  return apiPost<{ data: Survey }>(`${API_BASE}/surveys`, data)
+export async function createSurvey(_data: CreateSurveyRequest): Promise<{ data: Survey }> {
+  return { data: {} as Survey }
 }
 
 export async function updateSurvey(
-  id: string,
-  data: UpdateSurveyRequest
+  _id: string,
+  _data: UpdateSurveyRequest
 ): Promise<{ data: Survey }> {
-  return apiPut<{ data: Survey }>(`${API_BASE}/surveys/${id}`, data)
+  return { data: {} as Survey }
 }
 
-export async function deleteSurvey(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/surveys/${id}`)
+export async function deleteSurvey(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function submitSurveyResponse(
-  surveyId: string,
-  data: SubmitSurveyResponseRequest
+  _surveyId: string,
+  _data: SubmitSurveyResponseRequest
 ): Promise<{ data: SurveyResponse }> {
-  return apiPost<{ data: SurveyResponse }>(
-    `${API_BASE}/surveys/${surveyId}/responses`,
-    data
-  )
+  return { data: {} as SurveyResponse }
 }
 
 export async function fetchSurveyResponses(
-  surveyId: string,
-  page = 1,
-  limit = 20
+  _surveyId: string,
+  _page = 1,
+  _limit = 20
 ): Promise<PaginatedResponse<SurveyResponse>> {
-  return apiGet<PaginatedResponse<SurveyResponse>>(
-    `${API_BASE}/surveys/${surveyId}/responses?page=${page}&limit=${limit}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<SurveyResponse>
 }
 
 // ===== Emergency Alerts =====
-export async function fetchEmergencyAlerts(
-  filters: EmergencyAlertFilters = {}
-): Promise<PaginatedResponse<EmergencyAlert>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.severity) params.set('severity', filters.severity)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
+// TODO: Backend not implemented — emergency alerts return placeholders
 
-  return apiGet<PaginatedResponse<EmergencyAlert>>(
-    `${API_BASE}/alerts?${params.toString()}`
-  )
+export async function fetchEmergencyAlerts(
+  _filters: EmergencyAlertFilters = {}
+): Promise<PaginatedResponse<EmergencyAlert>> {
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<EmergencyAlert>
 }
 
-export async function fetchEmergencyAlert(id: string): Promise<{ data: EmergencyAlert }> {
-  return apiGet<{ data: EmergencyAlert }>(`${API_BASE}/alerts/${id}`)
+export async function fetchEmergencyAlert(_id: string): Promise<{ data: EmergencyAlert }> {
+  return { data: {} as EmergencyAlert }
 }
 
 export async function createEmergencyAlert(
-  data: CreateEmergencyAlertRequest
+  _data: CreateEmergencyAlertRequest
 ): Promise<{ data: EmergencyAlert }> {
-  return apiPost<{ data: EmergencyAlert }>(`${API_BASE}/alerts`, data)
+  return { data: {} as EmergencyAlert }
 }
 
 export async function updateEmergencyAlert(
-  id: string,
-  data: UpdateEmergencyAlertRequest
+  _id: string,
+  _data: UpdateEmergencyAlertRequest
 ): Promise<{ data: EmergencyAlert }> {
-  return apiPut<{ data: EmergencyAlert }>(`${API_BASE}/alerts/${id}`, data)
+  return { data: {} as EmergencyAlert }
 }
 
 export async function acknowledgeEmergencyAlert(
-  id: string,
-  data: { status?: 'safe' | 'need_help'; location?: string }
+  _id: string,
+  _data: { status?: 'safe' | 'need_help'; location?: string }
 ): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/alerts/${id}/acknowledge`, data)
+  return { success: false }
 }
 
 // ===== Events =====
+// TODO: Backend not implemented — events system returns placeholders
+
 export async function fetchEvents(
-  filters: EventFilters = {}
+  _filters: EventFilters = {}
 ): Promise<PaginatedResponse<Event>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.type) params.set('type', filters.type)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
-
-  return apiGet<PaginatedResponse<Event>>(
-    `${API_BASE}/events?${params.toString()}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Event>
 }
 
-export async function fetchEvent(id: string): Promise<{ data: Event }> {
-  return apiGet<{ data: Event }>(`${API_BASE}/events/${id}`)
+export async function fetchEvent(_id: string): Promise<{ data: Event }> {
+  return { data: {} as Event }
 }
 
-export async function createEvent(data: CreateEventRequest): Promise<{ data: Event }> {
-  return apiPost<{ data: Event }>(`${API_BASE}/events`, data)
+export async function createEvent(_data: CreateEventRequest): Promise<{ data: Event }> {
+  return { data: {} as Event }
 }
 
 export async function updateEvent(
-  id: string,
-  data: UpdateEventRequest
+  _id: string,
+  _data: UpdateEventRequest
 ): Promise<{ data: Event }> {
-  return apiPut<{ data: Event }>(`${API_BASE}/events/${id}`, data)
+  return { data: {} as Event }
 }
 
-export async function deleteEvent(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/events/${id}`)
+export async function deleteEvent(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function registerForEvent(id: string): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/events/${id}/register`)
+export async function registerForEvent(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function cancelEventRegistration(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/events/${id}/register`)
+export async function cancelEventRegistration(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 // ===== Stats =====
+// TODO: Backend not implemented — communication stats returns placeholder
 export async function fetchCommunicationStats(): Promise<{ data: CommunicationStats }> {
-  return apiGet<{ data: CommunicationStats }>(`${API_BASE}/stats`)
+  return { data: {} as CommunicationStats }
 }
 
 // ===== WhatsApp Business API =====
+// TODO: Backend not implemented — WhatsApp integration returns placeholders
+
 export async function fetchWhatsAppConfig(): Promise<{ data: WhatsAppConfig }> {
-  return apiGet<{ data: WhatsAppConfig }>(`${API_BASE}/whatsapp/config`)
+  return { data: {} as WhatsAppConfig }
 }
 
 export async function createWhatsAppConfig(
-  data: CreateWhatsAppConfigRequest
+  _data: CreateWhatsAppConfigRequest
 ): Promise<{ data: WhatsAppConfig }> {
-  return apiPost<{ data: WhatsAppConfig }>(`${API_BASE}/whatsapp/config`, data)
+  return { data: {} as WhatsAppConfig }
 }
 
 export async function updateWhatsAppConfig(
-  data: UpdateWhatsAppConfigRequest
+  _data: UpdateWhatsAppConfigRequest
 ): Promise<{ data: WhatsAppConfig }> {
-  return apiPut<{ data: WhatsAppConfig }>(`${API_BASE}/whatsapp/config`, data)
+  return { data: {} as WhatsAppConfig }
 }
 
 export async function verifyWhatsAppConfig(): Promise<{ success: boolean; message: string }> {
-  return apiPost<{ success: boolean; message: string }>(`${API_BASE}/whatsapp/config/verify`)
+  return { success: false, message: 'Feature coming soon' }
 }
 
 export async function fetchWhatsAppTemplates(
-  page = 1,
-  limit = 20
+  _page = 1,
+  _limit = 20
 ): Promise<PaginatedResponse<WhatsAppTemplate>> {
-  return apiGet<PaginatedResponse<WhatsAppTemplate>>(
-    `${API_BASE}/whatsapp/templates?page=${page}&limit=${limit}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<WhatsAppTemplate>
 }
 
-export async function fetchWhatsAppTemplate(id: string): Promise<{ data: WhatsAppTemplate }> {
-  return apiGet<{ data: WhatsAppTemplate }>(`${API_BASE}/whatsapp/templates/${id}`)
+export async function fetchWhatsAppTemplate(_id: string): Promise<{ data: WhatsAppTemplate }> {
+  return { data: {} as WhatsAppTemplate }
 }
 
 export async function createWhatsAppTemplate(
-  data: CreateWhatsAppTemplateRequest
+  _data: CreateWhatsAppTemplateRequest
 ): Promise<{ data: WhatsAppTemplate }> {
-  return apiPost<{ data: WhatsAppTemplate }>(`${API_BASE}/whatsapp/templates`, data)
+  return { data: {} as WhatsAppTemplate }
 }
 
-export async function deleteWhatsAppTemplate(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/whatsapp/templates/${id}`)
+export async function deleteWhatsAppTemplate(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function fetchWhatsAppMessages(
-  filters: WhatsAppFilters = {}
+  _filters: WhatsAppFilters = {}
 ): Promise<PaginatedResponse<WhatsAppMessage>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.templateId) params.set('templateId', filters.templateId)
-  if (filters.startDate) params.set('startDate', filters.startDate)
-  if (filters.endDate) params.set('endDate', filters.endDate)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
-
-  return apiGet<PaginatedResponse<WhatsAppMessage>>(
-    `${API_BASE}/whatsapp/messages?${params.toString()}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<WhatsAppMessage>
 }
 
 export async function sendWhatsAppMessage(
-  data: SendWhatsAppMessageRequest
+  _data: SendWhatsAppMessageRequest
 ): Promise<{ data: WhatsAppMessage[] }> {
-  return apiPost<{ data: WhatsAppMessage[] }>(`${API_BASE}/whatsapp/messages`, data)
+  return { data: [] }
 }
 
 // ===== Voice Broadcasts =====
-export async function fetchVoiceRecordings(
-  filters: VoiceRecordingFilters = {}
-): Promise<PaginatedResponse<VoiceRecording>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
+// TODO: Backend not implemented — voice broadcast system returns placeholders
 
-  return apiGet<PaginatedResponse<VoiceRecording>>(
-    `${API_BASE}/voice/recordings?${params.toString()}`
-  )
+export async function fetchVoiceRecordings(
+  _filters: VoiceRecordingFilters = {}
+): Promise<PaginatedResponse<VoiceRecording>> {
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<VoiceRecording>
 }
 
-export async function fetchVoiceRecording(id: string): Promise<{ data: VoiceRecording }> {
-  return apiGet<{ data: VoiceRecording }>(`${API_BASE}/voice/recordings/${id}`)
+export async function fetchVoiceRecording(_id: string): Promise<{ data: VoiceRecording }> {
+  return { data: {} as VoiceRecording }
 }
 
 export async function createVoiceRecording(
-  data: CreateVoiceRecordingRequest
+  _data: CreateVoiceRecordingRequest
 ): Promise<{ data: VoiceRecording }> {
-  return apiPost<{ data: VoiceRecording }>(`${API_BASE}/voice/recordings`, data)
+  return { data: {} as VoiceRecording }
 }
 
-export async function deleteVoiceRecording(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/voice/recordings/${id}`)
+export async function deleteVoiceRecording(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function fetchVoiceBroadcasts(
-  filters: VoiceBroadcastFilters = {}
+  _filters: VoiceBroadcastFilters = {}
 ): Promise<PaginatedResponse<VoiceBroadcast>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.startDate) params.set('startDate', filters.startDate)
-  if (filters.endDate) params.set('endDate', filters.endDate)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
-
-  return apiGet<PaginatedResponse<VoiceBroadcast>>(
-    `${API_BASE}/voice/broadcasts?${params.toString()}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<VoiceBroadcast>
 }
 
-export async function fetchVoiceBroadcast(id: string): Promise<{ data: VoiceBroadcast }> {
-  return apiGet<{ data: VoiceBroadcast }>(`${API_BASE}/voice/broadcasts/${id}`)
+export async function fetchVoiceBroadcast(_id: string): Promise<{ data: VoiceBroadcast }> {
+  return { data: {} as VoiceBroadcast }
 }
 
 export async function createVoiceBroadcast(
-  data: CreateVoiceBroadcastRequest
+  _data: CreateVoiceBroadcastRequest
 ): Promise<{ data: VoiceBroadcast }> {
-  return apiPost<{ data: VoiceBroadcast }>(`${API_BASE}/voice/broadcasts`, data)
+  return { data: {} as VoiceBroadcast }
 }
 
 export async function updateVoiceBroadcast(
-  id: string,
-  data: UpdateVoiceBroadcastRequest
+  _id: string,
+  _data: UpdateVoiceBroadcastRequest
 ): Promise<{ data: VoiceBroadcast }> {
-  return apiPut<{ data: VoiceBroadcast }>(`${API_BASE}/voice/broadcasts/${id}`, data)
+  return { data: {} as VoiceBroadcast }
 }
 
-export async function deleteVoiceBroadcast(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/voice/broadcasts/${id}`)
+export async function deleteVoiceBroadcast(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function startVoiceBroadcast(id: string): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/voice/broadcasts/${id}/start`)
+export async function startVoiceBroadcast(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function cancelVoiceBroadcast(id: string): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/voice/broadcasts/${id}/cancel`)
+export async function cancelVoiceBroadcast(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 // ===== Push Notifications =====
+// TODO: Backend not implemented — push notification system returns placeholders
+
 export async function fetchNotificationHub(): Promise<{ data: NotificationHub }> {
-  return apiGet<{ data: NotificationHub }>(`${API_BASE}/push/hub`)
+  return { data: {} as NotificationHub }
 }
 
 export async function fetchPushSubscriptions(
-  filters: PushSubscriptionFilters = {}
+  _filters: PushSubscriptionFilters = {}
 ): Promise<PaginatedResponse<PushSubscription>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.platform) params.set('platform', filters.platform)
-  if (filters.isActive !== undefined) params.set('isActive', filters.isActive.toString())
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
-
-  return apiGet<PaginatedResponse<PushSubscription>>(
-    `${API_BASE}/push/subscriptions?${params.toString()}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<PushSubscription>
 }
 
 export async function registerPushSubscription(
-  subscription: PushSubscriptionJSON
+  _subscription: PushSubscriptionJSON
 ): Promise<{ data: PushSubscription }> {
-  return apiPost<{ data: PushSubscription }>(`${API_BASE}/push/subscriptions`, subscription)
+  return { data: {} as PushSubscription }
 }
 
-export async function unregisterPushSubscription(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/push/subscriptions/${id}`)
+export async function unregisterPushSubscription(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function fetchPushNotifications(
-  filters: PushNotificationFilters = {}
+  _filters: PushNotificationFilters = {}
 ): Promise<PaginatedResponse<PushNotification>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.platform) params.set('platform', filters.platform)
-  if (filters.startDate) params.set('startDate', filters.startDate)
-  if (filters.endDate) params.set('endDate', filters.endDate)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
-
-  return apiGet<PaginatedResponse<PushNotification>>(
-    `${API_BASE}/push/notifications?${params.toString()}`
-  )
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<PushNotification>
 }
 
-export async function fetchPushNotification(id: string): Promise<{ data: PushNotification }> {
-  return apiGet<{ data: PushNotification }>(`${API_BASE}/push/notifications/${id}`)
+export async function fetchPushNotification(_id: string): Promise<{ data: PushNotification }> {
+  return { data: {} as PushNotification }
 }
 
 export async function createPushNotification(
-  data: CreatePushNotificationRequest
+  _data: CreatePushNotificationRequest
 ): Promise<{ data: PushNotification }> {
-  return apiPost<{ data: PushNotification }>(`${API_BASE}/push/notifications`, data)
+  return { data: {} as PushNotification }
 }
 
 export async function updatePushNotification(
-  id: string,
-  data: UpdatePushNotificationRequest
+  _id: string,
+  _data: UpdatePushNotificationRequest
 ): Promise<{ data: PushNotification }> {
-  return apiPut<{ data: PushNotification }>(`${API_BASE}/push/notifications/${id}`, data)
+  return { data: {} as PushNotification }
 }
 
-export async function deletePushNotification(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/push/notifications/${id}`)
+export async function deletePushNotification(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function sendPushNotification(id: string): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/push/notifications/${id}/send`)
+export async function sendPushNotification(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 // ===== Communication Analytics =====
-export async function fetchCommunicationAnalytics(
-  filters: AnalyticsFilters = {}
-): Promise<{ data: CommunicationAnalytics }> {
-  const params = new URLSearchParams()
-  if (filters.period) params.set('period', filters.period)
-  if (filters.channelType) params.set('channelType', filters.channelType)
-  if (filters.startDate) params.set('startDate', filters.startDate)
-  if (filters.endDate) params.set('endDate', filters.endDate)
+// TODO: Backend not implemented — communication analytics returns placeholders
 
-  return apiGet<{ data: CommunicationAnalytics }>(
-    `${API_BASE}/analytics?${params.toString()}`
-  )
+export async function fetchCommunicationAnalytics(
+  _filters: AnalyticsFilters = {}
+): Promise<{ data: CommunicationAnalytics }> {
+  return { data: {} as CommunicationAnalytics }
 }
 
 export async function fetchMessageMetrics(
-  messageId: string
+  _messageId: string
 ): Promise<{ data: MessageMetrics }> {
-  return apiGet<{ data: MessageMetrics }>(`${API_BASE}/analytics/messages/${messageId}`)
+  return { data: {} as MessageMetrics }
 }
 
 export async function fetchOpenRate(
-  messageId: string
+  _messageId: string
 ): Promise<{ data: OpenRate }> {
-  return apiGet<{ data: OpenRate }>(`${API_BASE}/analytics/messages/${messageId}/open-rate`)
+  return { data: {} as OpenRate }
 }
 
 export async function exportAnalyticsReport(
-  filters: AnalyticsFilters = {}
+  _filters: AnalyticsFilters = {}
 ): Promise<{ data: { downloadUrl: string } }> {
-  const params = new URLSearchParams()
-  if (filters.period) params.set('period', filters.period)
-  if (filters.channelType) params.set('channelType', filters.channelType)
-  if (filters.startDate) params.set('startDate', filters.startDate)
-  if (filters.endDate) params.set('endDate', filters.endDate)
-
-  return apiPost<{ data: { downloadUrl: string } }>(
-    `${API_BASE}/analytics/export?${params.toString()}`
-  )
+  return { data: { downloadUrl: '' } }
 }
 
 // ===== A/B Testing =====
-export async function fetchABTests(
-  filters: ABTestFilters = {}
-): Promise<PaginatedResponse<ABTest>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.channelType) params.set('channelType', filters.channelType)
-  if (filters.startDate) params.set('startDate', filters.startDate)
-  if (filters.endDate) params.set('endDate', filters.endDate)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
+// TODO: Backend not implemented — A/B testing system returns placeholders
 
-  return apiGet<PaginatedResponse<ABTest>>(
-    `${API_BASE}/ab-tests?${params.toString()}`
-  )
+export async function fetchABTests(
+  _filters: ABTestFilters = {}
+): Promise<PaginatedResponse<ABTest>> {
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<ABTest>
 }
 
-export async function fetchABTest(id: string): Promise<{ data: ABTest }> {
-  return apiGet<{ data: ABTest }>(`${API_BASE}/ab-tests/${id}`)
+export async function fetchABTest(_id: string): Promise<{ data: ABTest }> {
+  return { data: {} as ABTest }
 }
 
 export async function createABTest(
-  data: CreateABTestRequest
+  _data: CreateABTestRequest
 ): Promise<{ data: ABTest }> {
-  return apiPost<{ data: ABTest }>(`${API_BASE}/ab-tests`, data)
+  return { data: {} as ABTest }
 }
 
 export async function updateABTest(
-  id: string,
-  data: UpdateABTestRequest
+  _id: string,
+  _data: UpdateABTestRequest
 ): Promise<{ data: ABTest }> {
-  return apiPut<{ data: ABTest }>(`${API_BASE}/ab-tests/${id}`, data)
+  return { data: {} as ABTest }
 }
 
-export async function deleteABTest(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/ab-tests/${id}`)
+export async function deleteABTest(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function startABTest(id: string): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/ab-tests/${id}/start`)
+export async function startABTest(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function stopABTest(id: string): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/ab-tests/${id}/stop`)
+export async function stopABTest(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function selectABTestWinner(
-  id: string,
-  variantId: string
+  _id: string,
+  _variantId: string
 ): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/ab-tests/${id}/select-winner`, { variantId })
+  return { success: false }
 }
 
-export async function fetchABTestResult(id: string): Promise<{ data: TestResult }> {
-  return apiGet<{ data: TestResult }>(`${API_BASE}/ab-tests/${id}/result`)
+export async function fetchABTestResult(_id: string): Promise<{ data: TestResult }> {
+  return { data: {} as TestResult }
 }
 
 // ===== Scheduled Messaging =====
-export async function fetchScheduledMessages(
-  filters: ScheduledMessageFilters = {}
-): Promise<PaginatedResponse<ScheduledMessage>> {
-  const params = new URLSearchParams()
-  if (filters.search) params.set('search', filters.search)
-  if (filters.status) params.set('status', filters.status)
-  if (filters.channelType) params.set('channelType', filters.channelType)
-  if (filters.messageType) params.set('messageType', filters.messageType)
-  if (filters.startDate) params.set('startDate', filters.startDate)
-  if (filters.endDate) params.set('endDate', filters.endDate)
-  if (filters.page) params.set('page', filters.page.toString())
-  if (filters.limit) params.set('limit', filters.limit.toString())
+// TODO: Backend not implemented — scheduled messaging system returns placeholders
 
-  return apiGet<PaginatedResponse<ScheduledMessage>>(
-    `${API_BASE}/scheduled?${params.toString()}`
-  )
+export async function fetchScheduledMessages(
+  _filters: ScheduledMessageFilters = {}
+): Promise<PaginatedResponse<ScheduledMessage>> {
+  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<ScheduledMessage>
 }
 
-export async function fetchScheduledMessage(id: string): Promise<{ data: ScheduledMessage }> {
-  return apiGet<{ data: ScheduledMessage }>(`${API_BASE}/scheduled/${id}`)
+export async function fetchScheduledMessage(_id: string): Promise<{ data: ScheduledMessage }> {
+  return { data: {} as ScheduledMessage }
 }
 
 export async function createScheduledMessage(
-  data: CreateScheduledMessageRequest
+  _data: CreateScheduledMessageRequest
 ): Promise<{ data: ScheduledMessage }> {
-  return apiPost<{ data: ScheduledMessage }>(`${API_BASE}/scheduled`, data)
+  return { data: {} as ScheduledMessage }
 }
 
 export async function updateScheduledMessage(
-  id: string,
-  data: UpdateScheduledMessageRequest
+  _id: string,
+  _data: UpdateScheduledMessageRequest
 ): Promise<{ data: ScheduledMessage }> {
-  return apiPut<{ data: ScheduledMessage }>(`${API_BASE}/scheduled/${id}`, data)
+  return { data: {} as ScheduledMessage }
 }
 
-export async function deleteScheduledMessage(id: string): Promise<{ success: boolean }> {
-  return apiDelete<{ success: boolean }>(`${API_BASE}/scheduled/${id}`)
+export async function deleteScheduledMessage(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
-export async function cancelScheduledMessage(id: string): Promise<{ success: boolean }> {
-  return apiPost<{ success: boolean }>(`${API_BASE}/scheduled/${id}/cancel`)
+export async function cancelScheduledMessage(_id: string): Promise<{ success: boolean }> {
+  return { success: false }
 }
 
 export async function rescheduleMessage(
-  id: string,
-  scheduledAt: string
+  _id: string,
+  _scheduledAt: string
 ): Promise<{ data: ScheduledMessage }> {
-  return apiPost<{ data: ScheduledMessage }>(`${API_BASE}/scheduled/${id}/reschedule`, {
-    scheduledAt,
-  })
+  return { data: {} as ScheduledMessage }
 }
 
 export async function fetchScheduleCalendar(
-  startDate: string,
-  endDate: string
+  _startDate: string,
+  _endDate: string
 ): Promise<{ data: ScheduleCalendarView[] }> {
-  return apiGet<{ data: ScheduleCalendarView[] }>(
-    `${API_BASE}/scheduled/calendar?startDate=${startDate}&endDate=${endDate}`
-  )
+  return { data: [] }
 }

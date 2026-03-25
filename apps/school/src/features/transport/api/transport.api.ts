@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api-client'
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
 import type {
   TransportRoute,
   CreateRouteRequest,
@@ -76,114 +76,101 @@ export async function deleteRoute(id: string) {
 }
 
 // ==================== VEHICLES ====================
+// TODO: Backend not implemented — vehicle management returns placeholders
 
-export async function fetchVehicles(params?: { status?: string; type?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.status) qs.set('status', params.status)
-  if (params?.type) qs.set('type', params.type)
-  return apiGet<{ data: Vehicle[] }>(`${BASE}/vehicles?${qs}`)
+export async function fetchVehicles(_params?: { status?: string; type?: string }) {
+  return { data: [] as Vehicle[] }
 }
 
-export async function fetchVehicle(id: string) {
-  return apiGet<{ data: Vehicle }>(`${BASE}/vehicles/${id}`)
+export async function fetchVehicle(_id: string) {
+  return { data: {} as Vehicle }
 }
 
-export async function createVehicle(data: CreateVehicleRequest) {
-  return apiPost<{ data: Vehicle }>(`${BASE}/vehicles`, data)
+export async function createVehicle(_data: CreateVehicleRequest) {
+  return { data: {} as Vehicle }
 }
 
-export async function updateVehicle(id: string, data: Partial<Vehicle>) {
-  return apiPut<{ data: Vehicle }>(`${BASE}/vehicles/${id}`, data)
+export async function updateVehicle(_id: string, _data: Partial<Vehicle>) {
+  return { data: {} as Vehicle }
 }
 
-export async function deleteVehicle(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/vehicles/${id}`)
+export async function deleteVehicle(_id: string) {
+  return { success: false }
 }
 
 // ==================== DRIVERS ====================
+// TODO: Backend not implemented — driver management returns placeholders
 
-export async function fetchDrivers(params?: { status?: string; search?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.status) qs.set('status', params.status)
-  if (params?.search) qs.set('search', params.search)
-  return apiGet<{ data: Driver[] }>(`${BASE}/drivers?${qs}`)
+export async function fetchDrivers(_params?: { status?: string; search?: string }) {
+  return { data: [] as Driver[] }
 }
 
-export async function fetchDriver(id: string) {
-  return apiGet<{ data: Driver }>(`${BASE}/drivers/${id}`)
+export async function fetchDriver(_id: string) {
+  return { data: {} as Driver }
 }
 
-export async function createDriver(data: CreateDriverRequest) {
-  return apiPost<{ data: Driver }>(`${BASE}/drivers`, data)
+export async function createDriver(_data: CreateDriverRequest) {
+  return { data: {} as Driver }
 }
 
-export async function updateDriver(id: string, data: Partial<Driver>) {
-  return apiPut<{ data: Driver }>(`${BASE}/drivers/${id}`, data)
+export async function updateDriver(_id: string, _data: Partial<Driver>) {
+  return { data: {} as Driver }
 }
 
-export async function deleteDriver(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/drivers/${id}`)
+export async function deleteDriver(_id: string) {
+  return { success: false }
 }
 
 // ==================== STUDENT ASSIGNMENTS ====================
+// TODO: Backend not implemented — student assignment management returns placeholders
 
-export async function fetchAssignments(params?: { routeId?: string; stopId?: string; search?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.routeId) qs.set('routeId', params.routeId)
-  if (params?.stopId) qs.set('stopId', params.stopId)
-  if (params?.search) qs.set('search', params.search)
-  return apiGet<{ data: StopStudentAssignment[] }>(`${BASE}/assignments?${qs}`)
+export async function fetchAssignments(_params?: { routeId?: string; stopId?: string; search?: string }) {
+  return { data: [] as StopStudentAssignment[] }
 }
 
-export async function assignStudent(data: AssignStudentRequest & Record<string, unknown>) {
-  return apiPost<{ data: StopStudentAssignment }>(`${BASE}/assignments`, data)
+export async function assignStudent(_data: AssignStudentRequest & Record<string, unknown>) {
+  return { data: {} as StopStudentAssignment }
 }
 
-export async function removeAssignment(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/assignments/${id}`)
+export async function removeAssignment(_id: string) {
+  return { success: false }
 }
 
 // ==================== GPS TRACKING ====================
+// TODO: Backend not implemented — GPS tracking returns placeholder
 
 export async function fetchGPSPositions() {
-  return apiGet<{ data: GPSPosition[] }>(`${BASE}/tracking`)
+  return { data: [] as GPSPosition[] }
 }
 
 // ==================== MAINTENANCE ====================
+// TODO: Backend not implemented — vehicle maintenance returns placeholders
 
-export async function fetchMaintenanceRecords(params?: { vehicleId?: string; status?: string; type?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.vehicleId) qs.set('vehicleId', params.vehicleId)
-  if (params?.status) qs.set('status', params.status)
-  if (params?.type) qs.set('type', params.type)
-  return apiGet<{ data: MaintenanceRecord[] }>(`${BASE}/maintenance?${qs}`)
+export async function fetchMaintenanceRecords(_params?: { vehicleId?: string; status?: string; type?: string }) {
+  return { data: [] as MaintenanceRecord[] }
 }
 
-export async function createMaintenanceRecord(data: CreateMaintenanceRequest) {
-  return apiPost<{ data: MaintenanceRecord }>(`${BASE}/maintenance`, data)
+export async function createMaintenanceRecord(_data: CreateMaintenanceRequest) {
+  return { data: {} as MaintenanceRecord }
 }
 
-export async function updateMaintenanceRecord(id: string, data: Partial<MaintenanceRecord>) {
-  return apiPatch<{ data: MaintenanceRecord }>(`${BASE}/maintenance/${id}`, data)
+export async function updateMaintenanceRecord(_id: string, _data: Partial<MaintenanceRecord>) {
+  return { data: {} as MaintenanceRecord }
 }
 
-export async function deleteMaintenanceRecord(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/maintenance/${id}`)
+export async function deleteMaintenanceRecord(_id: string) {
+  return { success: false }
 }
 
 // ==================== NOTIFICATIONS ====================
+// TODO: Backend not implemented — transport notifications return placeholders
 
-export async function fetchTransportNotifications(params?: { routeId?: string; eventType?: string; page?: number; limit?: number }) {
-  const qs = new URLSearchParams()
-  if (params?.routeId) qs.set('routeId', params.routeId)
-  if (params?.eventType) qs.set('eventType', params.eventType)
-  if (params?.page) qs.set('page', String(params.page))
-  if (params?.limit) qs.set('limit', String(params.limit))
-  return apiGet<{ data: TransportNotification[]; meta: { total: number; page: number; limit: number; totalPages: number } }>(`${BASE}/notifications?${qs}`)
+export async function fetchTransportNotifications(_params?: { routeId?: string; eventType?: string; page?: number; limit?: number }) {
+  return { data: [] as TransportNotification[], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } }
 }
 
-export async function sendTransportNotification(data: Record<string, unknown>) {
-  return apiPost<{ data: TransportNotification }>(`${BASE}/notifications/send`, data)
+export async function sendTransportNotification(_data: Record<string, unknown>) {
+  return { data: {} as TransportNotification }
 }
 
 // ==================== STATS ====================
@@ -193,251 +180,195 @@ export async function fetchTransportStats() {
 }
 
 // ==================== ROUTE OPTIMIZATION ====================
+// TODO: Backend not implemented — route optimization returns placeholders
 
-export async function fetchRouteOptimizations(params?: { routeId?: string; status?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.routeId) qs.set('routeId', params.routeId)
-  if (params?.status) qs.set('status', params.status)
-  return apiGet<{ data: RouteOptimization[] }>(`${BASE}/optimizations?${qs}`)
+export async function fetchRouteOptimizations(_params?: { routeId?: string; status?: string }) {
+  return { data: [] as RouteOptimization[] }
 }
 
-export async function fetchRouteOptimization(id: string) {
-  return apiGet<{ data: RouteOptimization }>(`${BASE}/optimizations/${id}`)
+export async function fetchRouteOptimization(_id: string) {
+  return { data: {} as RouteOptimization }
 }
 
-export async function createRouteOptimization(data: CreateRouteOptimizationRequest) {
-  return apiPost<{ data: RouteOptimization }>(`${BASE}/optimizations`, data)
+export async function createRouteOptimization(_data: CreateRouteOptimizationRequest) {
+  return { data: {} as RouteOptimization }
 }
 
-export async function applyRouteOptimization(data: ApplyOptimizationRequest) {
-  return apiPost<{ data: TransportRoute }>(`${BASE}/optimizations/${data.optimizationId}/apply`, data)
+export async function applyRouteOptimization(_data: ApplyOptimizationRequest) {
+  return { data: {} as TransportRoute }
 }
 
-export async function deleteRouteOptimization(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/optimizations/${id}`)
+export async function deleteRouteOptimization(_id: string) {
+  return { success: false }
 }
 
 // ==================== FUEL TRACKING ====================
+// TODO: Backend not implemented — fuel tracking returns placeholders
 
-export async function fetchFuelLogs(params?: { vehicleId?: string; driverId?: string; startDate?: string; endDate?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.vehicleId) qs.set('vehicleId', params.vehicleId)
-  if (params?.driverId) qs.set('driverId', params.driverId)
-  if (params?.startDate) qs.set('startDate', params.startDate)
-  if (params?.endDate) qs.set('endDate', params.endDate)
-  return apiGet<{ data: FuelLog[] }>(`${BASE}/fuel/logs?${qs}`)
+export async function fetchFuelLogs(_params?: { vehicleId?: string; driverId?: string; startDate?: string; endDate?: string }) {
+  return { data: [] as FuelLog[] }
 }
 
-export async function fetchFuelLog(id: string) {
-  return apiGet<{ data: FuelLog }>(`${BASE}/fuel/logs/${id}`)
+export async function fetchFuelLog(_id: string) {
+  return { data: {} as FuelLog }
 }
 
-export async function createFuelLog(data: CreateFuelLogRequest) {
-  return apiPost<{ data: FuelLog }>(`${BASE}/fuel/logs`, data)
+export async function createFuelLog(_data: CreateFuelLogRequest) {
+  return { data: {} as FuelLog }
 }
 
-export async function updateFuelLog(id: string, data: Partial<FuelLog>) {
-  return apiPatch<{ data: FuelLog }>(`${BASE}/fuel/logs/${id}`, data)
+export async function updateFuelLog(_id: string, _data: Partial<FuelLog>) {
+  return { data: {} as FuelLog }
 }
 
-export async function deleteFuelLog(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/fuel/logs/${id}`)
+export async function deleteFuelLog(_id: string) {
+  return { success: false }
 }
 
-export async function fetchFuelConsumption(params?: { vehicleId?: string; period?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.vehicleId) qs.set('vehicleId', params.vehicleId)
-  if (params?.period) qs.set('period', params.period)
-  return apiGet<{ data: FuelConsumption[] }>(`${BASE}/fuel/consumption?${qs}`)
+export async function fetchFuelConsumption(_params?: { vehicleId?: string; period?: string }) {
+  return { data: [] as FuelConsumption[] }
 }
 
-export async function fetchFuelEfficiency(params?: { vehicleId?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.vehicleId) qs.set('vehicleId', params.vehicleId)
-  return apiGet<{ data: FuelEfficiency[] }>(`${BASE}/fuel/efficiency?${qs}`)
+export async function fetchFuelEfficiency(_params?: { vehicleId?: string }) {
+  return { data: [] as FuelEfficiency[] }
 }
 
 // ==================== DRIVER BEHAVIOR MONITORING ====================
+// TODO: Backend not implemented — driver behavior monitoring returns placeholders
 
-export async function fetchDriverBehaviors(params?: { driverId?: string; search?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.driverId) qs.set('driverId', params.driverId)
-  if (params?.search) qs.set('search', params.search)
-  return apiGet<{ data: DriverBehavior[] }>(`${BASE}/behavior?${qs}`)
+export async function fetchDriverBehaviors(_params?: { driverId?: string; search?: string }) {
+  return { data: [] as DriverBehavior[] }
 }
 
-export async function fetchDriverBehavior(driverId: string) {
-  return apiGet<{ data: DriverBehavior }>(`${BASE}/behavior/${driverId}`)
+export async function fetchDriverBehavior(_driverId: string) {
+  return { data: {} as DriverBehavior }
 }
 
-export async function fetchDrivingEvents(params?: { driverId?: string; vehicleId?: string; eventType?: string; severity?: string; startDate?: string; endDate?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.driverId) qs.set('driverId', params.driverId)
-  if (params?.vehicleId) qs.set('vehicleId', params.vehicleId)
-  if (params?.eventType) qs.set('eventType', params.eventType)
-  if (params?.severity) qs.set('severity', params.severity)
-  if (params?.startDate) qs.set('startDate', params.startDate)
-  if (params?.endDate) qs.set('endDate', params.endDate)
-  return apiGet<{ data: DrivingEvent[] }>(`${BASE}/behavior/events?${qs}`)
+export async function fetchDrivingEvents(_params?: { driverId?: string; vehicleId?: string; eventType?: string; severity?: string; startDate?: string; endDate?: string }) {
+  return { data: [] as DrivingEvent[] }
 }
 
-export async function acknowledgeDrivingEvent(data: AcknowledgeEventRequest) {
-  return apiPost<{ data: DrivingEvent }>(`${BASE}/behavior/events/${data.eventId}/acknowledge`, data)
+export async function acknowledgeDrivingEvent(_data: AcknowledgeEventRequest) {
+  return { data: {} as DrivingEvent }
 }
 
-export async function fetchBehaviorScores(params?: { sortBy?: 'score' | 'name'; order?: 'asc' | 'desc' }) {
-  const qs = new URLSearchParams()
-  if (params?.sortBy) qs.set('sortBy', params.sortBy)
-  if (params?.order) qs.set('order', params.order)
-  return apiGet<{ data: BehaviorScore[] }>(`${BASE}/behavior/scores?${qs}`)
+export async function fetchBehaviorScores(_params?: { sortBy?: 'score' | 'name'; order?: 'asc' | 'desc' }) {
+  return { data: [] as BehaviorScore[] }
 }
 
 // ==================== PARENT REAL-TIME NOTIFICATIONS ====================
+// TODO: Backend not implemented — parent real-time notifications return placeholders
 
-export async function fetchParentNotifications(params?: { parentId?: string; studentId?: string; notificationType?: string; status?: string; page?: number; limit?: number }) {
-  const qs = new URLSearchParams()
-  if (params?.parentId) qs.set('parentId', params.parentId)
-  if (params?.studentId) qs.set('studentId', params.studentId)
-  if (params?.notificationType) qs.set('notificationType', params.notificationType)
-  if (params?.status) qs.set('status', params.status)
-  if (params?.page) qs.set('page', String(params.page))
-  if (params?.limit) qs.set('limit', String(params.limit))
-  return apiGet<{ data: ParentNotification[]; meta: { total: number; page: number; limit: number; totalPages: number } }>(`${BASE}/parent-notifications?${qs}`)
+export async function fetchParentNotifications(_params?: { parentId?: string; studentId?: string; notificationType?: string; status?: string; page?: number; limit?: number }) {
+  return { data: [] as ParentNotification[], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } }
 }
 
-export async function sendParentNotification(data: SendParentNotificationRequest) {
-  return apiPost<{ data: ParentNotification[] }>(`${BASE}/parent-notifications/send`, data)
+export async function sendParentNotification(_data: SendParentNotificationRequest) {
+  return { data: [] as ParentNotification[] }
 }
 
-export async function fetchETAUpdates(params?: { routeId?: string; studentId?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.routeId) qs.set('routeId', params.routeId)
-  if (params?.studentId) qs.set('studentId', params.studentId)
-  return apiGet<{ data: ETAUpdate[] }>(`${BASE}/eta?${qs}`)
+export async function fetchETAUpdates(_params?: { routeId?: string; studentId?: string }) {
+  return { data: [] as ETAUpdate[] }
 }
 
-export async function fetchETASubscriptions(params?: { parentId?: string; studentId?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.parentId) qs.set('parentId', params.parentId)
-  if (params?.studentId) qs.set('studentId', params.studentId)
-  return apiGet<{ data: ETASubscription[] }>(`${BASE}/eta/subscriptions?${qs}`)
+export async function fetchETASubscriptions(_params?: { parentId?: string; studentId?: string }) {
+  return { data: [] as ETASubscription[] }
 }
 
-export async function updateETASubscription(id: string, data: Partial<ETASubscription>) {
-  return apiPatch<{ data: ETASubscription }>(`${BASE}/eta/subscriptions/${id}`, data)
+export async function updateETASubscription(_id: string, _data: Partial<ETASubscription>) {
+  return { data: {} as ETASubscription }
 }
 
 // ==================== EMERGENCY SOS INTEGRATION ====================
+// TODO: Backend not implemented — emergency SOS system returns placeholders
 
-export async function fetchSOSAlerts(params?: { status?: string; priority?: string; vehicleId?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.status) qs.set('status', params.status)
-  if (params?.priority) qs.set('priority', params.priority)
-  if (params?.vehicleId) qs.set('vehicleId', params.vehicleId)
-  return apiGet<{ data: EmergencySOS[] }>(`${BASE}/sos?${qs}`)
+export async function fetchSOSAlerts(_params?: { status?: string; priority?: string; vehicleId?: string }) {
+  return { data: [] as EmergencySOS[] }
 }
 
-export async function fetchSOSAlert(id: string) {
-  return apiGet<{ data: EmergencySOS }>(`${BASE}/sos/${id}`)
+export async function fetchSOSAlert(_id: string) {
+  return { data: {} as EmergencySOS }
 }
 
-export async function triggerSOS(data: TriggerSOSRequest) {
-  return apiPost<{ data: EmergencySOS }>(`${BASE}/sos/trigger`, data)
+export async function triggerSOS(_data: TriggerSOSRequest) {
+  return { data: {} as EmergencySOS }
 }
 
-export async function updateSOS(data: UpdateSOSRequest) {
-  return apiPatch<{ data: EmergencySOS }>(`${BASE}/sos/${data.sosId}`, data)
+export async function updateSOS(_data: UpdateSOSRequest) {
+  return { data: {} as EmergencySOS }
 }
 
-export async function respondToSOS(data: SOSResponseRequest) {
-  return apiPost<{ data: SOSResponse }>(`${BASE}/sos/${data.sosId}/respond`, data)
+export async function respondToSOS(_data: SOSResponseRequest) {
+  return { data: {} as SOSResponse }
 }
 
-export async function fetchSOSHistory(params?: { vehicleId?: string; driverId?: string; startDate?: string; endDate?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.vehicleId) qs.set('vehicleId', params.vehicleId)
-  if (params?.driverId) qs.set('driverId', params.driverId)
-  if (params?.startDate) qs.set('startDate', params.startDate)
-  if (params?.endDate) qs.set('endDate', params.endDate)
-  return apiGet<{ data: EmergencySOS[] }>(`${BASE}/sos/history?${qs}`)
+export async function fetchSOSHistory(_params?: { vehicleId?: string; driverId?: string; startDate?: string; endDate?: string }) {
+  return { data: [] as EmergencySOS[] }
 }
 
 // ==================== MULTI-TRIP MANAGEMENT ====================
+// TODO: Backend not implemented — multi-trip management returns placeholders
 
-export async function fetchTrips(params?: { routeId?: string; vehicleId?: string; driverId?: string; date?: string; status?: string; tripPeriod?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.routeId) qs.set('routeId', params.routeId)
-  if (params?.vehicleId) qs.set('vehicleId', params.vehicleId)
-  if (params?.driverId) qs.set('driverId', params.driverId)
-  if (params?.date) qs.set('date', params.date)
-  if (params?.status) qs.set('status', params.status)
-  if (params?.tripPeriod) qs.set('tripPeriod', params.tripPeriod)
-  return apiGet<{ data: Trip[] }>(`${BASE}/trips?${qs}`)
+export async function fetchTrips(_params?: { routeId?: string; vehicleId?: string; driverId?: string; date?: string; status?: string; tripPeriod?: string }) {
+  return { data: [] as Trip[] }
 }
 
-export async function fetchTrip(id: string) {
-  return apiGet<{ data: Trip }>(`${BASE}/trips/${id}`)
+export async function fetchTrip(_id: string) {
+  return { data: {} as Trip }
 }
 
-export async function createTrip(data: CreateTripRequest) {
-  return apiPost<{ data: Trip }>(`${BASE}/trips`, data)
+export async function createTrip(_data: CreateTripRequest) {
+  return { data: {} as Trip }
 }
 
-export async function updateTrip(data: UpdateTripRequest) {
-  return apiPatch<{ data: Trip }>(`${BASE}/trips/${data.tripId}`, data)
+export async function updateTrip(_data: UpdateTripRequest) {
+  return { data: {} as Trip }
 }
 
-export async function deleteTrip(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/trips/${id}`)
+export async function deleteTrip(_id: string) {
+  return { success: false }
 }
 
-export async function startTrip(tripId: string, data: { startOdometer: number }) {
-  return apiPost<{ data: Trip }>(`${BASE}/trips/${tripId}/start`, data)
+export async function startTrip(_tripId: string, _data: { startOdometer: number }) {
+  return { data: {} as Trip }
 }
 
-export async function endTrip(tripId: string, data: { endOdometer: number; notes?: string }) {
-  return apiPost<{ data: Trip }>(`${BASE}/trips/${tripId}/end`, data)
+export async function endTrip(_tripId: string, _data: { endOdometer: number; notes?: string }) {
+  return { data: {} as Trip }
 }
 
-export async function fetchTripSchedules(params?: { routeId?: string; dayOfWeek?: number }) {
-  const qs = new URLSearchParams()
-  if (params?.routeId) qs.set('routeId', params.routeId)
-  if (params?.dayOfWeek !== undefined) qs.set('dayOfWeek', String(params.dayOfWeek))
-  return apiGet<{ data: TripSchedule[] }>(`${BASE}/trips/schedules?${qs}`)
+export async function fetchTripSchedules(_params?: { routeId?: string; dayOfWeek?: number }) {
+  return { data: [] as TripSchedule[] }
 }
 
-export async function fetchTripSchedule(id: string) {
-  return apiGet<{ data: TripSchedule }>(`${BASE}/trips/schedules/${id}`)
+export async function fetchTripSchedule(_id: string) {
+  return { data: {} as TripSchedule }
 }
 
-export async function createTripSchedule(data: CreateTripScheduleRequest) {
-  return apiPost<{ data: TripSchedule }>(`${BASE}/trips/schedules`, data)
+export async function createTripSchedule(_data: CreateTripScheduleRequest) {
+  return { data: {} as TripSchedule }
 }
 
-export async function updateTripSchedule(id: string, data: Partial<TripSchedule>) {
-  return apiPatch<{ data: TripSchedule }>(`${BASE}/trips/schedules/${id}`, data)
+export async function updateTripSchedule(_id: string, _data: Partial<TripSchedule>) {
+  return { data: {} as TripSchedule }
 }
 
-export async function deleteTripSchedule(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/trips/schedules/${id}`)
+export async function deleteTripSchedule(_id: string) {
+  return { success: false }
 }
 
-export async function fetchMultiTrips(params?: { routeId?: string; date?: string; status?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.routeId) qs.set('routeId', params.routeId)
-  if (params?.date) qs.set('date', params.date)
-  if (params?.status) qs.set('status', params.status)
-  return apiGet<{ data: MultiTrip[] }>(`${BASE}/trips/multi?${qs}`)
+export async function fetchMultiTrips(_params?: { routeId?: string; date?: string; status?: string }) {
+  return { data: [] as MultiTrip[] }
 }
 
-export async function fetchMultiTrip(id: string) {
-  return apiGet<{ data: MultiTrip }>(`${BASE}/trips/multi/${id}`)
+export async function fetchMultiTrip(_id: string) {
+  return { data: {} as MultiTrip }
 }
 
-export async function fetchTripBoardingRecords(tripId: string) {
-  return apiGet<{ data: TripBoardingRecord[] }>(`${BASE}/trips/${tripId}/boarding`)
+export async function fetchTripBoardingRecords(_tripId: string) {
+  return { data: [] as TripBoardingRecord[] }
 }
 
-export async function recordBoarding(tripId: string, data: { studentId: string; stopId: string; action: 'boarded' | 'dropped'; verifiedBy?: 'rfid' | 'manual' | 'facial_recognition' }) {
-  return apiPost<{ data: TripBoardingRecord }>(`${BASE}/trips/${tripId}/boarding`, data)
+export async function recordBoarding(_tripId: string, _data: { studentId: string; stopId: string; action: 'boarded' | 'dropped'; verifiedBy?: 'rfid' | 'manual' | 'facial_recognition' }) {
+  return { data: {} as TripBoardingRecord }
 }

@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api-client'
+import { apiGet, apiPost, apiDelete } from '@/lib/api-client'
 import type {
   Visitor,
   CreateVisitorRequest,
@@ -28,8 +28,9 @@ export async function createVisitor(data: CreateVisitorRequest) {
   return apiPost<{ data: Visitor }>(`${BASE}`, data)
 }
 
-export async function updateVisitor(id: string, data: Partial<Visitor>) {
-  return apiPut<{ data: Visitor }>(`${BASE}/${id}`, data)
+// TODO: Backend not implemented — visitor update returns placeholder
+export async function updateVisitor(_id: string, _data: Partial<Visitor>) {
+  return { data: {} as Visitor }
 }
 
 export async function deleteVisitor(id: string) {
@@ -37,8 +38,9 @@ export async function deleteVisitor(id: string) {
 }
 
 // ==================== VISITOR PASSES ====================
+// TODO: Backend not implemented — visitor pass management returns placeholders
 
-export async function fetchPasses(params?: {
+export async function fetchPasses(_params?: {
   status?: string
   purpose?: string
   date?: string
@@ -46,53 +48,45 @@ export async function fetchPasses(params?: {
   page?: number
   limit?: number
 }) {
-  const qs = new URLSearchParams()
-  if (params?.status) qs.set('status', params.status)
-  if (params?.purpose) qs.set('purpose', params.purpose)
-  if (params?.date) qs.set('date', params.date)
-  if (params?.search) qs.set('search', params.search)
-  if (params?.page) qs.set('page', String(params.page))
-  if (params?.limit) qs.set('limit', String(params.limit))
-  return apiGet<{
-    data: VisitorPass[]
-    meta: { total: number; page: number; limit: number; totalPages: number }
-  }>(`${BASE}/passes?${qs}`)
+  return {
+    data: [] as VisitorPass[],
+    meta: { total: 0, page: 1, limit: 20, totalPages: 0 }
+  }
 }
 
 export async function fetchActivePasses() {
-  return apiGet<{ data: VisitorPass[] }>(`${BASE}/passes/active`)
+  return { data: [] as VisitorPass[] }
 }
 
-export async function createPass(data: CreateVisitorPassRequest) {
-  return apiPost<{ data: VisitorPass }>(`${BASE}/passes`, data)
+export async function createPass(_data: CreateVisitorPassRequest) {
+  return { data: {} as VisitorPass }
 }
 
-export async function checkOutVisitor(id: string) {
-  return apiPatch<{ data: VisitorPass }>(`${BASE}/passes/${id}/checkout`, {})
+export async function checkOutVisitor(_id: string) {
+  return { data: {} as VisitorPass }
 }
 
-export async function cancelPass(id: string) {
-  return apiPatch<{ data: VisitorPass }>(`${BASE}/passes/${id}/cancel`, {})
+export async function cancelPass(_id: string) {
+  return { data: {} as VisitorPass }
 }
 
-export async function deletePass(id: string) {
-  return apiDelete<{ success: boolean }>(`${BASE}/passes/${id}`)
+export async function deletePass(_id: string) {
+  return { success: false }
 }
 
 // ==================== PRE-APPROVED VISITORS ====================
+// TODO: Backend not implemented — pre-approved visitor management returns placeholders
 
-export async function fetchPreApproved(params?: { status?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.status) qs.set('status', params.status)
-  return apiGet<{ data: PreApprovedVisitor[] }>(`${BASE}/pre-approved?${qs}`)
+export async function fetchPreApproved(_params?: { status?: string }) {
+  return { data: [] as PreApprovedVisitor[] }
 }
 
-export async function createPreApproved(data: CreatePreApprovedRequest) {
-  return apiPost<{ data: PreApprovedVisitor }>(`${BASE}/pre-approved`, data)
+export async function createPreApproved(_data: CreatePreApprovedRequest) {
+  return { data: {} as PreApprovedVisitor }
 }
 
-export async function revokePreApproved(id: string) {
-  return apiPatch<{ data: PreApprovedVisitor }>(`${BASE}/pre-approved/${id}/revoke`, {})
+export async function revokePreApproved(_id: string) {
+  return { data: {} as PreApprovedVisitor }
 }
 
 // ==================== STATS & REPORTS ====================
@@ -101,9 +95,7 @@ export async function fetchVisitorStats() {
   return apiGet<{ data: VisitorStats }>(`${BASE}/stats`)
 }
 
-export async function fetchVisitorReports(params?: { startDate?: string; endDate?: string }) {
-  const qs = new URLSearchParams()
-  if (params?.startDate) qs.set('startDate', params.startDate)
-  if (params?.endDate) qs.set('endDate', params.endDate)
-  return apiGet<{ data: VisitorReport[] }>(`${BASE}/reports?${qs}`)
+// TODO: Backend not implemented — visitor reports returns placeholder
+export async function fetchVisitorReports(_params?: { startDate?: string; endDate?: string }) {
+  return { data: [] as VisitorReport[] }
 }

@@ -15,6 +15,7 @@ import { CommunicationSection } from '../components/CommunicationSection'
 import { IntegrationsSection } from '../components/IntegrationsSection'
 import { AddonManager } from '../components/AddonManager'
 import { RolePermissionsManager } from '../components/RolePermissionsManager'
+import { SubscriptionSection } from '../components/SubscriptionSection'
 import type { SettingsSection, GeneralTab, CommunicationTab, IntegrationsTab } from '../types/settings.types'
 
 export function SettingsPage() {
@@ -31,6 +32,7 @@ export function SettingsPage() {
   const canAccessIntegrations = hasRole(['admin', 'principal'])
   const canAccessModules = hasRole(['admin'])
   const canAccessPermissions = hasRole(['admin', 'principal'])
+  const canAccessSubscription = hasRole(['admin'])
 
   // Get current subtabs with defaults
   const generalSubTab = (activeTab === 'general' ? subTab as GeneralTab : null) || 'school'
@@ -75,6 +77,10 @@ export function SettingsPage() {
 
         {activeTab === 'integrations' && canAccessIntegrations && (
           <IntegrationsSection activeTab={integrationsSubTab} onTabChange={handleIntegrationsTabChange} />
+        )}
+
+        {activeTab === 'subscription' && canAccessSubscription && (
+          <SubscriptionSection />
         )}
       </div>
     </div>

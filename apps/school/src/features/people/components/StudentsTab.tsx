@@ -149,15 +149,15 @@ function StudentsDashboardContent() {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Student
               </Button>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" disabled title="Coming soon">
                 <Upload className="h-4 w-4 mr-2" />
                 Bulk Import
               </Button>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" disabled title="Coming soon">
                 <Download className="h-4 w-4 mr-2" />
                 Export Data
               </Button>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" disabled title="Coming soon">
                 <ArrowUpCircle className="h-4 w-4 mr-2" />
                 Promote Students
               </Button>

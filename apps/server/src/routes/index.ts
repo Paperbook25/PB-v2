@@ -44,6 +44,7 @@ import clubRouter from './club.routes.js'
 import facilityRouter from './facility.routes.js'
 import scholarshipRouter from './scholarship.routes.js'
 import emailCampaignRouter from './email-campaign.routes.js'
+import { requireAddon } from '../middleware/addon.middleware.js'
 import adminRoutes from './admin/index.js'
 
 const router = Router()
@@ -102,7 +103,7 @@ router.use('/ai-planner', requireTenant, aiPlannerRoutes)
 router.use('/agents', requireTenant, agentRoutes)
 
 // School Website Builder
-router.use('/school-website', requireTenant, websiteRoutes)
+router.use('/school-website', requireTenant, requireAddon('school-website'), websiteRoutes)
 router.use('/public/school-website', websitePublicRouter) // Public endpoint — no tenant enforcement
 
 // Blog / News CMS
@@ -122,46 +123,46 @@ router.use('/reports', requireTenant, reportRoutes)
 router.use('/leave', requireTenant, leaveRoutes)
 
 // Library Management
-router.use('/library', requireTenant, libraryRouter)
+router.use('/library', requireTenant, requireAddon('library'), libraryRouter)
 
 // Transport Management
-router.use('/transport', requireTenant, transportRouter)
+router.use('/transport', requireTenant, requireAddon('transport'), transportRouter)
 
 // School Documents
-router.use('/documents', requireTenant, documentRouter)
+router.use('/documents', requireTenant, requireAddon('documents'), documentRouter)
 
 // Visitor Management
-router.use('/visitors', requireTenant, visitorRouter)
+router.use('/visitors', requireTenant, requireAddon('visitors'), visitorRouter)
 
 // Complaints / Grievances
-router.use('/complaints', requireTenant, complaintRouter)
+router.use('/complaints', requireTenant, requireAddon('complaints'), complaintRouter)
 
 // Inventory / Assets
-router.use('/inventory', requireTenant, inventoryRouter)
+router.use('/inventory', requireTenant, requireAddon('operations'), inventoryRouter)
 
 // Hostel Management
-router.use('/hostel', requireTenant, hostelRouter)
+router.use('/hostel', requireTenant, requireAddon('hostel'), hostelRouter)
 
 // Behavior Records
-router.use('/behavior', requireTenant, behaviorRouter)
+router.use('/behavior', requireTenant, requireAddon('behavior'), behaviorRouter)
 
 // LMS (Learning Management System)
-router.use('/lms', requireTenant, lmsRouter)
+router.use('/lms', requireTenant, requireAddon('lms'), lmsRouter)
 
 // Parent Portal
 router.use('/parent-portal', requireTenant, parentPortalRouter)
 
 // Alumni Management
-router.use('/alumni', requireTenant, alumniRouter)
+router.use('/alumni', requireTenant, requireAddon('alumni'), alumniRouter)
 
 // Clubs & Activities
-router.use('/clubs', requireTenant, clubRouter)
+router.use('/clubs', requireTenant, requireAddon('clubs'), clubRouter)
 
 // Facilities Management
-router.use('/facilities', requireTenant, facilityRouter)
+router.use('/facilities', requireTenant, requireAddon('operations'), facilityRouter)
 
 // Scholarships
-router.use('/scholarships', requireTenant, scholarshipRouter)
+router.use('/scholarships', requireTenant, requireAddon('scholarships'), scholarshipRouter)
 
 // Contact Submissions
 router.use('/contact', requireTenant, contactRouter)

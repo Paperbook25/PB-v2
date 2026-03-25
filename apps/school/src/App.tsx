@@ -13,6 +13,7 @@ import { SchoolNotFoundPage } from '@/features/tenant/pages/SchoolNotFoundPage'
 import { SchoolSuspendedPage } from '@/features/tenant/pages/SchoolSuspendedPage'
 import { TenantLoadingPage } from '@/features/tenant/pages/TenantLoadingPage'
 import type { Role } from '@/types/common.types'
+import { AddonGate } from '@/components/AddonGate'
 
 // Eagerly load LoginPage for fast initial render
 import { LoginPage } from '@/features/auth/pages/LoginPage'
@@ -322,13 +323,13 @@ export default function App() {
             <Route path="/finance/*" element={<RoleGate allowedRoles={['admin', 'principal', 'accountant']}><FinancePage /></RoleGate>} />
 
             {/* Library */}
-            <Route path="/library" element={<LibraryPage />} />
-            <Route path="/library/scanner" element={<Navigate to="/library?tab=scanner" replace />} />
-            <Route path="/library/reservations" element={<Navigate to="/library?tab=reservations" replace />} />
-            <Route path="/library/reading" element={<Navigate to="/library?tab=history" replace />} />
-            <Route path="/library/digital" element={<Navigate to="/library?tab=digital" replace />} />
-            <Route path="/library/notifications" element={<Navigate to="/library?tab=fines" replace />} />
-            <Route path="/library/*" element={<LibraryPage />} />
+            <Route path="/library" element={<AddonGate slug="library"><LibraryPage /></AddonGate>} />
+            <Route path="/library/scanner" element={<AddonGate slug="library"><Navigate to="/library?tab=scanner" replace /></AddonGate>} />
+            <Route path="/library/reservations" element={<AddonGate slug="library"><Navigate to="/library?tab=reservations" replace /></AddonGate>} />
+            <Route path="/library/reading" element={<AddonGate slug="library"><Navigate to="/library?tab=history" replace /></AddonGate>} />
+            <Route path="/library/digital" element={<AddonGate slug="library"><Navigate to="/library?tab=digital" replace /></AddonGate>} />
+            <Route path="/library/notifications" element={<AddonGate slug="library"><Navigate to="/library?tab=fines" replace /></AddonGate>} />
+            <Route path="/library/*" element={<AddonGate slug="library"><LibraryPage /></AddonGate>} />
 
             {/* Exams */}
             <Route path="/exams" element={<ExamsPage />} />
@@ -343,24 +344,24 @@ export default function App() {
             <Route path="/exams/:id/marks" element={<RoleGate allowedRoles={['admin', 'principal', 'teacher']}><MarksEntryPage /></RoleGate>} />
 
             {/* LMS */}
-            <Route path="/lms" element={<LmsMainPage />} />
-            <Route path="/lms/courses" element={<Navigate to="/lms?tab=courses" replace />} />
-            <Route path="/lms/live-classes" element={<Navigate to="/lms?tab=live-classes" replace />} />
-            <Route path="/lms/enrollments" element={<Navigate to="/lms?tab=enrollments" replace />} />
-            <Route path="/lms/assignments" element={<Navigate to="/lms?tab=assignments" replace />} />
-            <Route path="/lms/question-bank" element={<Navigate to="/lms?tab=question-bank" replace />} />
-            <Route path="/lms/courses/new" element={<RoleGate allowedRoles={['admin', 'principal', 'teacher']}><NewCoursePage /></RoleGate>} />
-            <Route path="/lms/courses/:id" element={<CourseDetailPage />} />
-            <Route path="/lms/courses/:id/edit" element={<RoleGate allowedRoles={['admin', 'principal', 'teacher']}><EditCoursePage /></RoleGate>} />
-            <Route path="/lms/courses/:id/learn" element={<StudentCoursePage />} />
-            <Route path="/lms/*" element={<LmsMainPage />} />
+            <Route path="/lms" element={<AddonGate slug="lms"><LmsMainPage /></AddonGate>} />
+            <Route path="/lms/courses" element={<AddonGate slug="lms"><Navigate to="/lms?tab=courses" replace /></AddonGate>} />
+            <Route path="/lms/live-classes" element={<AddonGate slug="lms"><Navigate to="/lms?tab=live-classes" replace /></AddonGate>} />
+            <Route path="/lms/enrollments" element={<AddonGate slug="lms"><Navigate to="/lms?tab=enrollments" replace /></AddonGate>} />
+            <Route path="/lms/assignments" element={<AddonGate slug="lms"><Navigate to="/lms?tab=assignments" replace /></AddonGate>} />
+            <Route path="/lms/question-bank" element={<AddonGate slug="lms"><Navigate to="/lms?tab=question-bank" replace /></AddonGate>} />
+            <Route path="/lms/courses/new" element={<AddonGate slug="lms"><RoleGate allowedRoles={['admin', 'principal', 'teacher']}><NewCoursePage /></RoleGate></AddonGate>} />
+            <Route path="/lms/courses/:id" element={<AddonGate slug="lms"><CourseDetailPage /></AddonGate>} />
+            <Route path="/lms/courses/:id/edit" element={<AddonGate slug="lms"><RoleGate allowedRoles={['admin', 'principal', 'teacher']}><EditCoursePage /></RoleGate></AddonGate>} />
+            <Route path="/lms/courses/:id/learn" element={<AddonGate slug="lms"><StudentCoursePage /></AddonGate>} />
+            <Route path="/lms/*" element={<AddonGate slug="lms"><LmsMainPage /></AddonGate>} />
 
             {/* Visitors */}
-            <Route path="/visitors" element={<RoleGate allowedRoles={['admin', 'principal']}><VisitorsMainPage /></RoleGate>} />
-            <Route path="/visitors/logs" element={<Navigate to="/visitors?tab=logs" replace />} />
-            <Route path="/visitors/reports" element={<Navigate to="/visitors?tab=reports" replace />} />
-            <Route path="/visitors/pre-approved" element={<Navigate to="/visitors?tab=preapproved" replace />} />
-            <Route path="/visitors/*" element={<RoleGate allowedRoles={['admin', 'principal']}><VisitorsMainPage /></RoleGate>} />
+            <Route path="/visitors" element={<AddonGate slug="visitors"><RoleGate allowedRoles={['admin', 'principal']}><VisitorsMainPage /></RoleGate></AddonGate>} />
+            <Route path="/visitors/logs" element={<AddonGate slug="visitors"><Navigate to="/visitors?tab=logs" replace /></AddonGate>} />
+            <Route path="/visitors/reports" element={<AddonGate slug="visitors"><Navigate to="/visitors?tab=reports" replace /></AddonGate>} />
+            <Route path="/visitors/pre-approved" element={<AddonGate slug="visitors"><Navigate to="/visitors?tab=preapproved" replace /></AddonGate>} />
+            <Route path="/visitors/*" element={<AddonGate slug="visitors"><RoleGate allowedRoles={['admin', 'principal']}><VisitorsMainPage /></RoleGate></AddonGate>} />
 
             {/* Operations */}
             <Route path="/operations" element={<RoleGate allowedRoles={['admin', 'principal', 'transport_manager', 'accountant']}><OperationsPage /></RoleGate>} />
@@ -387,23 +388,23 @@ export default function App() {
             <Route path="/integrations/*" element={<Navigate to="/settings?tab=integrations" replace />} />
 
             {/* Transport redirects */}
-            <Route path="/transport" element={<Navigate to="/operations?tab=transport" replace />} />
-            <Route path="/transport/tracking" element={<RoleGate allowedRoles={['admin', 'principal', 'transport_manager', 'parent', 'student']}><TrackingPage /></RoleGate>} />
-            <Route path="/transport/vehicles" element={<Navigate to="/operations?tab=transport&subtab=vehicles" replace />} />
-            <Route path="/transport/drivers" element={<Navigate to="/operations?tab=transport&subtab=drivers" replace />} />
-            <Route path="/transport/stops" element={<Navigate to="/operations?tab=transport&subtab=stops" replace />} />
-            <Route path="/transport/maintenance" element={<Navigate to="/operations?tab=transport&subtab=maintenance" replace />} />
-            <Route path="/transport/notifications" element={<Navigate to="/operations?tab=transport&subtab=notifications" replace />} />
-            <Route path="/transport/*" element={<Navigate to="/operations?tab=transport" replace />} />
+            <Route path="/transport" element={<AddonGate slug="transport"><Navigate to="/operations?tab=transport" replace /></AddonGate>} />
+            <Route path="/transport/tracking" element={<AddonGate slug="transport"><RoleGate allowedRoles={['admin', 'principal', 'transport_manager', 'parent', 'student']}><TrackingPage /></RoleGate></AddonGate>} />
+            <Route path="/transport/vehicles" element={<AddonGate slug="transport"><Navigate to="/operations?tab=transport&subtab=vehicles" replace /></AddonGate>} />
+            <Route path="/transport/drivers" element={<AddonGate slug="transport"><Navigate to="/operations?tab=transport&subtab=drivers" replace /></AddonGate>} />
+            <Route path="/transport/stops" element={<AddonGate slug="transport"><Navigate to="/operations?tab=transport&subtab=stops" replace /></AddonGate>} />
+            <Route path="/transport/maintenance" element={<AddonGate slug="transport"><Navigate to="/operations?tab=transport&subtab=maintenance" replace /></AddonGate>} />
+            <Route path="/transport/notifications" element={<AddonGate slug="transport"><Navigate to="/operations?tab=transport&subtab=notifications" replace /></AddonGate>} />
+            <Route path="/transport/*" element={<AddonGate slug="transport"><Navigate to="/operations?tab=transport" replace /></AddonGate>} />
 
             {/* Hostel redirects */}
-            <Route path="/hostel" element={<Navigate to="/operations?tab=hostel" replace />} />
-            <Route path="/hostel/rooms" element={<Navigate to="/operations?tab=hostel&subtab=rooms" replace />} />
-            <Route path="/hostel/allocations" element={<Navigate to="/operations?tab=hostel&subtab=allocations" replace />} />
-            <Route path="/hostel/fees" element={<Navigate to="/operations?tab=hostel&subtab=fees" replace />} />
-            <Route path="/hostel/mess" element={<Navigate to="/operations?tab=hostel&subtab=mess" replace />} />
-            <Route path="/hostel/attendance" element={<Navigate to="/operations?tab=hostel&subtab=attendance" replace />} />
-            <Route path="/hostel/*" element={<Navigate to="/operations?tab=hostel" replace />} />
+            <Route path="/hostel" element={<AddonGate slug="hostel"><Navigate to="/operations?tab=hostel" replace /></AddonGate>} />
+            <Route path="/hostel/rooms" element={<AddonGate slug="hostel"><Navigate to="/operations?tab=hostel&subtab=rooms" replace /></AddonGate>} />
+            <Route path="/hostel/allocations" element={<AddonGate slug="hostel"><Navigate to="/operations?tab=hostel&subtab=allocations" replace /></AddonGate>} />
+            <Route path="/hostel/fees" element={<AddonGate slug="hostel"><Navigate to="/operations?tab=hostel&subtab=fees" replace /></AddonGate>} />
+            <Route path="/hostel/mess" element={<AddonGate slug="hostel"><Navigate to="/operations?tab=hostel&subtab=mess" replace /></AddonGate>} />
+            <Route path="/hostel/attendance" element={<AddonGate slug="hostel"><Navigate to="/operations?tab=hostel&subtab=attendance" replace /></AddonGate>} />
+            <Route path="/hostel/*" element={<AddonGate slug="hostel"><Navigate to="/operations?tab=hostel" replace /></AddonGate>} />
 
             {/* Inventory redirects */}
             <Route path="/inventory" element={<Navigate to="/operations?tab=assets" replace />} />
@@ -435,12 +436,12 @@ export default function App() {
             <Route path="/communication/*" element={<Navigate to="/settings?tab=communication" replace />} />
 
             {/* Behavior */}
-            <Route path="/behavior" element={<RoleGate allowedRoles={['admin', 'principal', 'teacher']}><BehaviorMainPage /></RoleGate>} />
-            <Route path="/behavior/incidents" element={<Navigate to="/behavior?tab=incidents" replace />} />
-            <Route path="/behavior/detentions" element={<Navigate to="/behavior?tab=detentions" replace />} />
-            <Route path="/behavior/actions" element={<Navigate to="/behavior?tab=dashboard" replace />} />
-            <Route path="/behavior/points" element={<Navigate to="/behavior?tab=dashboard" replace />} />
-            <Route path="/behavior/*" element={<RoleGate allowedRoles={['admin', 'principal', 'teacher']}><BehaviorMainPage /></RoleGate>} />
+            <Route path="/behavior" element={<AddonGate slug="behavior"><RoleGate allowedRoles={['admin', 'principal', 'teacher']}><BehaviorMainPage /></RoleGate></AddonGate>} />
+            <Route path="/behavior/incidents" element={<AddonGate slug="behavior"><Navigate to="/behavior?tab=incidents" replace /></AddonGate>} />
+            <Route path="/behavior/detentions" element={<AddonGate slug="behavior"><Navigate to="/behavior?tab=detentions" replace /></AddonGate>} />
+            <Route path="/behavior/actions" element={<AddonGate slug="behavior"><Navigate to="/behavior?tab=dashboard" replace /></AddonGate>} />
+            <Route path="/behavior/points" element={<AddonGate slug="behavior"><Navigate to="/behavior?tab=dashboard" replace /></AddonGate>} />
+            <Route path="/behavior/*" element={<AddonGate slug="behavior"><RoleGate allowedRoles={['admin', 'principal', 'teacher']}><BehaviorMainPage /></RoleGate></AddonGate>} />
 
             {/* Reports */}
             <Route path="/reports" element={<RoleGate allowedRoles={['admin', 'principal', 'accountant']}><ReportsMainPage /></RoleGate>} />
@@ -465,7 +466,7 @@ export default function App() {
             <Route path="/parent-portal/*" element={<RoleGate allowedRoles={['parent', 'teacher', 'admin', 'principal']}><ParentPortalPage /></RoleGate>} />
 
             {/* School Website Builder */}
-            <Route path="/school-website" element={<RoleGate allowedRoles={['admin', 'principal']}><SchoolWebsiteBuilderPage /></RoleGate>} />
+            <Route path="/school-website" element={<AddonGate slug="school-website"><RoleGate allowedRoles={['admin', 'principal']}><SchoolWebsiteBuilderPage /></RoleGate></AddonGate>} />
 
             {/* Documents redirects */}
             <Route path="/documents" element={<Navigate to="/management?tab=docs" replace />} />

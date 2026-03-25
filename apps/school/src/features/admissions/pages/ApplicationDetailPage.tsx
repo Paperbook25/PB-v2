@@ -159,10 +159,34 @@ export function ApplicationDetailPage() {
     })
   }
 
-  const handleUploadDocument = (type: DocumentType, file: File) => {
-    // In a real app, this would upload to a storage service
-    console.log('Uploading document:', type, file.name)
-    setUploadDialogOpen(false)
+  const handleUploadDocument = async (type: DocumentType, file: File) => {
+    // Convert to base64 and upload via media endpoint
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const base64 = (reader.result as string).split(',')[1]
+      try {
+        const res = await fetch('/api/school-website/media/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            fileName: file.name,
+            data: base64,
+            mimeType: file.type,
+          }),
+        })
+        if (res.ok) {
+          const result = await res.json()
+          // TODO: Link uploaded file to admission document
+          console.log('Uploaded:', result.data?.url)
+        }
+      } catch (err) {
+        console.error('Upload failed:', err)
+      } finally {
+        setUploadDialogOpen(false)
+      }
+    }
+    reader.readAsDataURL(file)
   }
 
   return (

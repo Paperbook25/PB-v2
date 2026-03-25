@@ -111,7 +111,7 @@ export function CollectionReportView() {
           </Popover>
         </div>
 
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" disabled title="Export coming soon">
           <Download className="h-4 w-4 mr-2" />
           Export
         </Button>

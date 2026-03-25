@@ -30,7 +30,7 @@ export function FinancePage() {
         moduleColor="finance"
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled title="Export coming soon">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>

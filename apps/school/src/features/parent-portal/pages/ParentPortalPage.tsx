@@ -28,8 +28,8 @@ export function ParentPortalPage() {
   }
 
   const handleViewMeetingDetails = (meeting: Meeting) => {
-    // Could open a detail dialog
-    console.log('View meeting details:', meeting)
+    // Navigate to calendar event or show detail modal
+    alert(`Meeting details for "${meeting.subject}" coming soon`)
   }
 
   return (

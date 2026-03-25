@@ -1,4 +1,5 @@
 import { prisma } from '../config/db.js'
+import { clearAddonCache } from '../middleware/addon.middleware.js'
 
 // All available addons with their definitions
 const ADDON_DEFINITIONS = [
@@ -16,6 +17,7 @@ const ADDON_DEFINITIONS = [
   { slug: 'complaints', name: 'Complaints', description: 'Complaint tracking and resolution', icon: 'MessageSquareWarning', category: 'communication', isCore: false, sortOrder: 11 },
   { slug: 'visitors', name: 'Visitors', description: 'Visitor management and gate passes', icon: 'UserCheck', category: 'communication', isCore: false, sortOrder: 12 },
   { slug: 'school-website', name: 'School Website', description: 'Public-facing school website builder with customizable sections and AI content generation', icon: 'Globe', category: 'communication', isCore: false, sortOrder: 13 },
+  { slug: 'behavior', name: 'Behavior', description: 'Student behavior tracking, incidents, detentions, and point systems', icon: 'Shield', category: 'academic', isCore: false, sortOrder: 14 },
 ]
 
 export async function seedAddons() {
@@ -63,6 +65,9 @@ export async function toggleAddon(schoolId: string, slug: string, enabled: boole
     update: { enabled, enabledBy: userId },
     create: { schoolId, addonId: addon.id, enabled, enabledBy: userId },
   })
+
+  // Invalidate the addon cache so the middleware picks up the change immediately
+  clearAddonCache(schoolId)
 
   return { slug, enabled }
 }

@@ -2,10 +2,11 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles/globals.css'
 import App from './App'
+import { isMswEnabled } from '@/lib/env'
 
 async function enableMocking() {
   // Only start MSW when explicitly enabled via env var
-  if (import.meta.env.VITE_USE_MOCK_API === 'true') {
+  if (isMswEnabled) {
     try {
       console.log('[MSW] Loading mock service worker...')
       const { worker } = await import('./mocks/browser')

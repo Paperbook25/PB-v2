@@ -10,6 +10,7 @@ import {
   type JwtPayload,
 } from '../utils/jwt.js'
 import { AppError } from '../utils/errors.js'
+import { sendEmail, passwordResetEmail } from './email.service.js'
 import type { LoginInput, ForgotPasswordInput, ResetPasswordInput } from '../validators/auth.validators.js'
 import { getRolePermissionSlugs } from './permission.service.js'
 
@@ -296,10 +297,11 @@ export async function forgotPassword(input: ForgotPasswordInput): Promise<void> 
     },
   })
 
-  // TODO: Send email with reset link
-  if (env.isDev) {
-    console.log(`[DEV] Password reset token for ${input.email}: ${token}`)
-  }
+  // Send password reset email
+  const resetLink = `${env.CORS_ORIGIN || 'http://localhost:5173'}/reset-password?token=${token}`
+  const email = passwordResetEmail(user.name, resetLink)
+  email.to = user.email
+  await sendEmail(email).catch(err => console.error('[Auth] Failed to send reset email:', err))
 }
 
 export async function resetPassword(input: ResetPasswordInput): Promise<void> {

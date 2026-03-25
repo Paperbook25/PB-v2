@@ -3,6 +3,7 @@ import { AppError } from '../utils/errors.js'
 import { feeCategoryReverse } from './fee-type.service.js'
 import { frequencyReverse } from './fee-structure.service.js'
 import { createLedgerEntry } from './ledger.service.js'
+import { sendEmail, feeReminderEmail } from './email.service.js'
 import type { UpdateStudentFeeInput, CollectPaymentInput, BulkAssignInput } from '../validators/finance.validators.js'
 
 // ==================== Enum Mapping ====================
@@ -778,11 +779,56 @@ export async function getStudentOutstandingDues(schoolId: string, studentId: str
 }
 
 export async function sendReminders(schoolId: string) {
-  // Stub — in future this would send email/SMS reminders
-  const overdue = await prisma.studentFee.count({
+  const profile = await prisma.schoolProfile.findFirst({ where: { id: schoolId } })
+  const schoolName = profile?.name || 'School'
+
+  // Get overdue fees with student + parent info
+  const overdueFees = await prisma.studentFee.findMany({
     where: { organizationId: schoolId, status: { in: ['fps_pending', 'fps_overdue'] } },
+    include: {
+      student: {
+        include: { parent: true, class: true },
+      },
+      feeStructure: {
+        include: { feeType: true },
+      },
+    },
   })
-  return { message: 'Reminders queued', overdueCount: overdue }
+
+  // Group by student
+  const studentFees = new Map<string, typeof overdueFees>()
+  for (const fee of overdueFees) {
+    const list = studentFees.get(fee.studentId) || []
+    list.push(fee)
+    studentFees.set(fee.studentId, list)
+  }
+
+  let sentCount = 0
+  for (const [_studentId, fees] of studentFees) {
+    const student = fees[0].student
+    if (!student?.parent?.guardianEmail) continue
+
+    const feeDetails = fees.map(f => ({
+      feeType: f.feeStructure?.feeType?.name || 'Fee',
+      amount: Number(f.totalAmount) - Number(f.paidAmount) - Number(f.discountAmount),
+      dueDate: f.dueDate.toISOString().split('T')[0],
+    }))
+
+    const email = feeReminderEmail(
+      student.parent.fatherName || student.parent.guardianEmail.split('@')[0],
+      `${student.firstName} ${student.lastName}`,
+      student.class?.name || '',
+      feeDetails,
+      schoolName,
+      '#' // payment link placeholder
+    )
+    email.to = student.parent.guardianEmail
+
+    const result = await sendEmail(email).catch(() => ({ sent: false }))
+    if (result.sent) sentCount++
+  }
+
+  return { message: 'Reminders sent', overdueCount: overdueFees.length, emailsSent: sentCount }
 }
 
 export { paymentStatusMap, paymentStatusReverse, paymentModeMap, paymentModeReverse }

@@ -2,11 +2,13 @@ import { useState } from 'react'
 import {
   Plus, Eye, EyeOff, Trash2, ChevronUp, ChevronDown,
   Globe, FileText, GripVertical, Layers, PanelRightOpen, PanelRightClose,
+  Monitor, Tablet, Smartphone,
 } from 'lucide-react'
 import { useSchoolWebsite } from '../hooks/useSchoolWebsite'
 import { SectionEditorPanel } from './SectionEditorPanel'
 import { SectionRenderer } from './SectionRenderers'
 import { SECTION_TYPES, type SectionType } from '../types/school-website.types'
+import { cn } from '@/lib/utils'
 
 export function PageBuilder() {
   const {
@@ -14,12 +16,15 @@ export function PageBuilder() {
     settings, previewOpen, isLoading,
     setSelectedPageId, setSelectedSectionId, setPreviewOpen,
     createPage, deletePage, publishPage, unpublishPage,
-    addSection, updateSection, deleteSection, moveSection,
+    addSection, updateSection, deleteSection, moveSection, reorderSections,
   } = useSchoolWebsite()
 
   const [showAddSection, setShowAddSection] = useState(false)
   const [newPageTitle, setNewPageTitle] = useState('')
   const [showNewPage, setShowNewPage] = useState(false)
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
 
   const handleCreatePage = async () => {
     if (!newPageTitle.trim()) return
@@ -37,6 +42,29 @@ export function PageBuilder() {
     if (!selectedSectionId) return
     await updateSection.mutateAsync({ id: selectedSectionId, content, title })
   }
+
+  const handleReorderDrop = async (fromIdx: number, toIdx: number) => {
+    if (!selectedPageId) return
+    const reordered = sections.map((s, i) => {
+      let newOrder = i
+      if (fromIdx < toIdx) {
+        if (i === fromIdx) newOrder = toIdx
+        else if (i > fromIdx && i <= toIdx) newOrder = i - 1
+      } else {
+        if (i === fromIdx) newOrder = toIdx
+        else if (i >= toIdx && i < fromIdx) newOrder = i + 1
+      }
+      return { id: s.id, sortOrder: newOrder }
+    })
+    await reorderSections.mutateAsync({ pageId: selectedPageId, sections: reordered })
+  }
+
+  const previewWidths = {
+    desktop: { scale: 0.35, innerWidth: '285%' },
+    tablet: { scale: 0.5, innerWidth: '768px' },
+    mobile: { scale: 0.6, innerWidth: '375px' },
+  }
+  const pw = previewWidths[previewMode]
 
   const template = settings?.template || 'classic'
 
@@ -130,16 +158,50 @@ export function PageBuilder() {
                   return (
                     <div
                       key={section.id}
-                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-md text-sm cursor-pointer transition group ${
+                      draggable
+                      onDragStart={(e) => {
+                        setDraggedIdx(idx)
+                        e.dataTransfer.effectAllowed = 'move'
+                        if (e.currentTarget instanceof HTMLElement) {
+                          e.currentTarget.style.opacity = '0.5'
+                        }
+                      }}
+                      onDragEnd={(e) => {
+                        if (e.currentTarget instanceof HTMLElement) {
+                          e.currentTarget.style.opacity = '1'
+                        }
+                        setDraggedIdx(null)
+                        setDragOverIdx(null)
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault()
+                        e.dataTransfer.dropEffect = 'move'
+                        setDragOverIdx(idx)
+                      }}
+                      onDragLeave={() => {
+                        setDragOverIdx(null)
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault()
+                        if (draggedIdx !== null && draggedIdx !== idx) {
+                          handleReorderDrop(draggedIdx, idx)
+                        }
+                        setDraggedIdx(null)
+                        setDragOverIdx(null)
+                      }}
+                      className={cn(
+                        'flex items-center gap-1.5 px-2.5 py-2 rounded-md text-sm cursor-grab transition group',
                         selectedSectionId === section.id
                           ? 'bg-blue-100 text-blue-700'
                           : section.isVisible
                             ? 'text-gray-700 hover:bg-gray-100'
-                            : 'text-gray-400 hover:bg-gray-100'
-                      }`}
+                            : 'text-gray-400 hover:bg-gray-100',
+                        dragOverIdx === idx && draggedIdx !== idx && 'border-t-2 border-blue-500',
+                        draggedIdx === idx && 'opacity-50',
+                      )}
                       onClick={() => setSelectedSectionId(section.id)}
                     >
-                      <GripVertical className="h-3.5 w-3.5 text-gray-300 shrink-0" />
+                      <GripVertical className="h-3.5 w-3.5 text-gray-300 shrink-0 cursor-grab" />
                       <span className="flex-1 truncate">
                         {sectionMeta?.label || (section.type || 'Section').replace('_', ' ')}
                       </span>
@@ -153,7 +215,7 @@ export function PageBuilder() {
                           className="p-0.5 hover:bg-gray-200 rounded disabled:opacity-30"
                           title="Move up"
                         >
-                          <ChevronUp className="h-3 w-3" />
+                          <ChevronUp className="h-2.5 w-2.5" />
                         </button>
                         <button
                           onClick={e => { e.stopPropagation(); moveSection(section.id, 'down') }}
@@ -161,7 +223,7 @@ export function PageBuilder() {
                           className="p-0.5 hover:bg-gray-200 rounded disabled:opacity-30"
                           title="Move down"
                         >
-                          <ChevronDown className="h-3 w-3" />
+                          <ChevronDown className="h-2.5 w-2.5" />
                         </button>
                         <button
                           onClick={e => {
@@ -281,18 +343,66 @@ export function PageBuilder() {
 
       {/* Right: Preview */}
       {previewOpen && currentPage && (
-        <div className="w-96 border-l overflow-y-auto bg-white shrink-0">
-          <div className="sticky top-0 bg-white border-b px-3 py-2 text-xs font-semibold text-gray-500 uppercase flex items-center gap-2">
-            <Eye className="h-3.5 w-3.5" />
-            Live Preview
+        <div className="w-96 border-l overflow-hidden bg-white shrink-0 flex flex-col">
+          <div className="sticky top-0 bg-white border-b px-3 py-2 flex items-center gap-2">
+            <Eye className="h-3.5 w-3.5 text-gray-400" />
+            <span className="text-xs font-semibold text-gray-500 uppercase">Preview</span>
+            <div className="flex-1" />
+            {/* Device toggles */}
+            <div className="flex items-center gap-0.5 bg-gray-100 rounded-md p-0.5">
+              <button
+                onClick={() => setPreviewMode('desktop')}
+                className={cn(
+                  'px-2 py-1 text-xs rounded flex items-center gap-1',
+                  previewMode === 'desktop' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700',
+                )}
+                title="Desktop"
+              >
+                <Monitor className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => setPreviewMode('tablet')}
+                className={cn(
+                  'px-2 py-1 text-xs rounded flex items-center gap-1',
+                  previewMode === 'tablet' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700',
+                )}
+                title="Tablet"
+              >
+                <Tablet className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => setPreviewMode('mobile')}
+                className={cn(
+                  'px-2 py-1 text-xs rounded flex items-center gap-1',
+                  previewMode === 'mobile' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700',
+                )}
+                title="Mobile"
+              >
+                <Smartphone className="h-3 w-3" />
+              </button>
+            </div>
           </div>
-          <div className="transform scale-[0.45] origin-top-left w-[213%]">
-            {sections.filter(s => s.isVisible).map(section => (
-              <SectionRenderer key={section.id} section={section} template={template} />
-            ))}
-            {sections.filter(s => s.isVisible).length === 0 && (
-              <div className="py-20 text-center text-gray-400">No visible sections</div>
-            )}
+          <div className="overflow-x-auto flex justify-center p-4 bg-gray-100 min-h-0 flex-1 overflow-y-auto">
+            <div
+              className="bg-white shadow-lg overflow-hidden transition-all duration-300"
+              style={{
+                width: previewMode === 'desktop' ? '100%' : pw.innerWidth,
+                borderRadius: previewMode !== 'desktop' ? '12px' : '0',
+                maxHeight: previewMode !== 'desktop' ? '80vh' : 'none',
+              }}
+            >
+              <div
+                className="origin-top-left"
+                style={{ transform: `scale(${pw.scale})`, width: `${100 / pw.scale}%` }}
+              >
+                {sections.filter(s => s.isVisible).map(section => (
+                  <SectionRenderer key={section.id} section={section} template={template} />
+                ))}
+                {sections.filter(s => s.isVisible).length === 0 && (
+                  <div className="py-20 text-center text-gray-400">No visible sections</div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

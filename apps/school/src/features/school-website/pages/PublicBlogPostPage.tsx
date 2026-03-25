@@ -109,7 +109,7 @@ export function PublicBlogPostPage() {
 
       {/* Body */}
       <div
-        className="prose prose-gray max-w-none mb-10"
+        className="prose prose-lg max-w-none mb-10"
         dangerouslySetInnerHTML={{ __html: post.body }}
       />
 

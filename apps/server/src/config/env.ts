@@ -32,6 +32,13 @@ export const env = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
 
+  // SMTP / Email
+  SMTP_HOST: process.env.SMTP_HOST || '',
+  SMTP_PORT: process.env.SMTP_PORT || '587',
+  SMTP_USER: process.env.SMTP_USER || '',
+  SMTP_PASS: process.env.SMTP_PASS || '',
+  SMTP_FROM: process.env.SMTP_FROM || 'noreply@paperbook.app',
+
   // Server
   PORT: parseInt(process.env.PORT || '3001', 10),
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',

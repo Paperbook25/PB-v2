@@ -690,8 +690,18 @@ export async function getTeacherClasses(schoolId: string, userId: string) {
 }
 
 export async function getTeacherTasks(schoolId: string) {
-  // STUB — Exams/Homework modules not yet implemented
-  return []
+  const events = await prisma.calendarEvent.findMany({
+    where: { organizationId: schoolId, startDate: { gte: new Date() } },
+    orderBy: { startDate: 'asc' },
+    take: 5,
+    select: { id: true, title: true, startDate: true },
+  })
+  return events.map(e => ({
+    id: e.id,
+    title: e.title,
+    dueDate: e.startDate.toISOString(),
+    type: 'event',
+  }))
 }
 
 export async function getStrugglingStudents(schoolId: string, userId: string) {
@@ -815,8 +825,8 @@ export async function getChildTimetable(schoolId: string, userId: string, studen
 }
 
 export async function getChildAssignments(schoolId: string) {
-  // STUB — LMS/Homework module not yet implemented
-  return []
+  // Assignments module coming soon.
+  return { data: [], message: 'Assignments module coming soon.' }
 }
 
 export async function getChildTeachers(schoolId: string, userId: string, studentId?: string) {
@@ -859,24 +869,18 @@ export async function getChildTeachers(schoolId: string, userId: string, student
 // ==================== LIBRARIAN (5 endpoints) — ALL STUB ====================
 
 export async function getLibrarianStats(schoolId: string) {
+  // No Library module yet — return zeros with a message
   return {
-    totalBooks: 8500,
-    totalTitles: 3200,
-    issuedBooks: 342,
-    activeMembers: 215,
-    overdueBooks: 18,
-    overdueMembers: 12,
-    pendingReservations: 7,
+    totalBooks: 0,
+    issuedBooks: 0,
+    overdueBooks: 0,
+    totalMembers: 0,
+    message: 'Library module not yet configured. Enable it from Settings > Modules.',
   }
 }
 
 export async function getCirculationStats(schoolId: string) {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-  return days.map((day) => ({
-    day,
-    issued: Math.floor(Math.random() * 20) + 5,
-    returned: Math.floor(Math.random() * 17) + 3,
-  }))
+  return []
 }
 
 export async function getOverdueBooks(schoolId: string) {
@@ -895,13 +899,11 @@ export async function getLibraryActivity(schoolId: string) {
 
 export async function getTransportStats(schoolId: string) {
   return {
-    totalVehicles: 18,
-    activeVehicles: 15,
-    activeRoutes: 12,
-    totalStudents: 520,
-    maintenanceDue: 2,
-    totalDrivers: 18,
-    availableDrivers: 15,
+    totalBuses: 0,
+    activeRoutes: 0,
+    totalStudents: 0,
+    onTimeRate: 0,
+    message: 'Transport module not yet configured.',
   }
 }
 
@@ -923,42 +925,62 @@ export async function getDriverStatus(schoolId: string) {
 
 // ==================== STUDENT (3 endpoints) — ALL STUB ====================
 
-export async function getStudentCourses(schoolId: string) {
-  return []
+export async function getStudentCourses(schoolId: string, studentId: string) {
+  const student = await prisma.student.findFirst({
+    where: { id: studentId, organizationId: schoolId },
+    include: { class: true, section: true },
+  })
+  if (!student) return []
+
+  const subjects = await prisma.subject.findMany({
+    where: { organizationId: schoolId },
+    select: { id: true, name: true, code: true },
+  })
+
+  return subjects.map(s => ({
+    id: s.id,
+    name: s.name,
+    code: s.code,
+    className: student.class?.name || '',
+    section: student.section?.name || '',
+  }))
 }
 
 export async function getStudentAssignments(schoolId: string) {
-  return []
+  return { data: [], message: 'Assignments module not yet available.' }
 }
 
 export async function getStudentTransport(schoolId: string) {
-  return null
+  return { data: null, message: 'Transport module not yet configured.' }
 }
 
 // ==================== NOTIFICATIONS (3 endpoints) — ALL STUB ====================
 
-const staticNotifications = [
-  {
-    id: 'n1',
-    title: 'Welcome to PaperBook',
-    message: 'Your school management system is set up and ready to use.',
-    type: 'system' as const,
-    read: false,
-    createdAt: new Date().toISOString(),
-  },
-]
-
 export async function getNotifications(schoolId: string) {
-  return staticNotifications
+  // Use recent calendar events as notifications
+  const events = await prisma.calendarEvent.findMany({
+    where: { organizationId: schoolId },
+    orderBy: { startDate: 'desc' },
+    take: 10,
+    select: { id: true, title: true, startDate: true, createdAt: true },
+  })
+
+  return events.map(e => ({
+    id: e.id,
+    title: e.title,
+    message: `Event on ${e.startDate.toISOString().split('T')[0]}`,
+    type: 'event',
+    read: false,
+    createdAt: e.createdAt.toISOString(),
+  }))
 }
 
 export async function markNotificationRead(schoolId: string, id: string) {
-  const n = staticNotifications.find((n) => n.id === id)
-  if (n) n.read = true
+  // No-op for now — will persist read state when Notification model is added
   return { success: true }
 }
 
 export async function markAllNotificationsRead(schoolId: string) {
-  staticNotifications.forEach((n) => (n.read = true))
+  // No-op for now — will persist read state when Notification model is added
   return { success: true }
 }

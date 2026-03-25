@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as dashboardService from '../services/dashboard.service.js'
 import { AppError } from '../utils/errors.js'
+import { prisma } from '../config/db.js'
 
 // Helper: extract and validate schoolId from tenant middleware
 function getSchoolId(req: Request): string {
@@ -273,7 +274,15 @@ export async function getDriverStatus(req: Request, res: Response, next: NextFun
 
 export async function getStudentCourses(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getStudentCourses(getSchoolId(req))
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.userId },
+      select: { studentId: true },
+    })
+    if (!user?.studentId) {
+      res.json({ data: [] })
+      return
+    }
+    const data = await dashboardService.getStudentCourses(getSchoolId(req), user.studentId)
     res.json({ data })
   } catch (err) { next(err) }
 }

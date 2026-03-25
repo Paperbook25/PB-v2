@@ -15,6 +15,7 @@ import {
   usePublishBlogPost,
   type BlogPost,
 } from '../api/blog.api'
+import { RichTextEditor } from './RichTextEditor'
 
 interface BlogPostEditorProps {
   post: BlogPost | null  // null = creating new
@@ -190,12 +191,11 @@ export function BlogPostEditor({ post, onClose }: BlogPostEditorProps) {
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
               Content
             </label>
-            <textarea
+            <RichTextEditor
               value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Write your blog post content here... (HTML supported)"
-              rows={20}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm font-mono leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              onChange={setBody}
+              placeholder="Write your blog post..."
+              minHeight="400px"
             />
           </div>
         </div>

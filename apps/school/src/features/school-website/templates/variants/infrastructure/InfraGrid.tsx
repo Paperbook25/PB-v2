@@ -50,20 +50,18 @@ export function InfraGrid({ section, theme }: VariantProps) {
                     alt={facility.name}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  {facility.icon && (
-                    <span
-                      className={`absolute left-3 top-3 flex h-10 w-10 items-center justify-center bg-white text-lg shadow-sm ${radiusClass(theme.cornerRadius)}`}
-                    >
-                      {facility.icon}
-                    </span>
-                  )}
                 </div>
               ) : (
                 <div
                   className="relative flex h-48 items-center justify-center"
                   style={{ backgroundColor: tint(theme.defaultPrimaryColor, 0.06) }}
                 >
-                  <span className="text-5xl">{facility.icon || '🏫'}</span>
+                  <div
+                    className="flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white"
+                    style={{ backgroundColor: theme.defaultPrimaryColor }}
+                  >
+                    {(facility.name || 'F').charAt(0).toUpperCase()}
+                  </div>
                 </div>
               )}
               <div className="p-5">

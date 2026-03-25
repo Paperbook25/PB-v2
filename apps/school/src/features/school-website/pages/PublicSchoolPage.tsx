@@ -101,6 +101,7 @@ interface NavProps {
   publishedPages: { slug: string; title: string }[]
   currentSlug: string
   navStyle: TemplateTheme['navStyle']
+  hasHero?: boolean
 }
 
 function MobileDrawer({
@@ -229,16 +230,16 @@ function SolidNav(props: NavProps) {
           <div className="flex items-center justify-between h-16">
             <Link to="/s/home" className="flex items-center gap-3 min-w-0">
               {logoUrl ? (
-                <img src={logoUrl} alt={schoolName} className="h-10 w-auto object-contain" />
+                <img src={logoUrl} alt={schoolName} className="h-12 w-auto object-contain" />
               ) : (
                 <div
-                  className="h-10 w-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm"
+                  className="h-12 w-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {schoolName.charAt(0)}
                 </div>
               )}
-              <span className="hidden sm:block font-bold text-gray-900 text-base truncate">{schoolName}</span>
+              <span className="font-bold text-gray-900 text-base truncate">{schoolName}</span>
             </Link>
             <div className="hidden lg:flex items-center gap-1">
               {publishedPages.map(p => (
@@ -294,16 +295,16 @@ function FloatingNav(props: NavProps) {
             <div className="flex items-center justify-between h-16">
               <Link to="/s/home" className="flex items-center gap-3 min-w-0">
                 {logoUrl ? (
-                  <img src={logoUrl} alt={schoolName} className="h-9 w-auto object-contain" />
+                  <img src={logoUrl} alt={schoolName} className="h-12 w-auto object-contain" />
                 ) : (
                   <div
-                    className="h-9 w-9 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+                    className="h-12 w-12 rounded-lg flex items-center justify-center text-white font-bold text-sm"
                     style={{ backgroundColor: primaryColor }}
                   >
                     {schoolName.charAt(0)}
                   </div>
                 )}
-                <span className="hidden sm:block font-bold text-gray-900 text-sm truncate">{schoolName}</span>
+                <span className="font-bold text-gray-900 text-base truncate">{schoolName}</span>
               </Link>
               <div className="hidden lg:flex items-center gap-1">
                 {publishedPages.map(p => (
@@ -342,16 +343,23 @@ function FloatingNav(props: NavProps) {
 }
 
 function TransparentNav(props: NavProps) {
-  const { logoUrl, schoolName, primaryColor, accentColor, publishedPages, currentSlug } = props
-  const [scrolled, setScrolled] = useState(false)
+  const { logoUrl, schoolName, primaryColor, accentColor, publishedPages, currentSlug, hasHero } = props
+  // If the page has no hero section, start as solid immediately
+  const [scrolled, setScrolled] = useState(!hasHero)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { t } = useLanguage()
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 80)
+    if (!hasHero) {
+      // No hero — always stay solid
+      setScrolled(true)
+      return
+    }
+    const handleScroll = () => setScrolled(window.scrollY > 10)
+    handleScroll() // check immediately
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [hasHero])
 
   const textColor = scrolled ? '#374151' : '#ffffff'
   const activeColor = scrolled ? primaryColor : '#ffffff'
@@ -373,12 +381,12 @@ function TransparentNav(props: NavProps) {
                 <img
                   src={logoUrl}
                   alt={schoolName}
-                  className="h-10 w-auto object-contain transition-all duration-300"
+                  className="h-12 w-auto object-contain transition-all duration-300"
                   style={{ filter: scrolled ? 'none' : 'brightness(0) invert(1)' }}
                 />
               ) : (
                 <div
-                  className="h-10 w-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-300"
+                  className="h-12 w-12 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-300"
                   style={{
                     backgroundColor: scrolled ? primaryColor : 'rgba(255,255,255,0.2)',
                     color: 'white',
@@ -388,7 +396,7 @@ function TransparentNav(props: NavProps) {
                 </div>
               )}
               <span
-                className="hidden sm:block font-bold text-base truncate transition-colors duration-300"
+                className="font-bold text-base truncate transition-colors duration-300"
                 style={{ color: textColor }}
               >
                 {schoolName}
@@ -744,6 +752,10 @@ function PublicSchoolPageInner() {
     fontFamily,
   } as React.CSSProperties
 
+  // Check if first visible section is a hero (needed for TransparentNav)
+  const allVisibleSections = (page?.sections || []).filter((s: any) => s.isVisible !== false)
+  const hasHero = allVisibleSections.length > 0 && allVisibleSections[0].type === 'hero'
+
   // Nav props shared across all variants
   const navProps: NavProps = {
     logoUrl,
@@ -753,6 +765,7 @@ function PublicSchoolPageInner() {
     publishedPages,
     currentSlug: slug,
     navStyle: theme.navStyle,
+    hasHero,
   }
 
   // ---- Loading state ----
@@ -790,7 +803,7 @@ function PublicSchoolPageInner() {
   }
 
   // Visible sections
-  const visibleSections = page.sections.filter((s: any) => s.isVisible !== false)
+  const visibleSections = allVisibleSections
 
   return (
     <div className="min-h-screen bg-white animate-fadeIn" style={cssVars}>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Calendar, User, Eye, Loader2 } from 'lucide-react'
 import { usePublicBlogPosts, type BlogPostListItem } from '../api/blog.api'
+import { PublicLayout } from '../components/PublicLayout'
 
 function estimateReadTime(excerpt: string | null): string {
   const words = (excerpt || '').split(/\s+/).length
@@ -94,6 +95,7 @@ export function PublicBlogPage() {
   const allCategories = [...new Set(posts.map(p => p.category).filter(Boolean))] as string[]
 
   return (
+    <PublicLayout>
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-10">
@@ -170,5 +172,6 @@ export function PublicBlogPage() {
         </div>
       )}
     </div>
+    </PublicLayout>
   )
 }

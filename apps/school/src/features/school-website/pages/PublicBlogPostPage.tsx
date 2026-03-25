@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Tag, Copy, Check, Loader2 } from 'lucide-react'
 import { useState, useCallback } from 'react'
 import { usePublicBlogPost } from '../api/blog.api'
+import { PublicLayout } from '../components/PublicLayout'
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return ''
@@ -16,6 +17,40 @@ function estimateReadTime(body: string): string {
   const words = body.replace(/<[^>]*>/g, '').split(/\s+/).length
   const minutes = Math.max(1, Math.ceil(words / 200))
   return `${minutes} min read`
+}
+
+function generateSeoKeywords(post: any): string[] {
+  const keywords: string[] = []
+  const title = post.title || ''
+  const category = post.category || ''
+  const tags = Array.isArray(post.tags) ? post.tags : []
+
+  // Extract meaningful phrases from title
+  const titleWords = title.split(/[\s—–\-|:,]+/).filter((w: string) => w.length > 3)
+
+  // Combine with school context
+  const schoolPhrases = [
+    `${title.slice(0, 50)}`,
+    category ? `${category} news school` : '',
+    ...tags.map((t: string) => `${t} school`),
+    ...tags,
+    // Generate location + topic combos
+    ...titleWords.slice(0, 3).map((w: string) => `${w} school near me`),
+    category ? `best ${category.toLowerCase()} school` : '',
+    `school ${category?.toLowerCase() || 'news'} updates`,
+  ].filter(Boolean)
+
+  // Deduplicate and limit
+  const seen = new Set<string>()
+  for (const phrase of schoolPhrases) {
+    const clean = phrase.trim()
+    if (clean && !seen.has(clean.toLowerCase())) {
+      seen.add(clean.toLowerCase())
+      keywords.push(clean)
+    }
+  }
+
+  return keywords.slice(0, 8) // Max 8 keywords
 }
 
 export function PublicBlogPostPage() {
@@ -34,14 +69,17 @@ export function PublicBlogPostPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
-      </div>
+      <PublicLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
+        </div>
+      </PublicLayout>
     )
   }
 
   if (isError || !post) {
     return (
+      <PublicLayout>
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Post not found</h1>
         <p className="text-gray-500 mb-6">This blog post may have been removed or is not yet published.</p>
@@ -53,12 +91,14 @@ export function PublicBlogPostPage() {
           Back to blog
         </Link>
       </div>
+      </PublicLayout>
     )
   }
 
   const tags = Array.isArray(post.tags) ? post.tags : []
 
   return (
+    <PublicLayout>
     <article className="max-w-3xl mx-auto px-4 py-8">
       {/* Back link */}
       <Link
@@ -75,7 +115,8 @@ export function PublicBlogPostPage() {
           <img
             src={post.coverImage}
             alt={post.title}
-            className="w-full max-h-[400px] object-cover"
+            className="w-full h-auto max-h-[400px] object-cover"
+            onError={e => (e.currentTarget.style.display = 'none')}
           />
         </div>
       )}
@@ -115,18 +156,32 @@ export function PublicBlogPostPage() {
 
       {/* Tags */}
       {tags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 pt-6 border-t border-gray-100 mb-8">
-          <Tag className="h-4 w-4 text-gray-400" />
-          {tags.map((tag: string) => (
-            <span
-              key={tag}
-              className="px-2.5 py-0.5 rounded-full text-xs bg-gray-100 text-gray-600"
-            >
-              {tag}
+        <div className="mt-8 pt-6 border-t border-gray-100">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Tag className="h-4 w-4 text-gray-400" />
+            {tags.map((tag: string, i: number) => (
+              <span
+                key={i}
+                className="px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700 border border-blue-100"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Auto-generated SEO Keywords (NowFloats Boost style) */}
+      <div className="mt-6 pt-6 border-t border-gray-100">
+        <p className="text-xs text-gray-400 mb-3 uppercase tracking-wider font-semibold">Related Search Keywords</p>
+        <div className="flex flex-wrap gap-2">
+          {generateSeoKeywords(post).map((kw, i) => (
+            <span key={i} className="px-3 py-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition cursor-default">
+              {kw}
             </span>
           ))}
         </div>
-      )}
+      </div>
 
       {/* Share / Copy Link */}
       <div className="flex items-center gap-3 pt-6 border-t border-gray-100">
@@ -149,5 +204,6 @@ export function PublicBlogPostPage() {
         </button>
       </div>
     </article>
+    </PublicLayout>
   )
 }

@@ -2,6 +2,7 @@ import { Router } from 'express'
 import * as ctrl from '../controllers/school-website.controller.js'
 import * as publicCtrl from '../controllers/school-website-public.controller.js'
 import * as seoCtrl from '../controllers/seo.controller.js'
+import * as analyticsCtrl from '../controllers/analytics.controller.js'
 import { authMiddleware, rbacMiddleware } from '../middleware/index.js'
 
 const router = Router()
@@ -37,12 +38,18 @@ router.put('/settings', adminRoles, ctrl.updateSettings)
 // ==================== Media ====================
 
 router.post('/media', adminRoles, ctrl.uploadMedia)
+router.post('/media/upload', adminRoles, ctrl.uploadMediaFile)
 router.get('/media', adminRoles, ctrl.listMedia)
 router.delete('/media/:id', adminRoles, ctrl.deleteMedia)
 
 // ==================== AI Generate ====================
 
 router.post('/ai/generate', adminRoles, ctrl.aiGenerate)
+
+// ==================== Analytics ====================
+
+router.get('/analytics', adminRoles, analyticsCtrl.getAnalytics)
+router.get('/analytics/summary', adminRoles, analyticsCtrl.getAnalyticsSummary)
 
 // ==================== Public Routes (no auth) ====================
 

@@ -23,6 +23,7 @@ import agentRoutes from './agent.routes.js'
 import websiteRoutes, { websitePublicRouter } from './school-website.routes.js'
 import blogRouter, { blogPublicRouter } from './blog.routes.js'
 import { contactRouter, contactPublicRouter } from './contact.routes.js'
+import domainRouter from './domain.routes.js'
 import adminRoutes from './admin/index.js'
 
 const router = Router()
@@ -87,6 +88,9 @@ router.use('/public/school-website', websitePublicRouter) // Public endpoint —
 // Blog / News CMS
 router.use('/blog', requireTenant, blogRouter)
 router.use('/public/blog', blogPublicRouter) // Public endpoint — no tenant enforcement
+
+// Custom Domain Management
+router.use('/domains', requireTenant, domainRouter)
 
 // Contact Submissions
 router.use('/contact', requireTenant, contactRouter)

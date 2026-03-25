@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import type { WebsiteSection, SectionType } from '../types/school-website.types'
 import { SECTION_TYPES } from '../types/school-website.types'
 import { Check, Loader2 } from 'lucide-react'
+import { MediaUploader } from './MediaUploader'
 
 interface SectionEditorPanelProps {
   section: WebsiteSection
@@ -100,6 +101,55 @@ function CheckboxField({ label, value, onChange, hint }: {
   )
 }
 
+function ImageField({ label, value, onChange, hint }: {
+  label: string; value: string; onChange: (v: string) => void; hint?: string
+}) {
+  const [showUploader, setShowUploader] = useState(false)
+  return (
+    <div className="space-y-1">
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      {hint && <p className="text-xs text-gray-400">{hint}</p>}
+      <div className="flex gap-2 items-start">
+        <input
+          type="text"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="Paste URL or upload a file"
+          className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        />
+        <MediaUploader
+          compact
+          onUpload={(url) => {
+            onChange(url)
+            setShowUploader(false)
+          }}
+        />
+      </div>
+      {!showUploader && value && (
+        <img src={value} alt="Preview" className="mt-2 h-20 w-auto rounded border object-cover" onError={e => (e.currentTarget.style.display = 'none')} onLoad={e => (e.currentTarget.style.display = 'block')} />
+      )}
+      {showUploader && (
+        <div className="mt-2">
+          <MediaUploader
+            onUpload={(url) => {
+              onChange(url)
+              setShowUploader(false)
+            }}
+            onClose={() => setShowUploader(false)}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Checks if a field key looks like it references an image */
+function isImageKey(key: string): boolean {
+  const lower = key.toLowerCase()
+  return /image|photo|avatar|logo|cover|background|banner|thumbnail|icon/i.test(lower) &&
+    !lower.includes('alt') && !lower.includes('text')
+}
+
 // ==================== Section Editors ====================
 
 function HeroEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
@@ -107,7 +157,7 @@ function HeroEditor({ fields, setFields }: { fields: Record<string, unknown>; se
     <div className="space-y-4">
       <TextField label="Main Heading" value={String(fields.headline || '')} onChange={v => setFields({ ...fields, headline: v })} hint="The big text visitors see first" />
       <TextField label="Description" value={String(fields.subtitle || '')} onChange={v => setFields({ ...fields, subtitle: v })} multiline hint="A short description below the heading" />
-      <TextField label="Background Image URL" value={String(fields.backgroundImage || '')} onChange={v => setFields({ ...fields, backgroundImage: v })} hint="Paste a link to an image (optional)" />
+      <ImageField label="Background Image" value={String(fields.backgroundImage || '')} onChange={v => setFields({ ...fields, backgroundImage: v })} hint="Upload or paste a link to an image" />
       <TextField label="Button Text" value={String(fields.ctaText || '')} onChange={v => setFields({ ...fields, ctaText: v })} hint="Text shown on the button (e.g. Apply Now)" />
       <TextField label="Button Link" value={String(fields.ctaLink || '')} onChange={v => setFields({ ...fields, ctaLink: v })} hint="Where the button takes visitors (e.g. /apply)" />
     </div>
@@ -118,7 +168,7 @@ function AboutEditor({ fields, setFields }: { fields: Record<string, unknown>; s
   return (
     <div className="space-y-4">
       <TextField label="Description" value={String(fields.body || '')} onChange={v => setFields({ ...fields, body: v })} multiline hint="Tell visitors about your school" />
-      <TextField label="Image URL" value={String(fields.image || '')} onChange={v => setFields({ ...fields, image: v })} hint="A photo of your school (optional)" />
+      <ImageField label="Image" value={String(fields.image || '')} onChange={v => setFields({ ...fields, image: v })} hint="Upload or paste a link to a photo of your school" />
       <TextField label="Our Mission" value={String(fields.mission || '')} onChange={v => setFields({ ...fields, mission: v })} multiline hint="What your school aims to achieve" />
       <TextField label="Our Vision" value={String(fields.vision || '')} onChange={v => setFields({ ...fields, vision: v })} multiline hint="Where your school is headed" />
     </div>
@@ -190,7 +240,7 @@ function TestimonialsEditor({ fields, setFields }: { fields: Record<string, unkn
           <TextField label="Person's Name" value={item.name} onChange={v => updateItem(i, 'name', v)} />
           <TextField label="Who they are" value={item.role} onChange={v => updateItem(i, 'role', v)} hint="e.g. Parent, Class 8" />
           <TextField label="What they said" value={item.quote} onChange={v => updateItem(i, 'quote', v)} multiline />
-          <TextField label="Photo URL" value={item.avatar} onChange={v => updateItem(i, 'avatar', v)} hint="Link to their photo (optional)" />
+          <ImageField label="Photo" value={item.avatar} onChange={v => updateItem(i, 'avatar', v)} hint="Upload or paste a link to their photo" />
         </div>
       ))}
       <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another review</button>
@@ -226,7 +276,7 @@ function GalleryEditor({ fields, setFields }: { fields: Record<string, unknown>;
             <span className="text-sm font-medium text-gray-600">Photo #{i + 1}</span>
             <button onClick={() => removeImage(i)} className="text-red-500 text-xs hover:underline">Remove</button>
           </div>
-          <TextField label="Image URL" value={img.url} onChange={v => updateImage(i, 'url', v)} hint="Paste a link to the image" />
+          <ImageField label="Image" value={img.url} onChange={v => updateImage(i, 'url', v)} hint="Upload or paste a link to the image" />
           <TextField label="Caption" value={img.caption} onChange={v => updateImage(i, 'caption', v)} hint="Brief description of the photo" />
         </div>
       ))}
@@ -278,7 +328,7 @@ function NewsEditor({ fields, setFields }: { fields: Record<string, unknown>; se
           <TextField label="Title" value={item.title} onChange={v => updateItem(i, 'title', v)} />
           <TextField label="Content" value={item.body} onChange={v => updateItem(i, 'body', v)} multiline />
           <TextField label="Date" value={item.date} onChange={v => updateItem(i, 'date', v)} hint="When this was published" />
-          <TextField label="Image URL" value={item.image} onChange={v => updateItem(i, 'image', v)} hint="Link to an image (optional)" />
+          <ImageField label="Image" value={item.image} onChange={v => updateItem(i, 'image', v)} hint="Upload or paste a link to an image" />
         </div>
       ))}
       <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another article</button>
@@ -366,10 +416,22 @@ function GenericItemsEditor({ fields, setFields }: { fields: Record<string, unkn
             </div>
           )
         }
+        const prettyLabel = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())
+        if (isImageKey(key)) {
+          return (
+            <ImageField
+              key={key}
+              label={prettyLabel}
+              value={String(value || '')}
+              onChange={v => setFields({ ...fields, [key]: v })}
+              hint="Upload or paste a URL"
+            />
+          )
+        }
         return (
           <TextField
             key={key}
-            label={key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
+            label={prettyLabel}
             value={String(value || '')}
             onChange={v => setFields({ ...fields, [key]: v })}
             multiline={String(value || '').length > 100}

@@ -45,5 +45,9 @@ blob-report/
 # TypeScript cache
 *.tsbuildinfo
 
+# Uploaded media files (keep .gitkeep)
+apps/server/public/uploads/media/*
+!apps/server/public/uploads/media/.gitkeep
+
 # Prisma
 apps/server/prisma/migrations/**/migration_lock.toml

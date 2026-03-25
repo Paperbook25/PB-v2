@@ -100,6 +100,17 @@ export const uploadMediaSchema = z.object({
 
 export type UploadMediaInput = z.infer<typeof uploadMediaSchema>
 
+// ==================== Media File Upload ====================
+
+export const uploadMediaFileSchema = z.object({
+  fileName: z.string().min(1).max(255),
+  data: z.string().min(1), // base64 encoded file data
+  mimeType: z.enum(['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']),
+  altText: z.string().max(500).optional(),
+})
+
+export type UploadMediaFileInput = z.infer<typeof uploadMediaFileSchema>
+
 // ==================== AI Generate ====================
 
 export const generatePageSchema = z.object({

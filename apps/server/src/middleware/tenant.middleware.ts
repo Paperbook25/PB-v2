@@ -112,6 +112,42 @@ export async function subdomainTenantMiddleware(
   next: NextFunction
 ): Promise<void> {
   try {
+    // Check custom domain FIRST (before subdomain extraction)
+    const host = (req.hostname || req.headers.host || '').split(':')[0].toLowerCase()
+    if (!host.includes(env.APP_DOMAIN) && host !== 'localhost' && host !== '127.0.0.1') {
+      try {
+        const { lookupDomainToOrg } = await import('../services/domain.service.js')
+        const orgId = await lookupDomainToOrg(host)
+        if (orgId) {
+          const org = await prisma.organization.findUnique({
+            where: { id: orgId },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              logo: true,
+              profile: { select: { status: true, planTier: true } },
+            },
+          })
+          if (org) {
+            req.schoolId = org.id
+            req.tenantSlug = org.slug || null
+            req.tenantOrg = {
+              id: org.id,
+              name: org.name,
+              slug: org.slug || '',
+              logo: org.logo,
+              status: org.profile?.status || 'active',
+              planTier: org.profile?.planTier || 'free',
+            }
+            return next()
+          }
+        }
+      } catch {
+        /* fall through to subdomain resolution */
+      }
+    }
+
     const hostname = req.hostname || req.headers.host || ''
     const slug = extractSlug(hostname)
 

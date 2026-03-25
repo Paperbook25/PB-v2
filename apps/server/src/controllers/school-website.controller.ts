@@ -5,7 +5,7 @@ import { AppError } from '../utils/errors.js'
 import {
   createPageSchema, updatePageSchema,
   createSectionSchema, updateSectionSchema, reorderSectionsSchema,
-  updateSettingsSchema, uploadMediaSchema, generatePageSchema,
+  updateSettingsSchema, uploadMediaSchema, uploadMediaFileSchema, generatePageSchema,
 } from '../validators/school-website.validators.js'
 
 // Helper: extract and validate schoolId from tenant middleware
@@ -132,6 +132,14 @@ export async function uploadMedia(req: Request, res: Response, next: NextFunctio
   try {
     const input = uploadMediaSchema.parse(req.body)
     const media = await websiteService.uploadMedia(getSchoolId(req), input)
+    res.status(201).json({ data: media })
+  } catch (err) { next(err) }
+}
+
+export async function uploadMediaFile(req: Request, res: Response, next: NextFunction) {
+  try {
+    const input = uploadMediaFileSchema.parse(req.body)
+    const media = await websiteService.uploadMediaFile(getSchoolId(req), input)
     res.status(201).json({ data: media })
   } catch (err) { next(err) }
 }

@@ -547,6 +547,8 @@ export const MODULE_NAV: Record<string, ModuleNavConfig> = {
       { type: 'item', name: 'Pages', href: '/school-website', icon: Layout },
       { type: 'item', name: 'Blog', href: '/school-website?tab=blog', icon: PenSquare },
       { type: 'item', name: 'Look & Feel', href: '/school-website?tab=settings', icon: Paintbrush },
+      { type: 'item', name: 'Leads', href: '/school-website?tab=leads', icon: Users },
+      { type: 'item', name: 'Analytics', href: '/school-website?tab=analytics', icon: LineChart },
     ],
   },
 

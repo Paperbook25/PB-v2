@@ -1,9 +1,13 @@
+import { writeFile, mkdir } from 'fs/promises'
+import { resolve } from 'path'
+import { randomUUID } from 'crypto'
 import { prisma } from '../config/db.js'
 import { regeneratePageSeo } from './seo.service.js'
+import { AppError } from '../utils/errors.js'
 import type {
   CreatePageInput, UpdatePageInput,
   CreateSectionInput, UpdateSectionInput, ReorderSectionsInput,
-  UpdateSettingsInput, UploadMediaInput,
+  UpdateSettingsInput, UploadMediaInput, UploadMediaFileInput,
 } from '../validators/school-website.validators.js'
 
 // ==================== Pages ====================
@@ -236,6 +240,40 @@ export async function uploadMedia(schoolId: string, input: UploadMediaInput) {
       mimeType: input.mimeType,
       fileSize: input.fileSize,
       altText: input.altText,
+    },
+  })
+}
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
+export async function uploadMediaFile(schoolId: string, input: UploadMediaFileInput) {
+  const buffer = Buffer.from(input.data, 'base64')
+
+  if (buffer.length > MAX_FILE_SIZE) {
+    throw AppError.badRequest('File too large. Maximum 5MB allowed.')
+  }
+
+  // Determine file extension from mime type
+  const ext = input.mimeType === 'image/svg+xml' ? 'svg' : input.mimeType.split('/')[1]
+  const uniqueName = `${randomUUID()}.${ext}`
+  const uploadDir = resolve(process.cwd(), 'public/uploads/media')
+
+  // Ensure directory exists
+  await mkdir(uploadDir, { recursive: true })
+
+  // Write file to disk
+  await writeFile(resolve(uploadDir, uniqueName), buffer)
+
+  // Store record in database
+  const url = `/uploads/media/${uniqueName}`
+  return prisma.websiteMedia.create({
+    data: {
+      organizationId: schoolId,
+      fileName: input.fileName,
+      url,
+      mimeType: input.mimeType,
+      fileSize: buffer.length,
+      altText: input.altText || null,
     },
   })
 }

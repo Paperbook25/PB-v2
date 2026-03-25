@@ -6,6 +6,8 @@ import { PageBuilder } from '../components/PageBuilder'
 import { WebsiteSettingsPanel } from '../components/WebsiteSettingsPanel'
 import { AIGenerateDialog } from '../components/AIGenerateDialog'
 import { BlogManager } from '../components/BlogManager'
+import { LeadDashboard } from '../components/LeadDashboard'
+import { AnalyticsDashboard } from '../components/AnalyticsDashboard'
 import { useSchoolWebsite } from '../hooks/useSchoolWebsite'
 import type { TemplateStyle } from '../types/school-website.types'
 
@@ -30,7 +32,7 @@ const TEMPLATES: { value: TemplateStyle; label: string; description: string; pre
   },
 ]
 
-type Tab = 'pages' | 'settings' | 'blog'
+type Tab = 'pages' | 'settings' | 'blog' | 'leads' | 'analytics'
 
 export function SchoolWebsiteBuilderPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -195,6 +197,8 @@ export function SchoolWebsiteBuilderPage() {
         </div>
       )}
       {activeTab === 'blog' && <BlogManager />}
+      {activeTab === 'leads' && <LeadDashboard />}
+      {activeTab === 'analytics' && <AnalyticsDashboard />}
 
       {/* AI Dialog (for regeneration after initial setup) */}
       {showAIDialog && currentPage && (

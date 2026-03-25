@@ -173,6 +173,15 @@ export function useUploadMedia() {
   })
 }
 
+export function useUploadMediaFile() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { fileName: string; data: string; mimeType: string; altText?: string }) =>
+      apiFetch(`${BASE}/media/upload`, { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['website-media'] }),
+  })
+}
+
 export function useDeleteMedia() {
   const qc = useQueryClient()
   return useMutation({

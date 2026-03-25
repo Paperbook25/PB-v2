@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useWebsiteSettings, useUpdateSettings } from '../api/school-website.api'
 import { Check, Loader2 } from 'lucide-react'
+import { CustomDomainPanel } from './CustomDomainPanel'
 import {
   getTemplatesByInstitution,
   TEMPLATE_REGISTRY,
@@ -365,6 +366,9 @@ export function WebsiteSettingsPanel() {
           />
         </div>
       </div>
+
+      {/* Custom Domain */}
+      <CustomDomainPanel />
 
       {/* Save */}
       <button

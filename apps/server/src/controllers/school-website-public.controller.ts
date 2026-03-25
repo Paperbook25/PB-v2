@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as websiteService from '../services/school-website.service.js'
+import * as analyticsService from '../services/analytics.service.js'
 
 // Public endpoints: schoolId comes from tenant middleware (subdomain), not auth
 function getSchoolId(req: Request): string {
@@ -11,7 +12,14 @@ function getSchoolId(req: Request): string {
 
 export async function getPublishedPage(req: Request, res: Response, next: NextFunction) {
   try {
-    const page = await websiteService.getPublishedPageBySlug(getSchoolId(req), String(req.params.slug))
+    const schoolId = getSchoolId(req)
+    const slug = String(req.params.slug)
+    const page = await websiteService.getPublishedPageBySlug(schoolId, slug)
+
+    // Fire-and-forget: track page view
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
+    analyticsService.trackPageView(schoolId, slug, ip).catch(() => {/* silent */})
+
     res.json({ data: page })
   } catch (err) {
     res.status(404).json({ error: 'Page not found' })

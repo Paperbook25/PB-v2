@@ -111,6 +111,9 @@ app.use('/api/public/tenant', tenantRoutes)
 // All API routes (includes /api/admin/* via routes/admin/index.ts)
 app.use('/api', routes)
 
+// Serve uploaded media files statically
+app.use('/uploads', express.static(resolve(process.cwd(), 'public/uploads')))
+
 // ---------------------------------------------------------------------------
 // Production: serve the school SPA with server-injected tenant config
 // ---------------------------------------------------------------------------

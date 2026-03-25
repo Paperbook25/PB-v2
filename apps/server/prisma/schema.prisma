@@ -2554,3 +2554,38 @@ model ContactSubmission {
   @@index([createdAt])
   @@map("contact_submissions")
 }
+
+model DomainMapping {
+  id             String    @id @default(uuid())
+  organizationId String    @map("organization_id")
+  domain         String    @unique
+  isVerified     Boolean   @default(false) @map("is_verified")
+  verifyToken    String    @map("verify_token")
+  verifiedAt     DateTime? @map("verified_at")
+  sslStatus      String    @default("pending") @map("ssl_status")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([domain])
+  @@map("domain_mappings")
+}
+
+// ============================================================================
+// Website Analytics
+// ============================================================================
+
+model WebsiteAnalytics {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  date           DateTime @db.Date
+  pageSlug       String   @map("page_slug")
+  views          Int      @default(0)
+  uniqueIps      Int      @default(0) @map("unique_ips")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([organizationId, date, pageSlug])
+  @@index([organizationId])
+  @@index([date])
+  @@map("website_analytics")
+}

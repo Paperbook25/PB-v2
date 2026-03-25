@@ -72,6 +72,7 @@ import {
 } from '@/components/ui/dialog'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useToast } from '@/hooks/use-toast'
+import { useDepartmentNames, useClassNames, useAllSections } from '@/hooks/useSchoolData'
 import { cn, formatCurrency, formatDate, getInitials } from '@/lib/utils'
 import { deleteStaff, exportStaff } from '../api/staff.api'
 import {
@@ -111,11 +112,22 @@ type LeaveSubTab = 'pending' | 'all'
 type PayrollSubTab = 'process' | 'structure' | 'history'
 type TimetableSubTab = 'class' | 'teacher'
 
+/** Sanitize a value for safe CSV export — prevents formula injection in Excel */
+function sanitizeCsvValue(value: any): string {
+  const str = String(value ?? '')
+  // Escape values that could be interpreted as formulas
+  if (/^[=+\-@\t\r]/.test(str)) {
+    return `"'${str.replace(/"/g, '""')}"`
+  }
+  // Escape values containing commas, quotes, or newlines
+  if (/[",\n\r]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
+}
+
 // Constants - moved outside components to prevent recreation
-const DEPARTMENTS = ['All Departments', 'Mathematics', 'Science', 'English', 'Social Studies', 'Hindi', 'Computer Science', 'Physical Education', 'Art', 'Music', 'Administration'] as const
 const STATUSES = ['All Status', 'active', 'on_leave', 'resigned'] as const
-const CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'] as const
-const SECTIONS = ['A', 'B', 'C'] as const
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as const
 
 const STATUS_CONFIG: Record<LeaveStatus, { label: string; bgColor: string; textColor: string; icon: React.ReactNode }> = {
@@ -132,6 +144,8 @@ function StaffListTab() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { toast } = useToast()
+  const { data: dbDepartments = [] } = useDepartmentNames()
+  const departmentOptions = ['All Departments', ...dbDepartments]
   const [search, setSearch] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState('All Departments')
   const [statusFilter, setStatusFilter] = useState<StaffStatus | 'All Status'>('All Status')
@@ -210,7 +224,7 @@ function StaffListTab() {
       const headers = Object.keys(exportData[0])
       const csvContent = [
         headers.join(','),
-        ...exportData.map(row => headers.map(h => `"${row[h] ?? ''}"`).join(','))
+        ...exportData.map(row => headers.map(h => sanitizeCsvValue(row[h])).join(','))
       ].join('\n')
 
       const blob = new Blob([csvContent], { type: 'text/csv' })
@@ -301,7 +315,7 @@ function StaffListTab() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {DEPARTMENTS.map((d) => (
+                  {departmentOptions.map((d) => (
                     <SelectItem key={d} value={d}>
                       {d}
                     </SelectItem>
@@ -1141,6 +1155,8 @@ function ClassTimetableGrid({ cls, section }: { cls: string; section: string }) 
 }
 
 function TimetableTab({ subTab, onSubTabChange }: { subTab: TimetableSubTab; onSubTabChange: (tab: TimetableSubTab) => void }) {
+  const { data: dbClassNames = [] } = useClassNames()
+  const { data: dbSections = [] } = useAllSections()
   const [selectedClass, setSelectedClass] = useState('Class 10')
   const [selectedSection, setSelectedSection] = useState('A')
   const [selectedStaffId, setSelectedStaffId] = useState('')
@@ -1173,7 +1189,7 @@ function TimetableTab({ subTab, onSubTabChange }: { subTab: TimetableSubTab; onS
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CLASSES.map((cls) => (
+                {dbClassNames.map((cls) => (
                   <SelectItem key={cls} value={cls}>{cls}</SelectItem>
                 ))}
               </SelectContent>
@@ -1184,7 +1200,7 @@ function TimetableTab({ subTab, onSubTabChange }: { subTab: TimetableSubTab; onS
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {SECTIONS.map((sec) => (
+                {dbSections.map((sec) => (
                   <SelectItem key={sec} value={sec}>Section {sec}</SelectItem>
                 ))}
               </SelectContent>

@@ -14,7 +14,7 @@ export default defineConfig({
     proxy: {
       // Proxy /api requests to Express server when not using MSW
       '/api': {
-        target: 'http://localhost:3002',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
       },

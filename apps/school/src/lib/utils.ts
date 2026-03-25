@@ -5,13 +5,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions) {
+export function formatDate(date: string | Date | null | undefined, options?: Intl.DateTimeFormatOptions) {
+  if (!date) return '—'
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return '—'
   return new Intl.DateTimeFormat('en-IN', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
     ...options,
-  }).format(new Date(date))
+  }).format(d)
 }
 
 export function formatCurrency(amount: number) {
@@ -22,7 +25,8 @@ export function formatCurrency(amount: number) {
   }).format(amount)
 }
 
-export function getInitials(name: string) {
+export function getInitials(name: string | null | undefined) {
+  if (!name) return '?'
   return name
     .split(' ')
     .map((n) => n[0])

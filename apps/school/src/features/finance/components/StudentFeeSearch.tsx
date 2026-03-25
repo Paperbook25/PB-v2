@@ -36,6 +36,8 @@ export function StudentFeeSearch({ onSelect, selectedStudent }: StudentFeeSearch
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
+    const abortController = new AbortController()
+
     const fetchStudents = async () => {
       if (search.length < 2) {
         setStudents([])
@@ -44,19 +46,34 @@ export function StudentFeeSearch({ onSelect, selectedStudent }: StudentFeeSearch
 
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/finance/students?search=${encodeURIComponent(search)}`)
+        const response = await fetch(
+          `/api/finance/students?search=${encodeURIComponent(search)}`,
+          { credentials: 'include', signal: abortController.signal }
+        )
+        if (!response.ok) {
+          setStudents([])
+          return
+        }
         const data = await response.json()
         setStudents(data.data || [])
       } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return
+        }
         console.error('Failed to fetch students:', error)
         setStudents([])
       } finally {
-        setIsLoading(false)
+        if (!abortController.signal.aborted) {
+          setIsLoading(false)
+        }
       }
     }
 
     const debounce = setTimeout(fetchStudents, 300)
-    return () => clearTimeout(debounce)
+    return () => {
+      clearTimeout(debounce)
+      abortController.abort()
+    }
   }, [search])
 
   const handleSelect = (student: Student) => {

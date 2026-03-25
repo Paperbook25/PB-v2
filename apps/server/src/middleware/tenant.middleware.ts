@@ -33,6 +33,7 @@ interface CachedTenant {
 
 const tenantCache = new Map<string, CachedTenant>()
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+const CACHE_MAX_SIZE = 500 // Prevent unbounded memory growth from subdomain probing
 
 /** Evict a slug from the cache (called after school create/update/delete). */
 export function evictTenantCache(slug: string) {
@@ -115,7 +116,35 @@ export async function subdomainTenantMiddleware(
     const slug = extractSlug(hostname)
 
     if (!slug) {
-      // No subdomain (localhost, bare domain, admin portal) — no tenant
+      // In dev mode on localhost, fall back to the "default" org so the app works
+      // without subdomain routing. Skip for admin portal (port 5174).
+      if (env.isDev && hostname.includes('localhost') && !hostname.includes('5174')) {
+        const defaultOrg = await prisma.organization.findUnique({
+          where: { slug: 'default' },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            profile: { select: { status: true, planTier: true } },
+          },
+        })
+        if (defaultOrg && defaultOrg.slug) {
+          req.tenantSlug = defaultOrg.slug
+          req.tenantOrg = {
+            id: defaultOrg.id,
+            name: defaultOrg.name,
+            slug: defaultOrg.slug,
+            logo: defaultOrg.logo,
+            status: defaultOrg.profile?.status || 'active',
+            planTier: defaultOrg.profile?.planTier || 'free',
+          }
+          req.schoolId = defaultOrg.id
+          return next()
+        }
+      }
+
+      // No subdomain (bare domain, admin portal) — no tenant
       req.tenantSlug = null
       req.tenantOrg = null
       return next()
@@ -156,6 +185,11 @@ export async function subdomainTenantMiddleware(
         logo: org.logo,
         status: org.profile?.status || 'active',
         planTier: org.profile?.planTier || 'free',
+      }
+      // Evict oldest entries if cache is full
+      if (tenantCache.size >= CACHE_MAX_SIZE) {
+        const firstKey = tenantCache.keys().next().value
+        if (firstKey) tenantCache.delete(firstKey)
       }
       tenantCache.set(slug, { org: tenant, expiresAt: Date.now() + CACHE_TTL })
       req.tenantOrg = tenant

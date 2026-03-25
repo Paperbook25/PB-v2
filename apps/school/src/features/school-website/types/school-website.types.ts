@@ -118,7 +118,7 @@ export interface WebsitePage {
 
 export interface WebsiteSettings {
   id: string
-  template: 'classic' | 'modern' | 'minimal'
+  template: TemplateStyle
   primaryColor: string
   accentColor: string
   fontFamily: string
@@ -142,7 +142,15 @@ export interface WebsiteMedia {
   createdAt: string
 }
 
-export type TemplateStyle = 'classic' | 'modern' | 'minimal'
+export type TemplateStyle =
+  // Legacy values
+  | 'classic' | 'modern' | 'minimal'
+  // School templates
+  | 'school-classic' | 'school-modern' | 'school-vibrant' | 'school-minimal'
+  // College templates
+  | 'college-academic' | 'college-campus' | 'college-tech' | 'college-minimal'
+  // Coaching templates
+  | 'coaching-results' | 'coaching-professional' | 'coaching-dynamic' | 'coaching-clean'
 
 export const SECTION_TYPES: { value: SectionType; label: string; description: string; icon: string }[] = [
   { value: 'hero', label: 'Welcome Banner', description: 'A large banner at the top of your page with a headline and button', icon: 'Image' },

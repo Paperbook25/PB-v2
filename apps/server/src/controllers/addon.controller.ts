@@ -26,7 +26,7 @@ export async function toggleAddon(req: Request, res: Response, next: NextFunctio
       return res.status(400).json({ error: 'enabled must be a boolean' })
     }
 
-    const result = await addonService.toggleAddon(schoolId, slug as string, enabled, userId)
+    const result = await addonService.toggleAddon(schoolId, slug as string, enabled, userId || '')
     res.json(result)
   } catch (error: any) {
     if (error.message?.includes('not found') || error.message?.includes('core module')) {

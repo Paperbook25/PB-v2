@@ -51,9 +51,9 @@ function formatStaff(staff: any) {
   }
 }
 
-async function generateEmployeeId(): Promise<string> {
+async function generateEmployeeId(schoolId: string): Promise<string> {
   const lastStaff = await prisma.staff.findFirst({
-    where: { employeeId: { startsWith: 'EMP-' } },
+    where: { organizationId: schoolId, employeeId: { startsWith: 'EMP-' } },
     orderBy: { employeeId: 'desc' },
   })
   let seq = 1
@@ -70,27 +70,27 @@ function splitName(name: string): { firstName: string; lastName: string } {
   return { firstName: parts[0], lastName: parts.slice(1).join(' ') }
 }
 
-async function findOrCreateDepartment(name: string): Promise<string> {
-  let dept = await prisma.department.findUnique({ where: { name } })
+async function findOrCreateDepartment(schoolId: string, name: string): Promise<string> {
+  let dept = await prisma.department.findFirst({ where: { organizationId: schoolId, name } })
   if (!dept) {
-    dept = await prisma.department.create({ data: { name } })
+    dept = await prisma.department.create({ data: { organizationId: schoolId, name } })
   }
   return dept.id
 }
 
-async function findOrCreateDesignation(name: string): Promise<string> {
-  let desig = await prisma.designation.findUnique({ where: { name } })
+async function findOrCreateDesignation(schoolId: string, name: string): Promise<string> {
+  let desig = await prisma.designation.findFirst({ where: { organizationId: schoolId, name } })
   if (!desig) {
-    desig = await prisma.designation.create({ data: { name } })
+    desig = await prisma.designation.create({ data: { organizationId: schoolId, name } })
   }
   return desig.id
 }
 
 // ==================== CRUD ====================
 
-export async function listStaff(query: ListStaffInput) {
+export async function listStaff(schoolId: string, query: ListStaffInput) {
   const { page, limit, search, department, designation, status, gender } = query
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
 
   if (search) {
     where.OR = [
@@ -101,11 +101,11 @@ export async function listStaff(query: ListStaffInput) {
     ]
   }
   if (department) {
-    const dept = await prisma.department.findUnique({ where: { name: department } })
+    const dept = await prisma.department.findFirst({ where: { organizationId: schoolId, name: department } })
     if (dept) where.departmentId = dept.id
   }
   if (designation) {
-    const desig = await prisma.designation.findUnique({ where: { name: designation } })
+    const desig = await prisma.designation.findFirst({ where: { organizationId: schoolId, name: designation } })
     if (desig) where.designationId = desig.id
   }
   if (status) where.status = status
@@ -128,24 +128,24 @@ export async function listStaff(query: ListStaffInput) {
   }
 }
 
-export async function getStaffById(id: string) {
-  const staff = await prisma.staff.findUnique({
-    where: { id },
+export async function getStaffById(schoolId: string, id: string) {
+  const staff = await prisma.staff.findFirst({
+    where: { id, organizationId: schoolId },
     include: staffInclude,
   })
   if (!staff) throw AppError.notFound('Staff member not found')
   return formatStaff(staff)
 }
 
-export async function createStaff(input: CreateStaffInput) {
-  // Check email uniqueness
-  const existing = await prisma.staff.findUnique({ where: { email: input.email } })
+export async function createStaff(schoolId: string, input: CreateStaffInput) {
+  // Check email uniqueness within school
+  const existing = await prisma.staff.findFirst({ where: { organizationId: schoolId, email: input.email } })
   if (existing) throw AppError.conflict('A staff member with this email already exists')
 
   const { firstName, lastName } = splitName(input.name)
-  const employeeId = await generateEmployeeId()
-  const departmentId = await findOrCreateDepartment(input.department)
-  const designationId = await findOrCreateDesignation(input.designation)
+  const employeeId = await generateEmployeeId(schoolId)
+  const departmentId = await findOrCreateDepartment(schoolId, input.department)
+  const designationId = await findOrCreateDesignation(schoolId, input.designation)
 
   // Validate userId if provided
   if (input.userId) {
@@ -157,6 +157,7 @@ export async function createStaff(input: CreateStaffInput) {
 
   const staff = await prisma.staff.create({
     data: {
+      organizationId: schoolId,
       employeeId,
       firstName,
       lastName,
@@ -186,12 +187,12 @@ export async function createStaff(input: CreateStaffInput) {
   return formatStaff(staff)
 }
 
-export async function updateStaff(id: string, input: UpdateStaffInput) {
-  const existing = await prisma.staff.findUnique({ where: { id } })
+export async function updateStaff(schoolId: string, id: string, input: UpdateStaffInput) {
+  const existing = await prisma.staff.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Staff member not found')
 
   if (input.email && input.email !== existing.email) {
-    const emailTaken = await prisma.staff.findUnique({ where: { email: input.email } })
+    const emailTaken = await prisma.staff.findFirst({ where: { organizationId: schoolId, email: input.email } })
     if (emailTaken) throw AppError.conflict('A staff member with this email already exists')
   }
 
@@ -213,10 +214,10 @@ export async function updateStaff(id: string, input: UpdateStaffInput) {
   if (input.userId !== undefined) data.userId = input.userId
 
   if (input.department) {
-    data.departmentId = await findOrCreateDepartment(input.department)
+    data.departmentId = await findOrCreateDepartment(schoolId, input.department)
   }
   if (input.designation) {
-    data.designationId = await findOrCreateDesignation(input.designation)
+    data.designationId = await findOrCreateDesignation(schoolId, input.designation)
   }
 
   // Upsert address
@@ -256,8 +257,8 @@ export async function updateStaff(id: string, input: UpdateStaffInput) {
   return formatStaff(staff)
 }
 
-export async function deleteStaff(id: string) {
-  const existing = await prisma.staff.findUnique({ where: { id } })
+export async function deleteStaff(schoolId: string, id: string) {
+  const existing = await prisma.staff.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Staff member not found')
 
   await prisma.staff.delete({ where: { id } })
@@ -266,8 +267,9 @@ export async function deleteStaff(id: string) {
 
 // ==================== Professional Development ====================
 
-export async function listAllPD() {
+export async function listAllPD(schoolId: string) {
   const records = await prisma.staffProfessionalDevelopment.findMany({
+    where: { staff: { organizationId: schoolId } },
     include: { staff: { select: { id: true, firstName: true, lastName: true, employeeId: true } } },
     orderBy: { createdAt: 'desc' },
   })
@@ -278,8 +280,8 @@ export async function listAllPD() {
   }))
 }
 
-export async function listStaffPD(staffId: string) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function listStaffPD(schoolId: string, staffId: string) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   return prisma.staffProfessionalDevelopment.findMany({
@@ -288,8 +290,8 @@ export async function listStaffPD(staffId: string) {
   })
 }
 
-export async function createPD(staffId: string, input: CreatePDInput) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function createPD(schoolId: string, staffId: string, input: CreatePDInput) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   return prisma.staffProfessionalDevelopment.create({
@@ -308,7 +310,7 @@ export async function createPD(staffId: string, input: CreatePDInput) {
   })
 }
 
-export async function updatePD(pdId: string, input: UpdatePDInput) {
+export async function updatePD(schoolId: string, pdId: string, input: UpdatePDInput) {
   const pd = await prisma.staffProfessionalDevelopment.findUnique({ where: { id: pdId } })
   if (!pd) throw AppError.notFound('Professional development record not found')
 
@@ -326,7 +328,7 @@ export async function updatePD(pdId: string, input: UpdatePDInput) {
   return prisma.staffProfessionalDevelopment.update({ where: { id: pdId }, data })
 }
 
-export async function deletePD(pdId: string) {
+export async function deletePD(schoolId: string, pdId: string) {
   const pd = await prisma.staffProfessionalDevelopment.findUnique({ where: { id: pdId } })
   if (!pd) throw AppError.notFound('Professional development record not found')
 
@@ -336,8 +338,9 @@ export async function deletePD(pdId: string) {
 
 // ==================== Performance Reviews ====================
 
-export async function listAllReviews() {
+export async function listAllReviews(schoolId: string) {
   const reviews = await prisma.staffPerformanceReview.findMany({
+    where: { staff: { organizationId: schoolId } },
     include: {
       staff: { select: { id: true, firstName: true, lastName: true, employeeId: true } },
       reviewer: { select: { id: true, firstName: true, lastName: true, employeeId: true } },
@@ -351,8 +354,8 @@ export async function listAllReviews() {
   }))
 }
 
-export async function listStaffReviews(staffId: string) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function listStaffReviews(schoolId: string, staffId: string) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   return prisma.staffPerformanceReview.findMany({
@@ -364,10 +367,10 @@ export async function listStaffReviews(staffId: string) {
   })
 }
 
-export async function createReview(input: CreateReviewInput) {
+export async function createReview(schoolId: string, input: CreateReviewInput) {
   const [staff, reviewer] = await Promise.all([
-    prisma.staff.findUnique({ where: { id: input.staffId } }),
-    prisma.staff.findUnique({ where: { id: input.reviewerId } }),
+    prisma.staff.findFirst({ where: { id: input.staffId, organizationId: schoolId } }),
+    prisma.staff.findFirst({ where: { id: input.reviewerId, organizationId: schoolId } }),
   ])
   if (!staff) throw AppError.notFound('Staff member not found')
   if (!reviewer) throw AppError.notFound('Reviewer not found')
@@ -388,7 +391,7 @@ export async function createReview(input: CreateReviewInput) {
   })
 }
 
-export async function acknowledgeReview(reviewId: string) {
+export async function acknowledgeReview(schoolId: string, reviewId: string) {
   const review = await prisma.staffPerformanceReview.findUnique({ where: { id: reviewId } })
   if (!review) throw AppError.notFound('Review not found')
 
@@ -400,8 +403,8 @@ export async function acknowledgeReview(reviewId: string) {
 
 // ==================== Skills ====================
 
-export async function listStaffSkills(staffId: string) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function listStaffSkills(schoolId: string, staffId: string) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   return prisma.staffSkillRecord.findMany({
@@ -410,8 +413,8 @@ export async function listStaffSkills(staffId: string) {
   })
 }
 
-export async function addStaffSkill(staffId: string, input: CreateStaffSkillInput) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function addStaffSkill(schoolId: string, staffId: string, input: CreateStaffSkillInput) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   return prisma.staffSkillRecord.create({
@@ -426,7 +429,7 @@ export async function addStaffSkill(staffId: string, input: CreateStaffSkillInpu
   })
 }
 
-export async function updateStaffSkill(staffId: string, skillId: string, input: UpdateStaffSkillInput) {
+export async function updateStaffSkill(schoolId: string, staffId: string, skillId: string, input: UpdateStaffSkillInput) {
   const skill = await prisma.staffSkillRecord.findFirst({ where: { id: skillId, staffId } })
   if (!skill) throw AppError.notFound('Skill record not found')
 
@@ -441,7 +444,7 @@ export async function updateStaffSkill(staffId: string, skillId: string, input: 
   return prisma.staffSkillRecord.update({ where: { id: skillId }, data })
 }
 
-export async function deleteStaffSkill(staffId: string, skillId: string) {
+export async function deleteStaffSkill(schoolId: string, staffId: string, skillId: string) {
   const skill = await prisma.staffSkillRecord.findFirst({ where: { id: skillId, staffId } })
   if (!skill) throw AppError.notFound('Skill record not found')
 
@@ -449,9 +452,9 @@ export async function deleteStaffSkill(staffId: string, skillId: string) {
   return { success: true }
 }
 
-export async function getSkillGaps(staffId: string) {
-  const staff = await prisma.staff.findUnique({
-    where: { id: staffId },
+export async function getSkillGaps(schoolId: string, staffId: string) {
+  const staff = await prisma.staff.findFirst({
+    where: { id: staffId, organizationId: schoolId },
     include: { skillRecords: true, designation: true },
   })
   if (!staff) throw AppError.notFound('Staff member not found')
@@ -470,9 +473,9 @@ export async function getSkillGaps(staffId: string) {
   }
 }
 
-export async function getSkillsMatrix() {
+export async function getSkillsMatrix(schoolId: string) {
   const allStaff = await prisma.staff.findMany({
-    where: { status: 'active' },
+    where: { organizationId: schoolId, status: 'active' },
     include: {
       skillRecords: true,
       department: true,
@@ -496,8 +499,8 @@ export async function getSkillsMatrix() {
 
 // ==================== Certifications ====================
 
-export async function listStaffCertifications(staffId: string) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function listStaffCertifications(schoolId: string, staffId: string) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   return prisma.staffCertification.findMany({
@@ -506,8 +509,8 @@ export async function listStaffCertifications(staffId: string) {
   })
 }
 
-export async function addCertification(staffId: string, input: CreateCertificationInput) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function addCertification(schoolId: string, staffId: string, input: CreateCertificationInput) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   return prisma.staffCertification.create({
@@ -525,7 +528,7 @@ export async function addCertification(staffId: string, input: CreateCertificati
   })
 }
 
-export async function updateCertification(staffId: string, certId: string, input: UpdateCertificationInput) {
+export async function updateCertification(schoolId: string, staffId: string, certId: string, input: UpdateCertificationInput) {
   const cert = await prisma.staffCertification.findFirst({ where: { id: certId, staffId } })
   if (!cert) throw AppError.notFound('Certification not found')
 
@@ -542,7 +545,7 @@ export async function updateCertification(staffId: string, certId: string, input
   return prisma.staffCertification.update({ where: { id: certId }, data })
 }
 
-export async function deleteCertification(staffId: string, certId: string) {
+export async function deleteCertification(schoolId: string, staffId: string, certId: string) {
   const cert = await prisma.staffCertification.findFirst({ where: { id: certId, staffId } })
   if (!cert) throw AppError.notFound('Certification not found')
 
@@ -550,12 +553,13 @@ export async function deleteCertification(staffId: string, certId: string) {
   return { success: true }
 }
 
-export async function getExpiryAlerts() {
+export async function getExpiryAlerts(schoolId: string) {
   const thirtyDaysFromNow = new Date()
   thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
 
   const expiring = await prisma.staffCertification.findMany({
     where: {
+      staff: { organizationId: schoolId },
       doesNotExpire: false,
       expiryDate: { lte: thirtyDaysFromNow },
       status: 'active_cert',
@@ -578,12 +582,13 @@ export async function getExpiryAlerts() {
 
 // ==================== Onboarding ====================
 
-export async function listOnboardingTasks() {
+export async function listOnboardingTasks(schoolId: string) {
   return prisma.staffOnboardingTask.findMany({ orderBy: { order: 'asc' } })
 }
 
-export async function listOnboardingChecklists() {
+export async function listOnboardingChecklists(schoolId: string) {
   const checklists = await prisma.staffOnboardingChecklist.findMany({
+    where: { staff: { organizationId: schoolId } },
     include: {
       staff: { select: { id: true, firstName: true, lastName: true, employeeId: true } },
     },
@@ -595,16 +600,16 @@ export async function listOnboardingChecklists() {
   }))
 }
 
-export async function getStaffOnboarding(staffId: string) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function getStaffOnboarding(schoolId: string, staffId: string) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   const checklist = await prisma.staffOnboardingChecklist.findUnique({ where: { staffId } })
   return checklist
 }
 
-export async function createOnboarding(staffId: string, input: CreateOnboardingInput) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function createOnboarding(schoolId: string, staffId: string, input: CreateOnboardingInput) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   const existing = await prisma.staffOnboardingChecklist.findUnique({ where: { staffId } })
@@ -650,7 +655,7 @@ export async function createOnboarding(staffId: string, input: CreateOnboardingI
   })
 }
 
-export async function updateOnboardingTask(staffId: string, taskId: string, input: UpdateOnboardingTaskInput) {
+export async function updateOnboardingTask(schoolId: string, staffId: string, taskId: string, input: UpdateOnboardingTaskInput) {
   const checklist = await prisma.staffOnboardingChecklist.findUnique({ where: { staffId } })
   if (!checklist) throw AppError.notFound('Onboarding checklist not found')
 
@@ -678,8 +683,9 @@ export async function updateOnboardingTask(staffId: string, taskId: string, inpu
 
 // ==================== Exit Interviews ====================
 
-export async function listExitInterviews() {
+export async function listExitInterviews(schoolId: string) {
   const interviews = await prisma.staffExitInterview.findMany({
+    where: { staff: { organizationId: schoolId } },
     include: {
       staff: { select: { id: true, firstName: true, lastName: true, employeeId: true } },
     },
@@ -691,15 +697,15 @@ export async function listExitInterviews() {
   }))
 }
 
-export async function getExitInterview(staffId: string) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function getExitInterview(schoolId: string, staffId: string) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   return prisma.staffExitInterview.findUnique({ where: { staffId } })
 }
 
-export async function createExitInterview(staffId: string, input: CreateExitInterviewInput) {
-  const staff = await prisma.staff.findUnique({ where: { id: staffId } })
+export async function createExitInterview(schoolId: string, staffId: string, input: CreateExitInterviewInput) {
+  const staff = await prisma.staff.findFirst({ where: { id: staffId, organizationId: schoolId } })
   if (!staff) throw AppError.notFound('Staff member not found')
 
   const existing = await prisma.staffExitInterview.findUnique({ where: { staffId } })
@@ -721,7 +727,7 @@ export async function createExitInterview(staffId: string, input: CreateExitInte
   })
 }
 
-export async function updateExitInterview(staffId: string, input: UpdateExitInterviewInput) {
+export async function updateExitInterview(schoolId: string, staffId: string, input: UpdateExitInterviewInput) {
   const interview = await prisma.staffExitInterview.findUnique({ where: { staffId } })
   if (!interview) throw AppError.notFound('Exit interview not found')
 
@@ -738,7 +744,7 @@ export async function updateExitInterview(staffId: string, input: UpdateExitInte
   return prisma.staffExitInterview.update({ where: { staffId }, data })
 }
 
-export async function updateClearance(staffId: string, department: string, input: UpdateClearanceInput) {
+export async function updateClearance(schoolId: string, staffId: string, department: string, input: UpdateClearanceInput) {
   const interview = await prisma.staffExitInterview.findUnique({ where: { staffId } })
   if (!interview) throw AppError.notFound('Exit interview not found')
 
@@ -758,11 +764,11 @@ export async function updateClearance(staffId: string, department: string, input
 
 // ==================== Bulk ====================
 
-export async function bulkImportStaff(input: BulkImportStaffInput) {
+export async function bulkImportStaff(schoolId: string, input: BulkImportStaffInput) {
   const results = []
   for (const staffInput of input.staff) {
     try {
-      const staff = await createStaff(staffInput)
+      const staff = await createStaff(schoolId, staffInput)
       results.push({ employeeId: staff.employeeId, name: staff.name, status: 'created' })
     } catch (err: any) {
       results.push({ email: staffInput.email, status: 'failed', error: err.message })
@@ -771,8 +777,9 @@ export async function bulkImportStaff(input: BulkImportStaffInput) {
   return results
 }
 
-export async function exportStaff() {
+export async function exportStaff(schoolId: string) {
   const staffList = await prisma.staff.findMany({
+    where: { organizationId: schoolId },
     include: staffInclude,
     orderBy: { employeeId: 'asc' },
   })

@@ -21,9 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useClassNames, useSectionsForClass } from '@/hooks/useSchoolData'
 
-const CLASSES = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12']
-const SECTIONS = ['A', 'B', 'C', 'D']
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 const INDIAN_STATES = ['Maharashtra', 'Karnataka', 'Tamil Nadu', 'Delhi', 'Gujarat', 'Rajasthan', 'Uttar Pradesh', 'West Bengal', 'Kerala', 'Telangana', 'Andhra Pradesh', 'Punjab', 'Haryana', 'Madhya Pradesh', 'Bihar']
 
@@ -91,11 +90,15 @@ interface StudentFormProps {
 }
 
 export function StudentForm({ onSubmit, initialData, isSubmitting, submitLabel = 'Submit' }: StudentFormProps) {
+  const { data: classNames = [], isLoading: classesLoading } = useClassNames()
   const form = useForm<StudentFormData>({
     resolver: zodResolver(studentFormSchema),
     defaultValues: { ...defaultFormValues, ...initialData },
     mode: 'onChange',
   })
+
+  const selectedClass = form.watch('class')
+  const { data: sections = [], isLoading: sectionsLoading } = useSectionsForClass(selectedClass)
 
   const handleSubmit = form.handleSubmit((data) => {
     onSubmit(data)
@@ -265,14 +268,14 @@ export function StudentForm({ onSubmit, initialData, isSubmitting, submitLabel =
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Class</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={(v) => { field.onChange(v); form.setValue('section', '') }} value={field.value} disabled={classesLoading}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select class" />
+                        <SelectValue placeholder={classesLoading ? 'Loading...' : 'Select class'} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {CLASSES.map((cls) => (
+                      {classNames.map((cls) => (
                         <SelectItem key={cls} value={cls}>
                           {cls}
                         </SelectItem>
@@ -290,14 +293,14 @@ export function StudentForm({ onSubmit, initialData, isSubmitting, submitLabel =
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Section</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={sectionsLoading || !selectedClass}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select section" />
+                        <SelectValue placeholder={sectionsLoading ? 'Loading...' : 'Select section'} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {SECTIONS.map((sec) => (
+                      {sections.map((sec) => (
                         <SelectItem key={sec} value={sec}>
                           Section {sec}
                         </SelectItem>

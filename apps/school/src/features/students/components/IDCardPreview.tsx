@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Printer, Loader2 } from 'lucide-react'
+import { Printer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -35,7 +35,7 @@ function IDCardFront({ data }: { data: IDCardData }) {
           />
         ) : (
           <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-white text-xs font-bold">
-            {data.schoolName.charAt(0)}
+            {(data.schoolName || 'S').charAt(0)}
           </div>
         )}
         <div>
@@ -183,38 +183,52 @@ export function IDCardPreview({ studentId }: IDCardPreviewProps) {
   const handlePrint = () => {
     if (!printRef.current) return
 
-    const printContent = printRef.current.innerHTML
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Student ID Card - ${data?.name ?? ''}</title>
-          <style>
-            @page {
-              size: auto;
-              margin: 10mm;
-            }
-            body {
-              margin: 0;
-              padding: 20px;
-              font-family: system-ui, -apple-system, sans-serif;
-              display: flex;
-              flex-wrap: wrap;
-              gap: 24px;
-              justify-content: center;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-          </style>
-        </head>
-        <body>
-          ${printContent}
-        </body>
-      </html>
-    `)
+    // Set title safely via DOM API (no string interpolation of user data)
+    const titleEl = printWindow.document.createElement('title')
+    titleEl.textContent = `Student ID Card - ${data?.name ?? ''}`
+    printWindow.document.head.appendChild(titleEl)
+
+    // Add print styles via DOM API
+    const styleEl = printWindow.document.createElement('style')
+    styleEl.textContent = `
+      @page {
+        size: auto;
+        margin: 10mm;
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: system-ui, -apple-system, sans-serif;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        justify-content: center;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    `
+    printWindow.document.head.appendChild(styleEl)
+
+    // Clone the card element into the print window safely using importNode
+    // This avoids innerHTML + document.write which is vulnerable to XSS
+    const clonedNode = printWindow.document.importNode(printRef.current, true)
+    printWindow.document.body.appendChild(clonedNode)
+
+    // Copy computed styles from the original document's stylesheets
+    for (const sheet of Array.from(document.styleSheets)) {
+      try {
+        const rules = Array.from(sheet.cssRules)
+        const newStyle = printWindow.document.createElement('style')
+        newStyle.textContent = rules.map((rule) => rule.cssText).join('\n')
+        printWindow.document.head.appendChild(newStyle)
+      } catch {
+        // Skip cross-origin stylesheets that block cssRules access
+      }
+    }
+
     printWindow.document.close()
     printWindow.focus()
 

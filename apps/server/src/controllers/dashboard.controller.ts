@@ -1,118 +1,127 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as dashboardService from '../services/dashboard.service.js'
+import { AppError } from '../utils/errors.js'
+
+// Helper: extract and validate schoolId from tenant middleware
+function getSchoolId(req: Request): string {
+  if (!req.schoolId) {
+    throw AppError.badRequest('No school context. Dashboard operations require a school subdomain.')
+  }
+  return req.schoolId
+}
 
 // ==================== ADMIN / PRINCIPAL ====================
 
-export async function getStats(_req: Request, res: Response, next: NextFunction) {
+export async function getStats(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getStats()
+    const data = await dashboardService.getStats(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getFeeCollection(_req: Request, res: Response, next: NextFunction) {
+export async function getFeeCollection(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getFeeCollection()
+    const data = await dashboardService.getFeeCollection(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getAttendance(_req: Request, res: Response, next: NextFunction) {
+export async function getAttendance(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getAttendance()
+    const data = await dashboardService.getAttendance(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getClassWiseStudents(_req: Request, res: Response, next: NextFunction) {
+export async function getClassWiseStudents(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getClassWiseStudents()
+    const data = await dashboardService.getClassWiseStudents(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getAnnouncements(_req: Request, res: Response, next: NextFunction) {
+export async function getAnnouncements(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getAnnouncements()
+    const data = await dashboardService.getAnnouncements(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getEvents(_req: Request, res: Response, next: NextFunction) {
+export async function getEvents(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getEvents()
+    const data = await dashboardService.getEvents(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getActivities(_req: Request, res: Response, next: NextFunction) {
+export async function getActivities(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getActivities()
+    const data = await dashboardService.getActivities(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getQuickStats(_req: Request, res: Response, next: NextFunction) {
+export async function getQuickStats(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getQuickStats()
+    const data = await dashboardService.getQuickStats(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getPaymentMethods(_req: Request, res: Response, next: NextFunction) {
+export async function getPaymentMethods(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getPaymentMethods()
+    const data = await dashboardService.getPaymentMethods(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getFeeTransactions(_req: Request, res: Response, next: NextFunction) {
+export async function getFeeTransactions(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getFeeTransactions()
+    const data = await dashboardService.getFeeTransactions(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getClassWiseCollection(_req: Request, res: Response, next: NextFunction) {
+export async function getClassWiseCollection(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getClassWiseCollection()
+    const data = await dashboardService.getClassWiseCollection(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 // ==================== ACCOUNTANT ====================
 
-export async function getAccountantStats(_req: Request, res: Response, next: NextFunction) {
+export async function getAccountantStats(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getAccountantStats()
+    const data = await dashboardService.getAccountantStats(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getTodayCollection(_req: Request, res: Response, next: NextFunction) {
+export async function getTodayCollection(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getTodayCollection()
+    const data = await dashboardService.getTodayCollection(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getCollectionTrends(_req: Request, res: Response, next: NextFunction) {
+export async function getCollectionTrends(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getCollectionTrends()
+    const data = await dashboardService.getCollectionTrends(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getPendingDues(_req: Request, res: Response, next: NextFunction) {
+export async function getPendingDues(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getPendingDues()
+    const data = await dashboardService.getPendingDues(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getRecentTransactions(_req: Request, res: Response, next: NextFunction) {
+export async function getRecentTransactions(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getRecentTransactions()
+    const data = await dashboardService.getRecentTransactions(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
@@ -121,42 +130,42 @@ export async function getRecentTransactions(_req: Request, res: Response, next: 
 
 export async function getTeacherStats(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getTeacherStats(req.user!.userId)
+    const data = await dashboardService.getTeacherStats(getSchoolId(req), req.user!.userId)
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 export async function getTeacherSchedule(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getTeacherSchedule(req.user!.userId)
+    const data = await dashboardService.getTeacherSchedule(getSchoolId(req), req.user!.userId)
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 export async function getTeacherClasses(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getTeacherClasses(req.user!.userId)
+    const data = await dashboardService.getTeacherClasses(getSchoolId(req), req.user!.userId)
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getTeacherTasks(_req: Request, res: Response, next: NextFunction) {
+export async function getTeacherTasks(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getTeacherTasks()
+    const data = await dashboardService.getTeacherTasks(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 export async function getStrugglingStudents(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getStrugglingStudents(req.user!.userId)
+    const data = await dashboardService.getStrugglingStudents(getSchoolId(req), req.user!.userId)
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getPendingGrades(_req: Request, res: Response, next: NextFunction) {
+export async function getPendingGrades(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getPendingGrades()
+    const data = await dashboardService.getPendingGrades(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
@@ -166,14 +175,14 @@ export async function getPendingGrades(_req: Request, res: Response, next: NextF
 export async function getChildTimetable(req: Request, res: Response, next: NextFunction) {
   try {
     const studentId = req.query.studentId as string | undefined
-    const data = await dashboardService.getChildTimetable(req.user!.userId, studentId)
+    const data = await dashboardService.getChildTimetable(getSchoolId(req), req.user!.userId, studentId)
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getChildAssignments(_req: Request, res: Response, next: NextFunction) {
+export async function getChildAssignments(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getChildAssignments()
+    const data = await dashboardService.getChildAssignments(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
@@ -181,127 +190,127 @@ export async function getChildAssignments(_req: Request, res: Response, next: Ne
 export async function getChildTeachers(req: Request, res: Response, next: NextFunction) {
   try {
     const studentId = req.query.studentId as string | undefined
-    const data = await dashboardService.getChildTeachers(req.user!.userId, studentId)
+    const data = await dashboardService.getChildTeachers(getSchoolId(req), req.user!.userId, studentId)
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 // ==================== LIBRARIAN ====================
 
-export async function getLibrarianStats(_req: Request, res: Response, next: NextFunction) {
+export async function getLibrarianStats(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getLibrarianStats()
+    const data = await dashboardService.getLibrarianStats(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getCirculationStats(_req: Request, res: Response, next: NextFunction) {
+export async function getCirculationStats(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getCirculationStats()
+    const data = await dashboardService.getCirculationStats(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getOverdueBooks(_req: Request, res: Response, next: NextFunction) {
+export async function getOverdueBooks(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getOverdueBooks()
+    const data = await dashboardService.getOverdueBooks(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getPendingReservations(_req: Request, res: Response, next: NextFunction) {
+export async function getPendingReservations(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getPendingReservations()
+    const data = await dashboardService.getPendingReservations(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getLibraryActivity(_req: Request, res: Response, next: NextFunction) {
+export async function getLibraryActivity(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getLibraryActivity()
+    const data = await dashboardService.getLibraryActivity(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 // ==================== TRANSPORT MANAGER ====================
 
-export async function getTransportStats(_req: Request, res: Response, next: NextFunction) {
+export async function getTransportStats(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getTransportStats()
+    const data = await dashboardService.getTransportStats(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getFleetStatus(_req: Request, res: Response, next: NextFunction) {
+export async function getFleetStatus(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getFleetStatus()
+    const data = await dashboardService.getFleetStatus(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getMaintenanceAlerts(_req: Request, res: Response, next: NextFunction) {
+export async function getMaintenanceAlerts(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getMaintenanceAlerts()
+    const data = await dashboardService.getMaintenanceAlerts(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getRoutePerformance(_req: Request, res: Response, next: NextFunction) {
+export async function getRoutePerformance(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getRoutePerformance()
+    const data = await dashboardService.getRoutePerformance(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getDriverStatus(_req: Request, res: Response, next: NextFunction) {
+export async function getDriverStatus(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getDriverStatus()
+    const data = await dashboardService.getDriverStatus(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 // ==================== STUDENT ====================
 
-export async function getStudentCourses(_req: Request, res: Response, next: NextFunction) {
+export async function getStudentCourses(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getStudentCourses()
+    const data = await dashboardService.getStudentCourses(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getStudentAssignments(_req: Request, res: Response, next: NextFunction) {
+export async function getStudentAssignments(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getStudentAssignments()
+    const data = await dashboardService.getStudentAssignments(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
-export async function getStudentTransport(_req: Request, res: Response, next: NextFunction) {
+export async function getStudentTransport(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getStudentTransport()
+    const data = await dashboardService.getStudentTransport(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 // ==================== NOTIFICATIONS ====================
 
-export async function getNotifications(_req: Request, res: Response, next: NextFunction) {
+export async function getNotifications(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await dashboardService.getNotifications()
+    const data = await dashboardService.getNotifications(getSchoolId(req))
     res.json({ data })
   } catch (err) { next(err) }
 }
 
 export async function markNotificationRead(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await dashboardService.markNotificationRead(String(req.params.id))
+    const result = await dashboardService.markNotificationRead(getSchoolId(req), String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 }
 
-export async function markAllNotificationsRead(_req: Request, res: Response, next: NextFunction) {
+export async function markAllNotificationsRead(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await dashboardService.markAllNotificationsRead()
+    const result = await dashboardService.markAllNotificationsRead(getSchoolId(req))
     res.json(result)
   } catch (err) { next(err) }
 }

@@ -13,10 +13,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { useLateRecords, useLatePatterns, useLatePolicy, useUpdateLatePolicy } from '../hooks/useAttendance'
-import { CLASSES } from '../types/attendance.types'
+import { useClassNames } from '@/hooks/useSchoolData'
 
 export function LateDetectionManager() {
   const { toast } = useToast()
+  const { data: classNames = [] } = useClassNames()
 
   // Tab state
   const [activeTab, setActiveTab] = useState('records')
@@ -163,7 +164,7 @@ export function LateDetectionManager() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Classes</SelectItem>
-                      {CLASSES.map((c) => (
+                      {classNames.map((c) => (
                         <SelectItem key={c} value={c}>
                           {c}
                         </SelectItem>

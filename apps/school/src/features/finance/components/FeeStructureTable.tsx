@@ -37,6 +37,12 @@ import {
 } from '../types/finance.types'
 import { FeeStructureForm } from './FeeStructureForm'
 
+function ordinal(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd']
+  const v = n % 100
+  return n + (s[(v - 20) % 10] || s[v] || s[0])
+}
+
 export function FeeStructureTable() {
   const [academicYear, setAcademicYear] = useState(ACADEMIC_YEARS[0])
   const { data, isLoading, error } = useFeeStructures({ academicYear })
@@ -147,12 +153,12 @@ export function FeeStructureTable() {
                   </TableCell>
                   <TableCell className="max-w-xs">
                     <div className="flex flex-wrap gap-1">
-                      {structure.applicableClasses.length > 5 ? (
+                      {(structure.applicableClasses?.length ?? 0) > 5 ? (
                         <span className="text-sm text-muted-foreground">
-                          {structure.applicableClasses.length} classes
+                          {(structure.applicableClasses?.length ?? 0)} classes
                         </span>
                       ) : (
-                        structure.applicableClasses.map((cls) => (
+                        (structure.applicableClasses ?? []).map((cls) => (
                           <Badge key={cls} variant="outline" className="text-xs">
                             {cls}
                           </Badge>
@@ -160,7 +166,7 @@ export function FeeStructureTable() {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>{structure.dueDay}th</TableCell>
+                  <TableCell>{ordinal(structure.dueDay)}</TableCell>
                   <TableCell>
                     <Badge variant={structure.isOptional ? 'secondary' : 'default'}>
                       {structure.isOptional ? 'Optional' : 'Mandatory'}

@@ -20,8 +20,9 @@ function formatLedgerEntry(entry: any) {
 
 // ==================== Core ====================
 
-export async function getLastBalance(): Promise<number> {
+export async function getLastBalance(schoolId: string): Promise<number> {
   const last = await prisma.ledgerEntry.findFirst({
+    where: { organizationId: schoolId },
     orderBy: { createdAt: 'desc' },
     select: { balance: true },
   })
@@ -29,6 +30,7 @@ export async function getLastBalance(): Promise<number> {
 }
 
 export async function createLedgerEntry(
+  schoolId: string,
   data: {
     type: 'credit' | 'debit'
     category: string
@@ -39,37 +41,47 @@ export async function createLedgerEntry(
   },
   tx?: Prisma.TransactionClient,
 ) {
-  const client = tx || prisma
+  const execute = async (client: any) => {
+    const last = await client.ledgerEntry.findFirst({
+      where: { organizationId: schoolId },
+      orderBy: { createdAt: 'desc' },
+      select: { balance: true },
+    })
+    const lastBal = last ? Number(last.balance) : 0
+    const newBalance = data.type === 'credit'
+      ? lastBal + data.amount
+      : lastBal - data.amount
 
-  // Get last balance within the transaction
-  const last = await client.ledgerEntry.findFirst({
-    orderBy: { createdAt: 'desc' },
-    select: { balance: true },
+    const entry = await client.ledgerEntry.create({
+      data: {
+        organizationId: schoolId,
+        date: new Date(),
+        type: data.type === 'credit' ? 'ledger_credit' : 'ledger_debit',
+        category: data.category,
+        referenceId: data.referenceId || null,
+        referenceNumber: data.referenceNumber || null,
+        description: data.description,
+        amount: data.amount,
+        balance: newBalance,
+      },
+    })
+
+    return formatLedgerEntry(entry)
+  }
+
+  if (tx) {
+    return execute(tx)
+  }
+
+  // Use serializable isolation to prevent concurrent balance reads
+  return prisma.$transaction(execute, {
+    isolationLevel: 'Serializable',
   })
-  const lastBal = last ? Number(last.balance) : 0
-  const newBalance = data.type === 'credit'
-    ? lastBal + data.amount
-    : lastBal - data.amount
-
-  const entry = await client.ledgerEntry.create({
-    data: {
-      date: new Date(),
-      type: data.type === 'credit' ? 'ledger_credit' : 'ledger_debit',
-      category: data.category,
-      referenceId: data.referenceId || null,
-      referenceNumber: data.referenceNumber || null,
-      description: data.description,
-      amount: data.amount,
-      balance: newBalance,
-    },
-  })
-
-  return formatLedgerEntry(entry)
 }
 
 // ==================== Queries ====================
 
-export async function listLedgerEntries(query: {
+export async function listLedgerEntries(schoolId: string, query: {
   page?: number
   limit?: number
   type?: string
@@ -80,6 +92,7 @@ export async function listLedgerEntries(query: {
   const page = query.page || 1
   const limit = query.limit || 20
   const where: any = {}
+  where.organizationId = schoolId
 
   if (query.type) {
     where.type = query.type === 'credit' ? 'ledger_credit' : 'ledger_debit'
@@ -90,7 +103,7 @@ export async function listLedgerEntries(query: {
   if (query.startDate || query.endDate) {
     where.date = {}
     if (query.startDate) where.date.gte = new Date(query.startDate)
-    if (query.endDate) where.date.lte = new Date(query.endDate)
+    if (query.endDate) where.date.lte = new Date(query.endDate + 'T23:59:59.999Z')
   }
 
   const [total, entries] = await Promise.all([
@@ -109,18 +122,19 @@ export async function listLedgerEntries(query: {
   }
 }
 
-export async function getLedgerEntryById(id: string) {
-  const entry = await prisma.ledgerEntry.findUnique({ where: { id } })
+export async function getLedgerEntryById(schoolId: string, id: string) {
+  const entry = await prisma.ledgerEntry.findFirst({ where: { id, organizationId: schoolId } })
   if (!entry) return null
   return formatLedgerEntry(entry)
 }
 
-export async function getBalanceSummary(query: { startDate?: string; endDate?: string }) {
+export async function getBalanceSummary(schoolId: string, query: { startDate?: string; endDate?: string }) {
   const where: any = {}
+  where.organizationId = schoolId
   if (query.startDate || query.endDate) {
     where.date = {}
     if (query.startDate) where.date.gte = new Date(query.startDate)
-    if (query.endDate) where.date.lte = new Date(query.endDate)
+    if (query.endDate) where.date.lte = new Date(query.endDate + 'T23:59:59.999Z')
   }
 
   const entries = await prisma.ledgerEntry.findMany({

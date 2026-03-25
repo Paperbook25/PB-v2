@@ -6,48 +6,55 @@ import {
   submitCoScholasticSchema, createQuestionPaperSchema,
 } from '../validators/exam.validators.js'
 import type { CreateExamInput, UpdateExamInput } from '../validators/exam.validators.js'
+import { AppError } from '../utils/errors.js'
+
+// Helper: extract and validate schoolId from tenant middleware
+function getSchoolId(req: Request): string {
+  if (!req.schoolId) throw AppError.badRequest('No school context.')
+  return req.schoolId
+}
 
 // ==================== Exam CRUD ====================
 
 export async function listExams(req: Request, res: Response, next: NextFunction) {
   try {
     const query = listExamsSchema.parse(req.query)
-    const result = await examService.listExams(query)
+    const result = await examService.listExams(getSchoolId(req), query)
     res.json(result)
   } catch (err) { next(err) }
 }
 
 export async function getExam(req: Request, res: Response, next: NextFunction) {
   try {
-    const exam = await examService.getExamById(String(req.params.id))
+    const exam = await examService.getExamById(getSchoolId(req), String(req.params.id))
     res.json({ data: exam })
   } catch (err) { next(err) }
 }
 
 export async function createExam(req: Request, res: Response, next: NextFunction) {
   try {
-    const exam = await examService.createExam(req.body as CreateExamInput)
+    const exam = await examService.createExam(getSchoolId(req), req.body as CreateExamInput)
     res.status(201).json({ data: exam })
   } catch (err) { next(err) }
 }
 
 export async function updateExam(req: Request, res: Response, next: NextFunction) {
   try {
-    const exam = await examService.updateExam(String(req.params.id), req.body as UpdateExamInput)
+    const exam = await examService.updateExam(getSchoolId(req), String(req.params.id), req.body as UpdateExamInput)
     res.json({ data: exam })
   } catch (err) { next(err) }
 }
 
 export async function deleteExam(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.deleteExam(String(req.params.id))
+    const result = await examService.deleteExam(getSchoolId(req), String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 }
 
 export async function publishExam(req: Request, res: Response, next: NextFunction) {
   try {
-    const exam = await examService.publishExam(String(req.params.id))
+    const exam = await examService.publishExam(getSchoolId(req), String(req.params.id))
     res.json({ data: exam })
   } catch (err) { next(err) }
 }
@@ -56,7 +63,7 @@ export async function publishExam(req: Request, res: Response, next: NextFunctio
 
 export async function getStudentsForMarks(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getStudentsForMarks(String(req.params.examId), {
+    const result = await examService.getStudentsForMarks(getSchoolId(req), String(req.params.examId), {
       className: req.query.className as string,
       section: req.query.section as string,
       subjectId: req.query.subjectId as string,
@@ -67,7 +74,7 @@ export async function getStudentsForMarks(req: Request, res: Response, next: Nex
 
 export async function getMarks(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getMarks(String(req.params.examId), {
+    const result = await examService.getMarks(getSchoolId(req), String(req.params.examId), {
       subjectId: req.query.subjectId as string,
       classId: req.query.classId as string,
     })
@@ -78,14 +85,14 @@ export async function getMarks(req: Request, res: Response, next: NextFunction) 
 export async function submitMarks(req: Request, res: Response, next: NextFunction) {
   try {
     const input = submitMarksSchema.parse(req.body)
-    const result = await examService.submitMarks(String(req.params.examId), input)
+    const result = await examService.submitMarks(getSchoolId(req), String(req.params.examId), input)
     res.json(result)
   } catch (err) { next(err) }
 }
 
 export async function getStudentMarks(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getStudentMarks(String(req.params.studentId), {
+    const result = await examService.getStudentMarks(getSchoolId(req), String(req.params.studentId), {
       academicYear: req.query.academicYear as string,
     })
     res.json(result)
@@ -96,7 +103,7 @@ export async function getStudentMarks(req: Request, res: Response, next: NextFun
 
 export async function getReportCards(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getReportCards(String(req.params.examId), {
+    const result = await examService.getReportCards(getSchoolId(req), String(req.params.examId), {
       classId: req.query.classId as string,
     })
     res.json(result)
@@ -105,7 +112,7 @@ export async function getReportCards(req: Request, res: Response, next: NextFunc
 
 export async function getStudentReportCard(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getStudentReportCard(String(req.params.studentId), {
+    const result = await examService.getStudentReportCard(getSchoolId(req), String(req.params.studentId), {
       examId: req.query.examId as string,
     })
     res.json({ data: result })
@@ -115,14 +122,14 @@ export async function getStudentReportCard(req: Request, res: Response, next: Ne
 export async function generateReportCards(req: Request, res: Response, next: NextFunction) {
   try {
     const input = generateReportCardsSchema.parse(req.body)
-    const result = await examService.generateReportCards(input)
+    const result = await examService.generateReportCards(getSchoolId(req), input)
     res.json(result)
   } catch (err) { next(err) }
 }
 
 export async function deleteReportCard(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.deleteReportCard(String(req.params.id))
+    const result = await examService.deleteReportCard(getSchoolId(req), String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 }
@@ -131,14 +138,14 @@ export async function deleteReportCard(req: Request, res: Response, next: NextFu
 
 export async function listGradeScales(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.listGradeScales()
+    const result = await examService.listGradeScales(getSchoolId(req))
     res.json(result)
   } catch (err) { next(err) }
 }
 
 export async function getGradeScale(req: Request, res: Response, next: NextFunction) {
   try {
-    const scale = await examService.getGradeScaleById(String(req.params.id))
+    const scale = await examService.getGradeScaleById(getSchoolId(req), String(req.params.id))
     res.json({ data: scale })
   } catch (err) { next(err) }
 }
@@ -146,7 +153,7 @@ export async function getGradeScale(req: Request, res: Response, next: NextFunct
 export async function createGradeScale(req: Request, res: Response, next: NextFunction) {
   try {
     const input = createGradeScaleSchema.parse(req.body)
-    const scale = await examService.createGradeScale(input)
+    const scale = await examService.createGradeScale(getSchoolId(req), input)
     res.status(201).json({ data: scale })
   } catch (err) { next(err) }
 }
@@ -154,14 +161,14 @@ export async function createGradeScale(req: Request, res: Response, next: NextFu
 export async function updateGradeScale(req: Request, res: Response, next: NextFunction) {
   try {
     const input = updateGradeScaleSchema.parse(req.body)
-    const scale = await examService.updateGradeScale(String(req.params.id), input)
+    const scale = await examService.updateGradeScale(getSchoolId(req), String(req.params.id), input)
     res.json({ data: scale })
   } catch (err) { next(err) }
 }
 
 export async function deleteGradeScale(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.deleteGradeScale(String(req.params.id))
+    const result = await examService.deleteGradeScale(getSchoolId(req), String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 }
@@ -170,7 +177,7 @@ export async function deleteGradeScale(req: Request, res: Response, next: NextFu
 
 export async function getExamTimetable(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getExamTimetable(String(req.params.examId))
+    const result = await examService.getExamTimetable(getSchoolId(req), String(req.params.examId))
     res.json(result)
   } catch (err) { next(err) }
 }
@@ -178,7 +185,7 @@ export async function getExamTimetable(req: Request, res: Response, next: NextFu
 export async function createExamSlot(req: Request, res: Response, next: NextFunction) {
   try {
     const input = createExamSlotSchema.parse(req.body)
-    const slot = await examService.createExamSlot(String(req.params.examId), input)
+    const slot = await examService.createExamSlot(getSchoolId(req), String(req.params.examId), input)
     res.status(201).json({ data: slot })
   } catch (err) { next(err) }
 }
@@ -187,7 +194,7 @@ export async function createExamSlot(req: Request, res: Response, next: NextFunc
 
 export async function getExamAnalytics(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getExamAnalytics(String(req.params.examId), {
+    const result = await examService.getExamAnalytics(getSchoolId(req), String(req.params.examId), {
       class: req.query.class as string,
       section: req.query.section as string,
     })
@@ -197,7 +204,7 @@ export async function getExamAnalytics(req: Request, res: Response, next: NextFu
 
 export async function getStudentProgress(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getStudentProgress(String(req.params.studentId))
+    const result = await examService.getStudentProgress(getSchoolId(req), String(req.params.studentId))
     res.json(result)
   } catch (err) { next(err) }
 }
@@ -207,7 +214,7 @@ export async function getStudentProgress(req: Request, res: Response, next: Next
 export async function listCoScholastic(req: Request, res: Response, next: NextFunction) {
   try {
     const query = listCoScholasticSchema.parse(req.query)
-    const result = await examService.listCoScholastic(query)
+    const result = await examService.listCoScholastic(getSchoolId(req), query)
     res.json(result)
   } catch (err) { next(err) }
 }
@@ -215,7 +222,7 @@ export async function listCoScholastic(req: Request, res: Response, next: NextFu
 export async function submitCoScholastic(req: Request, res: Response, next: NextFunction) {
   try {
     const input = submitCoScholasticSchema.parse(req.body)
-    const result = await examService.submitCoScholastic(input, req.user?.name || 'system')
+    const result = await examService.submitCoScholastic(getSchoolId(req), input, req.user?.name || 'system')
     res.status(201).json(result)
   } catch (err) { next(err) }
 }
@@ -224,7 +231,7 @@ export async function submitCoScholastic(req: Request, res: Response, next: Next
 
 export async function listQuestionPapers(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.listQuestionPapers({
+    const result = await examService.listQuestionPapers(getSchoolId(req), {
       examId: req.query.examId as string,
       subjectId: req.query.subjectId as string,
       className: req.query.className as string,
@@ -235,7 +242,7 @@ export async function listQuestionPapers(req: Request, res: Response, next: Next
 
 export async function getQuestionPaper(req: Request, res: Response, next: NextFunction) {
   try {
-    const paper = await examService.getQuestionPaperById(String(req.params.id))
+    const paper = await examService.getQuestionPaperById(getSchoolId(req), String(req.params.id))
     res.json({ data: paper })
   } catch (err) { next(err) }
 }
@@ -243,14 +250,14 @@ export async function getQuestionPaper(req: Request, res: Response, next: NextFu
 export async function createQuestionPaper(req: Request, res: Response, next: NextFunction) {
   try {
     const input = createQuestionPaperSchema.parse(req.body)
-    const paper = await examService.createQuestionPaper(input, req.user?.name || 'system')
+    const paper = await examService.createQuestionPaper(getSchoolId(req), input, req.user?.name || 'system')
     res.status(201).json({ data: paper })
   } catch (err) { next(err) }
 }
 
 export async function deleteQuestionPaper(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.deleteQuestionPaper(String(req.params.id))
+    const result = await examService.deleteQuestionPaper(getSchoolId(req), String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 }
@@ -259,7 +266,7 @@ export async function deleteQuestionPaper(req: Request, res: Response, next: Nex
 
 export async function getMyMarks(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getMyMarks(req.user!.userId, {
+    const result = await examService.getMyMarks(getSchoolId(req), req.user!.userId, {
       academicYear: req.query.academicYear as string,
     })
     res.json(result)
@@ -268,7 +275,7 @@ export async function getMyMarks(req: Request, res: Response, next: NextFunction
 
 export async function getMyChildrenMarks(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getMyChildrenMarks(req.user!.userId, {
+    const result = await examService.getMyChildrenMarks(getSchoolId(req), req.user!.userId, {
       academicYear: req.query.academicYear as string,
     })
     res.json(result)
@@ -277,7 +284,7 @@ export async function getMyChildrenMarks(req: Request, res: Response, next: Next
 
 export async function getMyReportCard(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await examService.getMyReportCard(req.user!.userId, {
+    const result = await examService.getMyReportCard(getSchoolId(req), req.user!.userId, {
       examId: req.query.examId as string,
     })
     res.json({ data: result })

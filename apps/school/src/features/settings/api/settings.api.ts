@@ -64,10 +64,14 @@ import type {
 
 const API_BASE = '/api/settings'
 
+function fetchWithAuth(url: string, options?: RequestInit): Promise<Response> {
+  return fetch(url, { ...options, credentials: 'include' })
+}
+
 // ==================== SCHOOL PROFILE ====================
 
 export async function fetchSchoolProfile(): Promise<{ data: SchoolProfile }> {
-  const response = await fetch(`${API_BASE}/school-profile`)
+  const response = await fetchWithAuth(`${API_BASE}/school-profile`)
   if (!response.ok) {
     throw new Error('Failed to fetch school profile')
   }
@@ -77,7 +81,7 @@ export async function fetchSchoolProfile(): Promise<{ data: SchoolProfile }> {
 export async function updateSchoolProfile(
   data: UpdateSchoolProfileRequest
 ): Promise<{ data: SchoolProfile }> {
-  const response = await fetch(`${API_BASE}/school-profile`, {
+  const response = await fetchWithAuth(`${API_BASE}/school-profile`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -91,7 +95,7 @@ export async function updateSchoolProfile(
 // ==================== ACADEMIC YEARS ====================
 
 export async function fetchAcademicYears(): Promise<{ data: AcademicYear[] }> {
-  const response = await fetch(`${API_BASE}/academic-years`)
+  const response = await fetchWithAuth(`${API_BASE}/academic-years`)
   if (!response.ok) {
     throw new Error('Failed to fetch academic years')
   }
@@ -101,7 +105,7 @@ export async function fetchAcademicYears(): Promise<{ data: AcademicYear[] }> {
 export async function createAcademicYear(
   data: CreateAcademicYearRequest
 ): Promise<{ data: AcademicYear }> {
-  const response = await fetch(`${API_BASE}/academic-years`, {
+  const response = await fetchWithAuth(`${API_BASE}/academic-years`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -116,7 +120,7 @@ export async function updateAcademicYear(
   id: string,
   data: UpdateAcademicYearRequest
 ): Promise<{ data: AcademicYear }> {
-  const response = await fetch(`${API_BASE}/academic-years/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/academic-years/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -128,7 +132,7 @@ export async function updateAcademicYear(
 }
 
 export async function deleteAcademicYear(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`${API_BASE}/academic-years/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/academic-years/${id}`, {
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -139,7 +143,7 @@ export async function deleteAcademicYear(id: string): Promise<{ success: boolean
 }
 
 export async function setCurrentAcademicYear(id: string): Promise<{ data: AcademicYear }> {
-  const response = await fetch(`${API_BASE}/academic-years/${id}/set-current`, {
+  const response = await fetchWithAuth(`${API_BASE}/academic-years/${id}/set-current`, {
     method: 'PATCH',
   })
   if (!response.ok) {
@@ -151,7 +155,7 @@ export async function setCurrentAcademicYear(id: string): Promise<{ data: Academ
 // ==================== CLASSES ====================
 
 export async function fetchClasses(): Promise<{ data: ClassSection[] }> {
-  const response = await fetch(`${API_BASE}/classes`)
+  const response = await fetchWithAuth(`${API_BASE}/classes`)
   if (!response.ok) {
     throw new Error('Failed to fetch classes')
   }
@@ -161,7 +165,7 @@ export async function fetchClasses(): Promise<{ data: ClassSection[] }> {
 export async function createClass(
   data: CreateClassSectionRequest
 ): Promise<{ data: ClassSection }> {
-  const response = await fetch(`${API_BASE}/classes`, {
+  const response = await fetchWithAuth(`${API_BASE}/classes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -176,7 +180,7 @@ export async function updateClass(
   id: string,
   data: UpdateClassSectionRequest
 ): Promise<{ data: ClassSection }> {
-  const response = await fetch(`${API_BASE}/classes/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/classes/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -188,7 +192,7 @@ export async function updateClass(
 }
 
 export async function deleteClass(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`${API_BASE}/classes/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/classes/${id}`, {
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -200,7 +204,7 @@ export async function deleteClass(id: string): Promise<{ success: boolean }> {
 // ==================== USERS ====================
 
 export async function fetchUsers(): Promise<{ data: SystemUser[] }> {
-  const response = await fetch(`${API_BASE}/users`)
+  const response = await fetchWithAuth(`${API_BASE}/users`)
   if (!response.ok) {
     throw new Error('Failed to fetch users')
   }
@@ -208,7 +212,7 @@ export async function fetchUsers(): Promise<{ data: SystemUser[] }> {
 }
 
 export async function createUser(data: CreateUserRequest): Promise<{ data: SystemUser }> {
-  const response = await fetch(`${API_BASE}/users`, {
+  const response = await fetchWithAuth(`${API_BASE}/users`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -224,7 +228,7 @@ export async function updateUser(
   id: string,
   data: UpdateUserRequest
 ): Promise<{ data: SystemUser }> {
-  const response = await fetch(`${API_BASE}/users/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/users/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -236,7 +240,7 @@ export async function updateUser(
 }
 
 export async function deleteUser(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`${API_BASE}/users/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/users/${id}`, {
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -247,7 +251,7 @@ export async function deleteUser(id: string): Promise<{ success: boolean }> {
 }
 
 export async function toggleUserStatus(id: string): Promise<{ data: SystemUser }> {
-  const response = await fetch(`${API_BASE}/users/${id}/toggle-status`, {
+  const response = await fetchWithAuth(`${API_BASE}/users/${id}/toggle-status`, {
     method: 'PATCH',
   })
   if (!response.ok) {
@@ -260,7 +264,7 @@ export async function toggleUserStatus(id: string): Promise<{ data: SystemUser }
 // ==================== NOTIFICATIONS ====================
 
 export async function fetchNotificationPreferences(): Promise<{ data: NotificationPreferences }> {
-  const response = await fetch(`${API_BASE}/notifications`)
+  const response = await fetchWithAuth(`${API_BASE}/notifications`)
   if (!response.ok) {
     throw new Error('Failed to fetch notification preferences')
   }
@@ -270,7 +274,7 @@ export async function fetchNotificationPreferences(): Promise<{ data: Notificati
 export async function updateNotificationPreferences(
   data: UpdateNotificationPreferencesRequest
 ): Promise<{ data: NotificationPreferences }> {
-  const response = await fetch(`${API_BASE}/notifications`, {
+  const response = await fetchWithAuth(`${API_BASE}/notifications`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -284,7 +288,7 @@ export async function updateNotificationPreferences(
 // ==================== BACKUP ====================
 
 export async function fetchBackupConfig(): Promise<{ data: BackupConfig }> {
-  const response = await fetch(`${API_BASE}/backup`)
+  const response = await fetchWithAuth(`${API_BASE}/backup`)
   if (!response.ok) {
     throw new Error('Failed to fetch backup configuration')
   }
@@ -294,7 +298,7 @@ export async function fetchBackupConfig(): Promise<{ data: BackupConfig }> {
 export async function updateBackupConfig(
   data: UpdateBackupConfigRequest
 ): Promise<{ data: BackupConfig }> {
-  const response = await fetch(`${API_BASE}/backup`, {
+  const response = await fetchWithAuth(`${API_BASE}/backup`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -310,7 +314,7 @@ export async function triggerBackup(): Promise<{
   message: string
   lastBackupAt: string
 }> {
-  const response = await fetch(`${API_BASE}/backup/trigger`, {
+  const response = await fetchWithAuth(`${API_BASE}/backup/trigger`, {
     method: 'POST',
   })
   if (!response.ok) {
@@ -322,7 +326,7 @@ export async function triggerBackup(): Promise<{
 // ==================== THEME ====================
 
 export async function fetchThemeConfig(): Promise<{ data: ThemeConfig }> {
-  const response = await fetch(`${API_BASE}/theme`)
+  const response = await fetchWithAuth(`${API_BASE}/theme`)
   if (!response.ok) {
     throw new Error('Failed to fetch theme configuration')
   }
@@ -332,7 +336,7 @@ export async function fetchThemeConfig(): Promise<{ data: ThemeConfig }> {
 export async function updateThemeConfig(
   data: UpdateThemeConfigRequest
 ): Promise<{ data: ThemeConfig }> {
-  const response = await fetch(`${API_BASE}/theme`, {
+  const response = await fetchWithAuth(`${API_BASE}/theme`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -358,7 +362,7 @@ export async function fetchAuditLogs(params?: {
   if (params?.search) qs.set('search', params.search)
   if (params?.page) qs.set('page', String(params.page))
   if (params?.limit) qs.set('limit', String(params.limit))
-  const response = await fetch(`${API_BASE}/audit-log?${qs}`)
+  const response = await fetchWithAuth(`${API_BASE}/audit-log?${qs}`)
   if (!response.ok) throw new Error('Failed to fetch audit logs')
   return response.json()
 }
@@ -372,7 +376,7 @@ export async function fetchCalendarEvents(params?: {
   const qs = new URLSearchParams()
   if (params?.type) qs.set('type', params.type)
   if (params?.month) qs.set('month', params.month)
-  const response = await fetch(`${API_BASE}/calendar?${qs}`)
+  const response = await fetchWithAuth(`${API_BASE}/calendar?${qs}`)
   if (!response.ok) throw new Error('Failed to fetch calendar events')
   return response.json()
 }
@@ -380,7 +384,7 @@ export async function fetchCalendarEvents(params?: {
 export async function createCalendarEvent(
   data: CreateCalendarEventRequest
 ): Promise<{ data: CalendarEvent }> {
-  const response = await fetch(`${API_BASE}/calendar`, {
+  const response = await fetchWithAuth(`${API_BASE}/calendar`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -393,7 +397,7 @@ export async function updateCalendarEvent(
   id: string,
   data: Partial<CalendarEvent>
 ): Promise<{ data: CalendarEvent }> {
-  const response = await fetch(`${API_BASE}/calendar/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/calendar/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -403,7 +407,7 @@ export async function updateCalendarEvent(
 }
 
 export async function deleteCalendarEvent(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`${API_BASE}/calendar/${id}`, { method: 'DELETE' })
+  const response = await fetchWithAuth(`${API_BASE}/calendar/${id}`, { method: 'DELETE' })
   if (!response.ok) throw new Error('Failed to delete calendar event')
   return response.json()
 }
@@ -415,13 +419,13 @@ export async function fetchEmailTemplates(params?: {
 }): Promise<{ data: EmailTemplate[] }> {
   const qs = new URLSearchParams()
   if (params?.category) qs.set('category', params.category)
-  const response = await fetch(`${API_BASE}/email-templates?${qs}`)
+  const response = await fetchWithAuth(`${API_BASE}/email-templates?${qs}`)
   if (!response.ok) throw new Error('Failed to fetch email templates')
   return response.json()
 }
 
 export async function fetchEmailTemplate(id: string): Promise<{ data: EmailTemplate }> {
-  const response = await fetch(`${API_BASE}/email-templates/${id}`)
+  const response = await fetchWithAuth(`${API_BASE}/email-templates/${id}`)
   if (!response.ok) throw new Error('Failed to fetch email template')
   return response.json()
 }
@@ -429,7 +433,7 @@ export async function fetchEmailTemplate(id: string): Promise<{ data: EmailTempl
 export async function createEmailTemplate(
   data: CreateEmailTemplateRequest
 ): Promise<{ data: EmailTemplate }> {
-  const response = await fetch(`${API_BASE}/email-templates`, {
+  const response = await fetchWithAuth(`${API_BASE}/email-templates`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -442,7 +446,7 @@ export async function updateEmailTemplate(
   id: string,
   data: UpdateEmailTemplateRequest
 ): Promise<{ data: EmailTemplate }> {
-  const response = await fetch(`${API_BASE}/email-templates/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/email-templates/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -452,7 +456,7 @@ export async function updateEmailTemplate(
 }
 
 export async function deleteEmailTemplate(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`${API_BASE}/email-templates/${id}`, { method: 'DELETE' })
+  const response = await fetchWithAuth(`${API_BASE}/email-templates/${id}`, { method: 'DELETE' })
   if (!response.ok) throw new Error('Failed to delete email template')
   return response.json()
 }

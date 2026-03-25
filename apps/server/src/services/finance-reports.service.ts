@@ -4,12 +4,12 @@ import { paymentModeReverse, paymentStatusReverse } from './student-fee.service.
 
 // ==================== Collection Report ====================
 
-export async function getCollectionReport(query: {
+export async function getCollectionReport(schoolId: string, query: {
   startDate?: string
   endDate?: string
   academicYear?: string
 }) {
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
   if (query.startDate || query.endDate) {
     where.collectedAt = {}
     if (query.startDate) where.collectedAt.gte = new Date(query.startDate)
@@ -67,30 +67,39 @@ export async function getCollectionReport(query: {
     byDate[dateStr].total += amount
   }
 
+  // Build byPaymentMode as Record<string, number> for frontend
+  const byPaymentModeRecord: Record<string, number> = {}
+  for (const [mode, data] of Object.entries(byPaymentMode)) {
+    byPaymentModeRecord[mode] = data.total
+  }
+
   return {
-    totalAmount,
+    totalCollected: totalAmount,
     totalCount,
-    byPaymentMode: Object.entries(byPaymentMode).map(([mode, data]) => ({
-      paymentMode: mode, ...data,
-    })),
+    dateRange: {
+      from: query.startDate || '',
+      to: query.endDate || '',
+    },
+    byPaymentMode: byPaymentModeRecord,
     byFeeType: Object.entries(byFeeType).map(([name, data]) => ({
-      feeType: name, ...data,
+      feeTypeName: name, amount: data.total,
     })),
     byClass: Object.entries(byClass).map(([name, data]) => ({
-      class: name, ...data,
+      className: name, amount: data.total,
     })),
-    daily: Object.entries(byDate)
+    dailyCollections: Object.entries(byDate)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, data]) => ({ date, ...data })),
+      .map(([date, data]) => ({ date, amount: data.total })),
   }
 }
 
 // ==================== Due Report ====================
 
-export async function getDueReport(query: {
+export async function getDueReport(schoolId: string, query: {
   academicYear?: string
 }) {
   const where: any = {
+    organizationId: schoolId,
     status: { in: ['fps_pending', 'fps_partial', 'fps_overdue'] },
   }
   if (query.academicYear) where.academicYear = query.academicYear
@@ -98,7 +107,7 @@ export async function getDueReport(query: {
   const fees = await prisma.studentFee.findMany({
     where,
     include: {
-      student: { include: { class: true } },
+      student: { include: { class: true, section: true, parent: true } },
       feeStructure: { include: { feeType: true } },
     },
   })
@@ -113,15 +122,30 @@ export async function getDueReport(query: {
     '61-90': { count: 0, amount: 0 },       // 61-90 days
     '90+': { count: 0, amount: 0 },         // 90+ days
   }
-  // Top defaulters
-  const studentDues: Record<string, { name: string; class: string; outstanding: number }> = {}
+  // Top defaulters — collect full OutstandingDue shape
+  const studentDues: Record<string, {
+    studentName: string
+    studentClass: string
+    studentSection: string
+    admissionNumber: string
+    totalDue: number
+    oldestDueDate: Date | null
+    feeBreakdown: { feeTypeName: string; amount: number; dueDate: Date }[]
+    parentPhone: string
+    parentEmail: string
+  }> = {}
 
   const now = Date.now()
+  let totalOutstanding = 0
+  const studentsWithDues = new Set<string>()
 
   for (const fee of fees) {
     const due = Number(fee.totalAmount) - Number(fee.discountAmount)
     const outstanding = due - Number(fee.paidAmount)
     const className = fee.student?.class?.name || 'Unknown'
+
+    totalOutstanding += outstanding
+    studentsWithDues.add(fee.studentId)
 
     // By class
     if (!byClass[className]) {
@@ -154,26 +178,56 @@ export async function getDueReport(query: {
     // Top defaulters
     if (!studentDues[fee.studentId]) {
       studentDues[fee.studentId] = {
-        name: fee.student ? `${fee.student.firstName} ${fee.student.lastName}` : 'Unknown',
-        class: className,
-        outstanding: 0,
+        studentName: fee.student ? `${fee.student.firstName} ${fee.student.lastName}` : 'Unknown',
+        studentClass: className,
+        studentSection: (fee.student as any)?.section?.name || '',
+        admissionNumber: fee.student?.admissionNumber || '',
+        totalDue: 0,
+        oldestDueDate: null,
+        feeBreakdown: [],
+        parentPhone: (fee.student as any)?.parent?.guardianPhone || '',
+        parentEmail: (fee.student as any)?.parent?.guardianEmail || '',
       }
     }
-    studentDues[fee.studentId].outstanding += outstanding
+    const entry = studentDues[fee.studentId]
+    entry.totalDue += outstanding
+    entry.feeBreakdown.push({
+      feeTypeName: fee.feeStructure?.feeType?.name || 'Unknown',
+      amount: outstanding,
+      dueDate: fee.dueDate,
+    })
+    if (!entry.oldestDueDate || fee.dueDate < entry.oldestDueDate) {
+      entry.oldestDueDate = fee.dueDate
+    }
   }
 
   const topDefaulters = Object.entries(studentDues)
-    .map(([id, data]) => ({ studentId: id, ...data }))
-    .sort((a, b) => b.outstanding - a.outstanding)
+    .map(([id, data]) => ({
+      id,
+      studentId: id,
+      studentName: data.studentName,
+      studentClass: data.studentClass,
+      studentSection: data.studentSection,
+      admissionNumber: data.admissionNumber,
+      totalDue: data.totalDue,
+      daysOverdue: data.oldestDueDate
+        ? Math.max(0, Math.floor((now - new Date(data.oldestDueDate).getTime()) / (1000 * 60 * 60 * 24)))
+        : 0,
+      feeBreakdown: data.feeBreakdown,
+      parentPhone: data.parentPhone,
+      parentEmail: data.parentEmail,
+      lastReminderSentAt: null,
+    }))
+    .sort((a, b) => b.totalDue - a.totalDue)
     .slice(0, 10)
 
   return {
+    totalOutstanding,
+    totalStudentsWithDues: studentsWithDues.size,
     byClass: Object.entries(byClass).map(([name, data]) => ({
-      class: name,
-      studentCount: data.studentCount.size,
-      totalDue: data.totalDue,
-      totalPaid: data.totalPaid,
-      outstanding: data.outstanding,
+      className: name,
+      amount: data.outstanding,
+      count: data.studentCount.size,
     })),
     byAgeingBucket: Object.entries(ageingBuckets).map(([bucket, data]) => ({
       bucket, ...data,
@@ -184,13 +238,13 @@ export async function getDueReport(query: {
 
 // ==================== Financial Summary ====================
 
-export async function getFinancialSummary(query: {
+export async function getFinancialSummary(schoolId: string, query: {
   academicYear?: string
   startDate?: string
   endDate?: string
 }) {
   // Collections (payments)
-  const paymentWhere: any = {}
+  const paymentWhere: any = { organizationId: schoolId }
   if (query.startDate || query.endDate) {
     paymentWhere.collectedAt = {}
     if (query.startDate) paymentWhere.collectedAt.gte = new Date(query.startDate)
@@ -203,7 +257,7 @@ export async function getFinancialSummary(query: {
   })
 
   // Expenses
-  const expenseWhere: any = { status: 'es_paid' }
+  const expenseWhere: any = { organizationId: schoolId, status: 'es_paid' }
   if (query.startDate || query.endDate) {
     expenseWhere.paidAt = {}
     if (query.startDate) expenseWhere.paidAt.gte = new Date(query.startDate)
@@ -254,44 +308,43 @@ export async function getFinancialSummary(query: {
 
 // ==================== Dashboard Stats ====================
 
-export async function getFinanceStats() {
+export async function getFinanceStats(schoolId: string) {
+  // thisMonthCollection: payments where collectedAt >= start of current month
+  const now = new Date()
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
   const [
     totalStudentFees,
-    paidFees,
     pendingFees,
     overdueFees,
     totalPayments,
-    totalExpenses,
     pendingExpenses,
+    thisMonthPayments,
+    overdueStudentCount,
   ] = await Promise.all([
-    prisma.studentFee.aggregate({ _sum: { totalAmount: true } }),
+    prisma.studentFee.aggregate({ where: { organizationId: schoolId }, _sum: { totalAmount: true } }),
     prisma.studentFee.aggregate({
-      where: { status: 'fps_paid' },
-      _sum: { paidAmount: true },
-      _count: true,
-    }),
-    prisma.studentFee.aggregate({
-      where: { status: { in: ['fps_pending', 'fps_partial'] } },
+      where: { organizationId: schoolId, status: { in: ['fps_pending', 'fps_partial'] } },
       _sum: { totalAmount: true, paidAmount: true, discountAmount: true },
-      _count: true,
     }),
     prisma.studentFee.aggregate({
-      where: { status: 'fps_overdue' },
+      where: { organizationId: schoolId, status: 'fps_overdue' },
       _sum: { totalAmount: true, paidAmount: true, discountAmount: true },
-      _count: true,
     }),
-    prisma.payment.aggregate({ _sum: { amount: true }, _count: true }),
-    prisma.expense.aggregate({
-      where: { status: 'es_paid' },
+    prisma.payment.aggregate({ where: { organizationId: schoolId }, _sum: { amount: true } }),
+    prisma.expense.count({ where: { organizationId: schoolId, status: 'es_pending_approval' } }),
+    prisma.payment.aggregate({
+      where: { organizationId: schoolId, collectedAt: { gte: startOfMonth } },
       _sum: { amount: true },
-      _count: true,
     }),
-    prisma.expense.count({ where: { status: 'es_pending_approval' } }),
+    prisma.studentFee.groupBy({
+      by: ['studentId'],
+      where: { organizationId: schoolId, status: 'fps_overdue' },
+    }),
   ])
 
   const totalFeeAmount = Number(totalStudentFees._sum.totalAmount || 0)
   const totalCollected = Number(totalPayments._sum.amount || 0)
-  const totalExpenseAmount = Number(totalExpenses._sum.amount || 0)
 
   const pendingAmount = Number(pendingFees._sum.totalAmount || 0) -
     Number(pendingFees._sum.paidAmount || 0) -
@@ -302,17 +355,11 @@ export async function getFinanceStats() {
     Number(overdueFees._sum.discountAmount || 0)
 
   return {
-    totalFeeAmount,
     totalCollected,
-    totalExpenseAmount,
-    netIncome: totalCollected - totalExpenseAmount,
+    totalPending: pendingAmount + overdueAmount,
+    thisMonthCollection: Number(thisMonthPayments._sum.amount || 0),
     collectionRate: totalFeeAmount > 0 ? Math.round((totalCollected / totalFeeAmount) * 100) : 0,
-    pendingAmount,
-    pendingCount: pendingFees._count || 0,
-    overdueAmount,
-    overdueCount: overdueFees._count || 0,
-    totalPaymentCount: totalPayments._count || 0,
-    totalExpenseCount: totalExpenses._count || 0,
-    pendingExpenseCount: pendingExpenses,
+    pendingExpenseApprovals: pendingExpenses,
+    overdueStudentsCount: overdueStudentCount.length,
   }
 }

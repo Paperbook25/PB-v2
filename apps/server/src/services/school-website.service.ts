@@ -7,42 +7,44 @@ import type {
 
 // ==================== Pages ====================
 
-export async function listPages() {
+export async function listPages(schoolId: string) {
   return prisma.websitePage.findMany({
+    where: { organizationId: schoolId },
     orderBy: { sortOrder: 'asc' },
     include: { sections: { orderBy: { sortOrder: 'asc' } } },
   })
 }
 
-export async function getPageById(id: string) {
-  const page = await prisma.websitePage.findUnique({
-    where: { id },
+export async function getPageById(schoolId: string, id: string) {
+  const page = await prisma.websitePage.findFirst({
+    where: { id, organizationId: schoolId },
     include: { sections: { orderBy: { sortOrder: 'asc' } } },
   })
   if (!page) throw new Error('Page not found')
   return page
 }
 
-export async function getPublishedPageBySlug(slug: string) {
-  const page = await prisma.websitePage.findUnique({
-    where: { slug },
+export async function getPublishedPageBySlug(schoolId: string, slug: string) {
+  const page = await prisma.websitePage.findFirst({
+    where: { slug, organizationId: schoolId },
     include: { sections: { where: { isVisible: true }, orderBy: { sortOrder: 'asc' } } },
   })
   if (!page || !page.isPublished) throw new Error('Page not found')
   return page
 }
 
-export async function listPublishedPages() {
+export async function listPublishedPages(schoolId: string) {
   return prisma.websitePage.findMany({
-    where: { isPublished: true },
+    where: { organizationId: schoolId, isPublished: true },
     orderBy: { sortOrder: 'asc' },
     select: { id: true, slug: true, title: true, sortOrder: true },
   })
 }
 
-export async function createPage(input: CreatePageInput) {
+export async function createPage(schoolId: string, input: CreatePageInput) {
   return prisma.websitePage.create({
     data: {
+      organizationId: schoolId,
       slug: input.slug,
       title: input.title,
       sortOrder: input.sortOrder ?? 0,
@@ -50,26 +52,34 @@ export async function createPage(input: CreatePageInput) {
   })
 }
 
-export async function updatePage(id: string, input: UpdatePageInput) {
+export async function updatePage(schoolId: string, id: string, input: UpdatePageInput) {
+  const existing = await prisma.websitePage.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw new Error('Page not found')
   return prisma.websitePage.update({
     where: { id },
     data: input,
   })
 }
 
-export async function deletePage(id: string) {
+export async function deletePage(schoolId: string, id: string) {
+  const existing = await prisma.websitePage.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw new Error('Page not found')
   await prisma.websitePage.delete({ where: { id } })
   return { success: true }
 }
 
-export async function publishPage(id: string) {
+export async function publishPage(schoolId: string, id: string) {
+  const existing = await prisma.websitePage.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw new Error('Page not found')
   return prisma.websitePage.update({
     where: { id },
     data: { isPublished: true },
   })
 }
 
-export async function unpublishPage(id: string) {
+export async function unpublishPage(schoolId: string, id: string) {
+  const existing = await prisma.websitePage.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw new Error('Page not found')
   return prisma.websitePage.update({
     where: { id },
     data: { isPublished: false },
@@ -78,7 +88,11 @@ export async function unpublishPage(id: string) {
 
 // ==================== Sections ====================
 
-export async function addSection(pageId: string, input: CreateSectionInput) {
+export async function addSection(schoolId: string, pageId: string, input: CreateSectionInput) {
+  // Verify the page belongs to this school
+  const page = await prisma.websitePage.findFirst({ where: { id: pageId, organizationId: schoolId } })
+  if (!page) throw new Error('Page not found')
+
   // Auto-set sortOrder if not provided
   const maxSort = await prisma.websiteSection.aggregate({
     where: { pageId },
@@ -97,7 +111,13 @@ export async function addSection(pageId: string, input: CreateSectionInput) {
   })
 }
 
-export async function updateSection(id: string, input: UpdateSectionInput) {
+export async function updateSection(schoolId: string, id: string, input: UpdateSectionInput) {
+  // Verify the section belongs to a page owned by this school
+  const section = await prisma.websiteSection.findFirst({
+    where: { id, page: { organizationId: schoolId } },
+  })
+  if (!section) throw new Error('Section not found')
+
   return prisma.websiteSection.update({
     where: { id },
     data: {
@@ -108,12 +128,21 @@ export async function updateSection(id: string, input: UpdateSectionInput) {
   })
 }
 
-export async function deleteSection(id: string) {
+export async function deleteSection(schoolId: string, id: string) {
+  const section = await prisma.websiteSection.findFirst({
+    where: { id, page: { organizationId: schoolId } },
+  })
+  if (!section) throw new Error('Section not found')
+
   await prisma.websiteSection.delete({ where: { id } })
   return { success: true }
 }
 
-export async function reorderSections(pageId: string, input: ReorderSectionsInput) {
+export async function reorderSections(schoolId: string, pageId: string, input: ReorderSectionsInput) {
+  // Verify the page belongs to this school
+  const page = await prisma.websitePage.findFirst({ where: { id: pageId, organizationId: schoolId } })
+  if (!page) throw new Error('Page not found')
+
   await prisma.$transaction(
     input.sections.map(({ id, sortOrder }) =>
       prisma.websiteSection.update({
@@ -127,16 +156,16 @@ export async function reorderSections(pageId: string, input: ReorderSectionsInpu
 
 // ==================== Settings ====================
 
-export async function getSettings() {
-  let settings = await prisma.websiteSettings.findFirst()
+export async function getSettings(schoolId: string) {
+  let settings = await prisma.websiteSettings.findFirst({ where: { organizationId: schoolId } })
   if (!settings) {
-    settings = await prisma.websiteSettings.create({ data: {} })
+    settings = await prisma.websiteSettings.create({ data: { organizationId: schoolId } })
   }
   return settings
 }
 
-export async function updateSettings(input: UpdateSettingsInput) {
-  const existing = await prisma.websiteSettings.findFirst()
+export async function updateSettings(schoolId: string, input: UpdateSettingsInput) {
+  const existing = await prisma.websiteSettings.findFirst({ where: { organizationId: schoolId } })
   if (existing) {
     return prisma.websiteSettings.update({
       where: { id: existing.id },
@@ -156,6 +185,7 @@ export async function updateSettings(input: UpdateSettingsInput) {
   }
   return prisma.websiteSettings.create({
     data: {
+      organizationId: schoolId,
       template: input.template ?? 'classic',
       primaryColor: input.primaryColor ?? '#1e40af',
       accentColor: input.accentColor ?? '#f59e0b',
@@ -172,15 +202,17 @@ export async function updateSettings(input: UpdateSettingsInput) {
 
 // ==================== Media ====================
 
-export async function listMedia() {
+export async function listMedia(schoolId: string) {
   return prisma.websiteMedia.findMany({
+    where: { organizationId: schoolId },
     orderBy: { createdAt: 'desc' },
   })
 }
 
-export async function uploadMedia(input: UploadMediaInput) {
+export async function uploadMedia(schoolId: string, input: UploadMediaInput) {
   return prisma.websiteMedia.create({
     data: {
+      organizationId: schoolId,
       fileName: input.fileName,
       url: input.url,
       mimeType: input.mimeType,
@@ -190,18 +222,20 @@ export async function uploadMedia(input: UploadMediaInput) {
   })
 }
 
-export async function deleteMedia(id: string) {
+export async function deleteMedia(schoolId: string, id: string) {
+  const existing = await prisma.websiteMedia.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw new Error('Media not found')
   await prisma.websiteMedia.delete({ where: { id } })
   return { success: true }
 }
 
 // ==================== Dynamic Data Fetchers ====================
 
-export async function fetchEventsData(showCount = 5, showPast = false) {
+export async function fetchEventsData(schoolId: string, showCount = 5, showPast = false) {
   try {
     const now = new Date()
     const events = await prisma.calendarEvent.findMany({
-      where: showPast ? {} : { startDate: { gte: now } },
+      where: showPast ? { organizationId: schoolId } : { organizationId: schoolId, startDate: { gte: now } },
       orderBy: { startDate: 'asc' },
       take: showCount,
       select: { id: true, title: true, description: true, startDate: true, endDate: true, type: true },
@@ -212,10 +246,10 @@ export async function fetchEventsData(showCount = 5, showPast = false) {
   }
 }
 
-export async function fetchFacultyData() {
+export async function fetchFacultyData(schoolId: string) {
   try {
     const staff = await prisma.staff.findMany({
-      where: { status: 'active' },
+      where: { organizationId: schoolId, status: 'active' },
       select: { id: true, firstName: true, lastName: true, designation: true, specialization: true, photoUrl: true },
       orderBy: { firstName: 'asc' },
     })
@@ -231,9 +265,9 @@ export async function fetchFacultyData() {
   }
 }
 
-export async function fetchSchoolProfile() {
+export async function fetchSchoolProfile(schoolId: string) {
   try {
-    const profile = await prisma.schoolProfile.findFirst()
+    const profile = await prisma.schoolProfile.findFirst({ where: { organizationId: schoolId } })
     return profile
   } catch {
     return null

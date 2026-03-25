@@ -64,6 +64,10 @@ import type {
 
 const API_BASE = '/api'
 
+function fetchWithAuth(url: string, options?: RequestInit): Promise<Response> {
+  return fetch(url, { ...options, credentials: 'include' })
+}
+
 // ==================== ATTENDANCE ====================
 
 export async function fetchClassAttendance(
@@ -72,7 +76,7 @@ export async function fetchClassAttendance(
   section: string
 ): Promise<{ data: ClassAttendance }> {
   const params = new URLSearchParams({ date, className, section })
-  const response = await fetch(`${API_BASE}/attendance?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch attendance')
   return response.json()
 }
@@ -83,7 +87,7 @@ export async function fetchStudentsForAttendance(
   date: string
 ): Promise<{ data: AttendanceStudent[] }> {
   const params = new URLSearchParams({ className, section, date })
-  const response = await fetch(`${API_BASE}/attendance/students?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/students?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch students')
   return response.json()
 }
@@ -91,7 +95,7 @@ export async function fetchStudentsForAttendance(
 export async function markAttendance(
   data: MarkAttendanceRequest
 ): Promise<{ success: boolean; markedCount: number }> {
-  const response = await fetch(`${API_BASE}/attendance`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -111,7 +115,7 @@ export async function fetchAttendanceHistory(
   if (filters.studentId) params.set('studentId', filters.studentId)
   if (filters.status) params.set('status', filters.status)
 
-  const response = await fetch(`${API_BASE}/attendance/history?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/history?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch attendance history')
   return response.json()
 }
@@ -125,7 +129,7 @@ export async function fetchStudentAttendance(
   const params = new URLSearchParams()
   if (academicYear) params.set('academicYear', academicYear)
 
-  const response = await fetch(`${API_BASE}/students/${studentId}/attendance?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/students/${studentId}/attendance?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch student attendance')
   return response.json()
 }
@@ -157,7 +161,7 @@ export async function fetchAttendanceReport(
   endDate: string
 ): Promise<{ data: AttendanceReport[] }> {
   const params = new URLSearchParams({ className, section, startDate, endDate })
-  const response = await fetch(`${API_BASE}/attendance/report?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/report?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch attendance report')
   return response.json()
 }
@@ -175,7 +179,7 @@ export async function fetchClassAttendanceSummary(
   }
 }> {
   const params = new URLSearchParams({ className, section, month, year })
-  const response = await fetch(`${API_BASE}/attendance/summary?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/summary?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch attendance summary')
   return response.json()
 }
@@ -190,7 +194,7 @@ export async function fetchLeaveRequests(
   if (filters?.className) params.set('className', filters.className)
   if (filters?.section) params.set('section', filters.section)
 
-  const response = await fetch(`${API_BASE}/attendance/leaves?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/leaves?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch leave requests')
   return response.json()
 }
@@ -198,7 +202,7 @@ export async function fetchLeaveRequests(
 export async function createLeaveRequest(
   data: LeaveRequestCreate
 ): Promise<{ data: LeaveRequest }> {
-  const response = await fetch(`${API_BASE}/attendance/leaves`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/leaves`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -211,7 +215,7 @@ export async function updateLeaveRequest(
   id: string,
   data: LeaveRequestUpdate
 ): Promise<{ data: LeaveRequest }> {
-  const response = await fetch(`${API_BASE}/attendance/leaves/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/leaves/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -223,7 +227,7 @@ export async function updateLeaveRequest(
 export async function fetchStudentLeaves(
   studentId: string
 ): Promise<{ data: LeaveRequest[] }> {
-  const response = await fetch(`${API_BASE}/students/${studentId}/leaves`)
+  const response = await fetchWithAuth(`${API_BASE}/students/${studentId}/leaves`)
   if (!response.ok) throw new Error('Failed to fetch student leaves')
   return response.json()
 }
@@ -235,7 +239,7 @@ export async function fetchPeriodDefinitions(
   section: string
 ): Promise<PeriodDefinition[]> {
   const params = new URLSearchParams({ className, section })
-  const response = await fetch(`${API_BASE}/attendance/periods/definitions?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/periods/definitions?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch period definitions')
   const json = await response.json()
   return json.data
@@ -248,7 +252,7 @@ export async function fetchPeriodAttendance(
   period: PeriodNumber
 ): Promise<PeriodWiseAttendance> {
   const params = new URLSearchParams({ date, className, section, period: String(period) })
-  const response = await fetch(`${API_BASE}/attendance/periods?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/periods?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch period attendance')
   const json = await response.json()
   return json.data
@@ -257,7 +261,7 @@ export async function fetchPeriodAttendance(
 export async function markPeriodAttendance(
   data: MarkPeriodAttendanceRequest
 ): Promise<{ success: boolean; markedCount: number }> {
-  const response = await fetch(`${API_BASE}/attendance/periods`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/periods`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -271,7 +275,7 @@ export async function fetchStudentPeriodSummary(
   section: string
 ): Promise<StudentPeriodSummary[]> {
   const params = new URLSearchParams({ className, section })
-  const response = await fetch(`${API_BASE}/attendance/periods/summary?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/periods/summary?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch period summary')
   const json = await response.json()
   return json.data
@@ -280,7 +284,7 @@ export async function fetchStudentPeriodSummary(
 // ==================== SHORTAGE ALERTS ====================
 
 export async function fetchAttendanceThresholds(): Promise<AttendanceThreshold> {
-  const response = await fetch(`${API_BASE}/attendance/thresholds`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/thresholds`)
   if (!response.ok) throw new Error('Failed to fetch thresholds')
   const json = await response.json()
   return json.data
@@ -289,7 +293,7 @@ export async function fetchAttendanceThresholds(): Promise<AttendanceThreshold> 
 export async function updateAttendanceThresholds(
   data: UpdateThresholdRequest
 ): Promise<AttendanceThreshold> {
-  const response = await fetch(`${API_BASE}/attendance/thresholds`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/thresholds`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -305,14 +309,14 @@ export async function fetchAttendanceAlerts(
   const params = new URLSearchParams()
   if (filters?.severity) params.set('severity', filters.severity)
   if (filters?.type) params.set('type', filters.type)
-  const response = await fetch(`${API_BASE}/attendance/alerts?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/alerts?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch alerts')
   const json = await response.json()
   return json.data
 }
 
 export async function acknowledgeAlert(id: string): Promise<AttendanceAlert> {
-  const response = await fetch(`${API_BASE}/attendance/alerts/${id}/acknowledge`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/alerts/${id}/acknowledge`, {
     method: 'POST',
   })
   if (!response.ok) throw new Error('Failed to acknowledge alert')
@@ -323,7 +327,7 @@ export async function acknowledgeAlert(id: string): Promise<AttendanceAlert> {
 // ==================== LATE DETECTION ====================
 
 export async function fetchLatePolicy(): Promise<LatePolicy> {
-  const response = await fetch(`${API_BASE}/attendance/late-policy`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/late-policy`)
   if (!response.ok) throw new Error('Failed to fetch late policy')
   const json = await response.json()
   return json.data
@@ -332,7 +336,7 @@ export async function fetchLatePolicy(): Promise<LatePolicy> {
 export async function updateLatePolicy(
   data: UpdateLatePolicyRequest
 ): Promise<LatePolicy> {
-  const response = await fetch(`${API_BASE}/attendance/late-policy`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/late-policy`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -348,14 +352,14 @@ export async function fetchLateRecords(
   const params = new URLSearchParams()
   if (filters?.className) params.set('className', filters.className)
   if (filters?.date) params.set('date', filters.date)
-  const response = await fetch(`${API_BASE}/attendance/late-records?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/late-records?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch late records')
   const json = await response.json()
   return json.data
 }
 
 export async function fetchLatePatterns(): Promise<LatePatternStudent[]> {
-  const response = await fetch(`${API_BASE}/attendance/late-patterns`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/late-patterns`)
   if (!response.ok) throw new Error('Failed to fetch late patterns')
   const json = await response.json()
   return json.data
@@ -364,7 +368,7 @@ export async function fetchLatePatterns(): Promise<LatePatternStudent[]> {
 // ==================== ABSENCE NOTIFICATIONS ====================
 
 export async function fetchNotificationConfig(): Promise<NotificationConfig[]> {
-  const response = await fetch(`${API_BASE}/attendance/notifications/config`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/notifications/config`)
   if (!response.ok) throw new Error('Failed to fetch notification config')
   const json = await response.json()
   return json.data
@@ -374,7 +378,7 @@ export async function updateNotificationConfig(
   channel: NotificationChannel,
   data: UpdateNotificationConfigRequest
 ): Promise<NotificationConfig> {
-  const response = await fetch(`${API_BASE}/attendance/notifications/config/${channel}`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/notifications/config/${channel}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -390,14 +394,14 @@ export async function fetchNotificationHistory(
   const params = new URLSearchParams()
   if (filters?.channel) params.set('channel', filters.channel)
   if (filters?.eventType) params.set('eventType', filters.eventType)
-  const response = await fetch(`${API_BASE}/attendance/notifications/history?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/notifications/history?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch notification history')
   const json = await response.json()
   return json.data
 }
 
 export async function fetchNotificationStats(): Promise<NotificationStats> {
-  const response = await fetch(`${API_BASE}/attendance/notifications/stats`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/notifications/stats`)
   if (!response.ok) throw new Error('Failed to fetch notification stats')
   const json = await response.json()
   return json.data
@@ -407,7 +411,7 @@ export async function sendTestNotification(
   channel: NotificationChannel,
   recipient: string
 ): Promise<{ id: string; status: string }> {
-  const response = await fetch(`${API_BASE}/attendance/notifications/test`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/notifications/test`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ channel, recipient }),
@@ -420,7 +424,7 @@ export async function sendTestNotification(
 // ==================== BIOMETRIC DEVICES ====================
 
 export async function fetchBiometricDevices(): Promise<BiometricDevice[]> {
-  const response = await fetch(`${API_BASE}/biometric/devices`)
+  const response = await fetchWithAuth(`${API_BASE}/biometric/devices`)
   if (!response.ok) throw new Error('Failed to fetch biometric devices')
   const json = await response.json()
   return json.data
@@ -429,7 +433,7 @@ export async function fetchBiometricDevices(): Promise<BiometricDevice[]> {
 export async function registerBiometricDevice(
   data: RegisterDeviceRequest
 ): Promise<BiometricDevice> {
-  const response = await fetch(`${API_BASE}/biometric/devices`, {
+  const response = await fetchWithAuth(`${API_BASE}/biometric/devices`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -443,7 +447,7 @@ export async function updateBiometricDevice(
   id: string,
   data: Partial<BiometricDevice>
 ): Promise<BiometricDevice> {
-  const response = await fetch(`${API_BASE}/biometric/devices/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/biometric/devices/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -458,7 +462,7 @@ export async function fetchBiometricSyncLogs(
 ): Promise<BiometricSyncLog[]> {
   const params = new URLSearchParams()
   if (deviceId) params.set('deviceId', deviceId)
-  const response = await fetch(`${API_BASE}/biometric/sync-logs?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/biometric/sync-logs?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch sync logs')
   const json = await response.json()
   return json.data
@@ -467,7 +471,7 @@ export async function fetchBiometricSyncLogs(
 export async function triggerBiometricSync(
   deviceId: string
 ): Promise<BiometricSyncLog> {
-  const response = await fetch(`${API_BASE}/biometric/devices/${deviceId}/sync`, {
+  const response = await fetchWithAuth(`${API_BASE}/biometric/devices/${deviceId}/sync`, {
     method: 'POST',
   })
   if (!response.ok) throw new Error('Failed to trigger sync')
@@ -483,14 +487,14 @@ export async function fetchGeoFenceZones(
   const params = new URLSearchParams()
   if (filters?.type) params.set('type', filters.type)
   if (filters?.status) params.set('status', filters.status)
-  const response = await fetch(`${API_BASE}/attendance/geofence/zones?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/geofence/zones?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch geo-fence zones')
   const json = await response.json()
   return json.data
 }
 
 export async function fetchGeoFenceZone(id: string): Promise<GeoFenceZone> {
-  const response = await fetch(`${API_BASE}/attendance/geofence/zones/${id}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/geofence/zones/${id}`)
   if (!response.ok) throw new Error('Failed to fetch geo-fence zone')
   const json = await response.json()
   return json.data
@@ -499,7 +503,7 @@ export async function fetchGeoFenceZone(id: string): Promise<GeoFenceZone> {
 export async function createGeoFenceZone(
   data: CreateGeoFenceZoneRequest
 ): Promise<GeoFenceZone> {
-  const response = await fetch(`${API_BASE}/attendance/geofence/zones`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/geofence/zones`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -513,7 +517,7 @@ export async function updateGeoFenceZone(
   id: string,
   data: Partial<CreateGeoFenceZoneRequest>
 ): Promise<GeoFenceZone> {
-  const response = await fetch(`${API_BASE}/attendance/geofence/zones/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/geofence/zones/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -524,7 +528,7 @@ export async function updateGeoFenceZone(
 }
 
 export async function deleteGeoFenceZone(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/attendance/geofence/zones/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/geofence/zones/${id}`, {
     method: 'DELETE',
   })
   if (!response.ok) throw new Error('Failed to delete geo-fence zone')
@@ -536,14 +540,14 @@ export async function fetchFieldTrips(
   const params = new URLSearchParams()
   if (filters?.status) params.set('status', filters.status)
   if (filters?.date) params.set('date', filters.date)
-  const response = await fetch(`${API_BASE}/attendance/field-trips?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/field-trips?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch field trips')
   const json = await response.json()
   return json.data
 }
 
 export async function fetchFieldTrip(id: string): Promise<FieldTrip> {
-  const response = await fetch(`${API_BASE}/attendance/field-trips/${id}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/field-trips/${id}`)
   if (!response.ok) throw new Error('Failed to fetch field trip')
   const json = await response.json()
   return json.data
@@ -552,7 +556,7 @@ export async function fetchFieldTrip(id: string): Promise<FieldTrip> {
 export async function createFieldTrip(
   data: CreateFieldTripRequest
 ): Promise<FieldTrip> {
-  const response = await fetch(`${API_BASE}/attendance/field-trips`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/field-trips`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -566,7 +570,7 @@ export async function updateFieldTrip(
   id: string,
   data: Partial<CreateFieldTripRequest>
 ): Promise<FieldTrip> {
-  const response = await fetch(`${API_BASE}/attendance/field-trips/${id}`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/field-trips/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -579,7 +583,7 @@ export async function updateFieldTrip(
 export async function fetchFieldTripAttendance(
   fieldTripId: string
 ): Promise<FieldTripAttendance[]> {
-  const response = await fetch(`${API_BASE}/attendance/field-trips/${fieldTripId}/attendance`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/field-trips/${fieldTripId}/attendance`)
   if (!response.ok) throw new Error('Failed to fetch field trip attendance')
   const json = await response.json()
   return json.data
@@ -588,7 +592,7 @@ export async function fetchFieldTripAttendance(
 export async function checkInFieldTrip(
   data: FieldTripCheckInRequest
 ): Promise<FieldTripAttendance> {
-  const response = await fetch(`${API_BASE}/attendance/field-trips/check-in`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/field-trips/check-in`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -601,7 +605,7 @@ export async function checkInFieldTrip(
 export async function checkOutFieldTrip(
   data: FieldTripCheckInRequest
 ): Promise<FieldTripAttendance> {
-  const response = await fetch(`${API_BASE}/attendance/field-trips/check-out`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/field-trips/check-out`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -614,7 +618,7 @@ export async function checkOutFieldTrip(
 // ==================== FACIAL RECOGNITION ====================
 
 export async function fetchFacialRecognitionConfig(): Promise<FacialRecognitionConfig> {
-  const response = await fetch(`${API_BASE}/attendance/facial-recognition/config`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/facial-recognition/config`)
   if (!response.ok) throw new Error('Failed to fetch facial recognition config')
   const json = await response.json()
   return json.data
@@ -623,7 +627,7 @@ export async function fetchFacialRecognitionConfig(): Promise<FacialRecognitionC
 export async function updateFacialRecognitionConfig(
   data: UpdateFacialRecognitionConfigRequest
 ): Promise<FacialRecognitionConfig> {
-  const response = await fetch(`${API_BASE}/attendance/facial-recognition/config`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/facial-recognition/config`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -639,14 +643,14 @@ export async function fetchFaceEnrollments(
   const params = new URLSearchParams()
   if (filters?.status) params.set('status', filters.status)
   if (filters?.personType) params.set('personType', filters.personType)
-  const response = await fetch(`${API_BASE}/attendance/facial-recognition/enrollments?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/facial-recognition/enrollments?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch face enrollments')
   const json = await response.json()
   return json.data
 }
 
 export async function fetchFaceEnrollment(personId: string): Promise<FaceEnrollment> {
-  const response = await fetch(`${API_BASE}/attendance/facial-recognition/enrollments/${personId}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/facial-recognition/enrollments/${personId}`)
   if (!response.ok) throw new Error('Failed to fetch face enrollment')
   const json = await response.json()
   return json.data
@@ -655,7 +659,7 @@ export async function fetchFaceEnrollment(personId: string): Promise<FaceEnrollm
 export async function enrollFace(
   data: FaceEnrollmentRequest
 ): Promise<FaceEnrollment> {
-  const response = await fetch(`${API_BASE}/attendance/facial-recognition/enroll`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/facial-recognition/enroll`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -666,7 +670,7 @@ export async function enrollFace(
 }
 
 export async function deleteFaceEnrollment(personId: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/attendance/facial-recognition/enrollments/${personId}`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/facial-recognition/enrollments/${personId}`, {
     method: 'DELETE',
   })
   if (!response.ok) throw new Error('Failed to delete face enrollment')
@@ -680,14 +684,14 @@ export async function fetchFaceMatchLogs(
   if (filters?.deviceId) params.set('deviceId', filters.deviceId)
   if (filters?.startDate) params.set('startDate', filters.startDate)
   if (filters?.endDate) params.set('endDate', filters.endDate)
-  const response = await fetch(`${API_BASE}/attendance/facial-recognition/match-logs?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/facial-recognition/match-logs?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch face match logs')
   const json = await response.json()
   return json.data
 }
 
 export async function fetchFacialRecognitionStats(): Promise<FacialRecognitionStats> {
-  const response = await fetch(`${API_BASE}/attendance/facial-recognition/stats`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/facial-recognition/stats`)
   if (!response.ok) throw new Error('Failed to fetch facial recognition stats')
   const json = await response.json()
   return json.data
@@ -696,7 +700,7 @@ export async function fetchFacialRecognitionStats(): Promise<FacialRecognitionSt
 // ==================== PARENT CHECK-IN ====================
 
 export async function fetchParentCheckInConfig(): Promise<ParentCheckInConfig> {
-  const response = await fetch(`${API_BASE}/attendance/parent-check-in/config`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/parent-check-in/config`)
   if (!response.ok) throw new Error('Failed to fetch parent check-in config')
   const json = await response.json()
   return json.data
@@ -705,7 +709,7 @@ export async function fetchParentCheckInConfig(): Promise<ParentCheckInConfig> {
 export async function updateParentCheckInConfig(
   data: Partial<ParentCheckInConfig>
 ): Promise<ParentCheckInConfig> {
-  const response = await fetch(`${API_BASE}/attendance/parent-check-in/config`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/parent-check-in/config`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -722,7 +726,7 @@ export async function fetchParentCheckIns(
   if (filters?.status) params.set('status', filters.status)
   if (filters?.type) params.set('type', filters.type)
   if (filters?.date) params.set('date', filters.date)
-  const response = await fetch(`${API_BASE}/attendance/parent-check-in?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/parent-check-in?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch parent check-ins')
   const json = await response.json()
   return json.data
@@ -731,7 +735,7 @@ export async function fetchParentCheckIns(
 export async function createParentCheckIn(
   data: ParentCheckInRequest
 ): Promise<ParentCheckIn> {
-  const response = await fetch(`${API_BASE}/attendance/parent-check-in`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/parent-check-in`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -744,7 +748,7 @@ export async function createParentCheckIn(
 export async function verifyParentCheckIn(
   data: VerifyParentCheckInRequest
 ): Promise<ParentCheckIn> {
-  const response = await fetch(`${API_BASE}/attendance/parent-check-in/verify`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/parent-check-in/verify`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -761,14 +765,14 @@ export async function fetchParentCheckInHistory(
   const params = new URLSearchParams()
   if (filters?.startDate) params.set('startDate', filters.startDate)
   if (filters?.endDate) params.set('endDate', filters.endDate)
-  const response = await fetch(`${API_BASE}/attendance/parent-check-in/history/${studentId}?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/parent-check-in/history/${studentId}?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch parent check-in history')
   const json = await response.json()
   return json.data
 }
 
 export async function fetchParentCheckInStats(): Promise<ParentCheckInStats> {
-  const response = await fetch(`${API_BASE}/attendance/parent-check-in/stats`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/parent-check-in/stats`)
   if (!response.ok) throw new Error('Failed to fetch parent check-in stats')
   const json = await response.json()
   return json.data
@@ -777,7 +781,7 @@ export async function fetchParentCheckInStats(): Promise<ParentCheckInStats> {
 // ==================== ATTENDANCE PREDICTION ====================
 
 export async function fetchPredictionConfig(): Promise<PredictionConfig> {
-  const response = await fetch(`${API_BASE}/attendance/prediction/config`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/config`)
   if (!response.ok) throw new Error('Failed to fetch prediction config')
   const json = await response.json()
   return json.data
@@ -786,7 +790,7 @@ export async function fetchPredictionConfig(): Promise<PredictionConfig> {
 export async function updatePredictionConfig(
   data: Partial<PredictionConfig>
 ): Promise<PredictionConfig> {
-  const response = await fetch(`${API_BASE}/attendance/prediction/config`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/config`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -799,7 +803,7 @@ export async function updatePredictionConfig(
 export async function generatePrediction(
   data: GeneratePredictionRequest
 ): Promise<AttendancePrediction[]> {
-  const response = await fetch(`${API_BASE}/attendance/prediction/generate`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -814,7 +818,7 @@ export async function fetchStudentPrediction(
   targetDate: string
 ): Promise<AttendancePrediction> {
   const params = new URLSearchParams({ targetDate })
-  const response = await fetch(`${API_BASE}/attendance/prediction/student/${studentId}?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/student/${studentId}?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch student prediction')
   const json = await response.json()
   return json.data
@@ -823,7 +827,7 @@ export async function fetchStudentPrediction(
 export async function generateForecast(
   data: GenerateForecastRequest
 ): Promise<AttendanceForecast> {
-  const response = await fetch(`${API_BASE}/attendance/prediction/forecast`, {
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/forecast`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -839,7 +843,7 @@ export async function fetchClassForecast(
   period: 'week' | 'month' | 'quarter'
 ): Promise<AttendanceForecast> {
   const params = new URLSearchParams({ className, section, period })
-  const response = await fetch(`${API_BASE}/attendance/prediction/forecast?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/forecast?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch class forecast')
   const json = await response.json()
   return json.data
@@ -852,7 +856,7 @@ export async function fetchStudentRisks(
   if (filters?.className) params.set('className', filters.className)
   if (filters?.section) params.set('section', filters.section)
   if (filters?.riskLevel) params.set('riskLevel', filters.riskLevel)
-  const response = await fetch(`${API_BASE}/attendance/prediction/risks?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/risks?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch student risks')
   const json = await response.json()
   return json.data
@@ -864,14 +868,14 @@ export async function fetchAttendanceTrends(
   period: 'daily' | 'weekly' | 'monthly'
 ): Promise<AttendanceTrend> {
   const params = new URLSearchParams({ className, section, period })
-  const response = await fetch(`${API_BASE}/attendance/prediction/trends?${params.toString()}`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/trends?${params.toString()}`)
   if (!response.ok) throw new Error('Failed to fetch attendance trends')
   const json = await response.json()
   return json.data
 }
 
 export async function fetchPredictionStats(): Promise<PredictionStats> {
-  const response = await fetch(`${API_BASE}/attendance/prediction/stats`)
+  const response = await fetchWithAuth(`${API_BASE}/attendance/prediction/stats`)
   if (!response.ok) throw new Error('Failed to fetch prediction stats')
   const json = await response.json()
   return json.data

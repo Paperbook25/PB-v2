@@ -8,7 +8,14 @@ export function PublicSchoolPage() {
   const { data: pages } = usePublicPages()
   const { data: settings } = usePublicSettings()
 
-  const template = settings?.template || 'classic'
+  // Map legacy template values to new template IDs
+  const LEGACY_MAP: Record<string, string> = {
+    'classic': 'school-classic',
+    'modern': 'school-modern',
+    'minimal': 'school-minimal',
+  }
+  const templateId = settings?.template || 'school-modern'
+  const resolvedTemplate = LEGACY_MAP[templateId] || templateId
   const primaryColor = settings?.primaryColor || '#1e40af'
   const fontFamily = settings?.fontFamily || 'Inter'
 
@@ -64,7 +71,7 @@ export function PublicSchoolPage() {
 
       {/* Sections */}
       {page.sections.map(section => (
-        <SectionRenderer key={section.id} section={section} template={template} />
+        <SectionRenderer key={section.id} section={section} template={resolvedTemplate} />
       ))}
 
       {/* Footer */}

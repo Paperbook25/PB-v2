@@ -85,7 +85,7 @@ export function SettingsPage() {
       {/* Tab Selector - only show if multiple tabs are visible */}
       {sections.length > 1 && (
         <Tabs value={effectiveTab} onValueChange={handleTabChange} className="mt-6">
-          <TabsList className="w-full max-w-md">
+          <TabsList className="w-full max-w-2xl">
             {sections.map((s) => (
               <TabsTrigger key={s.value} value={s.value} className="flex items-center gap-2">
                 <s.icon className="h-4 w-4" />
@@ -166,7 +166,7 @@ interface GeneralSectionProps {
 function GeneralSection({ activeTab, onTabChange }: GeneralSectionProps) {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
+      <TabsList variant="secondary" className="flex flex-wrap w-full gap-1">
         <TabsTrigger variant="secondary" value="school">School</TabsTrigger>
         <TabsTrigger variant="secondary" value="academic">Academic</TabsTrigger>
         <TabsTrigger variant="secondary" value="calendar">Calendar</TabsTrigger>

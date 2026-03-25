@@ -114,6 +114,15 @@ export async function deleteSubject(req: Request, res: Response, next: NextFunct
   } catch (err) { next(err) }
 }
 
+// ==================== DEPARTMENTS ====================
+
+export async function listDepartments(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await settingsService.listDepartments()
+    res.json({ data })
+  } catch (err) { next(err) }
+}
+
 // ==================== NOTIFICATIONS ====================
 
 export async function getNotificationPreferences(_req: Request, res: Response, next: NextFunction) {

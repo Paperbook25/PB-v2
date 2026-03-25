@@ -13,7 +13,8 @@ import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { getAttendanceBorderColor, getAttendanceBadgeVariant } from '@/lib/attendance-ui'
 import { usePeriodAttendance, usePeriodDefinitions, useMarkPeriodAttendance, useStudentPeriodSummary } from '../hooks/useAttendance'
-import { CLASSES, SECTIONS, ATTENDANCE_STATUS_LABELS, PERIOD_NAMES } from '../types/attendance.types'
+import { ATTENDANCE_STATUS_LABELS, PERIOD_NAMES } from '../types/attendance.types'
+import { useClassNames, useAllSections } from '@/hooks/useSchoolData'
 import type { AttendanceStatus, PeriodNumber } from '../types/attendance.types'
 
 // The five statuses that can be cycled through in the attendance grid
@@ -33,11 +34,13 @@ function getPercentageColor(pct: number): string {
 
 export function PeriodAttendanceManager() {
   const { toast } = useToast()
+  const { data: classNames = [] } = useClassNames()
+  const { data: allSections = [] } = useAllSections()
 
   // ---------- Filter state ----------
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
-  const [selectedClass, setSelectedClass] = useState('Class 10')
-  const [selectedSection, setSelectedSection] = useState('A')
+  const [selectedClass, setSelectedClass] = useState('')
+  const [selectedSection, setSelectedSection] = useState('')
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodNumber>(1)
 
   // ---------- Local attendance edits ----------
@@ -201,7 +204,7 @@ export function PeriodAttendanceManager() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map((c) => (
+                  {classNames.map((c) => (
                     <SelectItem key={c} value={c}>
                       {c}
                     </SelectItem>
@@ -224,7 +227,7 @@ export function PeriodAttendanceManager() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SECTIONS.map((s) => (
+                  {allSections.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
                     </SelectItem>

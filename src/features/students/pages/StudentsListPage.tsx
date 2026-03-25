@@ -45,10 +45,10 @@ import { ExportDialog } from '../components/ExportDialog'
 import { PromotionDialog } from '../components/PromotionDialog'
 import { useStudents, useDeleteStudent } from '../hooks/useStudents'
 import { useToast } from '@/hooks/use-toast'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
+import { useClassNames, useAllSections } from '@/hooks/useSchoolData'
 import { getInitials, formatDate } from '@/lib/utils'
 
-const CLASSES = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'] as const
-const SECTIONS = ['All Sections', 'A', 'B', 'C', 'D'] as const
 const STATUSES = ['All Status', 'active', 'inactive', 'graduated', 'transferred'] as const
 
 // Memoized table row component to prevent unnecessary re-renders
@@ -125,7 +125,12 @@ const StudentRow = memo(function StudentRow({
 export function StudentsListPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { data: dbClassNames = [] } = useClassNames()
+  const { data: dbSections = [] } = useAllSections()
+  const classOptions = ['All Classes', ...dbClassNames]
+  const sectionOptions = ['All Sections', ...dbSections]
   const [search, setSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(search, 300)
   const [classFilter, setClassFilter] = useState('All Classes')
   const [sectionFilter, setSectionFilter] = useState('All Sections')
   const [statusFilter, setStatusFilter] = useState('All Status')
@@ -139,7 +144,7 @@ export function StudentsListPage() {
   const deleteMutation = useDeleteStudent()
 
   const { data, isLoading, error, refetch } = useStudents({
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     class: classFilter !== 'All Classes' ? classFilter : undefined,
     section: sectionFilter !== 'All Sections' ? sectionFilter : undefined,
     status: statusFilter !== 'All Status' ? statusFilter : undefined,
@@ -265,7 +270,7 @@ export function StudentsListPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map((c) => (
+                  {classOptions.map((c) => (
                     <SelectItem key={c} value={c}>
                       {c}
                     </SelectItem>
@@ -281,7 +286,7 @@ export function StudentsListPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SECTIONS.map((s) => (
+                  {sectionOptions.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
                     </SelectItem>

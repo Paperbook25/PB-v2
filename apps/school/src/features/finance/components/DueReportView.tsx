@@ -108,10 +108,13 @@ export function DueReportView() {
                 <CardDescription>Outstanding dues by days overdue</CardDescription>
               </CardHeader>
               <CardContent>
+                {(() => {
+                  const filteredBuckets = (report.byAgeingBucket ?? []).filter(b => b.amount > 0)
+                  return (
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie
-                      data={report.byAgeingBucket.filter(b => b.amount > 0)}
+                      data={filteredBuckets}
                       cx="50%"
                       cy="50%"
                       innerRadius={40}
@@ -120,7 +123,7 @@ export function DueReportView() {
                       dataKey="amount"
                       nameKey="bucket"
                     >
-                      {report.byAgeingBucket.map((_, index) => (
+                      {filteredBuckets.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -128,8 +131,10 @@ export function DueReportView() {
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
+                  )
+                })()}
                 <div className="mt-4 space-y-2">
-                  {report.byAgeingBucket.map((bucket, index) => (
+                  {(report.byAgeingBucket ?? []).map((bucket, index) => (
                     <div key={bucket.bucket} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <div
@@ -156,7 +161,7 @@ export function DueReportView() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={report.byClass} layout="vertical">
+                  <BarChart data={report.byClass ?? []} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis type="number" tickFormatter={(v) => `₹${v / 1000}k`} />
                     <YAxis dataKey="className" type="category" width={80} className="text-xs" />
@@ -192,7 +197,7 @@ export function DueReportView() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {report.topDefaulters.slice(0, 10).map((student) => (
+                  {(report.topDefaulters ?? []).slice(0, 10).map((student) => (
                     <TableRow key={student.id}>
                       <TableCell>
                         <div>

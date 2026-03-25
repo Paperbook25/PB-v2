@@ -297,11 +297,11 @@ export function useStudentFees(filters: StudentFeeFilters = {}) {
   })
 }
 
-export function useStudentFeesById(studentId: string) {
+export function useStudentFeesById(studentId: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: financeKeys.studentFeesById(studentId),
     queryFn: () => fetchStudentFeesById(studentId),
-    enabled: !!studentId,
+    enabled: !!studentId && (options?.enabled ?? true),
   })
 }
 

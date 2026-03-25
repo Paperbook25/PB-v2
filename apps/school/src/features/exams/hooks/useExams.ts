@@ -224,11 +224,11 @@ export function useSubmitMarks() {
   })
 }
 
-export function useStudentMarks(studentId: string, academicYear?: string) {
+export function useStudentMarks(studentId: string, academicYear?: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: examKeys.studentMarks(studentId, academicYear),
     queryFn: () => fetchStudentMarks(studentId, academicYear),
-    enabled: !!studentId,
+    enabled: !!studentId && (options?.enabled ?? true),
   })
 }
 

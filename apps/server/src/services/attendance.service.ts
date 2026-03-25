@@ -41,16 +41,16 @@ function formatPeriod(p: any) {
 
 // ==================== Helper: Resolve className/section to IDs ====================
 
-async function resolveClassSection(input: { classId?: string; sectionId?: string; className?: string; section?: string }) {
+async function resolveClassSection(schoolId: string, input: { classId?: string; sectionId?: string; className?: string; section?: string }) {
   let classId = input.classId
   let sectionId = input.sectionId
 
   if (!classId && input.className) {
-    const cls = await prisma.class.findFirst({ where: { name: input.className } })
+    const cls = await prisma.class.findFirst({ where: { organizationId: schoolId, name: input.className } })
     if (cls) classId = cls.id
   }
   if (!sectionId && input.section && classId) {
-    const sec = await prisma.section.findFirst({ where: { classId, name: input.section } })
+    const sec = await prisma.section.findFirst({ where: { organizationId: schoolId, classId, name: input.section } })
     if (sec) sectionId = sec.id
   }
 
@@ -59,10 +59,10 @@ async function resolveClassSection(input: { classId?: string; sectionId?: string
 
 // ==================== Student Daily Attendance ====================
 
-export async function getStudentsForAttendance(input: GetStudentsInput) {
-  const { classId, sectionId } = await resolveClassSection(input)
+export async function getStudentsForAttendance(schoolId: string, input: GetStudentsInput) {
+  const { classId, sectionId } = await resolveClassSection(schoolId, input)
   const students = await prisma.student.findMany({
-    where: { classId, sectionId, status: 'active' },
+    where: { organizationId: schoolId, classId, sectionId, status: 'active' },
     select: {
       id: true, firstName: true, lastName: true, rollNumber: true,
       admissionNumber: true, photoUrl: true,
@@ -77,18 +77,18 @@ export async function getStudentsForAttendance(input: GetStudentsInput) {
   }
 }
 
-export async function markDailyAttendance(input: MarkDailyAttendanceInput, markedBy: string) {
+export async function markDailyAttendance(schoolId: string, input: MarkDailyAttendanceInput, markedBy: string) {
   // Resolve className/section to classId/sectionId if needed
-  const { classId, sectionId } = await resolveClassSection(input)
+  const { classId, sectionId } = await resolveClassSection(schoolId, input)
   if (!classId) throw AppError.badRequest('Class not found')
   if (!sectionId) throw AppError.badRequest('Section not found')
 
   const date = new Date(input.date)
 
   // Validate class & section exist
-  const cls = await prisma.class.findUnique({ where: { id: classId } })
+  const cls = await prisma.class.findFirst({ where: { id: classId, organizationId: schoolId } })
   if (!cls) throw AppError.notFound('Class not found')
-  const section = await prisma.section.findUnique({ where: { id: sectionId } })
+  const section = await prisma.section.findFirst({ where: { id: sectionId, organizationId: schoolId } })
   if (!section) throw AppError.notFound('Section not found')
 
   // Compute counts
@@ -103,6 +103,7 @@ export async function markDailyAttendance(input: MarkDailyAttendanceInput, marke
       date_classId_sectionId: { date, classId, sectionId },
     },
     create: {
+      organizationId: schoolId,
       date,
       classId,
       sectionId,
@@ -154,12 +155,12 @@ export async function markDailyAttendance(input: MarkDailyAttendanceInput, marke
   }
 }
 
-export async function getDailyAttendanceForDate(input: GetDailyAttendanceInput) {
-  const { classId, sectionId } = await resolveClassSection(input)
+export async function getDailyAttendanceForDate(schoolId: string, input: GetDailyAttendanceInput) {
+  const { classId, sectionId } = await resolveClassSection(schoolId, input)
   const date = input.date ? new Date(input.date) : new Date()
   const dateOnly = new Date(date.toISOString().split('T')[0])
 
-  const where: any = { date: dateOnly }
+  const where: any = { organizationId: schoolId, date: dateOnly }
   if (classId) where.classId = classId
   if (sectionId) where.sectionId = sectionId
 
@@ -224,8 +225,8 @@ export async function getDailyAttendanceForDate(input: GetDailyAttendanceInput) 
   return { data: formatted }
 }
 
-export async function getAttendanceHistory(input: AttendanceHistoryInput) {
-  const { classId, sectionId } = await resolveClassSection(input)
+export async function getAttendanceHistory(schoolId: string, input: AttendanceHistoryInput) {
+  const { classId, sectionId } = await resolveClassSection(schoolId, input)
   const page = parseInt(input.page || '1')
   const limit = parseInt(input.limit || '20')
   const skip = (page - 1) * limit
@@ -235,7 +236,7 @@ export async function getAttendanceHistory(input: AttendanceHistoryInput) {
   const where: any = {}
 
   // Filter by class/section via the parent dailyAttendance
-  const dailyWhere: any = {}
+  const dailyWhere: any = { organizationId: schoolId }
   if (classId) dailyWhere.classId = classId
   if (sectionId) dailyWhere.sectionId = sectionId
   if (input.startDate && input.endDate) {
@@ -300,15 +301,15 @@ export async function getAttendanceHistory(input: AttendanceHistoryInput) {
   }
 }
 
-export async function getAttendanceReport(input: AttendanceReportInput) {
-  const { classId, sectionId } = await resolveClassSection(input)
+export async function getAttendanceReport(schoolId: string, input: AttendanceReportInput) {
+  const { classId, sectionId } = await resolveClassSection(schoolId, input)
 
   // Frontend expects per-student reports: AttendanceReport[]
   // Each has: studentId, studentName, admissionNumber, className, section,
   // totalDays, presentDays, absentDays, lateDays, halfDays, excusedDays,
   // attendancePercentage, monthlyBreakdown[]
 
-  const dailyWhere: any = {}
+  const dailyWhere: any = { organizationId: schoolId }
   if (classId) dailyWhere.classId = classId
   if (sectionId) dailyWhere.sectionId = sectionId
   if (input.startDate && input.endDate) {
@@ -409,8 +410,8 @@ export async function getAttendanceReport(input: AttendanceReportInput) {
   return { data: reportData }
 }
 
-export async function getAttendanceSummary(input: AttendanceSummaryInput) {
-  const { classId, sectionId } = await resolveClassSection(input)
+export async function getAttendanceSummary(schoolId: string, input: AttendanceSummaryInput) {
+  const { classId, sectionId } = await resolveClassSection(schoolId, input)
   const now = new Date()
   const month = parseInt(input.month || String(now.getMonth() + 1))
   const year = parseInt(input.year || String(now.getFullYear()))
@@ -418,7 +419,7 @@ export async function getAttendanceSummary(input: AttendanceSummaryInput) {
   const startDate = new Date(year, month - 1, 1)
   const endDate = new Date(year, month, 0)
 
-  const where: any = { date: { gte: startDate, lte: endDate } }
+  const where: any = { organizationId: schoolId, date: { gte: startDate, lte: endDate } }
   if (classId) where.classId = classId
   if (sectionId) where.sectionId = sectionId
 
@@ -471,9 +472,9 @@ export async function getAttendanceSummary(input: AttendanceSummaryInput) {
   }
 }
 
-export async function getStudentAttendanceHistory(studentId: string, input: StudentAttendanceInput) {
-  const student = await prisma.student.findUnique({
-    where: { id: studentId },
+export async function getStudentAttendanceHistory(schoolId: string, studentId: string, input: StudentAttendanceInput) {
+  const student = await prisma.student.findFirst({
+    where: { id: studentId, organizationId: schoolId },
     include: {
       class: { select: { name: true } },
       section: { select: { name: true } },
@@ -585,14 +586,15 @@ export async function getStudentAttendanceHistory(studentId: string, input: Stud
   }
 }
 
-export async function getMyAttendance(userId: string) {
+export async function getMyAttendance(schoolId: string, userId: string) {
   // Find the student linked to this user
-  const user = await prisma.user.findUnique({ where: { id: userId } })
+  const user = await prisma.user.findFirst({ where: { id: userId, organizationId: schoolId } })
   if (!user || !user.studentId) throw AppError.notFound('No student record linked to this user')
 
   // Find student by admission number (studentId on User is like 'STU001')
   const student = await prisma.student.findFirst({
     where: {
+      organizationId: schoolId,
       OR: [
         { admissionNumber: user.studentId },
         { id: user.studentId },
@@ -686,8 +688,8 @@ export async function getMyAttendance(userId: string) {
   }
 }
 
-export async function getMyChildrenAttendance(userId: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId } })
+export async function getMyChildrenAttendance(schoolId: string, userId: string) {
+  const user = await prisma.user.findFirst({ where: { id: userId, organizationId: schoolId } })
   if (!user) throw AppError.notFound('User not found')
 
   let childIds: string[] = []
@@ -700,7 +702,7 @@ export async function getMyChildrenAttendance(userId: string) {
 
   // childIds are user IDs — find linked students
   const childUsers = await prisma.user.findMany({
-    where: { id: { in: childIds } },
+    where: { id: { in: childIds }, organizationId: schoolId },
     select: { studentId: true },
   })
 
@@ -714,6 +716,7 @@ export async function getMyChildrenAttendance(userId: string) {
 
   const students = await prisma.student.findMany({
     where: {
+      organizationId: schoolId,
       OR: [
         { admissionNumber: { in: studentAdmissionNumbers } },
         { id: { in: studentAdmissionNumbers } },
@@ -790,15 +793,16 @@ export async function getMyChildrenAttendance(userId: string) {
 
 // ==================== Period Attendance ====================
 
-export async function getPeriodDefinitions() {
+export async function getPeriodDefinitions(schoolId: string) {
   const periods = await prisma.periodDefinition.findMany({
+    where: { organizationId: schoolId },
     orderBy: { periodNumber: 'asc' },
   })
   return { data: periods.map(formatPeriod) }
 }
 
-export async function updatePeriodDefinition(id: string, input: UpdatePeriodDefinitionInput) {
-  const existing = await prisma.periodDefinition.findUnique({ where: { id } })
+export async function updatePeriodDefinition(schoolId: string, id: string, input: UpdatePeriodDefinitionInput) {
+  const existing = await prisma.periodDefinition.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Period definition not found')
 
   const data: any = {}
@@ -812,10 +816,10 @@ export async function updatePeriodDefinition(id: string, input: UpdatePeriodDefi
   return { data: formatPeriod(updated) }
 }
 
-export async function markPeriodAttendance(input: MarkPeriodAttendanceInput) {
+export async function markPeriodAttendance(schoolId: string, input: MarkPeriodAttendanceInput) {
   const date = new Date(input.date)
 
-  const period = await prisma.periodDefinition.findUnique({ where: { id: input.periodId } })
+  const period = await prisma.periodDefinition.findFirst({ where: { id: input.periodId, organizationId: schoolId } })
   if (!period) throw AppError.notFound('Period not found')
 
   const records = input.records.map(r => ({
@@ -834,6 +838,7 @@ export async function markPeriodAttendance(input: MarkPeriodAttendanceInput) {
       },
     },
     create: {
+      organizationId: schoolId,
       date,
       classId: input.classId!,
       sectionId: input.sectionId!,
@@ -876,11 +881,11 @@ export async function markPeriodAttendance(input: MarkPeriodAttendanceInput) {
   }
 }
 
-export async function getPeriodAttendance(input: GetPeriodAttendanceInput) {
-  const { classId, sectionId } = await resolveClassSection(input)
+export async function getPeriodAttendance(schoolId: string, input: GetPeriodAttendanceInput) {
+  const { classId, sectionId } = await resolveClassSection(schoolId, input)
   const date = new Date(input.date)
 
-  const where: any = { date }
+  const where: any = { organizationId: schoolId, date }
   if (classId) where.classId = classId
   if (sectionId) where.sectionId = sectionId
 
@@ -914,8 +919,8 @@ export async function getPeriodAttendance(input: GetPeriodAttendanceInput) {
   }
 }
 
-export async function getPeriodSummary(input: PeriodSummaryInput) {
-  const where: any = {}
+export async function getPeriodSummary(schoolId: string, input: PeriodSummaryInput) {
+  const where: any = { organizationId: schoolId }
 
   // Filter records that contain this studentId
   if (input.startDate && input.endDate) {

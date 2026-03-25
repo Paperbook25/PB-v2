@@ -36,11 +36,11 @@ function formatFeeType(ft: any) {
 
 // ==================== CRUD ====================
 
-export async function listFeeTypes(query: {
+export async function listFeeTypes(schoolId: string, query: {
   isActive?: string
   category?: string
 }) {
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
 
   if (query.isActive !== undefined) {
     where.isActive = query.isActive === 'true'
@@ -57,19 +57,19 @@ export async function listFeeTypes(query: {
   return { data: feeTypes.map(formatFeeType) }
 }
 
-export async function getFeeTypeById(id: string) {
-  const ft = await prisma.feeType.findUnique({ where: { id } })
+export async function getFeeTypeById(schoolId: string, id: string) {
+  const ft = await prisma.feeType.findFirst({ where: { id, organizationId: schoolId } })
   if (!ft) throw AppError.notFound('Fee type not found')
   return formatFeeType(ft)
 }
 
-export async function createFeeType(input: CreateFeeTypeInput) {
+export async function createFeeType(schoolId: string, input: CreateFeeTypeInput) {
   const category = feeCategoryMap[input.category]
   if (!category) throw AppError.badRequest('Invalid fee category')
 
   // Check unique constraint
   const existing = await prisma.feeType.findFirst({
-    where: { name: input.name, category: category as any },
+    where: { name: input.name, category: category as any, organizationId: schoolId },
   })
   if (existing) throw AppError.conflict('A fee type with this name and category already exists')
 
@@ -79,14 +79,15 @@ export async function createFeeType(input: CreateFeeTypeInput) {
       category: category as any,
       description: input.description || null,
       isActive: input.isActive !== undefined ? input.isActive : true,
+      organizationId: schoolId,
     },
   })
 
   return formatFeeType(ft)
 }
 
-export async function updateFeeType(id: string, input: UpdateFeeTypeInput) {
-  const existing = await prisma.feeType.findUnique({ where: { id } })
+export async function updateFeeType(schoolId: string, id: string, input: UpdateFeeTypeInput) {
+  const existing = await prisma.feeType.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Fee type not found')
 
   const data: any = {}
@@ -100,7 +101,7 @@ export async function updateFeeType(id: string, input: UpdateFeeTypeInput) {
     const checkName = data.name || existing.name
     const checkCat = data.category || existing.category
     const dup = await prisma.feeType.findFirst({
-      where: { name: checkName, category: checkCat as any, NOT: { id } },
+      where: { name: checkName, category: checkCat as any, organizationId: schoolId, NOT: { id } },
     })
     if (dup) throw AppError.conflict('A fee type with this name and category already exists')
   }
@@ -109,8 +110,8 @@ export async function updateFeeType(id: string, input: UpdateFeeTypeInput) {
   return formatFeeType(ft)
 }
 
-export async function toggleFeeType(id: string) {
-  const existing = await prisma.feeType.findUnique({ where: { id } })
+export async function toggleFeeType(schoolId: string, id: string) {
+  const existing = await prisma.feeType.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Fee type not found')
 
   const ft = await prisma.feeType.update({
@@ -120,12 +121,12 @@ export async function toggleFeeType(id: string) {
   return formatFeeType(ft)
 }
 
-export async function deleteFeeType(id: string) {
-  const existing = await prisma.feeType.findUnique({ where: { id } })
+export async function deleteFeeType(schoolId: string, id: string) {
+  const existing = await prisma.feeType.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Fee type not found')
 
   // Check if linked to any fee structures
-  const structureCount = await prisma.feeStructure.count({ where: { feeTypeId: id } })
+  const structureCount = await prisma.feeStructure.count({ where: { feeTypeId: id, organizationId: schoolId } })
   if (structureCount > 0) {
     throw AppError.badRequest('Cannot delete fee type with linked fee structures')
   }

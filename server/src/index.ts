@@ -1,5 +1,7 @@
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { existsSync } from 'fs'
@@ -15,9 +17,42 @@ const app = express()
 // Trust proxy for correct IP addresses
 app.set('trust proxy', 1)
 
+// ---------------------------------------------------------------------------
+// Security headers via Helmet
+// ---------------------------------------------------------------------------
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for SPA compatibility (inline scripts needed)
+  crossOriginEmbedderPolicy: false, // Allow cross-origin resources
+}))
+
+// ---------------------------------------------------------------------------
+// Rate limiting
+// ---------------------------------------------------------------------------
+
+// Rate limit for auth endpoints (relaxed in development for testing)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: env.isProd ? 20 : 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts. Try again later.' },
+})
+
+// Rate limit for general API endpoints
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Try again later.' },
+})
+
+app.use('/api/auth', authLimiter)
+app.use('/api', apiLimiter)
+
 // CORS
 app.use(cors({
-  origin: env.CORS_ORIGIN,
+  origin: env.CORS_ORIGIN.split(',').map(o => o.trim()),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -50,7 +85,7 @@ async function main() {
   try {
     // Test DB connection
     await prisma.$connect()
-    console.log('[DB] Connected to MySQL')
+    console.log('[DB] Connected to PostgreSQL')
 
     app.listen(env.PORT, () => {
       console.log(`[Server] Running on http://localhost:${env.PORT}`)

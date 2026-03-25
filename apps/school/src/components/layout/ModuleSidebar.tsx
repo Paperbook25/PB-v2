@@ -3,6 +3,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ChevronRight,
+  ChevronLeft,
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -431,21 +432,29 @@ function MobileModuleDrawer({
         <div className="flex h-12 items-center justify-between border-b border-gray-200 dark:border-gray-800 px-4">
           <div className="flex items-center gap-2 min-w-0">
             {isHome ? (
-              <>
+              <Link to="/" onClick={handleClose} className="flex items-center gap-2">
                 <img src="/logo.svg" alt="PaperBook" className="h-5 w-5 shrink-0" />
                 <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
                   PaperBook
                 </span>
-              </>
+              </Link>
             ) : (
-              <>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/"
+                  onClick={handleClose}
+                  className="w-6 h-6 rounded-md bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0"
+                  title="Back to main menu"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+                </Link>
                 <div className="w-6 h-6 rounded-md bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center shrink-0">
                   <moduleConfig.icon className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" strokeWidth={1.5} />
                 </div>
                 <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
                   {moduleConfig.name}
                 </span>
-              </>
+              </div>
             )}
           </div>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClose}>
@@ -559,33 +568,40 @@ export function ModuleSidebar() {
             sidebarCollapsed ? 'justify-center px-2' : 'px-4 gap-2.5'
           )}
         >
-          <Link to={activeConfig.basePath} className="flex items-center gap-2.5 min-w-0">
-            {isHome ? (
-              <>
-                <img
-                  src="/logo.svg"
-                  alt="PaperBook"
-                  className="h-7 w-7 shrink-0"
-                />
-                {!sidebarCollapsed && (
-                  <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
-                    PaperBook
-                  </span>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="w-7 h-7 rounded-md bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center shrink-0">
-                  <activeConfig.icon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" strokeWidth={1.5} />
-                </div>
-                {!sidebarCollapsed && (
+          {isHome ? (
+            <Link to="/" className="flex items-center gap-2.5 min-w-0">
+              <img
+                src="/logo.svg"
+                alt="PaperBook"
+                className="h-7 w-7 shrink-0"
+              />
+              {!sidebarCollapsed && (
+                <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
+                  PaperBook
+                </span>
+              )}
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 min-w-0 w-full">
+              <Link
+                to="/"
+                className="w-7 h-7 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center shrink-0 transition-colors"
+                title="Back to main menu"
+              >
+                <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+              </Link>
+              {!sidebarCollapsed && (
+                <Link to={activeConfig.basePath} className="flex items-center gap-2 min-w-0">
+                  <div className="w-6 h-6 rounded-md bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center shrink-0">
+                    <activeConfig.icon className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" strokeWidth={1.5} />
+                  </div>
                   <span className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">
                     {activeConfig.name}
                   </span>
-                )}
-              </>
-            )}
-          </Link>
+                </Link>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Module Navigation */}

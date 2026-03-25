@@ -51,7 +51,16 @@ export type ReorderSectionsInput = z.infer<typeof reorderSectionsSchema>
 // ==================== Settings ====================
 
 export const updateSettingsSchema = z.object({
-  template: z.enum(['classic', 'modern', 'minimal']).optional(),
+  template: z.enum([
+    // Legacy values (backward compatibility)
+    'classic', 'modern', 'minimal',
+    // School templates
+    'school-classic', 'school-modern', 'school-vibrant', 'school-minimal',
+    // College templates
+    'college-academic', 'college-campus', 'college-tech', 'college-minimal',
+    // Coaching templates
+    'coaching-results', 'coaching-professional', 'coaching-dynamic', 'coaching-clean',
+  ]).optional(),
   primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   fontFamily: z.string().max(100).optional(),
@@ -81,7 +90,12 @@ export type UploadMediaInput = z.infer<typeof uploadMediaSchema>
 
 export const generatePageSchema = z.object({
   pageSlug: z.string().min(1),
-  template: z.enum(['classic', 'modern', 'minimal']).default('classic'),
+  template: z.enum([
+    'classic', 'modern', 'minimal',
+    'school-classic', 'school-modern', 'school-vibrant', 'school-minimal',
+    'college-academic', 'college-campus', 'college-tech', 'college-minimal',
+    'coaching-results', 'coaching-professional', 'coaching-dynamic', 'coaching-clean',
+  ]).default('school-modern'),
 })
 
 export type GeneratePageInput = z.infer<typeof generatePageSchema>

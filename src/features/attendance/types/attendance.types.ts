@@ -412,14 +412,6 @@ export interface RegisterDeviceRequest {
 }
 
 // Constants
-export const CLASSES = [
-  'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
-  'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10',
-  'Class 11', 'Class 12',
-]
-
-export const SECTIONS = ['A', 'B', 'C', 'D']
-
 export const PERIOD_NAMES: Record<PeriodNumber, string> = {
   1: '1st Period',
   2: '2nd Period',
@@ -430,12 +422,6 @@ export const PERIOD_NAMES: Record<PeriodNumber, string> = {
   7: '7th Period',
   8: '8th Period',
 }
-
-export const SUBJECTS = [
-  'Mathematics', 'English', 'Hindi', 'Science', 'Social Studies',
-  'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Physical Education',
-  'Art', 'Music',
-]
 
 export const NOTIFICATION_CHANNEL_LABELS: Record<NotificationChannel, string> = {
   sms: 'SMS',

@@ -197,6 +197,26 @@ export async function deleteClass(id: string): Promise<{ success: boolean }> {
   return response.json()
 }
 
+// ==================== SUBJECTS ====================
+
+export async function fetchSubjects(): Promise<{ data: { id: string; name: string; code: string; type: string; maxMarks: number; passingMarks: number }[] }> {
+  const response = await fetch(`${API_BASE}/subjects`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch subjects')
+  }
+  return response.json()
+}
+
+// ==================== DEPARTMENTS ====================
+
+export async function fetchDepartments(): Promise<{ data: { id: string; name: string }[] }> {
+  const response = await fetch(`${API_BASE}/departments`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch departments')
+  }
+  return response.json()
+}
+
 // ==================== USERS ====================
 
 export async function fetchUsers(): Promise<{ data: SystemUser[] }> {

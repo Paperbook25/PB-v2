@@ -13,7 +13,7 @@ import {
 import { useUIStore } from '@/stores/useUIStore'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { getInitials } from '@/lib/utils'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { NotificationCenter } from './NotificationCenter'
 import { AppLauncher } from './AppLauncher'
 import { getModuleFromPath } from '@/config/module-nav'
@@ -61,10 +61,10 @@ export function Header() {
           <Menu className="h-4 w-4" />
         </Button>
 
-        {/* Brand name */}
-        <span className="hidden lg:inline text-sm font-semibold text-gray-900 dark:text-gray-100">
+        {/* Brand name — click to go to main menu */}
+        <Link to="/" className="hidden lg:inline text-sm font-semibold text-gray-900 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
           PaperBook
-        </span>
+        </Link>
 
         {/* Separator */}
         <div className="hidden lg:block w-px h-4 bg-gray-200 dark:bg-gray-700" />
@@ -92,9 +92,9 @@ export function Header() {
             </span>
           </div>
         ) : (
-          <span className="lg:hidden text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <Link to="/" className="lg:hidden text-sm font-semibold text-gray-900 dark:text-gray-100">
             PaperBook
-          </span>
+          </Link>
         )}
       </div>
 

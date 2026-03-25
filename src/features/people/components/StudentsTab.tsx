@@ -64,10 +64,9 @@ import { ExportDialog } from '@/features/students/components/ExportDialog'
 import { PromotionDialog } from '@/features/students/components/PromotionDialog'
 import { useToast } from '@/hooks/use-toast'
 import { getInitials } from '@/lib/utils'
+import { useClassNames, useAllSections } from '@/hooks/useSchoolData'
 import type { StudentsTabProps, StudentSubTab } from '../types/people.types'
 
-const CLASSES = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12']
-const SECTIONS = ['All Sections', 'A', 'B', 'C', 'D']
 const STATUSES = ['All Status', 'active', 'inactive', 'graduated', 'transferred']
 
 // ============================================
@@ -225,6 +224,10 @@ function StudentsListContent() {
   const { hasRole } = useAuthStore()
   const canManageStudents = hasRole(['admin', 'principal'])
   const canEditStudents = hasRole(['admin', 'principal', 'teacher'])
+  const { data: dbClassNames = [] } = useClassNames()
+  const { data: dbSections = [] } = useAllSections()
+  const classOptions = ['All Classes', ...dbClassNames]
+  const sectionOptions = ['All Sections', ...dbSections]
   const [search, setSearch] = useState('')
   const [classFilter, setClassFilter] = useState('All Classes')
   const [sectionFilter, setSectionFilter] = useState('All Sections')
@@ -341,7 +344,7 @@ function StudentsListContent() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map((c) => (
+                  {classOptions.map((c) => (
                     <SelectItem key={c} value={c}>
                       {c}
                     </SelectItem>
@@ -360,7 +363,7 @@ function StudentsListContent() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SECTIONS.map((s) => (
+                  {sectionOptions.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
                     </SelectItem>

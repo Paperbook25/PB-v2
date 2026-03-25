@@ -27,7 +27,7 @@ import type {
   BiometricDeviceStatus,
   BiometricSyncLog,
 } from '@/features/attendance/types/attendance.types'
-import { SUBJECTS, PERIOD_NAMES } from '@/features/attendance/types/attendance.types'
+import { PERIOD_NAMES } from '@/features/attendance/types/attendance.types'
 
 // Helper to generate ID
 export const generateId = () => Math.random().toString(36).substring(2, 9) + Date.now().toString(36)

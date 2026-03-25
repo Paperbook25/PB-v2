@@ -18,16 +18,16 @@ const TabsList = React.forwardRef<
     ref={ref}
     className={cn(
       // Base styles
-      'inline-flex items-center justify-center text-muted-foreground mx-auto',
+      'inline-flex items-center text-muted-foreground',
 
       // Default variant (Parent tabs - Saffron theme)
       variant === 'default' && [
-        'h-11 bg-card border border-border shadow-sm rounded-xl p-1.5 gap-1',
+        'h-11 bg-card border border-border shadow-sm rounded-xl p-1.5 gap-1 justify-center',
       ],
 
       // Secondary variant (Child tabs - Purple theme)
       variant === 'secondary' && [
-        'h-10 bg-muted/40 border border-border rounded-lg p-1 gap-0.5',
+        'h-auto bg-muted/40 border border-border rounded-lg p-1 gap-1 justify-start',
       ],
 
       className

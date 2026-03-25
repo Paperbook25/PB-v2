@@ -169,11 +169,11 @@ export function useAttendanceHistory(filters: AttendanceFilters) {
 
 // ==================== STUDENT ATTENDANCE HOOKS ====================
 
-export function useStudentAttendance(studentId: string, academicYear?: string) {
+export function useStudentAttendance(studentId: string, academicYear?: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: attendanceKeys.studentAttendance(studentId, academicYear),
     queryFn: () => fetchStudentAttendance(studentId, academicYear),
-    enabled: !!studentId,
+    enabled: !!studentId && (options?.enabled ?? true),
   })
 }
 

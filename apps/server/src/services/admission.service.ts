@@ -168,11 +168,11 @@ const applicationInclude = {
   notes: { orderBy: { createdAt: 'desc' as const } },
 }
 
-async function generateApplicationNumber(): Promise<string> {
+async function generateApplicationNumber(schoolId: string): Promise<string> {
   const year = new Date().getFullYear()
   const prefix = `APP-${year}-`
   const last = await prisma.admissionApplication.findFirst({
-    where: { applicationNumber: { startsWith: prefix } },
+    where: { organizationId: schoolId, applicationNumber: { startsWith: prefix } },
     orderBy: { applicationNumber: 'desc' },
   })
   let seq = 1
@@ -185,9 +185,9 @@ async function generateApplicationNumber(): Promise<string> {
 
 // ==================== CRUD ====================
 
-export async function listApplications(query: ListApplicationsInput) {
+export async function listApplications(schoolId: string, query: ListApplicationsInput) {
   const { page, limit, search, status, class: className, dateFrom, dateTo } = query
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
 
   if (search) {
     where.OR = [
@@ -227,19 +227,20 @@ export async function listApplications(query: ListApplicationsInput) {
   }
 }
 
-export async function getApplicationById(id: string) {
-  const app = await prisma.admissionApplication.findUnique({
-    where: { id },
+export async function getApplicationById(schoolId: string, id: string) {
+  const app = await prisma.admissionApplication.findFirst({
+    where: { id, organizationId: schoolId },
     include: applicationInclude,
   })
   if (!app) throw AppError.notFound('Application not found')
   return formatApplication(app)
 }
 
-export async function createApplication(input: CreateApplicationInput) {
-  const applicationNumber = await generateApplicationNumber()
+export async function createApplication(schoolId: string, input: CreateApplicationInput) {
+  const applicationNumber = await generateApplicationNumber(schoolId)
   const app = await prisma.admissionApplication.create({
     data: {
+      organizationId: schoolId,
       applicationNumber,
       studentName: input.studentName,
       dateOfBirth: new Date(input.dateOfBirth),
@@ -277,8 +278,8 @@ export async function createApplication(input: CreateApplicationInput) {
   return formatApplication(app)
 }
 
-export async function updateApplication(id: string, input: UpdateApplicationInput) {
-  const existing = await prisma.admissionApplication.findUnique({ where: { id } })
+export async function updateApplication(schoolId: string, id: string, input: UpdateApplicationInput) {
+  const existing = await prisma.admissionApplication.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Application not found')
 
   const data: any = {}
@@ -315,8 +316,8 @@ export async function updateApplication(id: string, input: UpdateApplicationInpu
   return formatApplication(app)
 }
 
-export async function changeStatus(id: string, input: ChangeStatusInput, changedBy: string) {
-  const existing = await prisma.admissionApplication.findUnique({ where: { id } })
+export async function changeStatus(schoolId: string, id: string, input: ChangeStatusInput, changedBy: string) {
+  const existing = await prisma.admissionApplication.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Application not found')
 
   const newStatus = statusToDb[input.status]
@@ -340,8 +341,8 @@ export async function changeStatus(id: string, input: ChangeStatusInput, changed
   return formatApplication(app)
 }
 
-export async function deleteApplication(id: string) {
-  const existing = await prisma.admissionApplication.findUnique({ where: { id } })
+export async function deleteApplication(schoolId: string, id: string) {
+  const existing = await prisma.admissionApplication.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Application not found')
   await prisma.admissionApplication.delete({ where: { id } })
   return { success: true }
@@ -349,8 +350,8 @@ export async function deleteApplication(id: string) {
 
 // ==================== Documents ====================
 
-export async function addDocument(appId: string, input: AddDocumentInput) {
-  const app = await prisma.admissionApplication.findUnique({ where: { id: appId } })
+export async function addDocument(schoolId: string, appId: string, input: AddDocumentInput) {
+  const app = await prisma.admissionApplication.findFirst({ where: { id: appId, organizationId: schoolId } })
   if (!app) throw AppError.notFound('Application not found')
 
   const doc = await prisma.admissionDocument.create({
@@ -364,7 +365,11 @@ export async function addDocument(appId: string, input: AddDocumentInput) {
   return formatDocument(doc)
 }
 
-export async function updateDocument(appId: string, docId: string, input: UpdateDocumentInput, verifiedBy?: string) {
+export async function updateDocument(schoolId: string, appId: string, docId: string, input: UpdateDocumentInput, verifiedBy?: string) {
+  // Verify the application belongs to this school
+  const app = await prisma.admissionApplication.findFirst({ where: { id: appId, organizationId: schoolId } })
+  if (!app) throw AppError.notFound('Application not found')
+
   const doc = await prisma.admissionDocument.findFirst({
     where: { id: docId, applicationId: appId },
   })
@@ -390,8 +395,8 @@ export async function updateDocument(appId: string, docId: string, input: Update
 
 // ==================== Notes ====================
 
-export async function addNote(appId: string, input: AddNoteInput, userId: string, userName: string) {
-  const app = await prisma.admissionApplication.findUnique({ where: { id: appId } })
+export async function addNote(schoolId: string, appId: string, input: AddNoteInput, userId: string, userName: string) {
+  const app = await prisma.admissionApplication.findFirst({ where: { id: appId, organizationId: schoolId } })
   if (!app) throw AppError.notFound('Application not found')
 
   const note = await prisma.admissionNote.create({
@@ -407,8 +412,8 @@ export async function addNote(appId: string, input: AddNoteInput, userId: string
 
 // ==================== Interview & Entrance Exam ====================
 
-export async function updateInterview(id: string, input: UpdateInterviewInput) {
-  const existing = await prisma.admissionApplication.findUnique({ where: { id } })
+export async function updateInterview(schoolId: string, id: string, input: UpdateInterviewInput) {
+  const existing = await prisma.admissionApplication.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Application not found')
 
   const app = await prisma.admissionApplication.update({
@@ -423,8 +428,8 @@ export async function updateInterview(id: string, input: UpdateInterviewInput) {
   return formatApplication(app)
 }
 
-export async function updateEntranceExam(id: string, input: UpdateEntranceExamInput) {
-  const existing = await prisma.admissionApplication.findUnique({ where: { id } })
+export async function updateEntranceExam(schoolId: string, id: string, input: UpdateEntranceExamInput) {
+  const existing = await prisma.admissionApplication.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Application not found')
 
   const app = await prisma.admissionApplication.update({
@@ -440,8 +445,8 @@ export async function updateEntranceExam(id: string, input: UpdateEntranceExamIn
 
 // ==================== Waitlist ====================
 
-export async function getWaitlist(query: { class?: string }) {
-  const where: any = { status: 'adm_waitlisted' }
+export async function getWaitlist(schoolId: string, query: { class?: string }) {
+  const where: any = { organizationId: schoolId, status: 'adm_waitlisted' }
   if (query.class) where.applyingForClass = query.class
 
   const apps = await prisma.admissionApplication.findMany({
@@ -468,8 +473,9 @@ export async function getWaitlist(query: { class?: string }) {
 
 // ==================== Class Capacity ====================
 
-export async function getClassCapacity() {
+export async function getClassCapacity(schoolId: string) {
   const classes = await prisma.class.findMany({
+    where: { organizationId: schoolId },
     include: {
       sections: {
         include: {
@@ -482,7 +488,7 @@ export async function getClassCapacity() {
 
   const waitlistCounts = await prisma.admissionApplication.groupBy({
     by: ['applyingForClass'],
-    where: { status: 'adm_waitlisted' },
+    where: { organizationId: schoolId, status: 'adm_waitlisted' },
     _count: { id: true },
   })
   const waitlistMap = Object.fromEntries(
@@ -507,8 +513,9 @@ export async function getClassCapacity() {
 
 // ==================== Exam Schedules ====================
 
-export async function listExamSchedules() {
+export async function listExamSchedules(schoolId: string) {
   const schedules = await prisma.admEntranceExamSchedule.findMany({
+    where: { organizationId: schoolId },
     orderBy: { examDate: 'desc' },
   })
   return {
@@ -529,9 +536,10 @@ export async function listExamSchedules() {
   }
 }
 
-export async function createExamSchedule(input: CreateExamScheduleInput) {
+export async function createExamSchedule(schoolId: string, input: CreateExamScheduleInput) {
   const schedule = await prisma.admEntranceExamSchedule.create({
     data: {
+      organizationId: schoolId,
       class: input.class,
       examDate: new Date(input.examDate),
       examTime: input.examTime,
@@ -560,8 +568,9 @@ export async function createExamSchedule(input: CreateExamScheduleInput) {
 
 // ==================== Exam Results ====================
 
-export async function getExamResults(query: { class?: string; scheduleId?: string }) {
+export async function getExamResults(schoolId: string, query: { class?: string; scheduleId?: string }) {
   const where: any = {
+    organizationId: schoolId,
     entranceExamScore: { not: null },
   }
   if (query.class) where.applyingForClass = query.class
@@ -598,8 +607,8 @@ export async function getExamResults(query: { class?: string; scheduleId?: strin
   return { data }
 }
 
-export async function recordExamScore(id: string, input: RecordExamScoreInput) {
-  const existing = await prisma.admissionApplication.findUnique({ where: { id } })
+export async function recordExamScore(schoolId: string, id: string, input: RecordExamScoreInput) {
+  const existing = await prisma.admissionApplication.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Application not found')
 
   const app = await prisma.admissionApplication.update({
@@ -612,8 +621,8 @@ export async function recordExamScore(id: string, input: RecordExamScoreInput) {
 
 // ==================== Communications ====================
 
-export async function listCommunications(query: { applicationId?: string; type?: string }) {
-  const where: any = {}
+export async function listCommunications(schoolId: string, query: { applicationId?: string; type?: string }) {
+  const where: any = { application: { organizationId: schoolId } }
   if (query.applicationId) where.applicationId = query.applicationId
   if (query.type && commTypeToDb[query.type]) where.type = commTypeToDb[query.type]
 
@@ -640,8 +649,9 @@ export async function listCommunications(query: { applicationId?: string; type?:
   }
 }
 
-export async function listCommunicationTemplates() {
+export async function listCommunicationTemplates(schoolId: string) {
   const templates = await prisma.admissionCommTemplate.findMany({
+    where: { organizationId: schoolId },
     orderBy: { createdAt: 'desc' },
   })
   return {
@@ -658,9 +668,9 @@ export async function listCommunicationTemplates() {
   }
 }
 
-export async function sendCommunication(input: SendCommunicationInput, sentBy: string) {
+export async function sendCommunication(schoolId: string, input: SendCommunicationInput, sentBy: string) {
   const apps = await prisma.admissionApplication.findMany({
-    where: { id: { in: input.applicationIds } },
+    where: { id: { in: input.applicationIds }, organizationId: schoolId },
   })
 
   const records = await Promise.all(
@@ -701,8 +711,8 @@ export async function sendCommunication(input: SendCommunicationInput, sentBy: s
 
 // ==================== Payments ====================
 
-export async function listPayments(query: { status?: string }) {
-  const where: any = {}
+export async function listPayments(schoolId: string, query: { status?: string }) {
+  const where: any = { application: { organizationId: schoolId } }
   if (query.status && feeStatusToDb[query.status]) {
     where.status = feeStatusToDb[query.status]
   }
@@ -733,9 +743,9 @@ export async function listPayments(query: { status?: string }) {
   }
 }
 
-export async function getPayment(appId: string) {
+export async function getPayment(schoolId: string, appId: string) {
   const payment = await prisma.admissionPayment.findFirst({
-    where: { applicationId: appId },
+    where: { applicationId: appId, application: { organizationId: schoolId } },
     include: { application: { select: { studentName: true, applyingForClass: true } } },
     orderBy: { createdAt: 'desc' },
   })
@@ -759,8 +769,8 @@ export async function getPayment(appId: string) {
   }
 }
 
-export async function recordPayment(appId: string, input: RecordPaymentInput) {
-  const app = await prisma.admissionApplication.findUnique({ where: { id: appId } })
+export async function recordPayment(schoolId: string, appId: string, input: RecordPaymentInput) {
+  const app = await prisma.admissionApplication.findFirst({ where: { id: appId, organizationId: schoolId } })
   if (!app) throw AppError.notFound('Application not found')
 
   // Find or create payment record
@@ -834,26 +844,29 @@ export async function recordPayment(appId: string, input: RecordPaymentInput) {
 
 // ==================== Stats ====================
 
-export async function getStats() {
+export async function getStats(schoolId: string) {
   const [total, byStatus, byClass, thisMonth, pendingReview] = await Promise.all([
-    prisma.admissionApplication.count(),
+    prisma.admissionApplication.count({ where: { organizationId: schoolId } }),
     prisma.admissionApplication.groupBy({
       by: ['status'],
+      where: { organizationId: schoolId },
       _count: { id: true },
     }),
     prisma.admissionApplication.groupBy({
       by: ['applyingForClass'],
+      where: { organizationId: schoolId },
       _count: { id: true },
     }),
     prisma.admissionApplication.count({
       where: {
+        organizationId: schoolId,
         createdAt: {
           gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
         },
       },
     }),
     prisma.admissionApplication.count({
-      where: { status: 'adm_under_review' },
+      where: { organizationId: schoolId, status: 'adm_under_review' },
     }),
   ])
 
@@ -874,8 +887,9 @@ export async function getStats() {
 
 // ==================== Analytics ====================
 
-export async function getAnalytics() {
+export async function getAnalytics(schoolId: string) {
   const apps = await prisma.admissionApplication.findMany({
+    where: { organizationId: schoolId },
     include: { statusHistory: true },
   })
 
@@ -954,8 +968,8 @@ export async function getAnalytics() {
 
 // ==================== Export ====================
 
-export async function exportApplications(query: { status?: string; class?: string }) {
-  const where: any = {}
+export async function exportApplications(schoolId: string, query: { status?: string; class?: string }) {
+  const where: any = { organizationId: schoolId }
   if (query.status && statusToDb[query.status]) where.status = statusToDb[query.status]
   if (query.class) where.applyingForClass = query.class
 
@@ -990,10 +1004,11 @@ export async function exportApplications(query: { status?: string; class?: strin
 
 // ==================== Public Apply ====================
 
-export async function publicApply(input: CreateApplicationInput) {
-  const applicationNumber = await generateApplicationNumber()
+export async function publicApply(schoolId: string, input: CreateApplicationInput) {
+  const applicationNumber = await generateApplicationNumber(schoolId)
   await prisma.admissionApplication.create({
     data: {
+      organizationId: schoolId,
       applicationNumber,
       studentName: input.studentName,
       dateOfBirth: new Date(input.dateOfBirth),

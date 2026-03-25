@@ -97,13 +97,13 @@ function formatPayment(p: any) {
   }
 }
 
-async function generateReceiptNumber(): Promise<string> {
+async function generateReceiptNumber(schoolId: string): Promise<string> {
   const today = new Date()
   const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '')
   const prefix = `RCP-${dateStr}-`
 
   const lastPayment = await prisma.payment.findFirst({
-    where: { receiptNumber: { startsWith: prefix } },
+    where: { receiptNumber: { startsWith: prefix }, organizationId: schoolId },
     orderBy: { receiptNumber: 'desc' },
     select: { receiptNumber: true },
   })
@@ -119,7 +119,7 @@ async function generateReceiptNumber(): Promise<string> {
 
 // ==================== Student Fee CRUD ====================
 
-export async function listStudentFees(query: {
+export async function listStudentFees(schoolId: string, query: {
   page?: number
   limit?: number
   studentId?: string
@@ -130,7 +130,7 @@ export async function listStudentFees(query: {
 }) {
   const page = query.page || 1
   const limit = query.limit || 20
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
 
   if (query.studentId) where.studentId = query.studentId
   if (query.feeStructureId) where.feeStructureId = query.feeStructureId
@@ -162,21 +162,21 @@ export async function listStudentFees(query: {
   }
 }
 
-export async function getStudentFeeById(id: string) {
-  const sf = await prisma.studentFee.findUnique({
-    where: { id },
+export async function getStudentFeeById(schoolId: string, id: string) {
+  const sf = await prisma.studentFee.findFirst({
+    where: { id, organizationId: schoolId },
     include: studentFeeInclude,
   })
   if (!sf) throw AppError.notFound('Student fee not found')
   return formatStudentFee(sf)
 }
 
-export async function getStudentFees(studentId: string) {
+export async function getStudentFees(schoolId: string, studentId: string) {
   const student = await prisma.student.findUnique({ where: { id: studentId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const fees = await prisma.studentFee.findMany({
-    where: { studentId },
+    where: { studentId, organizationId: schoolId },
     include: studentFeeInclude,
     orderBy: { dueDate: 'asc' },
   })
@@ -184,8 +184,8 @@ export async function getStudentFees(studentId: string) {
   return { data: fees.map(formatStudentFee) }
 }
 
-export async function updateStudentFee(id: string, input: UpdateStudentFeeInput) {
-  const existing = await prisma.studentFee.findUnique({ where: { id } })
+export async function updateStudentFee(schoolId: string, id: string, input: UpdateStudentFeeInput) {
+  const existing = await prisma.studentFee.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Student fee not found')
 
   const data: any = {}
@@ -205,8 +205,8 @@ export async function updateStudentFee(id: string, input: UpdateStudentFeeInput)
   return formatStudentFee(sf)
 }
 
-export async function waiveStudentFee(id: string) {
-  const existing = await prisma.studentFee.findUnique({ where: { id } })
+export async function waiveStudentFee(schoolId: string, id: string) {
+  const existing = await prisma.studentFee.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Student fee not found')
 
   if (existing.status === 'fps_paid') {
@@ -222,8 +222,8 @@ export async function waiveStudentFee(id: string) {
   return formatStudentFee(sf)
 }
 
-export async function deleteStudentFee(id: string) {
-  const existing = await prisma.studentFee.findUnique({ where: { id } })
+export async function deleteStudentFee(schoolId: string, id: string) {
+  const existing = await prisma.studentFee.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Student fee not found')
 
   if (Number(existing.paidAmount) > 0) {
@@ -234,9 +234,9 @@ export async function deleteStudentFee(id: string) {
   return { success: true }
 }
 
-export async function bulkAssignFees(input: BulkAssignInput) {
-  const fs = await prisma.feeStructure.findUnique({
-    where: { id: input.feeStructureId },
+export async function bulkAssignFees(schoolId: string, input: BulkAssignInput) {
+  const fs = await prisma.feeStructure.findFirst({
+    where: { id: input.feeStructureId, organizationId: schoolId },
     include: { feeType: true },
   })
   if (!fs) throw AppError.notFound('Fee structure not found')
@@ -278,21 +278,20 @@ export async function bulkAssignFees(input: BulkAssignInput) {
   const day = Math.min(fs.dueDay, 28)
   const dueDate = new Date(year, 3, day) // April of academic year
 
-  let created = 0
-  let skipped = 0
+  // Batch check existing assignments
+  const existingAssignments = await prisma.studentFee.findMany({
+    where: { feeStructureId: input.feeStructureId, studentId: { in: studentIds } },
+    select: { studentId: true },
+  })
+  const existingSet = new Set(existingAssignments.map(e => e.studentId))
+  const newStudentIds = studentIds.filter(sid => !existingSet.has(sid))
+  const skipped = studentIds.length - newStudentIds.length
 
-  for (const studentId of studentIds) {
-    const existing = await prisma.studentFee.findFirst({
-      where: { studentId, feeStructureId: input.feeStructureId },
-    })
-    if (existing) {
-      skipped++
-      continue
-    }
-
-    await prisma.studentFee.create({
-      data: {
+  if (newStudentIds.length > 0) {
+    await prisma.studentFee.createMany({
+      data: newStudentIds.map(studentId => ({
         studentId,
+        organizationId: schoolId,
         feeStructureId: input.feeStructureId,
         feeTypeId: fs.feeTypeId,
         academicYear: fs.academicYear,
@@ -301,17 +300,16 @@ export async function bulkAssignFees(input: BulkAssignInput) {
         discountAmount: 0,
         dueDate,
         status: 'fps_pending',
-      },
+      })),
     })
-    created++
   }
 
-  return { created, skipped }
+  return { created: newStudentIds.length, skipped }
 }
 
 // ==================== Payment Collection ====================
 
-export async function collectPayment(input: CollectPaymentInput, collectedBy: string, collectedById: string) {
+export async function collectPayment(schoolId: string, input: CollectPaymentInput, collectedBy: string, collectedById: string) {
   // Verify student exists
   const student = await prisma.student.findUnique({
     where: { id: input.studentId },
@@ -322,90 +320,108 @@ export async function collectPayment(input: CollectPaymentInput, collectedBy: st
   const paymentMode = paymentModeMap[input.paymentMode]
   if (!paymentMode) throw AppError.badRequest('Invalid payment mode')
 
-  const receiptNumber = await generateReceiptNumber()
+  // Retry loop to handle receipt number race condition (unique constraint P2002)
+  const MAX_RETRIES = 3
+  let lastError: unknown = null
 
-  const result = await prisma.$transaction(async (tx) => {
-    const paymentRecords: any[] = []
-    let totalPaid = 0
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const receiptNumber = await generateReceiptNumber(schoolId)
 
-    for (const item of input.payments) {
-      const sf = await tx.studentFee.findUnique({ where: { id: item.studentFeeId } })
-      if (!sf) throw AppError.badRequest(`Student fee ${item.studentFeeId} not found`)
-      if (sf.studentId !== input.studentId) {
-        throw AppError.badRequest(`Student fee ${item.studentFeeId} does not belong to this student`)
-      }
+      const result = await prisma.$transaction(async (tx) => {
+        const paymentRecords: any[] = []
+        let totalPaid = 0
 
-      const remaining = Number(sf.totalAmount) - Number(sf.discountAmount) - Number(sf.paidAmount)
-      if (item.amount > remaining) {
-        throw AppError.badRequest(
-          `Payment amount ${item.amount} exceeds remaining balance ${remaining} for fee ${item.studentFeeId}`
-        )
-      }
+        for (const item of input.payments) {
+          const sf = await tx.studentFee.findUnique({ where: { id: item.studentFeeId } })
+          if (!sf) throw AppError.badRequest(`Student fee ${item.studentFeeId} not found`)
+          if (sf.studentId !== input.studentId) {
+            throw AppError.badRequest(`Student fee ${item.studentFeeId} does not belong to this student`)
+          }
 
-      // Create payment
-      const payment = await tx.payment.create({
-        data: {
-          receiptNumber,
-          studentId: input.studentId,
-          studentFeeId: item.studentFeeId,
-          amount: item.amount,
-          paymentMode: paymentMode as any,
-          transactionRef: input.transactionRef || null,
-          remarks: input.remarks || null,
-          collectedBy,
-          collectedById,
-          collectedAt: new Date(),
-        },
+          const remaining = Number(sf.totalAmount) - Number(sf.discountAmount) - Number(sf.paidAmount)
+          if (item.amount > remaining) {
+            throw AppError.badRequest(
+              `Payment amount ${item.amount} exceeds remaining balance ${remaining} for fee ${item.studentFeeId}`
+            )
+          }
+
+          // Create payment
+          const payment = await tx.payment.create({
+            data: {
+              organizationId: schoolId,
+              receiptNumber,
+              studentId: input.studentId,
+              studentFeeId: item.studentFeeId,
+              amount: item.amount,
+              paymentMode: paymentMode as any,
+              transactionRef: input.transactionRef || null,
+              remarks: input.remarks || null,
+              collectedBy,
+              collectedById,
+              collectedAt: new Date(),
+            },
+          })
+
+          // Update student fee
+          const newPaid = Number(sf.paidAmount) + item.amount
+          const totalDue = Number(sf.totalAmount) - Number(sf.discountAmount)
+          const newStatus = newPaid >= totalDue ? 'fps_paid' : 'fps_partial'
+
+          await tx.studentFee.update({
+            where: { id: item.studentFeeId },
+            data: {
+              paidAmount: newPaid,
+              status: newStatus as any,
+            },
+          })
+
+          paymentRecords.push(payment)
+          totalPaid += item.amount
+        }
+
+        // Create single ledger credit entry
+        await createLedgerEntry(schoolId, {
+          type: 'credit',
+          category: 'fee_collection',
+          referenceId: paymentRecords[0]?.id,
+          referenceNumber: receiptNumber,
+          description: `Fee collection from ${student.firstName} ${student.lastName} (${student.admissionNumber})`,
+          amount: totalPaid,
+        }, tx)
+
+        return { payments: paymentRecords, receiptNumber, totalPaid }
       })
 
-      // Update student fee
-      const newPaid = Number(sf.paidAmount) + item.amount
-      const totalDue = Number(sf.totalAmount) - Number(sf.discountAmount)
-      const newStatus = newPaid >= totalDue ? 'fps_paid' : 'fps_partial'
-
-      await tx.studentFee.update({
-        where: { id: item.studentFeeId },
-        data: {
-          paidAmount: newPaid,
-          status: newStatus as any,
-        },
-      })
-
-      paymentRecords.push(payment)
-      totalPaid += item.amount
+      return {
+        receiptNumber: result.receiptNumber,
+        studentId: input.studentId,
+        studentName: `${student.firstName} ${student.lastName}`,
+        class: student.class?.name,
+        section: student.section?.name,
+        totalPaid: result.totalPaid,
+        paymentMode: input.paymentMode,
+        transactionRef: input.transactionRef,
+        payments: result.payments.map(formatPayment),
+        collectedBy,
+        collectedAt: new Date(),
+      }
+    } catch (error: any) {
+      // Prisma unique constraint violation
+      if (error?.code === 'P2002') {
+        lastError = error
+        continue
+      }
+      throw error
     }
-
-    // Create single ledger credit entry
-    await createLedgerEntry({
-      type: 'credit',
-      category: 'fee_collection',
-      referenceId: paymentRecords[0]?.id,
-      referenceNumber: receiptNumber,
-      description: `Fee collection from ${student.firstName} ${student.lastName} (${student.admissionNumber})`,
-      amount: totalPaid,
-    }, tx)
-
-    return { payments: paymentRecords, receiptNumber, totalPaid }
-  })
-
-  return {
-    receiptNumber: result.receiptNumber,
-    studentId: input.studentId,
-    studentName: `${student.firstName} ${student.lastName}`,
-    class: student.class?.name,
-    section: student.section?.name,
-    totalPaid: result.totalPaid,
-    paymentMode: input.paymentMode,
-    transactionRef: input.transactionRef,
-    payments: result.payments.map(formatPayment),
-    collectedBy,
-    collectedAt: new Date(),
   }
+
+  throw lastError || new Error('Failed to generate unique receipt number after retries')
 }
 
 // ==================== Payment Queries ====================
 
-export async function listPayments(query: {
+export async function listPayments(schoolId: string, query: {
   page?: number
   limit?: number
   studentId?: string
@@ -415,7 +431,7 @@ export async function listPayments(query: {
 }) {
   const page = query.page || 1
   const limit = query.limit || 20
-  const where: any = {}
+  const where: any = { organizationId: schoolId, status: 'active' }
 
   if (query.studentId) where.studentId = query.studentId
   if (query.paymentMode && paymentModeMap[query.paymentMode]) {
@@ -446,9 +462,9 @@ export async function listPayments(query: {
   }
 }
 
-export async function getPaymentById(id: string) {
-  const p = await prisma.payment.findUnique({
-    where: { id },
+export async function getPaymentById(schoolId: string, id: string) {
+  const p = await prisma.payment.findFirst({
+    where: { id, organizationId: schoolId, status: 'active' },
     include: {
       student: { include: { class: true, section: true } },
     },
@@ -457,9 +473,9 @@ export async function getPaymentById(id: string) {
   return formatPayment(p)
 }
 
-export async function getReceiptByNumber(receiptNumber: string) {
+export async function getReceiptByNumber(schoolId: string, receiptNumber: string) {
   const payments = await prisma.payment.findMany({
-    where: { receiptNumber },
+    where: { receiptNumber, organizationId: schoolId, status: 'active' },
     include: {
       student: { include: { class: true, section: true } },
       studentFee: {
@@ -498,12 +514,12 @@ export async function getReceiptByNumber(receiptNumber: string) {
   }
 }
 
-export async function getStudentPayments(studentId: string) {
+export async function getStudentPayments(schoolId: string, studentId: string) {
   const student = await prisma.student.findUnique({ where: { id: studentId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const payments = await prisma.payment.findMany({
-    where: { studentId },
+    where: { studentId, organizationId: schoolId, status: 'active' },
     include: {
       student: { include: { class: true, section: true } },
     },
@@ -513,12 +529,12 @@ export async function getStudentPayments(studentId: string) {
   return { data: payments.map(formatPayment) }
 }
 
-export async function getStudentReceipts(studentId: string) {
+export async function getStudentReceipts(schoolId: string, studentId: string) {
   const student = await prisma.student.findUnique({ where: { id: studentId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const payments = await prisma.payment.findMany({
-    where: { studentId },
+    where: { studentId, organizationId: schoolId, status: 'active' },
     include: {
       student: { include: { class: true, section: true } },
       studentFee: {
@@ -553,9 +569,9 @@ export async function getStudentReceipts(studentId: string) {
   return { data: receipts }
 }
 
-export async function cancelPayment(id: string, cancelledBy: string) {
-  const payment = await prisma.payment.findUnique({
-    where: { id },
+export async function cancelPayment(schoolId: string, id: string, cancelledBy: string) {
+  const payment = await prisma.payment.findFirst({
+    where: { id, organizationId: schoolId },
     include: { student: true },
   })
   if (!payment) throw AppError.notFound('Payment not found')
@@ -574,11 +590,18 @@ export async function cancelPayment(id: string, cancelledBy: string) {
       })
     }
 
-    // Delete the payment
-    await tx.payment.delete({ where: { id } })
+    // Soft-delete the payment
+    await tx.payment.update({
+      where: { id },
+      data: {
+        status: 'cancelled',
+        cancelledAt: new Date(),
+        cancelledBy: cancelledBy,
+      },
+    })
 
     // Create debit ledger entry
-    await createLedgerEntry({
+    await createLedgerEntry(schoolId, {
       type: 'debit',
       category: 'fee_refund',
       referenceId: id,
@@ -593,7 +616,7 @@ export async function cancelPayment(id: string, cancelledBy: string) {
 
 // ==================== Outstanding Dues ====================
 
-export async function getOutstandingDues(query: {
+export async function getOutstandingDues(schoolId: string, query: {
   page?: number
   limit?: number
   className?: string
@@ -603,6 +626,7 @@ export async function getOutstandingDues(query: {
   const limit = query.limit || 20
 
   const where: any = {
+    organizationId: schoolId,
     status: { in: ['fps_pending', 'fps_partial', 'fps_overdue'] },
   }
   if (query.academicYear) where.academicYear = query.academicYear
@@ -665,14 +689,29 @@ export async function getOutstandingDues(query: {
   }
 
   const allStudents = Array.from(studentMap.values()).map((s) => ({
-    ...s,
+    id: s.studentId,
+    studentId: s.studentId,
+    studentName: s.studentName,
+    admissionNumber: s.admissionNumber,
+    studentClass: s.class,
+    studentSection: s.section,
+    parentPhone: s.parentPhone || '',
+    parentEmail: s.parentEmail || '',
+    totalDue: s.outstandingAmount,
+    feeBreakdown: s.fees.map((f: any) => ({
+      feeTypeName: f.feeType,
+      amount: f.outstanding,
+      dueDate: f.dueDate,
+    })),
+    oldestDueDate: s.oldestDueDate,
+    lastReminderSentAt: null,
     daysOverdue: s.oldestDueDate
       ? Math.max(0, Math.floor((Date.now() - new Date(s.oldestDueDate).getTime()) / (1000 * 60 * 60 * 24)))
       : 0,
   }))
 
   // Sort by outstanding amount desc
-  allStudents.sort((a, b) => b.outstandingAmount - a.outstandingAmount)
+  allStudents.sort((a, b) => b.totalDue - a.totalDue)
 
   const total = allStudents.length
   const paginated = allStudents.slice((page - 1) * limit, page * limit)
@@ -683,7 +722,7 @@ export async function getOutstandingDues(query: {
   }
 }
 
-export async function getStudentOutstandingDues(studentId: string) {
+export async function getStudentOutstandingDues(schoolId: string, studentId: string) {
   const student = await prisma.student.findUnique({
     where: { id: studentId },
     include: { class: true, section: true },
@@ -693,6 +732,7 @@ export async function getStudentOutstandingDues(studentId: string) {
   const fees = await prisma.studentFee.findMany({
     where: {
       studentId,
+      organizationId: schoolId,
       status: { in: ['fps_pending', 'fps_partial', 'fps_overdue'] },
     },
     include: {
@@ -737,10 +777,10 @@ export async function getStudentOutstandingDues(studentId: string) {
   }
 }
 
-export async function sendReminders() {
+export async function sendReminders(schoolId: string) {
   // Stub — in future this would send email/SMS reminders
   const overdue = await prisma.studentFee.count({
-    where: { status: { in: ['fps_pending', 'fps_overdue'] } },
+    where: { organizationId: schoolId, status: { in: ['fps_pending', 'fps_overdue'] } },
   })
   return { message: 'Reminders queued', overdueCount: overdue }
 }

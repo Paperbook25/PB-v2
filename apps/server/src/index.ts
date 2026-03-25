@@ -33,10 +33,10 @@ app.use(helmet({
 // Rate limiting
 // ---------------------------------------------------------------------------
 
-// Rate limit for auth endpoints
+// Rate limit for auth endpoints (relaxed in development for testing)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: env.isProd ? 20 : 200,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts. Try again later.' },
@@ -57,7 +57,8 @@ app.use('/api/public', publicLimiter)
 // CORS — allow school subdomains, admin portal, and localhost
 // ---------------------------------------------------------------------------
 const allowedOrigins = [
-  env.CORS_ORIGIN,
+  ...env.CORS_ORIGIN.split(',').map(o => o.trim()),
+  'http://localhost:4173',
   'http://localhost:5173',
   'http://localhost:5174',
 ].filter(Boolean) as string[]

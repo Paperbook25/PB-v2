@@ -59,7 +59,7 @@ export function CollectionReportView() {
   const report = data?.data
 
   const paymentModeData = report
-    ? Object.entries(report.byPaymentMode)
+    ? Object.entries(report.byPaymentMode ?? {})
         .filter(([_, value]) => value > 0)
         .map(([mode, value]) => ({
           name: PAYMENT_MODE_LABELS[mode as PaymentMode],
@@ -144,7 +144,7 @@ export function CollectionReportView() {
           </Card>
 
           {/* Daily Collection Chart */}
-          {report.dailyCollections.length > 0 && (
+          {(report.dailyCollections?.length ?? 0) > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Daily Collection Trend</CardTitle>
@@ -219,7 +219,7 @@ export function CollectionReportView() {
             )}
 
             {/* By Fee Type */}
-            {report.byFeeType.length > 0 && (
+            {(report.byFeeType?.length ?? 0) > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">By Fee Type</CardTitle>
@@ -233,7 +233,7 @@ export function CollectionReportView() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {report.byFeeType.slice(0, 5).map((item) => (
+                      {(report.byFeeType ?? []).slice(0, 5).map((item) => (
                         <TableRow key={item.feeTypeName}>
                           <TableCell>{item.feeTypeName}</TableCell>
                           <TableCell className="text-right font-medium">
@@ -249,14 +249,14 @@ export function CollectionReportView() {
           </div>
 
           {/* By Class */}
-          {report.byClass.length > 0 && (
+          {(report.byClass?.length ?? 0) > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Collection by Class</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={report.byClass} layout="vertical">
+                  <BarChart data={report.byClass ?? []} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis type="number" tickFormatter={(v) => `₹${v / 1000}k`} />
                     <YAxis dataKey="className" type="category" width={80} className="text-xs" />

@@ -44,10 +44,10 @@ const studentInclude = {
   parent: true,
 }
 
-async function generateAdmissionNumber(): Promise<string> {
+async function generateAdmissionNumber(schoolId: string): Promise<string> {
   const year = new Date().getFullYear()
   const lastStudent = await prisma.student.findFirst({
-    where: { admissionNumber: { startsWith: `ADM-${year}-` } },
+    where: { organizationId: schoolId, admissionNumber: { startsWith: `ADM-${year}-` } },
     orderBy: { admissionNumber: 'desc' },
   })
   let seq = 1
@@ -58,8 +58,8 @@ async function generateAdmissionNumber(): Promise<string> {
   return `ADM-${year}-${String(seq).padStart(4, '0')}`
 }
 
-async function resolveClassAndSection(className: string, sectionName: string) {
-  const cls = await prisma.class.findFirst({ where: { name: className } })
+async function resolveClassAndSection(schoolId: string, className: string, sectionName: string) {
+  const cls = await prisma.class.findFirst({ where: { organizationId: schoolId, name: className } })
   if (!cls) throw AppError.badRequest(`Class '${className}' not found`)
 
   const section = await prisma.section.findFirst({
@@ -72,9 +72,9 @@ async function resolveClassAndSection(className: string, sectionName: string) {
 
 // ==================== CRUD ====================
 
-export async function listStudents(query: ListStudentsInput) {
+export async function listStudents(schoolId: string, query: ListStudentsInput) {
   const { page, limit, search, class: className, section, status, gender } = query
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
 
   if (search) {
     where.OR = [
@@ -85,7 +85,7 @@ export async function listStudents(query: ListStudentsInput) {
     ]
   }
   if (className) {
-    const cls = await prisma.class.findFirst({ where: { name: className } })
+    const cls = await prisma.class.findFirst({ where: { organizationId: schoolId, name: className } })
     if (cls) where.classId = cls.id
   }
   if (section) {
@@ -115,25 +115,26 @@ export async function listStudents(query: ListStudentsInput) {
   }
 }
 
-export async function getStudentById(id: string) {
-  const student = await prisma.student.findUnique({
-    where: { id },
+export async function getStudentById(schoolId: string, id: string) {
+  const student = await prisma.student.findFirst({
+    where: { id, organizationId: schoolId },
     include: studentInclude,
   })
   if (!student) throw AppError.notFound('Student not found')
   return formatStudent(student)
 }
 
-export async function createStudent(input: CreateStudentInput) {
-  // Check email uniqueness
-  const existing = await prisma.student.findUnique({ where: { email: input.email } })
+export async function createStudent(schoolId: string, input: CreateStudentInput) {
+  // Check email uniqueness within school
+  const existing = await prisma.student.findFirst({ where: { organizationId: schoolId, email: input.email } })
   if (existing) throw AppError.conflict('A student with this email already exists')
 
-  const { classId, sectionId } = await resolveClassAndSection(input.class, input.section)
-  const admissionNumber = await generateAdmissionNumber()
+  const { classId, sectionId } = await resolveClassAndSection(schoolId, input.class, input.section)
+  const admissionNumber = await generateAdmissionNumber(schoolId)
 
   const student = await prisma.student.create({
     data: {
+      organizationId: schoolId,
       admissionNumber,
       firstName: input.firstName,
       lastName: input.lastName,
@@ -168,13 +169,13 @@ export async function createStudent(input: CreateStudentInput) {
   return formatStudent(student)
 }
 
-export async function updateStudent(id: string, input: UpdateStudentInput) {
-  const existing = await prisma.student.findUnique({ where: { id } })
+export async function updateStudent(schoolId: string, id: string, input: UpdateStudentInput) {
+  const existing = await prisma.student.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Student not found')
 
-  // Check email uniqueness
+  // Check email uniqueness within school
   if (input.email && input.email !== existing.email) {
-    const emailTaken = await prisma.student.findUnique({ where: { email: input.email } })
+    const emailTaken = await prisma.student.findFirst({ where: { organizationId: schoolId, email: input.email } })
     if (emailTaken) throw AppError.conflict('A student with this email already exists')
   }
 
@@ -196,7 +197,7 @@ export async function updateStudent(id: string, input: UpdateStudentInput) {
     const className = input.class || (await prisma.class.findUnique({ where: { id: existing.classId } }))?.name
     const sectionName = input.section || (await prisma.section.findUnique({ where: { id: existing.sectionId } }))?.name
     if (className && sectionName) {
-      const resolved = await resolveClassAndSection(className, sectionName)
+      const resolved = await resolveClassAndSection(schoolId, className, sectionName)
       data.classId = resolved.classId
       data.sectionId = resolved.sectionId
     }
@@ -229,8 +230,8 @@ export async function updateStudent(id: string, input: UpdateStudentInput) {
   return formatStudent(student)
 }
 
-export async function deleteStudent(id: string) {
-  const existing = await prisma.student.findUnique({ where: { id } })
+export async function deleteStudent(schoolId: string, id: string) {
+  const existing = await prisma.student.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Student not found')
 
   await prisma.student.delete({ where: { id } })
@@ -239,8 +240,8 @@ export async function deleteStudent(id: string) {
 
 // ==================== Documents ====================
 
-export async function listDocuments(studentId: string) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function listDocuments(schoolId: string, studentId: string) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const documents = await prisma.studentDocument.findMany({
@@ -250,8 +251,8 @@ export async function listDocuments(studentId: string) {
   return documents
 }
 
-export async function createDocument(studentId: string, input: CreateDocumentInput, uploadedBy?: string) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function createDocument(schoolId: string, studentId: string, input: CreateDocumentInput, uploadedBy?: string) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const doc = await prisma.studentDocument.create({
@@ -280,7 +281,7 @@ export async function createDocument(studentId: string, input: CreateDocumentInp
   return doc
 }
 
-export async function deleteDocument(studentId: string, docId: string) {
+export async function deleteDocument(schoolId: string, studentId: string, docId: string) {
   const doc = await prisma.studentDocument.findFirst({
     where: { id: docId, studentId },
   })
@@ -290,7 +291,7 @@ export async function deleteDocument(studentId: string, docId: string) {
   return { success: true }
 }
 
-export async function verifyDocument(studentId: string, docId: string, verifiedBy: string) {
+export async function verifyDocument(schoolId: string, studentId: string, docId: string, verifiedBy: string) {
   const doc = await prisma.studentDocument.findFirst({
     where: { id: docId, studentId },
   })
@@ -305,16 +306,16 @@ export async function verifyDocument(studentId: string, docId: string, verifiedB
 
 // ==================== Health Records ====================
 
-export async function getHealthRecord(studentId: string) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function getHealthRecord(schoolId: string, studentId: string) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const record = await prisma.studentHealthRecord.findUnique({ where: { studentId } })
   return record || null
 }
 
-export async function upsertHealthRecord(studentId: string, input: UpsertHealthRecordInput) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function upsertHealthRecord(schoolId: string, studentId: string, input: UpsertHealthRecordInput) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const data: any = {
@@ -343,8 +344,8 @@ export async function upsertHealthRecord(studentId: string, input: UpsertHealthR
 
 // ==================== Timeline ====================
 
-export async function listTimelineEvents(studentId: string) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function listTimelineEvents(schoolId: string, studentId: string) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const events = await prisma.studentTimelineEvent.findMany({
@@ -356,8 +357,8 @@ export async function listTimelineEvents(studentId: string) {
 
 // ==================== Siblings ====================
 
-export async function getSiblings(studentId: string) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function getSiblings(schoolId: string, studentId: string) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const siblingLinks = await prisma.studentSibling.findMany({
@@ -378,14 +379,14 @@ export async function getSiblings(studentId: string) {
   }))
 }
 
-export async function linkSibling(studentId: string, input: LinkSiblingInput) {
+export async function linkSibling(schoolId: string, studentId: string, input: LinkSiblingInput) {
   if (studentId === input.siblingId) {
     throw AppError.badRequest('Cannot link a student as their own sibling')
   }
 
   const [student, sibling] = await Promise.all([
-    prisma.student.findUnique({ where: { id: studentId } }),
-    prisma.student.findUnique({ where: { id: input.siblingId } }),
+    prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } }),
+    prisma.student.findFirst({ where: { id: input.siblingId, organizationId: schoolId } }),
   ])
   if (!student) throw AppError.notFound('Student not found')
   if (!sibling) throw AppError.notFound('Sibling student not found')
@@ -405,7 +406,7 @@ export async function linkSibling(studentId: string, input: LinkSiblingInput) {
   return { success: true }
 }
 
-export async function unlinkSibling(studentId: string, siblingId: string) {
+export async function unlinkSibling(schoolId: string, studentId: string, siblingId: string) {
   const link = await prisma.studentSibling.findUnique({
     where: { studentId_siblingId: { studentId, siblingId } },
   })
@@ -422,14 +423,14 @@ export async function unlinkSibling(studentId: string, siblingId: string) {
 
 // ==================== ID Card ====================
 
-export async function getIdCardData(studentId: string) {
-  const student = await prisma.student.findUnique({
-    where: { id: studentId },
+export async function getIdCardData(schoolId: string, studentId: string) {
+  const student = await prisma.student.findFirst({
+    where: { id: studentId, organizationId: schoolId },
     include: { class: true, section: true, parent: true, address: true },
   })
   if (!student) throw AppError.notFound('Student not found')
 
-  const school = await prisma.schoolProfile.findFirst()
+  const school = await prisma.schoolProfile.findFirst({ where: { organizationId: schoolId } })
 
   return {
     student: {
@@ -456,8 +457,8 @@ export async function getIdCardData(studentId: string) {
 
 // ==================== Skills ====================
 
-export async function addSkill(studentId: string, input: CreateSkillInput) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function addSkill(schoolId: string, studentId: string, input: CreateSkillInput) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const skill = await prisma.studentSkill.create({
@@ -475,7 +476,7 @@ export async function addSkill(studentId: string, input: CreateSkillInput) {
   return skill
 }
 
-export async function updateSkill(studentId: string, skillId: string, input: UpdateSkillInput) {
+export async function updateSkill(schoolId: string, studentId: string, skillId: string, input: UpdateSkillInput) {
   const skill = await prisma.studentSkill.findFirst({ where: { id: skillId, studentId } })
   if (!skill) throw AppError.notFound('Skill not found')
 
@@ -492,7 +493,7 @@ export async function updateSkill(studentId: string, skillId: string, input: Upd
   return updated
 }
 
-export async function deleteSkill(studentId: string, skillId: string) {
+export async function deleteSkill(schoolId: string, studentId: string, skillId: string) {
   const skill = await prisma.studentSkill.findFirst({ where: { id: skillId, studentId } })
   if (!skill) throw AppError.notFound('Skill not found')
 
@@ -502,8 +503,8 @@ export async function deleteSkill(studentId: string, skillId: string) {
 
 // ==================== Portfolio ====================
 
-export async function getPortfolio(studentId: string) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function getPortfolio(schoolId: string, studentId: string) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const [skills, items] = await Promise.all([
@@ -514,8 +515,8 @@ export async function getPortfolio(studentId: string) {
   return { skills, items }
 }
 
-export async function addPortfolioItem(studentId: string, input: CreatePortfolioItemInput) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+export async function addPortfolioItem(schoolId: string, studentId: string, input: CreatePortfolioItemInput) {
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const item = await prisma.studentPortfolioItem.create({
@@ -534,7 +535,7 @@ export async function addPortfolioItem(studentId: string, input: CreatePortfolio
   return item
 }
 
-export async function updatePortfolioItem(studentId: string, itemId: string, input: UpdatePortfolioItemInput) {
+export async function updatePortfolioItem(schoolId: string, studentId: string, itemId: string, input: UpdatePortfolioItemInput) {
   const item = await prisma.studentPortfolioItem.findFirst({ where: { id: itemId, studentId } })
   if (!item) throw AppError.notFound('Portfolio item not found')
 
@@ -552,7 +553,7 @@ export async function updatePortfolioItem(studentId: string, itemId: string, inp
   return updated
 }
 
-export async function deletePortfolioItem(studentId: string, itemId: string) {
+export async function deletePortfolioItem(schoolId: string, studentId: string, itemId: string) {
   const item = await prisma.studentPortfolioItem.findFirst({ where: { id: itemId, studentId } })
   if (!item) throw AppError.notFound('Portfolio item not found')
 
@@ -562,11 +563,11 @@ export async function deletePortfolioItem(studentId: string, itemId: string) {
 
 // ==================== Promotion ====================
 
-export async function promoteStudents(input: PromoteStudentsInput) {
-  const { classId, sectionId } = await resolveClassAndSection(input.toClass, input.toSection)
+export async function promoteStudents(schoolId: string, input: PromoteStudentsInput) {
+  const { classId, sectionId } = await resolveClassAndSection(schoolId, input.toClass, input.toSection)
 
   const students = await prisma.student.findMany({
-    where: { id: { in: input.studentIds } },
+    where: { id: { in: input.studentIds }, organizationId: schoolId },
     include: { class: true, section: true },
   })
 
@@ -602,11 +603,11 @@ export async function promoteStudents(input: PromoteStudentsInput) {
 
 // ==================== Bulk ====================
 
-export async function bulkImportStudents(input: BulkImportStudentsInput) {
+export async function bulkImportStudents(schoolId: string, input: BulkImportStudentsInput) {
   const results = []
   for (const studentInput of input.students) {
     try {
-      const student = await createStudent(studentInput)
+      const student = await createStudent(schoolId, studentInput)
       results.push({ admissionNumber: student.admissionNumber, name: student.name, status: 'created' })
     } catch (err: any) {
       results.push({ email: studentInput.email, status: 'failed', error: err.message })
@@ -615,8 +616,9 @@ export async function bulkImportStudents(input: BulkImportStudentsInput) {
   return results
 }
 
-export async function exportStudents() {
+export async function exportStudents(schoolId: string) {
   const students = await prisma.student.findMany({
+    where: { organizationId: schoolId },
     include: { class: true, section: true, address: true, parent: true },
     orderBy: { admissionNumber: 'asc' },
   })

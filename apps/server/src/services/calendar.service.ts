@@ -204,7 +204,7 @@ const entryInclude = {
  * 2. TimetableEntries (recurring class schedule, expanded into the date range)
  * 3. Substitutions (modifications to the regular schedule)
  */
-export async function getCalendarEvents(params: {
+export async function getCalendarEvents(schoolId: string, params: {
   startDate: string
   endDate: string
   classId?: string
@@ -226,6 +226,7 @@ export async function getCalendarEvents(params: {
   // 1. Fetch CalendarEvents (holidays, school events, exams, etc.)
   if (type === 'all' || type === 'events' || type === 'holidays') {
     const calendarWhere: any = {
+      organizationId: schoolId,
       startDate: { lte: end },
       endDate: { gte: start },
     }
@@ -263,6 +264,7 @@ export async function getCalendarEvents(params: {
     // Gather holidays for skipping class events on holiday dates
     const holidays = await prisma.calendarEvent.findMany({
       where: {
+        organizationId: schoolId,
         type: { in: ['holiday', 'vacation'] },
         startDate: { lte: end },
         endDate: { gte: start },
@@ -272,6 +274,7 @@ export async function getCalendarEvents(params: {
 
     // Build the timetable filter
     const timetableWhere: any = {
+      organizationId: schoolId,
       status: 'tt_published',
     }
     if (classId) timetableWhere.classId = classId
@@ -387,8 +390,9 @@ export async function getCalendarEvents(params: {
  * Get the weekly recurring schedule for a class (from published timetable).
  * Returns the raw timetable entries with period times, subject, teacher, room.
  */
-export async function getClassSchedule(classId: string, sectionId?: string): Promise<WeeklySchedule> {
+export async function getClassSchedule(schoolId: string, classId: string, sectionId?: string): Promise<WeeklySchedule> {
   const timetableWhere: any = {
+    organizationId: schoolId,
     classId,
     status: 'tt_published',
   }
@@ -414,7 +418,7 @@ export async function getClassSchedule(classId: string, sectionId?: string): Pro
   }
 
   const periods = await prisma.periodDefinition.findMany({
-    where: { isActive: true },
+    where: { isActive: true, organizationId: schoolId },
     orderBy: { periodNumber: 'asc' },
   })
 
@@ -435,14 +439,14 @@ export async function getClassSchedule(classId: string, sectionId?: string): Pro
 /**
  * Get the weekly recurring schedule for a teacher across all their classes.
  */
-export async function getTeacherSchedule(teacherId: string): Promise<WeeklySchedule> {
-  const teacher = await prisma.staff.findUnique({ where: { id: teacherId } })
+export async function getTeacherSchedule(schoolId: string, teacherId: string): Promise<WeeklySchedule> {
+  const teacher = await prisma.staff.findFirst({ where: { id: teacherId, organizationId: schoolId } })
   if (!teacher) throw AppError.notFound('Teacher not found')
 
   const entries = await prisma.timetableEntry.findMany({
     where: {
       teacherId,
-      timetable: { status: 'tt_published' },
+      timetable: { status: 'tt_published', organizationId: schoolId },
     },
     include: {
       ...entryInclude,
@@ -459,7 +463,7 @@ export async function getTeacherSchedule(teacherId: string): Promise<WeeklySched
   const formattedEntries = entries.map(e => formatEntryForSchedule(e, e.timetable))
 
   const periods = await prisma.periodDefinition.findMany({
-    where: { isActive: true },
+    where: { isActive: true, organizationId: schoolId },
     orderBy: { periodNumber: 'asc' },
   })
 
@@ -480,12 +484,13 @@ export async function getTeacherSchedule(teacherId: string): Promise<WeeklySched
 /**
  * Get all classes/sections available for the calendar filter dropdown.
  */
-export async function getCalendarFilters(): Promise<{
+export async function getCalendarFilters(schoolId: string): Promise<{
   classes: Array<{ id: string; name: string; sections: Array<{ id: string; name: string }> }>
   teachers: Array<{ id: string; name: string; department?: string }>
 }> {
   const [classes, teachers] = await Promise.all([
     prisma.class.findMany({
+      where: { organizationId: schoolId },
       orderBy: { sortOrder: 'asc' },
       include: {
         sections: {
@@ -495,7 +500,7 @@ export async function getCalendarFilters(): Promise<{
       },
     }),
     prisma.staff.findMany({
-      where: { status: 'active' },
+      where: { status: 'active', organizationId: schoolId },
       select: {
         id: true,
         firstName: true,
@@ -523,7 +528,7 @@ export async function getCalendarFilters(): Promise<{
 /**
  * Create a calendar event (holiday, school event, exam, meeting).
  */
-export async function createCalendarEvent(input: {
+export async function createCalendarEvent(schoolId: string, input: {
   title: string
   description?: string
   startDate: string
@@ -566,6 +571,7 @@ export async function createCalendarEvent(input: {
 
   const event = await prisma.calendarEvent.create({
     data: {
+      organizationId: schoolId,
       title: input.title,
       description: input.description || '',
       type: dbType as any,
@@ -594,7 +600,7 @@ export async function createCalendarEvent(input: {
 /**
  * Update a calendar event.
  */
-export async function updateCalendarEvent(id: string, input: Partial<{
+export async function updateCalendarEvent(schoolId: string, id: string, input: Partial<{
   title: string
   description: string
   startDate: string
@@ -602,7 +608,7 @@ export async function updateCalendarEvent(id: string, input: Partial<{
   type: string
   appliesToClasses: string
 }>): Promise<any> {
-  const existing = await prisma.calendarEvent.findUnique({ where: { id } })
+  const existing = await prisma.calendarEvent.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Calendar event not found')
 
   const data: any = {}
@@ -663,8 +669,8 @@ export async function updateCalendarEvent(id: string, input: Partial<{
 /**
  * Delete a calendar event.
  */
-export async function deleteCalendarEvent(id: string): Promise<void> {
-  const existing = await prisma.calendarEvent.findUnique({ where: { id } })
+export async function deleteCalendarEvent(schoolId: string, id: string): Promise<void> {
+  const existing = await prisma.calendarEvent.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Calendar event not found')
 
   await prisma.calendarEvent.delete({ where: { id } })

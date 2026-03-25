@@ -20,7 +20,7 @@ interface IntegrationsSectionProps {
 export function IntegrationsSection({ activeTab, onTabChange }: IntegrationsSectionProps) {
   return (
     <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as IntegrationsTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
+      <TabsList variant="secondary" className="flex flex-wrap w-full gap-1">
         <TabsTrigger variant="secondary" value="sms" className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 hidden sm:block" />
           SMS

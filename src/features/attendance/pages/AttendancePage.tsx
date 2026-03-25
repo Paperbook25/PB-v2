@@ -52,11 +52,10 @@ import {
   useAttendanceReport,
 } from '../hooks/useAttendance'
 import {
-  CLASSES,
-  SECTIONS,
   ATTENDANCE_STATUS_LABELS,
   LEAVE_TYPE_LABELS,
 } from '../types/attendance.types'
+import { useClassNames, useAllSections } from '@/hooks/useSchoolData'
 import type { AttendanceStatus } from '../types/attendance.types'
 
 // Import components for each tab
@@ -74,8 +73,10 @@ type PrimaryTab = 'mark' | 'period' | 'reports' | 'leave' | 'alerts' | 'late' | 
 // ============================================
 function MarkAttendanceTab() {
   const { toast } = useToast()
-  const [selectedClass, setSelectedClass] = useState('Class 10')
-  const [selectedSection, setSelectedSection] = useState('A')
+  const { data: classNames = [] } = useClassNames()
+  const { data: allSections = [] } = useAllSections()
+  const [selectedClass, setSelectedClass] = useState('')
+  const [selectedSection, setSelectedSection] = useState('')
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [attendanceData, setAttendanceData] = useState<Record<string, AttendanceStatus>>({})
   const [hasChanges, setHasChanges] = useState(false)
@@ -172,7 +173,7 @@ function MarkAttendanceTab() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map((c) => (
+                  {classNames.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
                 </SelectContent>
@@ -185,7 +186,7 @@ function MarkAttendanceTab() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SECTIONS.map((s) => (
+                  {allSections.map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
@@ -351,13 +352,17 @@ function MarkAttendanceTab() {
 // Reports Tab Component
 // ============================================
 function ReportsTab() {
-  const [selectedClass, setSelectedClass] = useState('Class 10')
-  const [selectedSection, setSelectedSection] = useState('A')
+  const { data: classNames = [] } = useClassNames()
+  const { data: allSections = [] } = useAllSections()
+  const [selectedClass, setSelectedClass] = useState('')
+  const [selectedSection, setSelectedSection] = useState('')
 
   const { data: reportData, isLoading: reportLoading } = useAttendanceReport(
     selectedClass,
     selectedSection,
-    '2024-04-01',
+    new Date().getMonth() >= 3
+      ? `${new Date().getFullYear()}-04-01`
+      : `${new Date().getFullYear() - 1}-04-01`,
     new Date().toISOString().split('T')[0]
   )
 
@@ -378,7 +383,7 @@ function ReportsTab() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map((c) => (
+                  {classNames.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
                 </SelectContent>
@@ -388,7 +393,7 @@ function ReportsTab() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SECTIONS.map((s) => (
+                  {allSections.map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>

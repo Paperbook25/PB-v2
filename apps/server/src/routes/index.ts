@@ -21,6 +21,7 @@ import permissionRoutes from './permission.routes.js'
 import aiPlannerRoutes from './ai-planner.routes.js'
 import agentRoutes from './agent.routes.js'
 import websiteRoutes, { websitePublicRouter } from './school-website.routes.js'
+import { contactRouter, contactPublicRouter } from './contact.routes.js'
 import adminRoutes from './admin/index.js'
 
 const router = Router()
@@ -81,6 +82,10 @@ router.use('/agents', requireTenant, agentRoutes)
 // School Website Builder
 router.use('/school-website', requireTenant, websiteRoutes)
 router.use('/public/school-website', websitePublicRouter) // Public endpoint — no tenant enforcement
+
+// Contact Submissions
+router.use('/contact', requireTenant, contactRouter)
+router.use('/public/contact', contactPublicRouter) // Public endpoint — no tenant enforcement
 
 // Super Admin Panel (better-auth protected — has its own auth)
 router.use('/admin', adminRoutes)

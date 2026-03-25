@@ -47,7 +47,7 @@ export function CommunicationSection({ activeTab, onTabChange }: CommunicationSe
 
   return (
     <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as CommunicationTab)}>
-      <TabsList variant="secondary" className="flex flex-wrap w-full">
+      <TabsList variant="secondary" className="flex flex-wrap w-full gap-1">
         {tabs.map((tab) => (
           <TabsTrigger variant="secondary" key={tab.value} value={tab.value} className="flex items-center gap-2">
             <tab.icon className="h-4 w-4" />

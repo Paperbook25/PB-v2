@@ -47,11 +47,10 @@ import {
   useAttendanceReport,
 } from '@/features/attendance/hooks/useAttendance'
 import {
-  CLASSES,
-  SECTIONS,
   ATTENDANCE_STATUS_LABELS,
   LEAVE_TYPE_LABELS,
 } from '@/features/attendance/types/attendance.types'
+import { useClassNames, useAllSections } from '@/hooks/useSchoolData'
 import type { AttendanceStatus } from '@/features/attendance/types/attendance.types'
 
 // Import components for each tab
@@ -67,6 +66,8 @@ import type { AttendanceTabProps, AttendanceSubTab } from '../types/people.types
 // ============================================
 function MarkAttendanceContent() {
   const { toast } = useToast()
+  const { data: dbClassNames = [] } = useClassNames()
+  const { data: dbSections = [] } = useAllSections()
   const [selectedClass, setSelectedClass] = useState('Class 10')
   const [selectedSection, setSelectedSection] = useState('A')
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
@@ -165,7 +166,7 @@ function MarkAttendanceContent() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map((c) => (
+                  {dbClassNames.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
                 </SelectContent>
@@ -178,7 +179,7 @@ function MarkAttendanceContent() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SECTIONS.map((s) => (
+                  {dbSections.map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
@@ -344,6 +345,8 @@ function MarkAttendanceContent() {
 // Reports Tab Component
 // ============================================
 function ReportsContent() {
+  const { data: dbClassNames = [] } = useClassNames()
+  const { data: dbSections = [] } = useAllSections()
   const [selectedClass, setSelectedClass] = useState('Class 10')
   const [selectedSection, setSelectedSection] = useState('A')
 
@@ -371,7 +374,7 @@ function ReportsContent() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map((c) => (
+                  {dbClassNames.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
                 </SelectContent>
@@ -381,7 +384,7 @@ function ReportsContent() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SECTIONS.map((s) => (
+                  {dbSections.map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>

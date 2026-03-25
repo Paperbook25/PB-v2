@@ -28,10 +28,13 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    `http://*.${env.APP_DOMAIN}:5173`,
-    `http://*.${env.APP_DOMAIN}:5174`,
+    ...(env.isDev ? [
+      'http://localhost:4173',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      `http://*.${env.APP_DOMAIN}:5173`,
+      `http://*.${env.APP_DOMAIN}:5174`,
+    ] : []),
     `https://*.${env.APP_DOMAIN}`,
   ],
   advanced: {

@@ -142,12 +142,37 @@ const emailTemplates = [
 // ============================================================================
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('ERROR: Seed script cannot run in production. Set NODE_ENV to development to seed.')
+    process.exit(1)
+  }
+
   console.log('[Seed] Starting database seed...')
 
   const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 12)
 
   // Clear existing data (order matters — foreign keys)
   console.log('[Seed] Clearing existing data...')
+  // Phase 7 tables (Admissions)
+  await prisma.admissionCommunication.deleteMany()
+  await prisma.admissionPayment.deleteMany()
+  await prisma.admissionNote.deleteMany()
+  await prisma.admissionStatusHistory.deleteMany()
+  await prisma.admissionDocument.deleteMany()
+  await prisma.admissionApplication.deleteMany()
+  await prisma.admEntranceExamSchedule.deleteMany()
+  await prisma.admissionCommTemplate.deleteMany()
+  // Phase 6 tables (Exams)
+  await prisma.onlineExamAttempt.deleteMany()
+  await prisma.onlineExam.deleteMany()
+  await prisma.bankQuestion.deleteMany()
+  await prisma.questionPaper.deleteMany()
+  await prisma.coScholasticRecord.deleteMany()
+  await prisma.examSlot.deleteMany()
+  await prisma.reportCard.deleteMany()
+  await prisma.studentMark.deleteMany()
+  await prisma.exam.deleteMany()
+  await prisma.gradeScale.deleteMany()
   // Phase 5 tables
   await prisma.ledgerEntry.deleteMany()
   await prisma.payment.deleteMany()
@@ -1403,15 +1428,14 @@ async function main() {
   }
   console.log(`[Seed] Created ${createdStudentFeeIds.length} student fees`)
 
-  // ==================== Payments (12) ====================
+  // ==================== Payments (one per paid/partial StudentFee) ====================
 
   const paymentModes = ['pm_cash', 'pm_upi', 'pm_bank_transfer', 'pm_cash', 'pm_upi', 'pm_bank_transfer',
     'pm_cheque', 'pm_upi', 'pm_cash', 'pm_online', 'pm_bank_transfer', 'pm_upi'] as const
 
   let ledgerBalance = 0
-  const paymentCount = Math.min(12, paidStudentFeeIds.length)
 
-  for (let i = 0; i < paymentCount; i++) {
+  for (let i = 0; i < paidStudentFeeIds.length; i++) {
     const sfId = paidStudentFeeIds[i]
     const sf = await prisma.studentFee.findUnique({
       where: { id: sfId },
@@ -1422,7 +1446,7 @@ async function main() {
     const amount = Number(sf.paidAmount)
     if (amount <= 0) continue
 
-    const dateNum = String(i + 1).padStart(2, '0')
+    const dateNum = String((i % 28) + 1).padStart(2, '0')
     const receiptNumber = `RCP-20250101-${String(i + 1).padStart(4, '0')}`
 
     await prisma.payment.create({
@@ -1437,6 +1461,7 @@ async function main() {
         collectedBy: 'Rahul Accounts',
         collectedById: createdUsers['accounts@paperbook.in'] || null,
         collectedAt: new Date(`2025-01-${dateNum}T10:00:00Z`),
+        status: 'active',
       },
     })
 
@@ -1594,6 +1619,871 @@ async function main() {
   }
   console.log(`[Seed] Created ledger entries for ${paidExpenses.length} paid expenses`)
 
+  // ============================================================================
+  // Phase 6: Exams
+  // ============================================================================
+
+  // ==================== Grade Scale (1 CBSE default) ====================
+
+  const gradeScale = await prisma.gradeScale.create({
+    data: {
+      name: 'CBSE Standard Grading',
+      isDefault: true,
+      ranges: [
+        { grade: 'A1', minMarks: 91, maxMarks: 100, description: 'Outstanding' },
+        { grade: 'A2', minMarks: 81, maxMarks: 90, description: 'Excellent' },
+        { grade: 'B1', minMarks: 71, maxMarks: 80, description: 'Very Good' },
+        { grade: 'B2', minMarks: 61, maxMarks: 70, description: 'Good' },
+        { grade: 'C1', minMarks: 51, maxMarks: 60, description: 'Above Average' },
+        { grade: 'C2', minMarks: 41, maxMarks: 50, description: 'Average' },
+        { grade: 'D', minMarks: 33, maxMarks: 40, description: 'Below Average' },
+        { grade: 'E', minMarks: 0, maxMarks: 32, description: 'Needs Improvement' },
+      ],
+    },
+  })
+  console.log('[Seed] Created CBSE grade scale')
+
+  // ==================== Exams (3) ====================
+
+  const highSchoolSubjectCodes = ['ENG', 'HIN', 'MAT', 'SCI', 'SSC', 'CS', 'PE']
+  const allSubjectCodes = ['ENG', 'HIN', 'MAT', 'SCI', 'SSC', 'PE', 'ART']
+
+  const exam1 = await prisma.exam.create({
+    data: {
+      name: 'Unit Test 1',
+      type: 'et_unit_test',
+      academicYear: '2024-25',
+      term: 'Term 1',
+      applicableClasses: ['Class 9', 'Class 10', 'Class 11', 'Class 12'],
+      subjects: highSchoolSubjectCodes.map(code => createdSubjectIds[code]).filter(Boolean),
+      startDate: new Date('2024-07-15'),
+      endDate: new Date('2024-07-20'),
+      status: 'exs_results_published',
+    },
+  })
+
+  const exam2 = await prisma.exam.create({
+    data: {
+      name: 'Mid-Term Examination',
+      type: 'et_mid_term',
+      academicYear: '2024-25',
+      term: 'Term 1',
+      applicableClasses: classNames,
+      subjects: [...new Set([...allSubjectCodes, ...highSchoolSubjectCodes])].map(code => createdSubjectIds[code]).filter(Boolean),
+      startDate: new Date('2024-09-15'),
+      endDate: new Date('2024-09-30'),
+      status: 'exs_results_published',
+    },
+  })
+
+  const exam3 = await prisma.exam.create({
+    data: {
+      name: 'Quarterly Examination',
+      type: 'et_quarterly',
+      academicYear: '2024-25',
+      term: 'Term 2',
+      applicableClasses: classNames,
+      subjects: [...new Set([...allSubjectCodes, ...highSchoolSubjectCodes])].map(code => createdSubjectIds[code]).filter(Boolean),
+      startDate: new Date('2024-12-01'),
+      endDate: new Date('2024-12-15'),
+      status: 'exs_completed',
+    },
+  })
+  console.log('[Seed] Created 3 exams')
+
+  // ==================== Grade helper ====================
+
+  function getGrade(percentage: number): string {
+    if (percentage >= 91) return 'A1'
+    if (percentage >= 81) return 'A2'
+    if (percentage >= 71) return 'B1'
+    if (percentage >= 61) return 'B2'
+    if (percentage >= 51) return 'C1'
+    if (percentage >= 41) return 'C2'
+    if (percentage >= 33) return 'D'
+    return 'E'
+  }
+
+  // ==================== Student Marks + Report Cards for published exams ====================
+
+  let markCount = 0
+  let reportCardCount = 0
+
+  for (const exam of [exam1, exam2]) {
+    const applicableClasses = exam.applicableClasses as string[]
+
+    // Collect student marks for report cards
+    const studentMarksMap: Record<string, { marks: { subjectName: string; subjectCode: string; maxMarks: number; obtained: number; grade: string }[]; total: number; maxTotal: number }> = {}
+
+    for (const s of seedStudents) {
+      const studentId = createdStudentIds[s.email]
+      if (!studentId) continue
+      if (!applicableClasses.includes(s.class)) continue
+
+      // Determine which subjects this student takes
+      const classNum = parseInt(s.class.replace('Class ', ''))
+      let studentSubjectCodes: string[]
+      if (classNum <= 8) studentSubjectCodes = allSubjectCodes
+      else if (classNum <= 10) studentSubjectCodes = highSchoolSubjectCodes
+      else studentSubjectCodes = ['ENG', 'PHY', 'CHE', 'MAT', 'CS', 'PE']
+
+      studentMarksMap[studentId] = { marks: [], total: 0, maxTotal: 0 }
+
+      // 5% chance of being absent per subject
+      for (const code of studentSubjectCodes) {
+        const subjectId = createdSubjectIds[code]
+        if (!subjectId) continue
+
+        const isAbsent = Math.random() < 0.05
+        // Realistic marks: normal distribution centered around 72 with std dev 15
+        const rawMark = isAbsent ? 0 : Math.round(Math.min(100, Math.max(15, 72 + (Math.random() + Math.random() + Math.random() - 1.5) * 30)))
+        const grade = isAbsent ? 'E' : getGrade(rawMark)
+
+        await prisma.studentMark.create({
+          data: {
+            examId: exam.id,
+            studentId,
+            subjectId,
+            marksObtained: rawMark,
+            maxMarks: 100,
+            grade,
+            isAbsent,
+            remarks: isAbsent ? 'Absent during examination' : null,
+          },
+        })
+        markCount++
+
+        const subjectInfo = subjects.find(sub => sub.code === code)
+        studentMarksMap[studentId].marks.push({
+          subjectName: subjectInfo?.name || code,
+          subjectCode: code,
+          maxMarks: 100,
+          obtained: rawMark,
+          grade,
+        })
+        studentMarksMap[studentId].total += rawMark
+        studentMarksMap[studentId].maxTotal += 100
+      }
+    }
+
+    // Generate report cards (sorted by percentage for rank)
+    const studentEntries = Object.entries(studentMarksMap).map(([studentId, data]) => ({
+      studentId,
+      ...data,
+      percentage: data.maxTotal > 0 ? (data.total / data.maxTotal) * 100 : 0,
+    }))
+    studentEntries.sort((a, b) => b.percentage - a.percentage)
+
+    for (let rank = 0; rank < studentEntries.length; rank++) {
+      const entry = studentEntries[rank]
+      const s = seedStudents.find(st => createdStudentIds[st.email] === entry.studentId)
+      if (!s) continue
+
+      await prisma.reportCard.create({
+        data: {
+          examId: exam.id,
+          studentId: entry.studentId,
+          studentName: `${s.firstName} ${s.lastName}`,
+          studentClass: s.class,
+          studentSection: s.section,
+          admissionNumber: `ADM-2024-${String(seedStudents.indexOf(s) + 1).padStart(4, '0')}`,
+          rollNumber: s.rollNumber,
+          academicYear: '2024-25',
+          term: exam.term,
+          examName: exam.name,
+          subjects: entry.marks,
+          totalMarks: entry.maxTotal,
+          totalObtained: entry.total,
+          percentage: Math.round(entry.percentage * 100) / 100,
+          grade: getGrade(entry.percentage),
+          rank: rank + 1,
+          attendance: { totalDays: 120, presentDays: 110 + Math.floor(Math.random() * 10) },
+        },
+      })
+      reportCardCount++
+    }
+  }
+  console.log(`[Seed] Created ${markCount} student marks and ${reportCardCount} report cards`)
+
+  // ==================== Exam Slots (7 for Mid-Term, Class 9-10) ====================
+
+  const midTermSubjects = ['ENG', 'HIN', 'MAT', 'SCI', 'SSC', 'CS', 'PE']
+  const invigilators = ['Priya Nair', 'Amit Pandey', 'Deepa Menon', 'Ramesh Yadav', 'Kavita Sharma', 'Suresh Pillai', 'Anjali Mishra']
+  const slotRooms = ['Room 101', 'Room 102', 'Room 201', 'Room 202', 'Room 301', 'Science Lab', 'Sports Hall']
+
+  for (let i = 0; i < midTermSubjects.length; i++) {
+    const code = midTermSubjects[i]
+    const subjectId = createdSubjectIds[code]
+    const subjectInfo = subjects.find(s => s.code === code)
+    if (!subjectId || !subjectInfo) continue
+
+    const slotDate = new Date('2024-09-15')
+    slotDate.setDate(slotDate.getDate() + Math.floor(i / 2) * 2) // 2 exams per day, every other day
+
+    await prisma.examSlot.create({
+      data: {
+        examId: exam2.id,
+        subjectId,
+        subjectName: subjectInfo.name,
+        subjectCode: code,
+        date: slotDate,
+        startTime: i % 2 === 0 ? '09:00' : '14:00',
+        endTime: i % 2 === 0 ? '12:00' : '17:00',
+        room: slotRooms[i],
+        invigilator: invigilators[i],
+        applicableClasses: ['Class 9', 'Class 10'],
+      },
+    })
+  }
+  console.log(`[Seed] Created ${midTermSubjects.length} exam slots for Mid-Term`)
+
+  // ==================== Co-Scholastic Records (40 — 2 per student) ====================
+
+  const coScholasticAreas = ['csa_art', 'csa_sports', 'csa_discipline', 'csa_yoga', 'csa_music', 'csa_work_education'] as const
+  const coScholasticGrades = ['A', 'A', 'B+', 'B', 'A-', 'B+', 'A', 'B']
+
+  let coSchCount = 0
+  for (const s of seedStudents) {
+    const studentId = createdStudentIds[s.email]
+    if (!studentId) continue
+
+    for (let a = 0; a < 2; a++) {
+      const areaIdx = (seedStudents.indexOf(s) * 2 + a) % coScholasticAreas.length
+      await prisma.coScholasticRecord.create({
+        data: {
+          studentId,
+          academicYear: '2024-25',
+          term: 'Term 1',
+          area: coScholasticAreas[areaIdx],
+          grade: coScholasticGrades[(seedStudents.indexOf(s) + a) % coScholasticGrades.length],
+          assessedBy: invigilators[Math.floor(Math.random() * invigilators.length)],
+          remarks: a === 0 ? 'Shows good participation' : null,
+        },
+      })
+      coSchCount++
+    }
+  }
+  console.log(`[Seed] Created ${coSchCount} co-scholastic records`)
+
+  // ==================== Question Papers (2) ====================
+
+  await prisma.questionPaper.create({
+    data: {
+      examId: exam2.id,
+      subjectId: createdSubjectIds['MAT'],
+      subjectName: 'Mathematics',
+      subjectCode: 'MAT',
+      className: 'Class 10',
+      academicYear: '2024-25',
+      term: 'Term 1',
+      totalMarks: 100,
+      duration: '3 hours',
+      difficulty: 'pd_medium',
+      sections: [
+        { name: 'Section A', type: 'MCQ', marks: 20, questions: 20, marksPerQuestion: 1, instructions: 'Choose the correct option' },
+        { name: 'Section B', type: 'Short Answer', marks: 30, questions: 6, marksPerQuestion: 5, instructions: 'Answer in 50-80 words' },
+        { name: 'Section C', type: 'Long Answer', marks: 50, questions: 5, marksPerQuestion: 10, instructions: 'Answer in 150-200 words with diagrams where necessary' },
+      ],
+      createdBy: 'Priya Nair',
+    },
+  })
+
+  await prisma.questionPaper.create({
+    data: {
+      examId: exam2.id,
+      subjectId: createdSubjectIds['ENG'],
+      subjectName: 'English',
+      subjectCode: 'ENG',
+      className: 'Class 10',
+      academicYear: '2024-25',
+      term: 'Term 1',
+      totalMarks: 100,
+      duration: '3 hours',
+      difficulty: 'pd_medium',
+      sections: [
+        { name: 'Section A - Reading', type: 'Comprehension', marks: 20, questions: 2, marksPerQuestion: 10, instructions: 'Read the passages and answer questions' },
+        { name: 'Section B - Writing', type: 'Essay/Letter', marks: 30, questions: 3, marksPerQuestion: 10, instructions: 'Write as per given format' },
+        { name: 'Section C - Grammar', type: 'Short Answer', marks: 20, questions: 10, marksPerQuestion: 2, instructions: 'Answer the grammar questions' },
+        { name: 'Section D - Literature', type: 'Long Answer', marks: 30, questions: 3, marksPerQuestion: 10, instructions: 'Answer with reference to context' },
+      ],
+      createdBy: 'Deepa Menon',
+    },
+  })
+  console.log('[Seed] Created 2 question papers')
+
+  // ==================== Bank Questions (15) ====================
+
+  const bankQuestions = [
+    // MCQ - Easy
+    { question: 'What is the value of x in the equation 2x + 6 = 14?', type: 'qt_mcq' as const, options: ['x = 2', 'x = 4', 'x = 6', 'x = 8'], correctAnswer: 'x = 4', points: 1, subject: 'Mathematics', topic: 'Algebra', difficulty: 'qd_easy' as const, tags: ['algebra', 'linear-equations'], explanation: 'Subtract 6 from both sides: 2x = 8, then divide by 2: x = 4' },
+    { question: 'Which of the following is a factor of x² - 9?', type: 'qt_mcq' as const, options: ['(x+3)', '(x+9)', '(x-9)', '(x+1)'], correctAnswer: '(x+3)', points: 1, subject: 'Mathematics', topic: 'Algebra', difficulty: 'qd_easy' as const, tags: ['algebra', 'factoring'], explanation: 'x² - 9 = (x+3)(x-3), so (x+3) is a factor' },
+    { question: 'The sum of angles in a triangle is:', type: 'qt_mcq' as const, options: ['90°', '180°', '270°', '360°'], correctAnswer: '180°', points: 1, subject: 'Mathematics', topic: 'Geometry', difficulty: 'qd_easy' as const, tags: ['geometry', 'triangles'], explanation: 'The angle sum property of a triangle states the sum is always 180°' },
+    { question: 'If a = 3 and b = 4, what is a² + b²?', type: 'qt_mcq' as const, options: ['7', '12', '25', '49'], correctAnswer: '25', points: 1, subject: 'Mathematics', topic: 'Algebra', difficulty: 'qd_easy' as const, tags: ['algebra', 'substitution'], explanation: '3² + 4² = 9 + 16 = 25' },
+    { question: 'The area of a circle with radius 7 cm is:', type: 'qt_mcq' as const, options: ['44 cm²', '154 cm²', '22 cm²', '308 cm²'], correctAnswer: '154 cm²', points: 1, subject: 'Mathematics', topic: 'Geometry', difficulty: 'qd_easy' as const, tags: ['geometry', 'circles'], explanation: 'A = πr² = 22/7 × 7² = 154 cm²' },
+    // Short Answer - Medium
+    { question: 'Solve the quadratic equation: x² - 5x + 6 = 0. Find both roots.', type: 'qt_short_answer' as const, options: [], correctAnswer: 'x = 2, x = 3', points: 3, subject: 'Mathematics', topic: 'Algebra', difficulty: 'qd_medium' as const, tags: ['algebra', 'quadratic'], explanation: 'Factor as (x-2)(x-3) = 0, so x = 2 or x = 3' },
+    { question: 'Find the HCF and LCM of 12 and 18.', type: 'qt_short_answer' as const, options: [], correctAnswer: 'HCF = 6, LCM = 36', points: 3, subject: 'Mathematics', topic: 'Number Theory', difficulty: 'qd_medium' as const, tags: ['number-theory', 'hcf-lcm'], explanation: '12 = 2² × 3, 18 = 2 × 3², HCF = 2 × 3 = 6, LCM = 2² × 3² = 36' },
+    { question: 'Prove that the diagonals of a rectangle are equal.', type: 'qt_short_answer' as const, options: [], correctAnswer: 'Using Pythagoras theorem on right triangles formed by diagonals', points: 5, subject: 'Mathematics', topic: 'Geometry', difficulty: 'qd_medium' as const, tags: ['geometry', 'rectangles', 'proofs'], explanation: 'In rectangle ABCD, AC² = AB² + BC² and BD² = AB² + CD². Since BC = AD, AC = BD.' },
+    { question: 'If sin θ = 3/5, find cos θ and tan θ.', type: 'qt_short_answer' as const, options: [], correctAnswer: 'cos θ = 4/5, tan θ = 3/4', points: 3, subject: 'Mathematics', topic: 'Trigonometry', difficulty: 'qd_medium' as const, tags: ['trigonometry', 'ratios'], explanation: 'Using sin²θ + cos²θ = 1: cos θ = 4/5, tan θ = sin θ / cos θ = 3/4' },
+    { question: 'Find the 10th term of the arithmetic progression: 3, 7, 11, 15, ...', type: 'qt_short_answer' as const, options: [], correctAnswer: '39', points: 2, subject: 'Mathematics', topic: 'Algebra', difficulty: 'qd_medium' as const, tags: ['algebra', 'AP', 'sequences'], explanation: 'a = 3, d = 4, a₁₀ = a + 9d = 3 + 36 = 39' },
+    // True/False - Hard
+    { question: 'Every irrational number can be represented as a non-terminating, non-repeating decimal.', type: 'qt_true_false' as const, options: ['True', 'False'], correctAnswer: 'True', points: 1, subject: 'Mathematics', topic: 'Number Theory', difficulty: 'qd_hard' as const, tags: ['number-theory', 'irrational-numbers'], explanation: 'By definition, irrational numbers have non-terminating, non-repeating decimal expansions' },
+    { question: 'The tangent to a circle at a point is perpendicular to the radius at that point.', type: 'qt_true_false' as const, options: ['True', 'False'], correctAnswer: 'True', points: 1, subject: 'Mathematics', topic: 'Geometry', difficulty: 'qd_hard' as const, tags: ['geometry', 'circles', 'tangent'], explanation: 'This is a fundamental theorem in circle geometry' },
+    { question: 'If two triangles are similar, their areas are in the same ratio as their corresponding sides.', type: 'qt_true_false' as const, options: ['True', 'False'], correctAnswer: 'False', points: 1, subject: 'Mathematics', topic: 'Geometry', difficulty: 'qd_hard' as const, tags: ['geometry', 'similarity'], explanation: 'Areas are in the ratio of the square of corresponding sides, not the sides themselves' },
+    { question: 'The product of two consecutive integers is always even.', type: 'qt_true_false' as const, options: ['True', 'False'], correctAnswer: 'True', points: 1, subject: 'Mathematics', topic: 'Number Theory', difficulty: 'qd_hard' as const, tags: ['number-theory', 'even-odd'], explanation: 'One of two consecutive integers must be even, making the product even' },
+    { question: 'A quadratic equation can have at most three real roots.', type: 'qt_true_false' as const, options: ['True', 'False'], correctAnswer: 'False', points: 1, subject: 'Mathematics', topic: 'Algebra', difficulty: 'qd_hard' as const, tags: ['algebra', 'quadratic'], explanation: 'A quadratic equation has degree 2, so it can have at most 2 real roots' },
+  ]
+
+  const createdBankQuestionIds: string[] = []
+  for (const q of bankQuestions) {
+    const bq = await prisma.bankQuestion.create({
+      data: {
+        question: q.question,
+        type: q.type,
+        options: q.options,
+        correctAnswer: q.correctAnswer,
+        points: q.points,
+        subject: q.subject,
+        topic: q.topic,
+        difficulty: q.difficulty,
+        tags: q.tags,
+        explanation: q.explanation,
+        status: 'qs_active',
+        createdBy: 'Priya Nair',
+        usageCount: Math.floor(Math.random() * 10),
+      },
+    })
+    createdBankQuestionIds.push(bq.id)
+  }
+  console.log(`[Seed] Created ${bankQuestions.length} bank questions`)
+
+  // ==================== Online Exams (2) + Attempts (3) ====================
+
+  const onlineExam1 = await prisma.onlineExam.create({
+    data: {
+      title: 'Math Quiz - Chapter 5: Quadratic Equations',
+      description: 'A timed quiz covering quadratic equations, factoring, and the quadratic formula. Complete within 30 minutes.',
+      duration: 30,
+      passingScore: 60,
+      questionIds: createdBankQuestionIds.slice(0, 10),
+      maxAttempts: 2,
+      negativeMarkingEnabled: false,
+      security: { fullScreen: true, tabSwitchLimit: 3, copyPasteDisabled: true },
+      status: 'oes_completed',
+      schedule: { startDate: '2024-11-01T09:00:00Z', endDate: '2024-11-01T17:00:00Z' },
+      isScheduled: true,
+      createdBy: 'Priya Nair',
+    },
+  })
+
+  await prisma.onlineExam.create({
+    data: {
+      title: 'Science Practice Test - Physics Fundamentals',
+      description: 'Practice test covering Newton\'s Laws, Motion, and Force. No negative marking.',
+      duration: 45,
+      passingScore: 50,
+      questionIds: createdBankQuestionIds.slice(5, 15),
+      maxAttempts: 3,
+      negativeMarkingEnabled: false,
+      security: { fullScreen: false, tabSwitchLimit: 5, copyPasteDisabled: false },
+      status: 'oes_scheduled',
+      schedule: { startDate: '2025-04-01T09:00:00Z', endDate: '2025-04-01T17:00:00Z' },
+      isScheduled: true,
+      createdBy: 'Amit Pandey',
+    },
+  })
+  console.log('[Seed] Created 2 online exams')
+
+  // Attempts for online exam 1
+  const attemptStudents = [
+    { email: 'prisha.malhotra@student.paperbook.in', name: 'Prisha Malhotra', score: 80, passed: true, status: 'eas_submitted' as const },
+    { email: 'siddharth.bhat@student.paperbook.in', name: 'Siddharth Bhat', score: 45, passed: false, status: 'eas_submitted' as const },
+    { email: 'riya.kapoor@student.paperbook.in', name: 'Riya Kapoor', score: 30, passed: false, status: 'eas_in_progress' as const },
+  ]
+
+  for (const att of attemptStudents) {
+    const studentId = createdStudentIds[att.email]
+    if (!studentId) continue
+
+    await prisma.onlineExamAttempt.create({
+      data: {
+        examId: onlineExam1.id,
+        studentId,
+        studentName: att.name,
+        startedAt: new Date('2024-11-01T10:00:00Z'),
+        submittedAt: att.status === 'eas_submitted' ? new Date('2024-11-01T10:25:00Z') : null,
+        timeSpent: att.status === 'eas_submitted' ? 25 * 60 : 15 * 60,
+        score: att.score,
+        totalPoints: 100,
+        percentage: att.score,
+        passed: att.passed,
+        tabSwitchCount: Math.floor(Math.random() * 3),
+        status: att.status,
+        answers: bankQuestions.slice(0, 10).map((q, idx) => ({
+          questionId: createdBankQuestionIds[idx],
+          selectedAnswer: idx < (att.score / 10) ? q.correctAnswer : 'Wrong answer',
+          isCorrect: idx < (att.score / 10),
+          timeTaken: 30 + Math.floor(Math.random() * 120),
+        })),
+        securityViolations: [],
+      },
+    })
+  }
+  console.log('[Seed] Created 3 online exam attempts')
+
+  // ============================================================================
+  // Phase 7: Admissions
+  // ============================================================================
+
+  // ==================== Admission Communication Templates (4) ====================
+
+  const admCommTemplates = [
+    {
+      name: 'Application Received',
+      trigger: 'ct_application_received' as const,
+      type: 'comm_email' as const,
+      subject: 'Application Received - {{application_number}}',
+      body: 'Dear {{parent_name}},\n\nThank you for submitting the admission application for {{student_name}} to {{class}}.\n\nApplication Number: {{application_number}}\n\nWe will review your application and get back to you shortly.\n\nRegards,\nDelhi Public School',
+      variables: ['parent_name', 'student_name', 'class', 'application_number'],
+    },
+    {
+      name: 'Status Update',
+      trigger: 'ct_status_change' as const,
+      type: 'comm_email' as const,
+      subject: 'Application Status Update - {{application_number}}',
+      body: 'Dear {{parent_name}},\n\nThe status of your admission application ({{application_number}}) for {{student_name}} has been updated to: {{new_status}}.\n\n{{additional_info}}\n\nRegards,\nDelhi Public School',
+      variables: ['parent_name', 'student_name', 'application_number', 'new_status', 'additional_info'],
+    },
+    {
+      name: 'Entrance Exam Scheduled',
+      trigger: 'ct_exam_scheduled' as const,
+      type: 'comm_email' as const,
+      subject: 'Entrance Exam Schedule - {{student_name}}',
+      body: 'Dear {{parent_name}},\n\nThe entrance examination for {{student_name}} has been scheduled:\n\nDate: {{exam_date}}\nTime: {{exam_time}}\nVenue: {{venue}}\nDuration: {{duration}} minutes\n\nPlease ensure your ward arrives 15 minutes before the exam.\n\nRegards,\nDelhi Public School',
+      variables: ['parent_name', 'student_name', 'exam_date', 'exam_time', 'venue', 'duration'],
+    },
+    {
+      name: 'Admission Approved',
+      trigger: 'ct_approved' as const,
+      type: 'comm_email' as const,
+      subject: 'Congratulations! Admission Approved - {{student_name}}',
+      body: 'Dear {{parent_name}},\n\nWe are pleased to inform you that the admission application for {{student_name}} to {{class}} has been approved!\n\nPlease complete the following steps:\n1. Pay the admission fee of Rs. {{fee_amount}} by {{due_date}}\n2. Submit original documents for verification\n3. Collect the admission kit from the front office\n\nWelcome to Delhi Public School!\n\nRegards,\nAdmissions Office',
+      variables: ['parent_name', 'student_name', 'class', 'fee_amount', 'due_date'],
+    },
+  ]
+
+  for (const tmpl of admCommTemplates) {
+    await prisma.admissionCommTemplate.create({
+      data: {
+        name: tmpl.name,
+        trigger: tmpl.trigger,
+        type: tmpl.type,
+        subject: tmpl.subject,
+        body: tmpl.body,
+        variables: tmpl.variables,
+        isActive: true,
+      },
+    })
+  }
+  console.log(`[Seed] Created ${admCommTemplates.length} admission communication templates`)
+
+  // ==================== Entrance Exam Schedules (2) ====================
+
+  await prisma.admEntranceExamSchedule.create({
+    data: {
+      class: 'Class 1',
+      examDate: new Date('2025-02-15'),
+      examTime: '10:00 AM',
+      venue: 'Auditorium',
+      duration: 60,
+      totalMarks: 50,
+      passingMarks: 20,
+      subjects: ['English', 'Mathematics', 'General Awareness'],
+      status: 'aes_completed',
+      registeredCount: 15,
+      completedCount: 12,
+    },
+  })
+
+  await prisma.admEntranceExamSchedule.create({
+    data: {
+      class: 'Class 6',
+      examDate: new Date('2025-03-01'),
+      examTime: '10:00 AM',
+      venue: 'Room 201',
+      duration: 90,
+      totalMarks: 100,
+      passingMarks: 40,
+      subjects: ['English', 'Hindi', 'Mathematics', 'Science', 'General Knowledge'],
+      status: 'aes_upcoming',
+      registeredCount: 8,
+      completedCount: 0,
+    },
+  })
+  console.log('[Seed] Created 2 entrance exam schedules')
+
+  // ==================== Admission Applications (8) ====================
+
+  interface AdmissionAppData {
+    applicationNumber: string
+    status: 'adm_applied' | 'adm_under_review' | 'adm_document_verification' | 'adm_entrance_exam' | 'adm_interview' | 'adm_approved' | 'adm_waitlisted' | 'adm_rejected' | 'adm_enrolled' | 'adm_withdrawn'
+    studentName: string
+    dateOfBirth: string
+    gender: 'male' | 'female'
+    email: string
+    phone: string
+    applyingForClass: string
+    previousSchool: string
+    previousClass: string
+    previousMarks: number
+    fatherName: string
+    motherName: string
+    guardianPhone: string
+    guardianEmail: string
+    source: 'asrc_website' | 'asrc_referral' | 'asrc_walk_in' | 'asrc_advertisement'
+    entranceExamScore?: number
+    interviewScore?: number
+    waitlistPosition?: number
+    admissionFeeStatus?: 'afs_pending' | 'afs_paid'
+    admissionFeeAmount?: number
+    admissionFeePaid?: number
+  }
+
+  const admissionApps: AdmissionAppData[] = [
+    {
+      applicationNumber: 'APP-2025-0001', status: 'adm_enrolled', studentName: 'Arnav Khanna',
+      dateOfBirth: '2019-05-12', gender: 'male', email: 'khanna.family@email.com', phone: '+91 98001 11001',
+      applyingForClass: 'Class 1', previousSchool: 'Little Angels Kindergarten', previousClass: 'UKG', previousMarks: 88,
+      fatherName: 'Rohit Khanna', motherName: 'Priti Khanna', guardianPhone: '+91 98001 11001', guardianEmail: 'rohit.khanna@email.com',
+      source: 'asrc_website', entranceExamScore: 42, interviewScore: 85,
+      admissionFeeStatus: 'afs_paid', admissionFeeAmount: 25000, admissionFeePaid: 25000,
+    },
+    {
+      applicationNumber: 'APP-2025-0002', status: 'adm_approved', studentName: 'Myra Reddy',
+      dateOfBirth: '2019-08-23', gender: 'female', email: 'reddy.family@email.com', phone: '+91 98001 11002',
+      applyingForClass: 'Class 1', previousSchool: 'Sunshine Montessori', previousClass: 'UKG', previousMarks: 92,
+      fatherName: 'Venkat Reddy', motherName: 'Lakshmi Reddy', guardianPhone: '+91 98001 11002', guardianEmail: 'venkat.reddy@email.com',
+      source: 'asrc_referral', entranceExamScore: 45, interviewScore: 90,
+      admissionFeeStatus: 'afs_pending', admissionFeeAmount: 25000, admissionFeePaid: 0,
+    },
+    {
+      applicationNumber: 'APP-2025-0003', status: 'adm_entrance_exam', studentName: 'Ishaan Bose',
+      dateOfBirth: '2013-11-07', gender: 'male', email: 'bose.family@email.com', phone: '+91 98001 11003',
+      applyingForClass: 'Class 6', previousSchool: 'St. Xavier\'s School', previousClass: 'Class 5', previousMarks: 78,
+      fatherName: 'Sourav Bose', motherName: 'Anita Bose', guardianPhone: '+91 98001 11003', guardianEmail: 'sourav.bose@email.com',
+      source: 'asrc_walk_in',
+    },
+    {
+      applicationNumber: 'APP-2025-0004', status: 'adm_under_review', studentName: 'Nisha Agarwal',
+      dateOfBirth: '2013-03-19', gender: 'female', email: 'agarwal.family@email.com', phone: '+91 98001 11004',
+      applyingForClass: 'Class 6', previousSchool: 'Modern School', previousClass: 'Class 5', previousMarks: 82,
+      fatherName: 'Manoj Agarwal', motherName: 'Sunita Agarwal', guardianPhone: '+91 98001 11004', guardianEmail: 'manoj.agarwal@email.com',
+      source: 'asrc_advertisement',
+    },
+    {
+      applicationNumber: 'APP-2025-0005', status: 'adm_waitlisted', studentName: 'Aryan Jain',
+      dateOfBirth: '2009-07-30', gender: 'male', email: 'jain.family@email.com', phone: '+91 98001 11005',
+      applyingForClass: 'Class 9', previousSchool: 'Kendriya Vidyalaya', previousClass: 'Class 8', previousMarks: 71,
+      fatherName: 'Sanjay Jain', motherName: 'Meena Jain', guardianPhone: '+91 98001 11005', guardianEmail: 'sanjay.jain@email.com',
+      source: 'asrc_website', entranceExamScore: 55, waitlistPosition: 3,
+      admissionFeeStatus: 'afs_pending', admissionFeeAmount: 25000, admissionFeePaid: 0,
+    },
+    {
+      applicationNumber: 'APP-2025-0006', status: 'adm_rejected', studentName: 'Diya Kapoor',
+      dateOfBirth: '2019-01-25', gender: 'female', email: 'kapoor.family@email.com', phone: '+91 98001 11006',
+      applyingForClass: 'Class 1', previousSchool: 'Happy Kids Playschool', previousClass: 'UKG', previousMarks: 55,
+      fatherName: 'Anil Kapoor', motherName: 'Reena Kapoor', guardianPhone: '+91 98001 11006', guardianEmail: 'anil.kapoor@email.com',
+      source: 'asrc_walk_in', entranceExamScore: 15,
+    },
+    {
+      applicationNumber: 'APP-2025-0007', status: 'adm_applied', studentName: 'Vivek Rao',
+      dateOfBirth: '2007-09-14', gender: 'male', email: 'rao.family@email.com', phone: '+91 98001 11007',
+      applyingForClass: 'Class 11', previousSchool: 'Army Public School', previousClass: 'Class 10', previousMarks: 86,
+      fatherName: 'Suresh Rao', motherName: 'Geeta Rao', guardianPhone: '+91 98001 11007', guardianEmail: 'suresh.rao@email.com',
+      source: 'asrc_referral',
+    },
+    {
+      applicationNumber: 'APP-2025-0008', status: 'adm_withdrawn', studentName: 'Sanya Pillai',
+      dateOfBirth: '2019-06-03', gender: 'female', email: 'pillai.family@email.com', phone: '+91 98001 11008',
+      applyingForClass: 'Class 1', previousSchool: 'Tulips Kindergarten', previousClass: 'UKG', previousMarks: 75,
+      fatherName: 'Mohan Pillai', motherName: 'Kavita Pillai', guardianPhone: '+91 98001 11008', guardianEmail: 'mohan.pillai@email.com',
+      source: 'asrc_website',
+    },
+  ]
+
+  const createdAppIds: Record<string, string> = {}
+  for (const app of admissionApps) {
+    const created = await prisma.admissionApplication.create({
+      data: {
+        applicationNumber: app.applicationNumber,
+        status: app.status,
+        studentName: app.studentName,
+        dateOfBirth: new Date(app.dateOfBirth),
+        gender: app.gender,
+        email: app.email,
+        phone: app.phone,
+        applyingForClass: app.applyingForClass,
+        previousSchool: app.previousSchool,
+        previousClass: app.previousClass,
+        previousMarks: app.previousMarks,
+        fatherName: app.fatherName,
+        motherName: app.motherName,
+        guardianPhone: app.guardianPhone,
+        guardianEmail: app.guardianEmail,
+        source: app.source,
+        addressStreet: `${Math.floor(Math.random() * 500) + 1}, Sector ${Math.floor(Math.random() * 50) + 1}`,
+        addressCity: 'New Delhi',
+        addressState: 'Delhi',
+        addressPincode: `1100${String(Math.floor(Math.random() * 90) + 10)}`,
+        entranceExamScore: app.entranceExamScore || null,
+        interviewScore: app.interviewScore || null,
+        waitlistPosition: app.waitlistPosition || null,
+        admissionFeeStatus: app.admissionFeeStatus || null,
+        admissionFeeAmount: app.admissionFeeAmount || null,
+        admissionFeePaid: app.admissionFeePaid || null,
+      },
+    })
+    createdAppIds[app.applicationNumber] = created.id
+  }
+  console.log(`[Seed] Created ${admissionApps.length} admission applications`)
+
+  // ==================== Admission Documents (16 — 2 per application) ====================
+
+  let admDocCount = 0
+  for (const app of admissionApps) {
+    const appId = createdAppIds[app.applicationNumber]
+    if (!appId) continue
+
+    // Determine doc verification status based on application status
+    const isVerified = ['adm_enrolled', 'adm_approved'].includes(app.status)
+    const isRejected = app.status === 'adm_rejected'
+    const docStatus = isVerified ? 'ads_verified' : isRejected ? 'ads_rejected' : 'ads_pending'
+
+    await prisma.admissionDocument.create({
+      data: {
+        applicationId: appId,
+        type: 'adoc_birth_certificate',
+        name: 'Birth Certificate',
+        url: `/uploads/admissions/${app.applicationNumber}/birth_certificate.pdf`,
+        status: docStatus as 'ads_pending' | 'ads_verified' | 'ads_rejected',
+        verifiedBy: isVerified ? 'Admin User' : null,
+        verifiedAt: isVerified ? new Date() : null,
+        rejectionReason: isRejected ? 'Document quality too poor to verify' : null,
+      },
+    })
+    admDocCount++
+
+    await prisma.admissionDocument.create({
+      data: {
+        applicationId: appId,
+        type: 'adoc_previous_marksheet',
+        name: 'Previous Marksheet',
+        url: `/uploads/admissions/${app.applicationNumber}/marksheet.pdf`,
+        status: docStatus as 'ads_pending' | 'ads_verified' | 'ads_rejected',
+        verifiedBy: isVerified ? 'Admin User' : null,
+        verifiedAt: isVerified ? new Date() : null,
+      },
+    })
+    admDocCount++
+  }
+  console.log(`[Seed] Created ${admDocCount} admission documents`)
+
+  // ==================== Admission Status History ====================
+
+  interface StatusTransition {
+    appNumber: string
+    transitions: { from: string | null; to: string; daysAgo: number; note?: string }[]
+  }
+
+  const statusHistories: StatusTransition[] = [
+    {
+      appNumber: 'APP-2025-0001',
+      transitions: [
+        { from: null, to: 'adm_applied', daysAgo: 45, note: 'Application submitted online' },
+        { from: 'adm_applied', to: 'adm_under_review', daysAgo: 42, note: 'Application assigned for review' },
+        { from: 'adm_under_review', to: 'adm_document_verification', daysAgo: 38, note: 'Documents submitted for verification' },
+        { from: 'adm_document_verification', to: 'adm_entrance_exam', daysAgo: 30, note: 'Documents verified, exam scheduled' },
+        { from: 'adm_entrance_exam', to: 'adm_approved', daysAgo: 20, note: 'Exam score: 42/50, Interview score: 85/100' },
+        { from: 'adm_approved', to: 'adm_enrolled', daysAgo: 10, note: 'Fee paid, enrollment completed' },
+      ],
+    },
+    {
+      appNumber: 'APP-2025-0002',
+      transitions: [
+        { from: null, to: 'adm_applied', daysAgo: 40, note: 'Referred by existing parent' },
+        { from: 'adm_applied', to: 'adm_under_review', daysAgo: 37 },
+        { from: 'adm_under_review', to: 'adm_approved', daysAgo: 25, note: 'Excellent marks and interview performance' },
+      ],
+    },
+    {
+      appNumber: 'APP-2025-0003',
+      transitions: [
+        { from: null, to: 'adm_applied', daysAgo: 20, note: 'Walk-in application' },
+        { from: 'adm_applied', to: 'adm_entrance_exam', daysAgo: 15, note: 'Exam scheduled for March 1' },
+      ],
+    },
+    {
+      appNumber: 'APP-2025-0004',
+      transitions: [
+        { from: null, to: 'adm_applied', daysAgo: 12 },
+        { from: 'adm_applied', to: 'adm_under_review', daysAgo: 8, note: 'Documents being reviewed' },
+      ],
+    },
+    {
+      appNumber: 'APP-2025-0005',
+      transitions: [
+        { from: null, to: 'adm_applied', daysAgo: 35 },
+        { from: 'adm_applied', to: 'adm_under_review', daysAgo: 30 },
+        { from: 'adm_under_review', to: 'adm_waitlisted', daysAgo: 18, note: 'Waitlist position: 3. Will be offered if seats available.' },
+      ],
+    },
+    {
+      appNumber: 'APP-2025-0006',
+      transitions: [
+        { from: null, to: 'adm_applied', daysAgo: 50 },
+        { from: 'adm_applied', to: 'adm_under_review', daysAgo: 47 },
+        { from: 'adm_under_review', to: 'adm_entrance_exam', daysAgo: 35 },
+        { from: 'adm_entrance_exam', to: 'adm_rejected', daysAgo: 28, note: 'Exam score 15/50 - below passing marks (20)' },
+      ],
+    },
+    {
+      appNumber: 'APP-2025-0007',
+      transitions: [
+        { from: null, to: 'adm_applied', daysAgo: 3, note: 'Application submitted via referral' },
+      ],
+    },
+    {
+      appNumber: 'APP-2025-0008',
+      transitions: [
+        { from: null, to: 'adm_applied', daysAgo: 30 },
+        { from: 'adm_applied', to: 'adm_under_review', daysAgo: 25 },
+        { from: 'adm_under_review', to: 'adm_withdrawn', daysAgo: 15, note: 'Parent withdrew - relocating to another city' },
+      ],
+    },
+  ]
+
+  let historyCount = 0
+  for (const sh of statusHistories) {
+    const appId = createdAppIds[sh.appNumber]
+    if (!appId) continue
+
+    for (const t of sh.transitions) {
+      const changedAt = new Date()
+      changedAt.setDate(changedAt.getDate() - t.daysAgo)
+
+      await prisma.admissionStatusHistory.create({
+        data: {
+          applicationId: appId,
+          fromStatus: t.from as any || null,
+          toStatus: t.to as any,
+          changedBy: 'Admin User',
+          changedAt,
+          note: t.note || null,
+        },
+      })
+      historyCount++
+    }
+  }
+  console.log(`[Seed] Created ${historyCount} admission status history entries`)
+
+  // ==================== Admission Notes (8 — 1 per application) ====================
+
+  const admNotes = [
+    { appNumber: 'APP-2025-0001', content: 'Strong candidate. Father is in IT sector. Both parents attended the interview. Student shows good communication skills for age group.' },
+    { appNumber: 'APP-2025-0002', content: 'Referred by Mr. Sharma (Class 3 parent). Excellent kindergarten report card. Mother is a doctor at AIIMS.' },
+    { appNumber: 'APP-2025-0003', content: 'Transfer from ICSE board school. May need bridge course for CBSE curriculum differences. Father works in private sector.' },
+    { appNumber: 'APP-2025-0004', content: 'Good academic record from Modern School. Need to verify transfer certificate authenticity. Sports achievements noted.' },
+    { appNumber: 'APP-2025-0005', content: 'Decent marks but high competition for Class 9. Father is a school alumni (batch of 2002). Waitlisted - may get seat in July.' },
+    { appNumber: 'APP-2025-0006', content: 'Below average entrance exam performance. Parents requested re-exam but policy does not allow. Recommended to apply next year with preparation.' },
+    { appNumber: 'APP-2025-0007', content: 'Fresh application for Class 11 Science stream. CBSE Class 10 board result awaited. Father is an Army officer - may have frequent transfers.' },
+    { appNumber: 'APP-2025-0008', content: 'Application withdrawn by parent. Family relocating to Bangalore. No refund applicable as no fee was collected.' },
+  ]
+
+  for (const note of admNotes) {
+    const appId = createdAppIds[note.appNumber]
+    if (!appId) continue
+
+    await prisma.admissionNote.create({
+      data: {
+        applicationId: appId,
+        content: note.content,
+        createdBy: createdUsers['admin@paperbook.in'] || 'admin',
+        createdByName: 'Admin User',
+      },
+    })
+  }
+  console.log(`[Seed] Created ${admNotes.length} admission notes`)
+
+  // ==================== Admission Payments (3) ====================
+
+  const admPayments = [
+    { appNumber: 'APP-2025-0001', totalAmount: 25000, paidAmount: 25000, status: 'afs_paid' as const, paymentDate: new Date('2025-02-01'), paymentMethod: 'bank_transfer', transactionId: 'TXN-ADM-001', receiptNumber: 'ARCP-2025-001' },
+    { appNumber: 'APP-2025-0002', totalAmount: 25000, paidAmount: 0, status: 'afs_pending' as const, paymentDate: null, paymentMethod: null, transactionId: null, receiptNumber: null },
+    { appNumber: 'APP-2025-0005', totalAmount: 25000, paidAmount: 0, status: 'afs_pending' as const, paymentDate: null, paymentMethod: null, transactionId: null, receiptNumber: null },
+  ]
+
+  for (const pay of admPayments) {
+    const appId = createdAppIds[pay.appNumber]
+    if (!appId) continue
+
+    const dueDate = new Date()
+    dueDate.setDate(dueDate.getDate() + 15)
+
+    await prisma.admissionPayment.create({
+      data: {
+        applicationId: appId,
+        totalAmount: pay.totalAmount,
+        paidAmount: pay.paidAmount,
+        status: pay.status,
+        dueDate,
+        paymentDate: pay.paymentDate,
+        paymentMethod: pay.paymentMethod,
+        transactionId: pay.transactionId,
+        receiptNumber: pay.receiptNumber,
+        feeBreakdown: [
+          { item: 'Registration Fee', amount: 5000 },
+          { item: 'Admission Fee', amount: 15000 },
+          { item: 'Security Deposit', amount: 5000 },
+        ],
+      },
+    })
+  }
+  console.log(`[Seed] Created ${admPayments.length} admission payments`)
+
+  // ==================== Admission Communications (5) ====================
+
+  const admComms = [
+    { appNumber: 'APP-2025-0001', type: 'comm_email' as const, trigger: 'ct_application_received' as const, subject: 'Application Received - APP-2025-0001', message: 'Dear Mr. Rohit Khanna, Thank you for submitting the admission application for Arnav Khanna to Class 1.', daysAgo: 45 },
+    { appNumber: 'APP-2025-0001', type: 'comm_email' as const, trigger: 'ct_approved' as const, subject: 'Congratulations! Admission Approved - Arnav Khanna', message: 'Dear Mr. Rohit Khanna, We are pleased to inform you that the admission application for Arnav Khanna to Class 1 has been approved!', daysAgo: 20 },
+    { appNumber: 'APP-2025-0003', type: 'comm_email' as const, trigger: 'ct_exam_scheduled' as const, subject: 'Entrance Exam Schedule - Ishaan Bose', message: 'Dear Mr. Sourav Bose, The entrance examination for Ishaan Bose has been scheduled for March 1, 2025 at 10:00 AM in Room 201.', daysAgo: 15 },
+    { appNumber: 'APP-2025-0006', type: 'comm_email' as const, trigger: 'ct_rejected' as const, subject: 'Application Update - Diya Kapoor', message: 'Dear Mr. Anil Kapoor, We regret to inform you that the admission application for Diya Kapoor could not be accepted at this time. The entrance exam score was below the required passing marks.', daysAgo: 28 },
+    { appNumber: 'APP-2025-0007', type: 'comm_email' as const, trigger: 'ct_application_received' as const, subject: 'Application Received - APP-2025-0007', message: 'Dear Mr. Suresh Rao, Thank you for submitting the admission application for Vivek Rao to Class 11.', daysAgo: 3 },
+  ]
+
+  for (const comm of admComms) {
+    const appId = createdAppIds[comm.appNumber]
+    if (!appId) continue
+
+    const sentAt = new Date()
+    sentAt.setDate(sentAt.getDate() - comm.daysAgo)
+
+    const app = admissionApps.find(a => a.applicationNumber === comm.appNumber)!
+    await prisma.admissionCommunication.create({
+      data: {
+        applicationId: appId,
+        type: comm.type,
+        trigger: comm.trigger,
+        recipient: app.guardianEmail,
+        subject: comm.subject,
+        message: comm.message,
+        status: 'cds_delivered',
+        sentBy: 'Admin User',
+        sentAt,
+      },
+    })
+  }
+  console.log(`[Seed] Created ${admComms.length} admission communications`)
+
   // ==================== Initial Audit Log ====================
 
   const adminId = createdUsers['admin@paperbook.in']
@@ -1608,7 +2498,7 @@ async function main() {
         entityType: 'system',
         entityId: 'seed',
         entityName: 'Database Seed',
-        description: 'Database seeded with initial data (Phases 1-5)',
+        description: 'Database seeded with initial data (Phases 1-7)',
         ipAddress: '127.0.0.1',
       },
     })
@@ -1657,6 +2547,12 @@ async function main() {
   console.log(`  - ${feeTypeData.length} fee types, ${feeStructureData.length} fee structures`)
   console.log(`  - ${createdStudentFeeIds.length} student fees, ${paymentCount} payments`)
   console.log(`  - ${expenseData.length} expenses, ledger entries`)
+  console.log(`  - 1 grade scale, 3 exams, ${markCount} student marks, ${reportCardCount} report cards`)
+  console.log(`  - ${midTermSubjects.length} exam slots, ${coSchCount} co-scholastic records`)
+  console.log(`  - 2 question papers, ${bankQuestions.length} bank questions`)
+  console.log(`  - 2 online exams, 3 attempts`)
+  console.log(`  - ${admCommTemplates.length} admission templates, 2 entrance exam schedules`)
+  console.log(`  - ${admissionApps.length} admission applications with docs, history, notes, payments, communications`)
   console.log(`[Seed] Default password for all accounts: ${DEFAULT_PASSWORD}`)
 }
 

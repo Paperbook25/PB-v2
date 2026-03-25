@@ -92,7 +92,7 @@ const entryInclude = {
 
 // ==================== Stats ====================
 
-export async function getStats() {
+export async function getStats(schoolId: string) {
   const [
     totalTimetables,
     publishedCount,
@@ -105,18 +105,18 @@ export async function getStats() {
     totalEntries,
     teacherEntries,
   ] = await Promise.all([
-    prisma.timetable.count(),
-    prisma.timetable.count({ where: { status: 'tt_published' } }),
-    prisma.timetable.count({ where: { status: 'tt_draft' } }),
-    prisma.room.count({ where: { isActive: true } }),
-    prisma.substitution.count(),
-    prisma.substitution.count({ where: { status: 'sub_pending' } }),
-    prisma.class.count(),
-    prisma.staff.count({ where: { status: 'active' } }),
-    prisma.timetableEntry.count({ where: { timetable: { status: 'tt_published' } } }),
+    prisma.timetable.count({ where: { organizationId: schoolId } }),
+    prisma.timetable.count({ where: { status: 'tt_published', organizationId: schoolId } }),
+    prisma.timetable.count({ where: { status: 'tt_draft', organizationId: schoolId } }),
+    prisma.room.count({ where: { isActive: true, organizationId: schoolId } }),
+    prisma.substitution.count({ where: { organizationId: schoolId } }),
+    prisma.substitution.count({ where: { status: 'sub_pending', organizationId: schoolId } }),
+    prisma.class.count({ where: { organizationId: schoolId } }),
+    prisma.staff.count({ where: { status: 'active', organizationId: schoolId } }),
+    prisma.timetableEntry.count({ where: { timetable: { status: 'tt_published', organizationId: schoolId } } }),
     prisma.timetableEntry.groupBy({
       by: ['teacherId'],
-      where: { teacherId: { not: null }, timetable: { status: 'tt_published' } },
+      where: { teacherId: { not: null }, timetable: { status: 'tt_published', organizationId: schoolId } },
       _count: true,
     }),
   ])
@@ -128,7 +128,7 @@ export async function getStats() {
     : 0
 
   // Room utilization: entries using rooms / (rooms * days * periods)
-  const totalPeriods = await prisma.periodDefinition.count({ where: { isActive: true } })
+  const totalPeriods = await prisma.periodDefinition.count({ where: { isActive: true, organizationId: schoolId } })
   const maxSlots = totalRooms * 6 * totalPeriods // 6 working days
   const roomUtilization = maxSlots > 0
     ? Math.round((totalEntries / maxSlots) * 100)
@@ -152,8 +152,9 @@ export async function getStats() {
 
 // ==================== Period Definitions ====================
 
-export async function getPeriodDefinitions() {
+export async function getPeriodDefinitions(schoolId: string) {
   const periods = await prisma.periodDefinition.findMany({
+    where: { organizationId: schoolId },
     orderBy: { periodNumber: 'asc' },
   })
   return {
@@ -170,8 +171,8 @@ export async function getPeriodDefinitions() {
   }
 }
 
-export async function updatePeriodDefinition(id: string, input: UpdatePeriodDefInput) {
-  const existing = await prisma.periodDefinition.findUnique({ where: { id } })
+export async function updatePeriodDefinition(schoolId: string, id: string, input: UpdatePeriodDefInput) {
+  const existing = await prisma.periodDefinition.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Period definition not found')
 
   const data: any = {}
@@ -198,8 +199,9 @@ export async function updatePeriodDefinition(id: string, input: UpdatePeriodDefI
 
 // ==================== Subjects ====================
 
-export async function getSubjects() {
+export async function getSubjects(schoolId: string) {
   const subjects = await prisma.subject.findMany({
+    where: { organizationId: schoolId },
     orderBy: { name: 'asc' },
   })
   return {
@@ -216,17 +218,18 @@ export async function getSubjects() {
 
 // ==================== Rooms ====================
 
-export async function listRooms() {
-  const rooms = await prisma.room.findMany({ orderBy: { name: 'asc' } })
+export async function listRooms(schoolId: string) {
+  const rooms = await prisma.room.findMany({ where: { organizationId: schoolId }, orderBy: { name: 'asc' } })
   return { data: rooms.map(formatRoom) }
 }
 
-export async function createRoom(input: CreateRoomInput) {
-  const existing = await prisma.room.findUnique({ where: { name: input.name } })
+export async function createRoom(schoolId: string, input: CreateRoomInput) {
+  const existing = await prisma.room.findFirst({ where: { name: input.name, organizationId: schoolId } })
   if (existing) throw AppError.conflict(`Room '${input.name}' already exists`)
 
   const room = await prisma.room.create({
     data: {
+      organizationId: schoolId,
       name: input.name,
       type: input.type ? (roomTypeToDb[input.type] as any) : 'room_classroom',
       capacity: input.capacity || null,
@@ -238,12 +241,12 @@ export async function createRoom(input: CreateRoomInput) {
   return { data: formatRoom(room) }
 }
 
-export async function updateRoom(id: string, input: UpdateRoomInput) {
-  const existing = await prisma.room.findUnique({ where: { id } })
+export async function updateRoom(schoolId: string, id: string, input: UpdateRoomInput) {
+  const existing = await prisma.room.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Room not found')
 
   if (input.name && input.name !== existing.name) {
-    const dup = await prisma.room.findUnique({ where: { name: input.name } })
+    const dup = await prisma.room.findFirst({ where: { name: input.name, organizationId: schoolId } })
     if (dup) throw AppError.conflict(`Room '${input.name}' already exists`)
   }
 
@@ -259,8 +262,8 @@ export async function updateRoom(id: string, input: UpdateRoomInput) {
   return { data: formatRoom(updated) }
 }
 
-export async function deleteRoom(id: string) {
-  const existing = await prisma.room.findUnique({ where: { id } })
+export async function deleteRoom(schoolId: string, id: string) {
+  const existing = await prisma.room.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Room not found')
 
   await prisma.room.delete({ where: { id } })
@@ -292,12 +295,12 @@ function formatTimetable(t: any, entries?: any[]) {
   }
 }
 
-export async function listTimetables(input: ListTimetablesInput) {
+export async function listTimetables(schoolId: string, input: ListTimetablesInput) {
   const page = parseInt(input.page || '1')
   const limit = parseInt(input.limit || '20')
   const skip = (page - 1) * limit
 
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
   if (input.classId) where.classId = input.classId
   if (input.sectionId) where.sectionId = input.sectionId
   if (input.status) where.status = ttStatusToDb[input.status] || input.status
@@ -324,13 +327,13 @@ export async function listTimetables(input: ListTimetablesInput) {
   }
 }
 
-export async function createTimetable(input: CreateTimetableInput) {
+export async function createTimetable(schoolId: string, input: CreateTimetableInput) {
   // Validate references
-  const cls = await prisma.class.findUnique({ where: { id: input.classId } })
+  const cls = await prisma.class.findFirst({ where: { id: input.classId, organizationId: schoolId } })
   if (!cls) throw AppError.notFound('Class not found')
-  const section = await prisma.section.findUnique({ where: { id: input.sectionId } })
+  const section = await prisma.section.findFirst({ where: { id: input.sectionId, organizationId: schoolId } })
   if (!section) throw AppError.notFound('Section not found')
-  const ay = await prisma.academicYear.findUnique({ where: { id: input.academicYearId } })
+  const ay = await prisma.academicYear.findFirst({ where: { id: input.academicYearId, organizationId: schoolId } })
   if (!ay) throw AppError.notFound('Academic year not found')
 
   // Check unique
@@ -347,6 +350,7 @@ export async function createTimetable(input: CreateTimetableInput) {
 
   const timetable = await prisma.timetable.create({
     data: {
+      organizationId: schoolId,
       classId: input.classId,
       sectionId: input.sectionId,
       academicYearId: input.academicYearId,
@@ -363,9 +367,9 @@ export async function createTimetable(input: CreateTimetableInput) {
   return { data: formatTimetable(timetable, []) }
 }
 
-export async function getTimetable(id: string) {
-  const timetable = await prisma.timetable.findUnique({
-    where: { id },
+export async function getTimetable(schoolId: string, id: string) {
+  const timetable = await prisma.timetable.findFirst({
+    where: { id, organizationId: schoolId },
     include: {
       class: { select: { id: true, name: true } },
       section: { select: { id: true, name: true } },
@@ -382,8 +386,8 @@ export async function getTimetable(id: string) {
   return { data: formatTimetable(timetable, entries) }
 }
 
-export async function updateTimetable(id: string, input: UpdateTimetableInput) {
-  const existing = await prisma.timetable.findUnique({ where: { id } })
+export async function updateTimetable(schoolId: string, id: string, input: UpdateTimetableInput) {
+  const existing = await prisma.timetable.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Timetable not found')
 
   const data: any = {}
@@ -391,16 +395,17 @@ export async function updateTimetable(id: string, input: UpdateTimetableInput) {
   if (input.status !== undefined) data.status = ttStatusToDb[input.status] || input.status
 
   await prisma.timetable.update({ where: { id }, data })
-  return getTimetable(id)
+  return getTimetable(schoolId, id)
 }
 
-export async function publishTimetable(id: string) {
-  const timetable = await prisma.timetable.findUnique({ where: { id } })
+export async function publishTimetable(schoolId: string, id: string) {
+  const timetable = await prisma.timetable.findFirst({ where: { id, organizationId: schoolId } })
   if (!timetable) throw AppError.notFound('Timetable not found')
 
   // Archive previously published timetable for same class/section/year
   await prisma.timetable.updateMany({
     where: {
+      organizationId: schoolId,
       classId: timetable.classId,
       sectionId: timetable.sectionId,
       academicYearId: timetable.academicYearId,
@@ -415,14 +420,14 @@ export async function publishTimetable(id: string) {
     data: { status: 'tt_published' },
   })
 
-  return getTimetable(id)
+  return getTimetable(schoolId, id)
 }
 
 // ==================== Timetable Entries ====================
 
-export async function addEntry(timetableId: string, input: AddEntryInput) {
-  const timetable = await prisma.timetable.findUnique({
-    where: { id: timetableId },
+export async function addEntry(schoolId: string, timetableId: string, input: AddEntryInput) {
+  const timetable = await prisma.timetable.findFirst({
+    where: { id: timetableId, organizationId: schoolId },
     include: {
       class: { select: { id: true, name: true } },
       section: { select: { id: true, name: true } },
@@ -494,9 +499,9 @@ export async function addEntry(timetableId: string, input: AddEntryInput) {
   return { data: formatEntry(entry, timetable) }
 }
 
-export async function deleteEntry(entryId: string) {
-  const entry = await prisma.timetableEntry.findUnique({
-    where: { id: entryId },
+export async function deleteEntry(schoolId: string, entryId: string) {
+  const entry = await prisma.timetableEntry.findFirst({
+    where: { id: entryId, timetable: { organizationId: schoolId } },
     include: { timetable: true },
   })
   if (!entry) throw AppError.notFound('Entry not found')
@@ -510,16 +515,16 @@ export async function deleteEntry(entryId: string) {
 
 // ==================== Teacher/Room Views ====================
 
-export async function getTeacherTimetable(teacherId: string) {
-  const teacher = await prisma.staff.findUnique({
-    where: { id: teacherId },
+export async function getTeacherTimetable(schoolId: string, teacherId: string) {
+  const teacher = await prisma.staff.findFirst({
+    where: { id: teacherId, organizationId: schoolId },
     include: { department: true },
   })
 
   const entries = await prisma.timetableEntry.findMany({
     where: {
       teacherId,
-      timetable: { status: 'tt_published' },
+      timetable: { status: 'tt_published', organizationId: schoolId },
     },
     include: {
       ...entryInclude,
@@ -537,7 +542,7 @@ export async function getTeacherTimetable(teacherId: string) {
 
   // Compute free periods per day
   const totalPeriods = await prisma.periodDefinition.count({
-    where: { isActive: true, type: 'period_class' },
+    where: { isActive: true, type: 'period_class', organizationId: schoolId },
   })
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
   const freePeriodsPerDay: Record<string, number> = {}
@@ -558,14 +563,14 @@ export async function getTeacherTimetable(teacherId: string) {
   }
 }
 
-export async function getRoomTimetable(roomId: string) {
-  const room = await prisma.room.findUnique({ where: { id: roomId } })
+export async function getRoomTimetable(schoolId: string, roomId: string) {
+  const room = await prisma.room.findFirst({ where: { id: roomId, organizationId: schoolId } })
   if (!room) throw AppError.notFound('Room not found')
 
   const entries = await prisma.timetableEntry.findMany({
     where: {
       roomId,
-      timetable: { status: 'tt_published' },
+      timetable: { status: 'tt_published', organizationId: schoolId },
     },
     include: {
       ...entryInclude,
@@ -582,7 +587,7 @@ export async function getRoomTimetable(roomId: string) {
   const formattedEntries = entries.map(e => formatEntry(e, e.timetable))
 
   // Compute utilization
-  const totalPeriods = await prisma.periodDefinition.count({ where: { isActive: true } })
+  const totalPeriods = await prisma.periodDefinition.count({ where: { isActive: true, organizationId: schoolId } })
   const maxSlots = 6 * totalPeriods // 6 working days
   const utilizationPercent = maxSlots > 0
     ? Math.round((entries.length / maxSlots) * 100)
@@ -648,12 +653,12 @@ const substitutionInclude = {
   substituteTeacher: { select: { id: true, firstName: true, lastName: true } },
 }
 
-export async function listSubstitutions(input: ListSubstitutionsInput) {
+export async function listSubstitutions(schoolId: string, input: ListSubstitutionsInput) {
   const page = parseInt(input.page || '1')
   const limit = parseInt(input.limit || '20')
   const skip = (page - 1) * limit
 
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
   if (input.date) where.date = new Date(input.date)
   if (input.status) where.status = subStatusToDb[input.status] || input.status
 
@@ -674,14 +679,15 @@ export async function listSubstitutions(input: ListSubstitutionsInput) {
   }
 }
 
-export async function createSubstitution(input: CreateSubstitutionInput) {
-  const entry = await prisma.timetableEntry.findUnique({
-    where: { id: input.timetableEntryId },
+export async function createSubstitution(schoolId: string, input: CreateSubstitutionInput) {
+  const entry = await prisma.timetableEntry.findFirst({
+    where: { id: input.timetableEntryId, timetable: { organizationId: schoolId } },
   })
   if (!entry) throw AppError.notFound('Timetable entry not found')
 
   const sub = await prisma.substitution.create({
     data: {
+      organizationId: schoolId,
       date: new Date(input.date),
       timetableEntryId: input.timetableEntryId,
       originalTeacherId: input.originalTeacherId || entry.teacherId,
@@ -695,8 +701,8 @@ export async function createSubstitution(input: CreateSubstitutionInput) {
   return { data: formatSubstitution(sub) }
 }
 
-export async function approveSubstitution(id: string, approvedBy: string) {
-  const sub = await prisma.substitution.findUnique({ where: { id } })
+export async function approveSubstitution(schoolId: string, id: string, approvedBy: string) {
+  const sub = await prisma.substitution.findFirst({ where: { id, organizationId: schoolId } })
   if (!sub) throw AppError.notFound('Substitution not found')
   if (sub.status !== 'sub_pending') throw AppError.badRequest('Can only approve pending substitutions')
 
@@ -713,8 +719,8 @@ export async function approveSubstitution(id: string, approvedBy: string) {
   return { data: formatSubstitution(updated) }
 }
 
-export async function rejectSubstitution(id: string, approvedBy: string) {
-  const sub = await prisma.substitution.findUnique({ where: { id } })
+export async function rejectSubstitution(schoolId: string, id: string, approvedBy: string) {
+  const sub = await prisma.substitution.findFirst({ where: { id, organizationId: schoolId } })
   if (!sub) throw AppError.notFound('Substitution not found')
   if (sub.status !== 'sub_pending') throw AppError.badRequest('Can only reject pending substitutions')
 
@@ -731,8 +737,8 @@ export async function rejectSubstitution(id: string, approvedBy: string) {
   return { data: formatSubstitution(updated) }
 }
 
-export async function deleteSubstitution(id: string) {
-  const sub = await prisma.substitution.findUnique({ where: { id } })
+export async function deleteSubstitution(schoolId: string, id: string) {
+  const sub = await prisma.substitution.findFirst({ where: { id, organizationId: schoolId } })
   if (!sub) throw AppError.notFound('Substitution not found')
 
   await prisma.substitution.delete({ where: { id } })

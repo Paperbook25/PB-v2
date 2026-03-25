@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useOutstandingDues } from '../hooks/useFinance'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { CLASSES, type OutstandingDue } from '../types/finance.types'
 import { ReminderDialog } from './ReminderDialog'
@@ -42,6 +43,7 @@ const OVERDUE_FILTERS = [
 
 export function OutstandingDuesTable() {
   const [search, setSearch] = useState('')
+  const debouncedSearch = useDebouncedValue(search, 300)
   const [className, setClassName] = useState<string>('all')
   const [minDaysOverdue, setMinDaysOverdue] = useState('0')
   const [page, setPage] = useState(1)
@@ -49,7 +51,7 @@ export function OutstandingDuesTable() {
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false)
 
   const { data, isLoading, error } = useOutstandingDues({
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     className: className !== 'all' ? className : undefined,
     minDaysOverdue: minDaysOverdue !== '0' ? parseInt(minDaysOverdue) : undefined,
     page,
@@ -227,12 +229,12 @@ export function OutstandingDuesTable() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <p className="text-xs text-muted-foreground cursor-help">
-                              {due.feeBreakdown.length} fee type{due.feeBreakdown.length > 1 ? 's' : ''}
+                              {(due.feeBreakdown?.length ?? 0)} fee type{(due.feeBreakdown?.length ?? 0) > 1 ? 's' : ''}
                             </p>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="space-y-1">
-                              {due.feeBreakdown.map((fee, i) => (
+                              {(due.feeBreakdown ?? []).map((fee, i) => (
                                 <div key={i} className="flex justify-between gap-4 text-xs">
                                   <span>{fee.feeTypeName}</span>
                                   <span>{formatCurrency(fee.amount)}</span>

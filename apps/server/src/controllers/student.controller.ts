@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as studentService from '../services/student.service.js'
+import { AppError } from '../utils/errors.js'
 import { listStudentsSchema } from '../validators/student.validators.js'
 import type {
   CreateStudentInput, UpdateStudentInput, CreateDocumentInput,
@@ -8,12 +9,21 @@ import type {
   LinkSiblingInput, PromoteStudentsInput, BulkImportStudentsInput,
 } from '../validators/student.validators.js'
 
+// Helper: extract and validate schoolId from tenant middleware
+function getSchoolId(req: Request): string {
+  if (!req.schoolId) {
+    throw AppError.badRequest('No school context. Student operations require a school subdomain.')
+  }
+  return req.schoolId
+}
+
 // ==================== CRUD ====================
 
 export async function listStudents(req: Request, res: Response, next: NextFunction) {
   try {
+    const schoolId = getSchoolId(req)
     const query = listStudentsSchema.parse(req.query)
-    const result = await studentService.listStudents(query)
+    const result = await studentService.listStudents(schoolId, query)
     res.json(result)
   } catch (err) {
     next(err)
@@ -22,7 +32,7 @@ export async function listStudents(req: Request, res: Response, next: NextFuncti
 
 export async function getStudent(req: Request, res: Response, next: NextFunction) {
   try {
-    const student = await studentService.getStudentById(String(req.params.id))
+    const student = await studentService.getStudentById(getSchoolId(req), String(req.params.id))
     res.json({ data: student })
   } catch (err) {
     next(err)
@@ -31,7 +41,7 @@ export async function getStudent(req: Request, res: Response, next: NextFunction
 
 export async function createStudent(req: Request, res: Response, next: NextFunction) {
   try {
-    const student = await studentService.createStudent(req.body as CreateStudentInput)
+    const student = await studentService.createStudent(getSchoolId(req), req.body as CreateStudentInput)
     res.status(201).json({ data: student })
   } catch (err) {
     next(err)
@@ -40,7 +50,7 @@ export async function createStudent(req: Request, res: Response, next: NextFunct
 
 export async function updateStudent(req: Request, res: Response, next: NextFunction) {
   try {
-    const student = await studentService.updateStudent(String(req.params.id), req.body as UpdateStudentInput)
+    const student = await studentService.updateStudent(getSchoolId(req), String(req.params.id), req.body as UpdateStudentInput)
     res.json({ data: student })
   } catch (err) {
     next(err)
@@ -49,7 +59,7 @@ export async function updateStudent(req: Request, res: Response, next: NextFunct
 
 export async function deleteStudent(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await studentService.deleteStudent(String(req.params.id))
+    const result = await studentService.deleteStudent(getSchoolId(req), String(req.params.id))
     res.json(result)
   } catch (err) {
     next(err)
@@ -60,7 +70,7 @@ export async function deleteStudent(req: Request, res: Response, next: NextFunct
 
 export async function listDocuments(req: Request, res: Response, next: NextFunction) {
   try {
-    const docs = await studentService.listDocuments(String(req.params.id))
+    const docs = await studentService.listDocuments(getSchoolId(req), String(req.params.id))
     res.json({ data: docs })
   } catch (err) {
     next(err)
@@ -70,6 +80,7 @@ export async function listDocuments(req: Request, res: Response, next: NextFunct
 export async function createDocument(req: Request, res: Response, next: NextFunction) {
   try {
     const doc = await studentService.createDocument(
+      getSchoolId(req),
       String(req.params.id),
       req.body as CreateDocumentInput,
       req.user?.name,
@@ -82,7 +93,7 @@ export async function createDocument(req: Request, res: Response, next: NextFunc
 
 export async function deleteDocument(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await studentService.deleteDocument(String(req.params.id), String(req.params.docId))
+    const result = await studentService.deleteDocument(getSchoolId(req), String(req.params.id), String(req.params.docId))
     res.json(result)
   } catch (err) {
     next(err)
@@ -92,6 +103,7 @@ export async function deleteDocument(req: Request, res: Response, next: NextFunc
 export async function verifyDocument(req: Request, res: Response, next: NextFunction) {
   try {
     const doc = await studentService.verifyDocument(
+      getSchoolId(req),
       String(req.params.id),
       String(req.params.docId),
       req.user?.name || 'Unknown',
@@ -106,7 +118,7 @@ export async function verifyDocument(req: Request, res: Response, next: NextFunc
 
 export async function getHealthRecord(req: Request, res: Response, next: NextFunction) {
   try {
-    const record = await studentService.getHealthRecord(String(req.params.id))
+    const record = await studentService.getHealthRecord(getSchoolId(req), String(req.params.id))
     res.json({ data: record })
   } catch (err) {
     next(err)
@@ -116,6 +128,7 @@ export async function getHealthRecord(req: Request, res: Response, next: NextFun
 export async function upsertHealthRecord(req: Request, res: Response, next: NextFunction) {
   try {
     const record = await studentService.upsertHealthRecord(
+      getSchoolId(req),
       String(req.params.id),
       req.body as UpsertHealthRecordInput,
     )
@@ -129,7 +142,7 @@ export async function upsertHealthRecord(req: Request, res: Response, next: Next
 
 export async function listTimeline(req: Request, res: Response, next: NextFunction) {
   try {
-    const events = await studentService.listTimelineEvents(String(req.params.id))
+    const events = await studentService.listTimelineEvents(getSchoolId(req), String(req.params.id))
     res.json({ data: events })
   } catch (err) {
     next(err)
@@ -140,7 +153,7 @@ export async function listTimeline(req: Request, res: Response, next: NextFuncti
 
 export async function getSiblings(req: Request, res: Response, next: NextFunction) {
   try {
-    const siblings = await studentService.getSiblings(String(req.params.id))
+    const siblings = await studentService.getSiblings(getSchoolId(req), String(req.params.id))
     res.json({ data: siblings })
   } catch (err) {
     next(err)
@@ -149,7 +162,7 @@ export async function getSiblings(req: Request, res: Response, next: NextFunctio
 
 export async function linkSibling(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await studentService.linkSibling(String(req.params.id), req.body as LinkSiblingInput)
+    const result = await studentService.linkSibling(getSchoolId(req), String(req.params.id), req.body as LinkSiblingInput)
     res.status(201).json(result)
   } catch (err) {
     next(err)
@@ -158,7 +171,7 @@ export async function linkSibling(req: Request, res: Response, next: NextFunctio
 
 export async function unlinkSibling(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await studentService.unlinkSibling(String(req.params.id), String(req.params.siblingId))
+    const result = await studentService.unlinkSibling(getSchoolId(req), String(req.params.id), String(req.params.siblingId))
     res.json(result)
   } catch (err) {
     next(err)
@@ -169,7 +182,7 @@ export async function unlinkSibling(req: Request, res: Response, next: NextFunct
 
 export async function getIdCard(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await studentService.getIdCardData(String(req.params.id))
+    const data = await studentService.getIdCardData(getSchoolId(req), String(req.params.id))
     res.json({ data })
   } catch (err) {
     next(err)
@@ -180,7 +193,7 @@ export async function getIdCard(req: Request, res: Response, next: NextFunction)
 
 export async function addSkill(req: Request, res: Response, next: NextFunction) {
   try {
-    const skill = await studentService.addSkill(String(req.params.id), req.body as CreateSkillInput)
+    const skill = await studentService.addSkill(getSchoolId(req), String(req.params.id), req.body as CreateSkillInput)
     res.status(201).json({ data: skill })
   } catch (err) {
     next(err)
@@ -190,6 +203,7 @@ export async function addSkill(req: Request, res: Response, next: NextFunction) 
 export async function updateSkill(req: Request, res: Response, next: NextFunction) {
   try {
     const skill = await studentService.updateSkill(
+      getSchoolId(req),
       String(req.params.id),
       String(req.params.skillId),
       req.body as UpdateSkillInput,
@@ -202,7 +216,7 @@ export async function updateSkill(req: Request, res: Response, next: NextFunctio
 
 export async function deleteSkill(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await studentService.deleteSkill(String(req.params.id), String(req.params.skillId))
+    const result = await studentService.deleteSkill(getSchoolId(req), String(req.params.id), String(req.params.skillId))
     res.json(result)
   } catch (err) {
     next(err)
@@ -213,7 +227,7 @@ export async function deleteSkill(req: Request, res: Response, next: NextFunctio
 
 export async function getPortfolio(req: Request, res: Response, next: NextFunction) {
   try {
-    const portfolio = await studentService.getPortfolio(String(req.params.id))
+    const portfolio = await studentService.getPortfolio(getSchoolId(req), String(req.params.id))
     res.json({ data: portfolio })
   } catch (err) {
     next(err)
@@ -223,7 +237,7 @@ export async function getPortfolio(req: Request, res: Response, next: NextFuncti
 export async function updatePortfolio(req: Request, res: Response, next: NextFunction) {
   try {
     // Accept portfolio updates — for now just return the current portfolio
-    const portfolio = await studentService.getPortfolio(String(req.params.id))
+    const portfolio = await studentService.getPortfolio(getSchoolId(req), String(req.params.id))
     res.json({ data: portfolio })
   } catch (err) {
     next(err)
@@ -232,7 +246,7 @@ export async function updatePortfolio(req: Request, res: Response, next: NextFun
 
 export async function addPortfolioItem(req: Request, res: Response, next: NextFunction) {
   try {
-    const item = await studentService.addPortfolioItem(String(req.params.id), req.body as CreatePortfolioItemInput)
+    const item = await studentService.addPortfolioItem(getSchoolId(req), String(req.params.id), req.body as CreatePortfolioItemInput)
     res.status(201).json({ data: item })
   } catch (err) {
     next(err)
@@ -242,6 +256,7 @@ export async function addPortfolioItem(req: Request, res: Response, next: NextFu
 export async function updatePortfolioItem(req: Request, res: Response, next: NextFunction) {
   try {
     const item = await studentService.updatePortfolioItem(
+      getSchoolId(req),
       String(req.params.id),
       String(req.params.itemId),
       req.body as UpdatePortfolioItemInput,
@@ -254,7 +269,7 @@ export async function updatePortfolioItem(req: Request, res: Response, next: Nex
 
 export async function deletePortfolioItem(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await studentService.deletePortfolioItem(String(req.params.id), String(req.params.itemId))
+    const result = await studentService.deletePortfolioItem(getSchoolId(req), String(req.params.id), String(req.params.itemId))
     res.json(result)
   } catch (err) {
     next(err)
@@ -265,7 +280,7 @@ export async function deletePortfolioItem(req: Request, res: Response, next: Nex
 
 export async function promoteStudents(req: Request, res: Response, next: NextFunction) {
   try {
-    const results = await studentService.promoteStudents(req.body as PromoteStudentsInput)
+    const results = await studentService.promoteStudents(getSchoolId(req), req.body as PromoteStudentsInput)
     res.json({ data: results })
   } catch (err) {
     next(err)
@@ -297,7 +312,7 @@ export async function bulkImport(req: Request, res: Response, next: NextFunction
         })),
       }
     }
-    const results = await studentService.bulkImportStudents(input as BulkImportStudentsInput)
+    const results = await studentService.bulkImportStudents(getSchoolId(req), input as BulkImportStudentsInput)
     res.status(201).json({ data: results })
   } catch (err) {
     next(err)
@@ -306,7 +321,7 @@ export async function bulkImport(req: Request, res: Response, next: NextFunction
 
 export async function exportStudents(req: Request, res: Response, next: NextFunction) {
   try {
-    const students = await studentService.exportStudents()
+    const students = await studentService.exportStudents(getSchoolId(req))
     res.json({ data: students })
   } catch (err) {
     next(err)

@@ -60,13 +60,13 @@ function formatExpense(e: any) {
   }
 }
 
-async function generateExpenseNumber(): Promise<string> {
+async function generateExpenseNumber(schoolId: string): Promise<string> {
   const today = new Date()
   const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '')
   const prefix = `EXP-${dateStr}-`
 
   const last = await prisma.expense.findFirst({
-    where: { expenseNumber: { startsWith: prefix } },
+    where: { expenseNumber: { startsWith: prefix }, organizationId: schoolId },
     orderBy: { expenseNumber: 'desc' },
     select: { expenseNumber: true },
   })
@@ -82,7 +82,7 @@ async function generateExpenseNumber(): Promise<string> {
 
 // ==================== CRUD ====================
 
-export async function listExpenses(query: {
+export async function listExpenses(schoolId: string, query: {
   page?: number
   limit?: number
   category?: string
@@ -93,6 +93,8 @@ export async function listExpenses(query: {
   const page = query.page || 1
   const limit = query.limit || 20
   const where: any = {}
+
+  where.organizationId = schoolId
 
   if (query.category && expenseCategoryMap[query.category]) {
     where.category = expenseCategoryMap[query.category]
@@ -122,20 +124,21 @@ export async function listExpenses(query: {
   }
 }
 
-export async function getExpenseById(id: string) {
-  const e = await prisma.expense.findUnique({ where: { id } })
+export async function getExpenseById(schoolId: string, id: string) {
+  const e = await prisma.expense.findFirst({ where: { id, organizationId: schoolId } })
   if (!e) throw AppError.notFound('Expense not found')
   return formatExpense(e)
 }
 
-export async function createExpense(input: CreateExpenseInput, requestedBy: string) {
+export async function createExpense(schoolId: string, input: CreateExpenseInput, requestedBy: string) {
   const category = expenseCategoryMap[input.category]
   if (!category) throw AppError.badRequest('Invalid expense category')
 
-  const expenseNumber = await generateExpenseNumber()
+  const expenseNumber = await generateExpenseNumber(schoolId)
 
   const e = await prisma.expense.create({
     data: {
+      organizationId: schoolId,
       expenseNumber,
       category: category as any,
       description: input.description,
@@ -152,8 +155,8 @@ export async function createExpense(input: CreateExpenseInput, requestedBy: stri
   return formatExpense(e)
 }
 
-export async function updateExpense(id: string, input: UpdateExpenseInput) {
-  const existing = await prisma.expense.findUnique({ where: { id } })
+export async function updateExpense(schoolId: string, id: string, input: UpdateExpenseInput) {
+  const existing = await prisma.expense.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Expense not found')
 
   if (existing.status !== 'es_pending_approval') {
@@ -174,8 +177,8 @@ export async function updateExpense(id: string, input: UpdateExpenseInput) {
   return formatExpense(e)
 }
 
-export async function approveExpense(id: string, approvedBy: string) {
-  const existing = await prisma.expense.findUnique({ where: { id } })
+export async function approveExpense(schoolId: string, id: string, approvedBy: string) {
+  const existing = await prisma.expense.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Expense not found')
 
   if (existing.status !== 'es_pending_approval') {
@@ -194,8 +197,8 @@ export async function approveExpense(id: string, approvedBy: string) {
   return formatExpense(e)
 }
 
-export async function rejectExpense(id: string, rejectedBy: string, input: RejectExpenseInput) {
-  const existing = await prisma.expense.findUnique({ where: { id } })
+export async function rejectExpense(schoolId: string, id: string, rejectedBy: string, input: RejectExpenseInput) {
+  const existing = await prisma.expense.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Expense not found')
 
   if (existing.status !== 'es_pending_approval') {
@@ -215,8 +218,8 @@ export async function rejectExpense(id: string, rejectedBy: string, input: Rejec
   return formatExpense(e)
 }
 
-export async function markExpensePaid(id: string, paidBy: string, input: MarkExpensePaidInput) {
-  const existing = await prisma.expense.findUnique({ where: { id } })
+export async function markExpensePaid(schoolId: string, id: string, paidBy: string, input: MarkExpensePaidInput) {
+  const existing = await prisma.expense.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Expense not found')
 
   if (existing.status !== 'es_approved') {
@@ -235,7 +238,7 @@ export async function markExpensePaid(id: string, paidBy: string, input: MarkExp
     })
 
     // Create debit ledger entry
-    await createLedgerEntry({
+    await createLedgerEntry(schoolId, {
       type: 'debit',
       category: 'expense_payment',
       referenceId: updated.id,
@@ -250,8 +253,8 @@ export async function markExpensePaid(id: string, paidBy: string, input: MarkExp
   return formatExpense(e)
 }
 
-export async function deleteExpense(id: string) {
-  const existing = await prisma.expense.findUnique({ where: { id } })
+export async function deleteExpense(schoolId: string, id: string) {
+  const existing = await prisma.expense.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Expense not found')
 
   if (existing.status !== 'es_pending_approval') {

@@ -13,20 +13,21 @@ function getLLM() {
 }
 
 interface GenerateOptions {
+  schoolId: string
   pageSlug: string
   template: 'classic' | 'modern' | 'minimal'
   onChunk: (chunk: { type: string; content?: string; progress?: number }) => void
 }
 
-export async function generatePageContent({ pageSlug, template, onChunk }: GenerateOptions) {
+export async function generatePageContent({ schoolId, pageSlug, template, onChunk }: GenerateOptions) {
   // Gather school context
-  const profile = await websiteService.fetchSchoolProfile()
-  const faculty = await websiteService.fetchFacultyData()
+  const profile = await websiteService.fetchSchoolProfile(schoolId)
+  const faculty = await websiteService.fetchFacultyData(schoolId)
 
   let studentCount = 0
   let staffCount = faculty.length
   try {
-    studentCount = await prisma.student.count({ where: { status: 'active' } })
+    studentCount = await prisma.student.count({ where: { organizationId: schoolId, status: 'active' } })
   } catch { /* table may not exist */ }
 
   const schoolName = profile?.name || 'Our School'
@@ -38,10 +39,10 @@ export async function generatePageContent({ pageSlug, template, onChunk }: Gener
   onChunk({ type: 'progress', progress: 10, content: 'Gathering school data...' })
 
   // Find or create the page
-  let page = await prisma.websitePage.findUnique({ where: { slug: pageSlug } })
+  let page = await prisma.websitePage.findFirst({ where: { slug: pageSlug, organizationId: schoolId } })
   if (!page) {
     page = await prisma.websitePage.create({
-      data: { slug: pageSlug, title: pageSlug.charAt(0).toUpperCase() + pageSlug.slice(1) },
+      data: { organizationId: schoolId, slug: pageSlug, title: pageSlug.charAt(0).toUpperCase() + pageSlug.slice(1) },
     })
   }
 

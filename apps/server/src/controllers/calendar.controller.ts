@@ -1,5 +1,12 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as calendarService from '../services/calendar.service.js'
+import { AppError } from '../utils/errors.js'
+
+// Helper: extract and validate schoolId from tenant middleware
+function getSchoolId(req: Request): string {
+  if (!req.schoolId) throw AppError.badRequest('No school context.')
+  return req.schoolId
+}
 
 // GET /api/calendar/events?startDate=...&endDate=...&classId=...&teacherId=...&type=...
 export async function getEvents(req: Request, res: Response, next: NextFunction) {
@@ -8,7 +15,7 @@ export async function getEvents(req: Request, res: Response, next: NextFunction)
       startDate, endDate, classId, sectionId, teacherId, type,
     } = req.query as Record<string, string | undefined>
 
-    const events = await calendarService.getCalendarEvents({
+    const events = await calendarService.getCalendarEvents(getSchoolId(req), {
       startDate: startDate || '',
       endDate: endDate || '',
       classId,
@@ -29,7 +36,7 @@ export async function getClassSchedule(req: Request, res: Response, next: NextFu
     const classId = String(req.params.classId)
     const sectionId = req.query.sectionId as string | undefined
 
-    const schedule = await calendarService.getClassSchedule(classId, sectionId)
+    const schedule = await calendarService.getClassSchedule(getSchoolId(req), classId, sectionId)
     res.json({ data: schedule })
   } catch (err) {
     next(err)
@@ -41,7 +48,7 @@ export async function getTeacherSchedule(req: Request, res: Response, next: Next
   try {
     const teacherId = String(req.params.teacherId)
 
-    const schedule = await calendarService.getTeacherSchedule(teacherId)
+    const schedule = await calendarService.getTeacherSchedule(getSchoolId(req), teacherId)
     res.json({ data: schedule })
   } catch (err) {
     next(err)
@@ -51,7 +58,7 @@ export async function getTeacherSchedule(req: Request, res: Response, next: Next
 // GET /api/calendar/filters
 export async function getFilters(req: Request, res: Response, next: NextFunction) {
   try {
-    const filters = await calendarService.getCalendarFilters()
+    const filters = await calendarService.getCalendarFilters(getSchoolId(req))
     res.json({ data: filters })
   } catch (err) {
     next(err)
@@ -62,7 +69,7 @@ export async function getFilters(req: Request, res: Response, next: NextFunction
 export async function createEvent(req: Request, res: Response, next: NextFunction) {
   try {
     const createdBy = req.user?.name || 'Unknown'
-    const result = await calendarService.createCalendarEvent({
+    const result = await calendarService.createCalendarEvent(getSchoolId(req), {
       ...req.body,
       createdBy,
     })
@@ -76,7 +83,7 @@ export async function createEvent(req: Request, res: Response, next: NextFunctio
 export async function updateEvent(req: Request, res: Response, next: NextFunction) {
   try {
     const id = String(req.params.id)
-    const result = await calendarService.updateCalendarEvent(id, req.body)
+    const result = await calendarService.updateCalendarEvent(getSchoolId(req), id, req.body)
     res.json(result)
   } catch (err) {
     next(err)
@@ -87,7 +94,7 @@ export async function updateEvent(req: Request, res: Response, next: NextFunctio
 export async function deleteEvent(req: Request, res: Response, next: NextFunction) {
   try {
     const id = String(req.params.id)
-    await calendarService.deleteCalendarEvent(id)
+    await calendarService.deleteCalendarEvent(getSchoolId(req), id)
     res.json({ success: true, message: 'Calendar event deleted successfully' })
   } catch (err) {
     next(err)

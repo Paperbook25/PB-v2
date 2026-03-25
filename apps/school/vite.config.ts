@@ -18,8 +18,17 @@ export default defineConfig({
     proxy: {
       // Proxy /api requests to Express server
       '/api': {
-        target: 'http://localhost:3002',
+        target: 'http://localhost:3001',
         changeOrigin: false, // Preserve original Host header (e.g. school1.paperbook.local) for tenant resolution
+        secure: false,
+      },
+    },
+  },
+  preview: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: false,
         secure: false,
       },
     },

@@ -120,6 +120,10 @@ router.delete(
   settingsCtrl.deleteSubject
 )
 
+// ==================== DEPARTMENTS ====================
+
+router.get('/departments', settingsCtrl.listDepartments)
+
 // ==================== NOTIFICATIONS ====================
 
 const notifAudit = auditMiddleware({ module: 'settings', entityType: 'notification_preferences' })

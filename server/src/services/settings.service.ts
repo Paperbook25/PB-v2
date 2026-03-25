@@ -28,9 +28,15 @@ export async function updateSchoolProfile(data: Record<string, unknown>) {
   const existing = await prisma.schoolProfile.findFirst()
   if (!existing) throw AppError.notFound('School profile not configured')
 
+  const allowedFields = ['name', 'address', 'city', 'state', 'pincode', 'phone', 'email', 'website', 'logo', 'principalName', 'establishedYear', 'affiliationNumber', 'affiliationBoard']
+  const safeData: Record<string, unknown> = {}
+  for (const key of allowedFields) {
+    if (key in data) safeData[key] = data[key]
+  }
+
   const profile = await prisma.schoolProfile.update({
     where: { id: existing.id },
-    data: data as Parameters<typeof prisma.schoolProfile.update>[0]['data'],
+    data: safeData,
   })
 
   return {
@@ -311,7 +317,13 @@ export async function updateSubject(id: string, data: Record<string, unknown>) {
     if (codeTaken) throw AppError.conflict('A subject with this code already exists')
   }
 
-  const subject = await prisma.subject.update({ where: { id }, data })
+  const allowedFields = ['name', 'code', 'type', 'maxMarks', 'passingMarks']
+  const safeData: Record<string, unknown> = {}
+  for (const key of allowedFields) {
+    if (key in data) safeData[key] = data[key]
+  }
+
+  const subject = await prisma.subject.update({ where: { id }, data: safeData })
   return { id: subject.id, name: subject.name, code: subject.code, type: subject.type, maxMarks: subject.maxMarks, passingMarks: subject.passingMarks }
 }
 
@@ -320,6 +332,18 @@ export async function deleteSubject(id: string) {
   if (!existing) throw AppError.notFound('Subject not found')
   await prisma.subject.delete({ where: { id } })
   return { success: true }
+}
+
+// ==================== DEPARTMENTS ====================
+
+export async function listDepartments() {
+  const departments = await prisma.department.findMany({
+    orderBy: { name: 'asc' },
+  })
+  return departments.map((d) => ({
+    id: d.id,
+    name: d.name,
+  }))
 }
 
 // ==================== NOTIFICATION PREFERENCES ====================
@@ -341,9 +365,15 @@ export async function updateNotificationPreferences(data: Record<string, unknown
   const existing = await prisma.notificationPreference.findFirst()
   if (!existing) throw AppError.notFound('Notification preferences not configured')
 
+  const allowedFields = ['emailNotifications', 'smsNotifications', 'feeReminders', 'attendanceAlerts', 'examResults', 'generalAnnouncements']
+  const safeData: Record<string, unknown> = {}
+  for (const key of allowedFields) {
+    if (key in data) safeData[key] = data[key]
+  }
+
   const prefs = await prisma.notificationPreference.update({
     where: { id: existing.id },
-    data,
+    data: safeData,
   })
   return {
     emailNotifications: prefs.emailNotifications,
@@ -372,9 +402,15 @@ export async function updateBackupConfig(data: Record<string, unknown>) {
   const existing = await prisma.backupConfig.findFirst()
   if (!existing) throw AppError.notFound('Backup configuration not configured')
 
+  const allowedFields = ['autoBackup', 'backupFrequency', 'backupRetentionDays']
+  const safeData: Record<string, unknown> = {}
+  for (const key of allowedFields) {
+    if (key in data) safeData[key] = data[key]
+  }
+
   const config = await prisma.backupConfig.update({
     where: { id: existing.id },
-    data,
+    data: safeData,
   })
   return {
     autoBackup: config.autoBackup,
@@ -417,9 +453,15 @@ export async function updateThemeConfig(data: Record<string, unknown>) {
   const existing = await prisma.themeConfig.findFirst()
   if (!existing) throw AppError.notFound('Theme configuration not configured')
 
+  const allowedFields = ['mode', 'primaryColor', 'accentColor']
+  const safeData: Record<string, unknown> = {}
+  for (const key of allowedFields) {
+    if (key in data) safeData[key] = data[key]
+  }
+
   const config = await prisma.themeConfig.update({
     where: { id: existing.id },
-    data,
+    data: safeData,
   })
   return {
     mode: config.mode,

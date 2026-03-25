@@ -88,9 +88,9 @@ async function getDefaultGradeRanges() {
 
 // ==================== Exam CRUD ====================
 
-export async function listExams(query: ListExamsInput) {
+export async function listExams(schoolId: string, query: ListExamsInput) {
   const { page, limit, type, status, academicYear, className, search } = query
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
 
   if (search) {
     where.name = { contains: search }
@@ -124,13 +124,13 @@ export async function listExams(query: ListExamsInput) {
   }
 }
 
-export async function getExamById(id: string) {
-  const exam = await prisma.exam.findUnique({ where: { id } })
+export async function getExamById(schoolId: string, id: string) {
+  const exam = await prisma.exam.findFirst({ where: { id, organizationId: schoolId } })
   if (!exam) throw AppError.notFound('Exam not found')
   return formatExam(exam)
 }
 
-export async function createExam(input: CreateExamInput) {
+export async function createExam(schoolId: string, input: CreateExamInput) {
   const subjects = input.subjects.map(s => ({
     id: s.id || crypto.randomUUID(),
     name: s.name,
@@ -141,6 +141,7 @@ export async function createExam(input: CreateExamInput) {
 
   const exam = await prisma.exam.create({
     data: {
+      organizationId: schoolId,
       name: input.name,
       type: examTypeToDb[input.type] as any,
       academicYear: input.academicYear,
@@ -154,8 +155,8 @@ export async function createExam(input: CreateExamInput) {
   return formatExam(exam)
 }
 
-export async function updateExam(id: string, input: UpdateExamInput) {
-  const existing = await prisma.exam.findUnique({ where: { id } })
+export async function updateExam(schoolId: string, id: string, input: UpdateExamInput) {
+  const existing = await prisma.exam.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Exam not found')
 
   const data: any = {}
@@ -180,15 +181,15 @@ export async function updateExam(id: string, input: UpdateExamInput) {
   return formatExam(exam)
 }
 
-export async function deleteExam(id: string) {
-  const existing = await prisma.exam.findUnique({ where: { id } })
+export async function deleteExam(schoolId: string, id: string) {
+  const existing = await prisma.exam.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Exam not found')
   await prisma.exam.delete({ where: { id } })
   return { success: true }
 }
 
-export async function publishExam(id: string) {
-  const existing = await prisma.exam.findUnique({ where: { id } })
+export async function publishExam(schoolId: string, id: string) {
+  const existing = await prisma.exam.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Exam not found')
 
   const exam = await prisma.exam.update({
@@ -200,22 +201,22 @@ export async function publishExam(id: string) {
 
 // ==================== Marks ====================
 
-export async function getStudentsForMarks(examId: string, query: { className?: string; section?: string; subjectId?: string }) {
-  const exam = await prisma.exam.findUnique({ where: { id: examId } })
+export async function getStudentsForMarks(schoolId: string, examId: string, query: { className?: string; section?: string; subjectId?: string }) {
+  const exam = await prisma.exam.findFirst({ where: { id: examId, organizationId: schoolId } })
   if (!exam) throw AppError.notFound('Exam not found')
 
   if (!query.className || !query.section) {
     throw AppError.badRequest('className and section are required')
   }
 
-  const cls = await prisma.class.findFirst({ where: { name: query.className } })
+  const cls = await prisma.class.findFirst({ where: { name: query.className, organizationId: schoolId } })
   if (!cls) throw AppError.badRequest(`Class '${query.className}' not found`)
 
-  const sec = await prisma.section.findFirst({ where: { classId: cls.id, name: query.section } })
+  const sec = await prisma.section.findFirst({ where: { classId: cls.id, name: query.section, organizationId: schoolId } })
   if (!sec) throw AppError.badRequest(`Section '${query.section}' not found`)
 
   const students = await prisma.student.findMany({
-    where: { classId: cls.id, sectionId: sec.id, status: 'active' },
+    where: { classId: cls.id, sectionId: sec.id, status: 'active', organizationId: schoolId },
     orderBy: { rollNumber: 'asc' },
   })
 
@@ -242,8 +243,8 @@ export async function getStudentsForMarks(examId: string, query: { className?: s
   }
 }
 
-export async function getMarks(examId: string, query: { subjectId?: string; classId?: string }) {
-  const where: any = { examId }
+export async function getMarks(schoolId: string, examId: string, query: { subjectId?: string; classId?: string }) {
+  const where: any = { examId, organizationId: schoolId }
   if (query.subjectId) where.subjectId = query.subjectId
 
   const marks = await prisma.studentMark.findMany({ where, orderBy: { createdAt: 'desc' } })
@@ -287,8 +288,8 @@ export async function getMarks(examId: string, query: { subjectId?: string; clas
   }
 }
 
-export async function submitMarks(examId: string, input: SubmitMarksInput) {
-  const exam = await prisma.exam.findUnique({ where: { id: examId } })
+export async function submitMarks(schoolId: string, examId: string, input: SubmitMarksInput) {
+  const exam = await prisma.exam.findFirst({ where: { id: examId, organizationId: schoolId } })
   if (!exam) throw AppError.notFound('Exam not found')
 
   const subjects = exam.subjects as any[]
@@ -334,11 +335,11 @@ export async function submitMarks(examId: string, input: SubmitMarksInput) {
   return { success: true, marksSubmitted: count }
 }
 
-export async function getStudentMarks(studentId: string, query: { academicYear?: string }) {
-  const where: any = { studentId }
+export async function getStudentMarks(schoolId: string, studentId: string, query: { academicYear?: string }) {
+  const where: any = { studentId, organizationId: schoolId }
   if (query.academicYear) {
     const exams = await prisma.exam.findMany({
-      where: { academicYear: query.academicYear },
+      where: { academicYear: query.academicYear, organizationId: schoolId },
       select: { id: true },
     })
     where.examId = { in: exams.map(e => e.id) }
@@ -346,8 +347,8 @@ export async function getStudentMarks(studentId: string, query: { academicYear?:
 
   const marks = await prisma.studentMark.findMany({ where })
 
-  const student = await prisma.student.findUnique({
-    where: { id: studentId },
+  const student = await prisma.student.findFirst({
+    where: { id: studentId, organizationId: schoolId },
     include: { class: true, section: true },
   })
 
@@ -382,10 +383,10 @@ export async function getStudentMarks(studentId: string, query: { academicYear?:
 
 // ==================== Report Cards ====================
 
-export async function getReportCards(examId: string, query: { classId?: string }) {
-  const where: any = { examId }
+export async function getReportCards(schoolId: string, examId: string, query: { classId?: string }) {
+  const where: any = { examId, organizationId: schoolId }
   if (query.classId) {
-    const cls = await prisma.class.findUnique({ where: { id: query.classId } })
+    const cls = await prisma.class.findFirst({ where: { id: query.classId, organizationId: schoolId } })
     if (cls) where.studentClass = cls.name
   }
 
@@ -393,8 +394,8 @@ export async function getReportCards(examId: string, query: { classId?: string }
   return { data: cards }
 }
 
-export async function getStudentReportCard(studentId: string, query: { examId?: string }) {
-  const where: any = { studentId }
+export async function getStudentReportCard(schoolId: string, studentId: string, query: { examId?: string }) {
+  const where: any = { studentId, organizationId: schoolId }
   if (query.examId) where.examId = query.examId
 
   const card = await prisma.reportCard.findFirst({ where, orderBy: { generatedAt: 'desc' } })
@@ -402,15 +403,15 @@ export async function getStudentReportCard(studentId: string, query: { examId?: 
   return card
 }
 
-export async function generateReportCards(input: GenerateReportCardsInput) {
-  const exam = await prisma.exam.findUnique({ where: { id: input.examId } })
+export async function generateReportCards(schoolId: string, input: GenerateReportCardsInput) {
+  const exam = await prisma.exam.findFirst({ where: { id: input.examId, organizationId: schoolId } })
   if (!exam) throw AppError.notFound('Exam not found')
 
   const gradeRanges = await getDefaultGradeRanges()
   const examSubjects = exam.subjects as any[]
 
   // Get marks for this exam
-  const marksWhere: any = { examId: input.examId }
+  const marksWhere: any = { examId: input.examId, organizationId: schoolId }
   const allMarks = await prisma.studentMark.findMany({ where: marksWhere })
 
   // Group marks by student
@@ -428,13 +429,13 @@ export async function generateReportCards(input: GenerateReportCardsInput) {
 
   // Get student details
   const students = await prisma.student.findMany({
-    where: { id: { in: studentIds } },
+    where: { id: { in: studentIds }, organizationId: schoolId },
     include: { class: true, section: true },
   })
 
   // If classId filter, further filter
   if (input.classId) {
-    const cls = await prisma.class.findUnique({ where: { id: input.classId } })
+    const cls = await prisma.class.findFirst({ where: { id: input.classId, organizationId: schoolId } })
     if (cls) {
       const filtered = students.filter(s => s.classId === input.classId)
       studentIds = filtered.map(s => s.id)
@@ -517,8 +518,8 @@ export async function generateReportCards(input: GenerateReportCardsInput) {
   return { success: true, generatedCount }
 }
 
-export async function deleteReportCard(id: string) {
-  const existing = await prisma.reportCard.findUnique({ where: { id } })
+export async function deleteReportCard(schoolId: string, id: string) {
+  const existing = await prisma.reportCard.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Report card not found')
   await prisma.reportCard.delete({ where: { id } })
   return { success: true }
@@ -526,23 +527,24 @@ export async function deleteReportCard(id: string) {
 
 // ==================== Grade Scales ====================
 
-export async function listGradeScales() {
-  const scales = await prisma.gradeScale.findMany({ orderBy: { createdAt: 'desc' } })
+export async function listGradeScales(schoolId: string) {
+  const scales = await prisma.gradeScale.findMany({ where: { organizationId: schoolId }, orderBy: { createdAt: 'desc' } })
   return { data: scales }
 }
 
-export async function getGradeScaleById(id: string) {
-  const scale = await prisma.gradeScale.findUnique({ where: { id } })
+export async function getGradeScaleById(schoolId: string, id: string) {
+  const scale = await prisma.gradeScale.findFirst({ where: { id, organizationId: schoolId } })
   if (!scale) throw AppError.notFound('Grade scale not found')
   return scale
 }
 
-export async function createGradeScale(input: CreateGradeScaleInput) {
+export async function createGradeScale(schoolId: string, input: CreateGradeScaleInput) {
   if (input.isDefault) {
-    await prisma.gradeScale.updateMany({ where: { isDefault: true }, data: { isDefault: false } })
+    await prisma.gradeScale.updateMany({ where: { isDefault: true, organizationId: schoolId }, data: { isDefault: false } })
   }
   const scale = await prisma.gradeScale.create({
     data: {
+      organizationId: schoolId,
       name: input.name,
       ranges: input.ranges,
       isDefault: input.isDefault || false,
@@ -551,12 +553,12 @@ export async function createGradeScale(input: CreateGradeScaleInput) {
   return scale
 }
 
-export async function updateGradeScale(id: string, input: UpdateGradeScaleInput) {
-  const existing = await prisma.gradeScale.findUnique({ where: { id } })
+export async function updateGradeScale(schoolId: string, id: string, input: UpdateGradeScaleInput) {
+  const existing = await prisma.gradeScale.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Grade scale not found')
 
   if (input.isDefault) {
-    await prisma.gradeScale.updateMany({ where: { isDefault: true }, data: { isDefault: false } })
+    await prisma.gradeScale.updateMany({ where: { isDefault: true, organizationId: schoolId }, data: { isDefault: false } })
   }
 
   const data: any = {}
@@ -568,8 +570,8 @@ export async function updateGradeScale(id: string, input: UpdateGradeScaleInput)
   return scale
 }
 
-export async function deleteGradeScale(id: string) {
-  const existing = await prisma.gradeScale.findUnique({ where: { id } })
+export async function deleteGradeScale(schoolId: string, id: string) {
+  const existing = await prisma.gradeScale.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Grade scale not found')
   if (existing.isDefault) throw AppError.badRequest('Cannot delete the default grade scale')
   await prisma.gradeScale.delete({ where: { id } })
@@ -578,12 +580,12 @@ export async function deleteGradeScale(id: string) {
 
 // ==================== Exam Timetable ====================
 
-export async function getExamTimetable(examId: string) {
-  const exam = await prisma.exam.findUnique({ where: { id: examId } })
+export async function getExamTimetable(schoolId: string, examId: string) {
+  const exam = await prisma.exam.findFirst({ where: { id: examId, organizationId: schoolId } })
   if (!exam) throw AppError.notFound('Exam not found')
 
   const slots = await prisma.examSlot.findMany({
-    where: { examId },
+    where: { examId, organizationId: schoolId },
     orderBy: { date: 'asc' },
   })
 
@@ -608,8 +610,8 @@ export async function getExamTimetable(examId: string) {
   }
 }
 
-export async function createExamSlot(examId: string, input: CreateExamSlotInput) {
-  const exam = await prisma.exam.findUnique({ where: { id: examId } })
+export async function createExamSlot(schoolId: string, examId: string, input: CreateExamSlotInput) {
+  const exam = await prisma.exam.findFirst({ where: { id: examId, organizationId: schoolId } })
   if (!exam) throw AppError.notFound('Exam not found')
 
   // Try to resolve subject name/code from Subject table
@@ -630,6 +632,7 @@ export async function createExamSlot(examId: string, input: CreateExamSlotInput)
 
   const slot = await prisma.examSlot.create({
     data: {
+      organizationId: schoolId,
       examId,
       subjectId: input.subjectId,
       subjectName,
@@ -660,11 +663,11 @@ export async function createExamSlot(examId: string, input: CreateExamSlotInput)
 
 // ==================== Analytics ====================
 
-export async function getExamAnalytics(examId: string, query: { class?: string; section?: string }) {
-  const exam = await prisma.exam.findUnique({ where: { id: examId } })
+export async function getExamAnalytics(schoolId: string, examId: string, query: { class?: string; section?: string }) {
+  const exam = await prisma.exam.findFirst({ where: { id: examId, organizationId: schoolId } })
   if (!exam) throw AppError.notFound('Exam not found')
 
-  const marks = await prisma.studentMark.findMany({ where: { examId } })
+  const marks = await prisma.studentMark.findMany({ where: { examId, organizationId: schoolId } })
   const studentIds = [...new Set(marks.map(m => m.studentId))]
   const students = await prisma.student.findMany({
     where: { id: { in: studentIds } },
@@ -769,15 +772,15 @@ export async function getExamAnalytics(examId: string, query: { class?: string; 
 
 // ==================== Student Progress ====================
 
-export async function getStudentProgress(studentId: string) {
-  const student = await prisma.student.findUnique({
-    where: { id: studentId },
+export async function getStudentProgress(schoolId: string, studentId: string) {
+  const student = await prisma.student.findFirst({
+    where: { id: studentId, organizationId: schoolId },
     include: { class: true, section: true },
   })
   if (!student) throw AppError.notFound('Student not found')
 
   const marks = await prisma.studentMark.findMany({
-    where: { studentId },
+    where: { studentId, organizationId: schoolId },
     include: { exam: true },
   })
 
@@ -827,9 +830,9 @@ export async function getStudentProgress(studentId: string) {
 
 // ==================== Co-Scholastic ====================
 
-export async function listCoScholastic(query: ListCoScholasticInput) {
+export async function listCoScholastic(schoolId: string, query: ListCoScholasticInput) {
   const { page, limit, studentId, term, area } = query
-  const where: any = {}
+  const where: any = { organizationId: schoolId }
   if (studentId) where.studentId = studentId
   if (term) where.term = term
   if (area && coAreaToDb[area]) where.area = coAreaToDb[area]
@@ -874,9 +877,9 @@ export async function listCoScholastic(query: ListCoScholasticInput) {
   }
 }
 
-export async function submitCoScholastic(input: SubmitCoScholasticInput, assessedBy: string) {
-  const student = await prisma.student.findUnique({
-    where: { id: input.studentId },
+export async function submitCoScholastic(schoolId: string, input: SubmitCoScholasticInput, assessedBy: string) {
+  const student = await prisma.student.findFirst({
+    where: { id: input.studentId, organizationId: schoolId },
     include: { class: true, section: true },
   })
   if (!student) throw AppError.notFound('Student not found')
@@ -936,8 +939,8 @@ export async function submitCoScholastic(input: SubmitCoScholasticInput, assesse
 
 // ==================== Question Papers ====================
 
-export async function listQuestionPapers(query: { examId?: string; subjectId?: string; className?: string }) {
-  const where: any = {}
+export async function listQuestionPapers(schoolId: string, query: { examId?: string; subjectId?: string; className?: string }) {
+  const where: any = { organizationId: schoolId }
   if (query.examId) where.examId = query.examId
   if (query.subjectId) where.subjectId = query.subjectId
   if (query.className) where.className = query.className
@@ -970,9 +973,9 @@ export async function listQuestionPapers(query: { examId?: string; subjectId?: s
   }
 }
 
-export async function getQuestionPaperById(id: string) {
-  const paper = await prisma.questionPaper.findUnique({
-    where: { id },
+export async function getQuestionPaperById(schoolId: string, id: string) {
+  const paper = await prisma.questionPaper.findFirst({
+    where: { id, organizationId: schoolId },
     include: { exam: { select: { name: true } } },
   })
   if (!paper) throw AppError.notFound('Question paper not found')
@@ -997,9 +1000,10 @@ export async function getQuestionPaperById(id: string) {
   }
 }
 
-export async function createQuestionPaper(input: CreateQuestionPaperInput, createdBy: string) {
+export async function createQuestionPaper(schoolId: string, input: CreateQuestionPaperInput, createdBy: string) {
   const paper = await prisma.questionPaper.create({
     data: {
+      organizationId: schoolId,
       examId: input.examId || null,
       subjectId: input.subjectId,
       subjectName: input.subjectName,
@@ -1036,8 +1040,8 @@ export async function createQuestionPaper(input: CreateQuestionPaperInput, creat
   }
 }
 
-export async function deleteQuestionPaper(id: string) {
-  const existing = await prisma.questionPaper.findUnique({ where: { id } })
+export async function deleteQuestionPaper(schoolId: string, id: string) {
+  const existing = await prisma.questionPaper.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Question paper not found')
   await prisma.questionPaper.delete({ where: { id } })
   return { success: true }
@@ -1045,7 +1049,7 @@ export async function deleteQuestionPaper(id: string) {
 
 // ==================== User-Scoped ====================
 
-export async function getMyMarks(userId: string, query: { academicYear?: string }) {
+export async function getMyMarks(schoolId: string, userId: string, query: { academicYear?: string }) {
   // Find user → studentId
   const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user?.studentId) throw AppError.forbidden('Not a student user')
@@ -1057,10 +1061,10 @@ export async function getMyMarks(userId: string, query: { academicYear?: string 
   }
   if (!student) throw AppError.notFound('Student not found')
 
-  const where: any = { studentId: student.id }
+  const where: any = { studentId: student.id, organizationId: schoolId }
   if (query.academicYear) {
     const exams = await prisma.exam.findMany({
-      where: { academicYear: query.academicYear },
+      where: { academicYear: query.academicYear, organizationId: schoolId },
       select: { id: true, name: true },
     })
     where.examId = { in: exams.map(e => e.id) }
@@ -1108,7 +1112,7 @@ export async function getMyMarks(userId: string, query: { academicYear?: string 
   }
 }
 
-export async function getMyChildrenMarks(userId: string, query: { academicYear?: string }) {
+export async function getMyChildrenMarks(schoolId: string, userId: string, query: { academicYear?: string }) {
   const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user?.childIds) throw AppError.forbidden('Not a parent user')
 
@@ -1120,7 +1124,7 @@ export async function getMyChildrenMarks(userId: string, query: { academicYear?:
   }
 
   const children = await prisma.student.findMany({
-    where: { id: { in: childIdsArr } },
+    where: { id: { in: childIdsArr }, organizationId: schoolId },
     include: { class: true, section: true },
   })
 
@@ -1128,10 +1132,10 @@ export async function getMyChildrenMarks(userId: string, query: { academicYear?:
 
   const results = []
   for (const child of children) {
-    const where: any = { studentId: child.id }
+    const where: any = { studentId: child.id, organizationId: schoolId }
     if (query.academicYear) {
       const exams = await prisma.exam.findMany({
-        where: { academicYear: query.academicYear },
+        where: { academicYear: query.academicYear, organizationId: schoolId },
         select: { id: true },
       })
       where.examId = { in: exams.map(e => e.id) }
@@ -1177,7 +1181,7 @@ export async function getMyChildrenMarks(userId: string, query: { academicYear?:
   return { data: results }
 }
 
-export async function getMyReportCard(userId: string, query: { examId?: string }) {
+export async function getMyReportCard(schoolId: string, userId: string, query: { examId?: string }) {
   const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user?.studentId) throw AppError.forbidden('Not a student user')
 
@@ -1187,7 +1191,7 @@ export async function getMyReportCard(userId: string, query: { examId?: string }
   }
   if (!student) throw AppError.notFound('Student not found')
 
-  const where: any = { studentId: student.id }
+  const where: any = { studentId: student.id, organizationId: schoolId }
   if (query.examId) where.examId = query.examId
 
   const card = await prisma.reportCard.findFirst({ where, orderBy: { generatedAt: 'desc' } })

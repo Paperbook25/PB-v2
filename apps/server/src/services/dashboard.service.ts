@@ -56,7 +56,7 @@ function monthLabel(d: Date): string {
 
 // ==================== ADMIN / PRINCIPAL (11 endpoints) — REAL DATA ====================
 
-export async function getStats() {
+export async function getStats(schoolId: string) {
   const today = startOfDay(new Date())
   const firstOfMonth = startOfMonth(new Date())
 
@@ -68,18 +68,18 @@ export async function getStats() {
     todayAttendance,
     newAdmissions,
   ] = await Promise.all([
-    prisma.student.count({ where: { status: 'active' } }),
-    prisma.staff.count({ where: { status: 'active' } }),
-    prisma.payment.aggregate({ _sum: { amount: true } }),
+    prisma.student.count({ where: { organizationId: schoolId, status: 'active' } }),
+    prisma.staff.count({ where: { organizationId: schoolId, status: 'active' } }),
+    prisma.payment.aggregate({ where: { organizationId: schoolId }, _sum: { amount: true } }),
     prisma.studentFee.aggregate({
-      where: { status: { in: ['fps_pending', 'fps_partial', 'fps_overdue'] } },
+      where: { organizationId: schoolId, status: { in: ['fps_pending', 'fps_partial', 'fps_overdue'] } },
       _sum: { totalAmount: true, paidAmount: true, discountAmount: true },
     }),
     prisma.studentDailyAttendance.findMany({
-      where: { date: today },
+      where: { organizationId: schoolId, date: today },
     }),
     prisma.student.count({
-      where: { admissionDate: { gte: firstOfMonth }, status: 'active' },
+      where: { organizationId: schoolId, admissionDate: { gte: firstOfMonth }, status: 'active' },
     }),
   ])
 
@@ -105,7 +105,7 @@ export async function getStats() {
   }
 }
 
-export async function getFeeCollection() {
+export async function getFeeCollection(schoolId: string) {
   const now = new Date()
   const months: { month: string; collected: number; pending: number }[] = []
 
@@ -116,11 +116,12 @@ export async function getFeeCollection() {
 
     const [collected, pendingFees] = await Promise.all([
       prisma.payment.aggregate({
-        where: { collectedAt: { gte: d, lt: nextMonth } },
+        where: { organizationId: schoolId, collectedAt: { gte: d, lt: nextMonth } },
         _sum: { amount: true },
       }),
       prisma.studentFee.aggregate({
         where: {
+          organizationId: schoolId,
           status: { in: ['fps_pending', 'fps_partial', 'fps_overdue'] },
           dueDate: { gte: d, lt: nextMonth },
         },
@@ -142,7 +143,7 @@ export async function getFeeCollection() {
   return months
 }
 
-export async function getAttendance() {
+export async function getAttendance(schoolId: string) {
   const today = new Date()
   const days: { day: string; present: number; absent: number }[] = []
   const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -153,7 +154,7 @@ export async function getAttendance() {
     const dateOnly = startOfDay(d)
 
     const records = await prisma.studentDailyAttendance.findMany({
-      where: { date: dateOnly },
+      where: { organizationId: schoolId, date: dateOnly },
     })
 
     const totalPresent = records.reduce((s, r) => s + r.presentCount, 0)
@@ -169,8 +170,9 @@ export async function getAttendance() {
   return days
 }
 
-export async function getClassWiseStudents() {
+export async function getClassWiseStudents(schoolId: string) {
   const classes = await prisma.class.findMany({
+    where: { organizationId: schoolId },
     orderBy: { sortOrder: 'asc' },
     include: { _count: { select: { students: true } } },
   })
@@ -181,8 +183,9 @@ export async function getClassWiseStudents() {
   }))
 }
 
-export async function getAnnouncements() {
+export async function getAnnouncements(schoolId: string) {
   const events = await prisma.calendarEvent.findMany({
+    where: { organizationId: schoolId },
     orderBy: { createdAt: 'desc' },
     take: 5,
   })
@@ -200,11 +203,11 @@ export async function getAnnouncements() {
   })
 }
 
-export async function getEvents() {
+export async function getEvents(schoolId: string) {
   const today = startOfDay(new Date())
 
   const events = await prisma.calendarEvent.findMany({
-    where: { startDate: { gte: today } },
+    where: { organizationId: schoolId, startDate: { gte: today } },
     orderBy: { startDate: 'asc' },
     take: 10,
   })
@@ -221,8 +224,9 @@ export async function getEvents() {
   })
 }
 
-export async function getActivities() {
+export async function getActivities(schoolId: string) {
   const logs = await prisma.auditLog.findMany({
+    where: { organizationId: schoolId },
     orderBy: { createdAt: 'desc' },
     take: 10,
   })
@@ -236,14 +240,14 @@ export async function getActivities() {
   }))
 }
 
-export async function getQuickStats() {
+export async function getQuickStats(schoolId: string) {
   const today = new Date()
   const todayMonth = today.getMonth()
   const todayDay = today.getDate()
 
   // Birthdays today
   const allStudents = await prisma.student.findMany({
-    where: { status: 'active', dateOfBirth: { not: null } },
+    where: { organizationId: schoolId, status: 'active', dateOfBirth: { not: null } },
     select: { dateOfBirth: true },
   })
   const todayBirthdays = allStudents.filter((s) => {
@@ -253,9 +257,9 @@ export async function getQuickStats() {
   }).length
 
   const [pendingLeaveRequests, upcomingExams] = await Promise.all([
-    prisma.leaveRequest.count({ where: { status: 'leave_pending' } }),
+    prisma.leaveRequest.count({ where: { organizationId: schoolId, status: 'leave_pending' } }),
     prisma.calendarEvent.count({
-      where: { type: 'exam', startDate: { gte: startOfDay(today) } },
+      where: { organizationId: schoolId, type: 'exam', startDate: { gte: startOfDay(today) } },
     }),
   ])
 
@@ -267,9 +271,10 @@ export async function getQuickStats() {
   }
 }
 
-export async function getPaymentMethods() {
+export async function getPaymentMethods(schoolId: string) {
   const payments = await prisma.payment.groupBy({
     by: ['paymentMode'],
+    where: { organizationId: schoolId },
     _sum: { amount: true },
   })
 
@@ -280,8 +285,9 @@ export async function getPaymentMethods() {
   }))
 }
 
-export async function getFeeTransactions() {
+export async function getFeeTransactions(schoolId: string) {
   const payments = await prisma.payment.findMany({
+    where: { organizationId: schoolId },
     orderBy: { collectedAt: 'desc' },
     take: 10,
     include: {
@@ -300,8 +306,9 @@ export async function getFeeTransactions() {
   }))
 }
 
-export async function getClassWiseCollection() {
+export async function getClassWiseCollection(schoolId: string) {
   const classes = await prisma.class.findMany({
+    where: { organizationId: schoolId },
     orderBy: { sortOrder: 'asc' },
     include: {
       students: {
@@ -318,11 +325,11 @@ export async function getClassWiseCollection() {
 
     const [collected, total] = await Promise.all([
       prisma.payment.aggregate({
-        where: { studentId: { in: studentIds } },
+        where: { organizationId: schoolId, studentId: { in: studentIds } },
         _sum: { amount: true },
       }),
       prisma.studentFee.aggregate({
-        where: { studentId: { in: studentIds } },
+        where: { organizationId: schoolId, studentId: { in: studentIds } },
         _sum: { totalAmount: true },
       }),
     ])
@@ -343,7 +350,7 @@ export async function getClassWiseCollection() {
 
 // ==================== ACCOUNTANT (5 endpoints) — REAL DATA ====================
 
-export async function getAccountantStats() {
+export async function getAccountantStats(schoolId: string) {
   const today = startOfDay(new Date())
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
@@ -358,21 +365,21 @@ export async function getAccountantStats() {
     lastMonthPayments,
   ] = await Promise.all([
     prisma.payment.aggregate({
-      where: { collectedAt: { gte: today, lt: tomorrow } },
+      where: { organizationId: schoolId, collectedAt: { gte: today, lt: tomorrow } },
       _sum: { amount: true },
       _count: true,
     }),
     prisma.studentFee.aggregate({
-      where: { status: { in: ['fps_pending', 'fps_partial', 'fps_overdue'] } },
+      where: { organizationId: schoolId, status: { in: ['fps_pending', 'fps_partial', 'fps_overdue'] } },
       _sum: { totalAmount: true, paidAmount: true, discountAmount: true },
       _count: true,
     }),
     prisma.payment.aggregate({
-      where: { collectedAt: { gte: firstOfMonth } },
+      where: { organizationId: schoolId, collectedAt: { gte: firstOfMonth } },
       _sum: { amount: true },
     }),
     prisma.payment.aggregate({
-      where: { collectedAt: { gte: firstOfLastMonth, lt: firstOfMonth } },
+      where: { organizationId: schoolId, collectedAt: { gte: firstOfLastMonth, lt: firstOfMonth } },
       _sum: { amount: true },
     }),
   ])
@@ -387,8 +394,8 @@ export async function getAccountantStats() {
     : 0
 
   // Collection rate
-  const totalFees = await prisma.studentFee.aggregate({ _sum: { totalAmount: true } })
-  const totalCollected = await prisma.payment.aggregate({ _sum: { amount: true } })
+  const totalFees = await prisma.studentFee.aggregate({ where: { organizationId: schoolId }, _sum: { totalAmount: true } })
+  const totalCollected = await prisma.payment.aggregate({ where: { organizationId: schoolId }, _sum: { amount: true } })
   const totalFeeAmt = Number(totalFees._sum.totalAmount || 0)
   const collectionRate = totalFeeAmt > 0
     ? Math.round((Number(totalCollected._sum.amount || 0) / totalFeeAmt) * 100)
@@ -405,13 +412,13 @@ export async function getAccountantStats() {
   }
 }
 
-export async function getTodayCollection() {
+export async function getTodayCollection(schoolId: string) {
   const today = startOfDay(new Date())
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
 
   const payments = await prisma.payment.findMany({
-    where: { collectedAt: { gte: today, lt: tomorrow } },
+    where: { organizationId: schoolId, collectedAt: { gte: today, lt: tomorrow } },
   })
 
   let total = 0
@@ -436,7 +443,7 @@ export async function getTodayCollection() {
   }
 }
 
-export async function getCollectionTrends() {
+export async function getCollectionTrends(schoolId: string) {
   const today = new Date()
   const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   const trends = []
@@ -449,7 +456,7 @@ export async function getCollectionTrends() {
     dateEnd.setDate(dateEnd.getDate() + 1)
 
     const result = await prisma.payment.aggregate({
-      where: { collectedAt: { gte: dateStart, lt: dateEnd } },
+      where: { organizationId: schoolId, collectedAt: { gte: dateStart, lt: dateEnd } },
       _sum: { amount: true },
     })
 
@@ -462,9 +469,9 @@ export async function getCollectionTrends() {
   return trends
 }
 
-export async function getPendingDues() {
+export async function getPendingDues(schoolId: string) {
   const overdueFees = await prisma.studentFee.findMany({
-    where: { status: { in: ['fps_overdue', 'fps_pending', 'fps_partial'] } },
+    where: { organizationId: schoolId, status: { in: ['fps_overdue', 'fps_pending', 'fps_partial'] } },
     include: {
       student: { include: { class: true, section: true } },
     },
@@ -491,8 +498,9 @@ export async function getPendingDues() {
   })
 }
 
-export async function getRecentTransactions() {
+export async function getRecentTransactions(schoolId: string) {
   const payments = await prisma.payment.findMany({
+    where: { organizationId: schoolId },
     orderBy: { collectedAt: 'desc' },
     take: 10,
     include: {
@@ -513,8 +521,8 @@ export async function getRecentTransactions() {
 
 // ==================== TEACHER (7 endpoints) — 5 REAL + 2 STUB ====================
 
-async function resolveStaffFromUser(userId: string) {
-  return prisma.staff.findFirst({ where: { userId } })
+async function resolveStaffFromUser(schoolId: string, userId: string) {
+  return prisma.staff.findFirst({ where: { organizationId: schoolId, userId } })
 }
 
 function getTodayDayOfWeek(): string | null {
@@ -522,8 +530,8 @@ function getTodayDayOfWeek(): string | null {
   return dayOfWeekMap[jsDay] || null // Sunday → null
 }
 
-export async function getTeacherStats(userId: string) {
-  const staff = await resolveStaffFromUser(userId)
+export async function getTeacherStats(schoolId: string, userId: string) {
+  const staff = await resolveStaffFromUser(schoolId, userId)
   if (!staff) {
     return {
       totalClasses: 0, classesToday: 0, attendanceMarked: 0,
@@ -537,7 +545,7 @@ export async function getTeacherStats(userId: string) {
 
   // All timetable entries for this teacher
   const allEntries = await prisma.timetableEntry.findMany({
-    where: { teacherId: staff.id, subject: { isNot: null } },
+    where: { organizationId: schoolId, teacherId: staff.id, subject: { isNot: null } },
     include: { timetable: { include: { class: true, section: true } } },
   })
 
@@ -559,17 +567,17 @@ export async function getTeacherStats(userId: string) {
   let attendanceMarked = 0
   for (const pair of uniqueTodayPairs) {
     const count = await prisma.studentDailyAttendance.count({
-      where: { date: today, classId: pair.classId, sectionId: pair.sectionId },
+      where: { organizationId: schoolId, date: today, classId: pair.classId, sectionId: pair.sectionId },
     })
     if (count > 0) attendanceMarked++
   }
 
   // Leave balance
-  const currentYear = await prisma.academicYear.findFirst({ where: { isCurrent: true } })
+  const currentYear = await prisma.academicYear.findFirst({ where: { organizationId: schoolId, isCurrent: true } })
   let leaveBalance = 0
   if (currentYear) {
     const balances = await prisma.leaveBalance.findMany({
-      where: { staffId: staff.id, academicYearId: currentYear.id },
+      where: { organizationId: schoolId, staffId: staff.id, academicYearId: currentYear.id },
     })
     leaveBalance = balances.reduce((s, b) => s + (b.total - b.used), 0)
   }
@@ -577,13 +585,13 @@ export async function getTeacherStats(userId: string) {
   // Average class strength
   const classIds = [...new Set(allEntries.map((e) => e.timetable.classId))]
   const studentCount = classIds.length > 0
-    ? await prisma.student.count({ where: { classId: { in: classIds }, status: 'active' } })
+    ? await prisma.student.count({ where: { organizationId: schoolId, classId: { in: classIds }, status: 'active' } })
     : 0
   const avgStrength = uniqueClasses.size > 0 ? Math.round(studentCount / uniqueClasses.size) : 0
 
   // Upcoming PTMs
   const upcomingPTMs = await prisma.calendarEvent.count({
-    where: { type: 'ptm', startDate: { gte: today } },
+    where: { organizationId: schoolId, type: 'ptm', startDate: { gte: today } },
   })
 
   return {
@@ -598,15 +606,15 @@ export async function getTeacherStats(userId: string) {
   }
 }
 
-export async function getTeacherSchedule(userId: string) {
-  const staff = await resolveStaffFromUser(userId)
+export async function getTeacherSchedule(schoolId: string, userId: string) {
+  const staff = await resolveStaffFromUser(schoolId, userId)
   if (!staff) return []
 
   const todayDow = getTodayDayOfWeek()
   if (!todayDow) return []
 
   const entries = await prisma.timetableEntry.findMany({
-    where: { teacherId: staff.id, dayOfWeek: todayDow as any },
+    where: { organizationId: schoolId, teacherId: staff.id, dayOfWeek: todayDow as any },
     include: {
       period: true,
       subject: true,
@@ -634,8 +642,8 @@ export async function getTeacherSchedule(userId: string) {
   })
 }
 
-export async function getTeacherClasses(userId: string) {
-  const staff = await resolveStaffFromUser(userId)
+export async function getTeacherClasses(schoolId: string, userId: string) {
+  const staff = await resolveStaffFromUser(schoolId, userId)
   if (!staff) return []
 
   const todayDow = getTodayDayOfWeek()
@@ -643,7 +651,7 @@ export async function getTeacherClasses(userId: string) {
 
   // Get all entries for this teacher to find unique class-section-subject combos
   const entries = await prisma.timetableEntry.findMany({
-    where: { teacherId: staff.id, subject: { isNot: null } },
+    where: { organizationId: schoolId, teacherId: staff.id, subject: { isNot: null } },
     include: {
       subject: true,
       timetable: { include: { class: true, section: true } },
@@ -660,12 +668,12 @@ export async function getTeacherClasses(userId: string) {
   const results = []
   for (const [, e] of seen) {
     const studentCount = await prisma.student.count({
-      where: { classId: e.timetable.classId, sectionId: e.timetable.sectionId, status: 'active' },
+      where: { organizationId: schoolId, classId: e.timetable.classId, sectionId: e.timetable.sectionId, status: 'active' },
     })
 
     // Check if attendance marked today for this class-section
     const attRecord = await prisma.studentDailyAttendance.findFirst({
-      where: { date: today, classId: e.timetable.classId, sectionId: e.timetable.sectionId },
+      where: { organizationId: schoolId, date: today, classId: e.timetable.classId, sectionId: e.timetable.sectionId },
     })
 
     results.push({
@@ -681,18 +689,18 @@ export async function getTeacherClasses(userId: string) {
   return results
 }
 
-export async function getTeacherTasks() {
+export async function getTeacherTasks(schoolId: string) {
   // STUB — Exams/Homework modules not yet implemented
   return []
 }
 
-export async function getStrugglingStudents(userId: string) {
-  const staff = await resolveStaffFromUser(userId)
+export async function getStrugglingStudents(schoolId: string, userId: string) {
+  const staff = await resolveStaffFromUser(schoolId, userId)
   if (!staff) return []
 
   // Find teacher's classes
   const entries = await prisma.timetableEntry.findMany({
-    where: { teacherId: staff.id, subject: { isNot: null } },
+    where: { organizationId: schoolId, teacherId: staff.id, subject: { isNot: null } },
     include: { timetable: true },
   })
 
@@ -705,6 +713,7 @@ export async function getStrugglingStudents(userId: string) {
   // Get students in these classes
   const students = await prisma.student.findMany({
     where: {
+      organizationId: schoolId,
       status: 'active',
       OR: classSectionPairs.map((p) => ({ classId: p.classId, sectionId: p.sectionId })),
     },
@@ -733,14 +742,14 @@ export async function getStrugglingStudents(userId: string) {
   return struggling.slice(0, 10)
 }
 
-export async function getPendingGrades() {
+export async function getPendingGrades(schoolId: string) {
   // STUB — Exams module not yet implemented
   return []
 }
 
 // ==================== PARENT (3 endpoints) — 2 REAL + 1 STUB ====================
 
-async function resolveStudentForParent(userId: string, studentId?: string) {
+async function resolveStudentForParent(schoolId: string, userId: string, studentId?: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user) return null
 
@@ -767,8 +776,8 @@ async function resolveStudentForParent(userId: string, studentId?: string) {
   return validStudentIds[0] || null
 }
 
-export async function getChildTimetable(userId: string, studentId?: string) {
-  const resolvedStudentId = await resolveStudentForParent(userId, studentId)
+export async function getChildTimetable(schoolId: string, userId: string, studentId?: string) {
+  const resolvedStudentId = await resolveStudentForParent(schoolId, userId, studentId)
   if (!resolvedStudentId) return []
 
   const student = await prisma.student.findUnique({
@@ -781,12 +790,12 @@ export async function getChildTimetable(userId: string, studentId?: string) {
   if (!todayDow) return []
 
   const timetable = await prisma.timetable.findFirst({
-    where: { classId: student.classId, sectionId: student.sectionId, status: 'tt_published' },
+    where: { organizationId: schoolId, classId: student.classId, sectionId: student.sectionId, status: 'tt_published' },
   })
   if (!timetable) return []
 
   const entries = await prisma.timetableEntry.findMany({
-    where: { timetableId: timetable.id, dayOfWeek: todayDow as any },
+    where: { organizationId: schoolId, timetableId: timetable.id, dayOfWeek: todayDow as any },
     include: {
       period: true,
       subject: true,
@@ -805,13 +814,13 @@ export async function getChildTimetable(userId: string, studentId?: string) {
   }))
 }
 
-export async function getChildAssignments() {
+export async function getChildAssignments(schoolId: string) {
   // STUB — LMS/Homework module not yet implemented
   return []
 }
 
-export async function getChildTeachers(userId: string, studentId?: string) {
-  const resolvedStudentId = await resolveStudentForParent(userId, studentId)
+export async function getChildTeachers(schoolId: string, userId: string, studentId?: string) {
+  const resolvedStudentId = await resolveStudentForParent(schoolId, userId, studentId)
   if (!resolvedStudentId) return []
 
   const student = await prisma.student.findUnique({
@@ -821,12 +830,12 @@ export async function getChildTeachers(userId: string, studentId?: string) {
   if (!student || !student.classId || !student.sectionId) return []
 
   const timetable = await prisma.timetable.findFirst({
-    where: { classId: student.classId, sectionId: student.sectionId, status: 'tt_published' },
+    where: { organizationId: schoolId, classId: student.classId, sectionId: student.sectionId, status: 'tt_published' },
   })
   if (!timetable) return []
 
   const entries = await prisma.timetableEntry.findMany({
-    where: { timetableId: timetable.id, teacherId: { not: null }, subjectId: { not: null } },
+    where: { organizationId: schoolId, timetableId: timetable.id, teacherId: { not: null }, subjectId: { not: null } },
     include: { teacher: true, subject: true },
   })
 
@@ -849,7 +858,7 @@ export async function getChildTeachers(userId: string, studentId?: string) {
 
 // ==================== LIBRARIAN (5 endpoints) — ALL STUB ====================
 
-export async function getLibrarianStats() {
+export async function getLibrarianStats(schoolId: string) {
   return {
     totalBooks: 8500,
     totalTitles: 3200,
@@ -861,7 +870,7 @@ export async function getLibrarianStats() {
   }
 }
 
-export async function getCirculationStats() {
+export async function getCirculationStats(schoolId: string) {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   return days.map((day) => ({
     day,
@@ -870,21 +879,21 @@ export async function getCirculationStats() {
   }))
 }
 
-export async function getOverdueBooks() {
+export async function getOverdueBooks(schoolId: string) {
   return []
 }
 
-export async function getPendingReservations() {
+export async function getPendingReservations(schoolId: string) {
   return []
 }
 
-export async function getLibraryActivity() {
+export async function getLibraryActivity(schoolId: string) {
   return []
 }
 
 // ==================== TRANSPORT MANAGER (5 endpoints) — ALL STUB ====================
 
-export async function getTransportStats() {
+export async function getTransportStats(schoolId: string) {
   return {
     totalVehicles: 18,
     activeVehicles: 15,
@@ -896,33 +905,33 @@ export async function getTransportStats() {
   }
 }
 
-export async function getFleetStatus() {
+export async function getFleetStatus(schoolId: string) {
   return []
 }
 
-export async function getMaintenanceAlerts() {
+export async function getMaintenanceAlerts(schoolId: string) {
   return []
 }
 
-export async function getRoutePerformance() {
+export async function getRoutePerformance(schoolId: string) {
   return []
 }
 
-export async function getDriverStatus() {
+export async function getDriverStatus(schoolId: string) {
   return []
 }
 
 // ==================== STUDENT (3 endpoints) — ALL STUB ====================
 
-export async function getStudentCourses() {
+export async function getStudentCourses(schoolId: string) {
   return []
 }
 
-export async function getStudentAssignments() {
+export async function getStudentAssignments(schoolId: string) {
   return []
 }
 
-export async function getStudentTransport() {
+export async function getStudentTransport(schoolId: string) {
   return null
 }
 
@@ -939,17 +948,17 @@ const staticNotifications = [
   },
 ]
 
-export async function getNotifications() {
+export async function getNotifications(schoolId: string) {
   return staticNotifications
 }
 
-export async function markNotificationRead(id: string) {
+export async function markNotificationRead(schoolId: string, id: string) {
   const n = staticNotifications.find((n) => n.id === id)
   if (n) n.read = true
   return { success: true }
 }
 
-export async function markAllNotificationsRead() {
+export async function markAllNotificationsRead(schoolId: string) {
   staticNotifications.forEach((n) => (n.read = true))
   return { success: true }
 }

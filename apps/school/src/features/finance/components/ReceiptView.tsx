@@ -1,4 +1,4 @@
-import { Printer, Download, X, CheckCircle } from 'lucide-react'
+import { Printer, X, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/table'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { PAYMENT_MODE_LABELS, type Receipt } from '../types/finance.types'
+import { useSchoolProfile } from '@/features/settings/hooks/useSettings'
 
 interface ReceiptViewProps {
   receipt: Receipt
@@ -20,6 +21,18 @@ interface ReceiptViewProps {
 }
 
 export function ReceiptView({ receipt, onClose }: ReceiptViewProps) {
+  const { data: profileResult } = useSchoolProfile()
+  const schoolProfile = profileResult?.data
+
+  const schoolName = schoolProfile?.name ?? 'School'
+  const schoolAddress = schoolProfile
+    ? [schoolProfile.address, schoolProfile.city, schoolProfile.state, schoolProfile.pincode]
+        .filter(Boolean)
+        .join(', ')
+    : ''
+  const schoolPhone = schoolProfile?.phone ?? ''
+  const schoolEmail = schoolProfile?.email ?? ''
+
   const handlePrint = () => {
     window.print()
   }
@@ -48,13 +61,20 @@ export function ReceiptView({ receipt, onClose }: ReceiptViewProps) {
       <CardContent className="space-y-6">
         {/* School Header */}
         <div className="text-center border-b pb-4">
-          <h2 className="text-xl font-bold">Paperbook School</h2>
-          <p className="text-sm text-muted-foreground">
-            123 Education Lane, Knowledge City - 400001
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Phone: +91 98765 43210 | Email: admin@paperbook.edu
-          </p>
+          <h2 className="text-xl font-bold">{schoolName}</h2>
+          {schoolAddress && (
+            <p className="text-sm text-muted-foreground">{schoolAddress}</p>
+          )}
+          {(schoolPhone || schoolEmail) && (
+            <p className="text-sm text-muted-foreground">
+              {[
+                schoolPhone ? `Phone: ${schoolPhone}` : '',
+                schoolEmail ? `Email: ${schoolEmail}` : '',
+              ]
+                .filter(Boolean)
+                .join(' | ')}
+            </p>
+          )}
         </div>
 
         {/* Receipt Header */}
@@ -114,7 +134,7 @@ export function ReceiptView({ receipt, onClose }: ReceiptViewProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {receipt.payments.map((payment, index) => (
+              {(receipt.payments ?? []).map((payment, index) => (
                 <TableRow key={index}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{payment.feeTypeName}</TableCell>

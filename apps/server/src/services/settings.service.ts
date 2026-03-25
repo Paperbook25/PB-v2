@@ -3,8 +3,8 @@ import { AppError } from '../utils/errors.js'
 
 // ==================== SCHOOL PROFILE ====================
 
-export async function getSchoolProfile() {
-  const profile = await prisma.schoolProfile.findFirst()
+export async function getSchoolProfile(schoolId: string) {
+  const profile = await prisma.schoolProfile.findFirst({ where: { organizationId: schoolId } })
   if (!profile) throw AppError.notFound('School profile not configured')
   return {
     id: profile.id,
@@ -24,8 +24,8 @@ export async function getSchoolProfile() {
   }
 }
 
-export async function updateSchoolProfile(data: Record<string, unknown>) {
-  const existing = await prisma.schoolProfile.findFirst()
+export async function updateSchoolProfile(schoolId: string, data: Record<string, unknown>) {
+  const existing = await prisma.schoolProfile.findFirst({ where: { organizationId: schoolId } })
   if (!existing) throw AppError.notFound('School profile not configured')
 
   const profile = await prisma.schoolProfile.update({
@@ -53,8 +53,9 @@ export async function updateSchoolProfile(data: Record<string, unknown>) {
 
 // ==================== ACADEMIC YEARS ====================
 
-export async function listAcademicYears() {
+export async function listAcademicYears(schoolId: string) {
   const years = await prisma.academicYear.findMany({
+    where: { organizationId: schoolId },
     orderBy: { startDate: 'desc' },
   })
   return years.map((y) => ({
@@ -67,9 +68,10 @@ export async function listAcademicYears() {
   }))
 }
 
-export async function createAcademicYear(data: { name: string; startDate: string; endDate: string }) {
+export async function createAcademicYear(schoolId: string, data: { name: string; startDate: string; endDate: string }) {
   const year = await prisma.academicYear.create({
     data: {
+      organizationId: schoolId,
       name: data.name,
       startDate: new Date(data.startDate),
       endDate: new Date(data.endDate),
@@ -87,8 +89,8 @@ export async function createAcademicYear(data: { name: string; startDate: string
   }
 }
 
-export async function updateAcademicYear(id: string, data: Record<string, unknown>) {
-  const existing = await prisma.academicYear.findUnique({ where: { id } })
+export async function updateAcademicYear(schoolId: string, id: string, data: Record<string, unknown>) {
+  const existing = await prisma.academicYear.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Academic year not found')
 
   const updateData: Record<string, unknown> = {}
@@ -108,8 +110,8 @@ export async function updateAcademicYear(id: string, data: Record<string, unknow
   }
 }
 
-export async function deleteAcademicYear(id: string) {
-  const existing = await prisma.academicYear.findUnique({ where: { id } })
+export async function deleteAcademicYear(schoolId: string, id: string) {
+  const existing = await prisma.academicYear.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Academic year not found')
   if (existing.isCurrent) throw AppError.badRequest('Cannot delete current academic year')
 
@@ -117,19 +119,19 @@ export async function deleteAcademicYear(id: string) {
   return { success: true }
 }
 
-export async function setCurrentAcademicYear(id: string) {
-  const existing = await prisma.academicYear.findUnique({ where: { id } })
+export async function setCurrentAcademicYear(schoolId: string, id: string) {
+  const existing = await prisma.academicYear.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Academic year not found')
 
   await prisma.$transaction([
-    prisma.academicYear.updateMany({ data: { isCurrent: false } }),
+    prisma.academicYear.updateMany({ where: { organizationId: schoolId }, data: { isCurrent: false } }),
     prisma.academicYear.update({
       where: { id },
       data: { isCurrent: true, status: 'active' },
     }),
   ])
 
-  const year = await prisma.academicYear.findUnique({ where: { id } })
+  const year = await prisma.academicYear.findFirst({ where: { id, organizationId: schoolId } })
   return {
     id: year!.id,
     name: year!.name,
@@ -142,8 +144,9 @@ export async function setCurrentAcademicYear(id: string) {
 
 // ==================== CLASSES + SECTIONS ====================
 
-export async function listClasses() {
+export async function listClasses(schoolId: string) {
   const classes = await prisma.class.findMany({
+    where: { organizationId: schoolId },
     include: {
       sections: {
         include: { classTeacher: true },
@@ -162,11 +165,12 @@ export async function listClasses() {
   }))
 }
 
-export async function createClass(data: { className: string; sections: string[]; classTeacherId?: string }) {
+export async function createClass(schoolId: string, data: { className: string; sections: string[]; classTeacherId?: string }) {
   const cls = await prisma.class.create({
     data: {
+      organizationId: schoolId,
       name: data.className,
-      sortOrder: await getNextClassSortOrder(),
+      sortOrder: await getNextClassSortOrder(schoolId),
       sections: {
         create: data.sections.map((name) => ({
           name,
@@ -191,9 +195,9 @@ export async function createClass(data: { className: string; sections: string[];
   }
 }
 
-export async function updateClass(id: string, data: { className?: string; sections?: string[]; classTeacherId?: string | null }) {
-  const existing = await prisma.class.findUnique({
-    where: { id },
+export async function updateClass(schoolId: string, id: string, data: { className?: string; sections?: string[]; classTeacherId?: string | null }) {
+  const existing = await prisma.class.findFirst({
+    where: { id, organizationId: schoolId },
     include: { sections: true },
   })
   if (!existing) throw AppError.notFound('Class not found')
@@ -259,23 +263,23 @@ export async function updateClass(id: string, data: { className?: string; sectio
   }
 }
 
-export async function deleteClass(id: string) {
-  const existing = await prisma.class.findUnique({ where: { id } })
+export async function deleteClass(schoolId: string, id: string) {
+  const existing = await prisma.class.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Class not found')
 
   await prisma.class.delete({ where: { id } })
   return { success: true }
 }
 
-async function getNextClassSortOrder(): Promise<number> {
-  const last = await prisma.class.findFirst({ orderBy: { sortOrder: 'desc' } })
+async function getNextClassSortOrder(schoolId: string): Promise<number> {
+  const last = await prisma.class.findFirst({ where: { organizationId: schoolId }, orderBy: { sortOrder: 'desc' } })
   return (last?.sortOrder || 0) + 1
 }
 
 // ==================== SUBJECTS ====================
 
-export async function listSubjects() {
-  const subjects = await prisma.subject.findMany({ orderBy: { name: 'asc' } })
+export async function listSubjects(schoolId: string) {
+  const subjects = await prisma.subject.findMany({ where: { organizationId: schoolId }, orderBy: { name: 'asc' } })
   return subjects.map((s) => ({
     id: s.id,
     name: s.name,
@@ -286,12 +290,13 @@ export async function listSubjects() {
   }))
 }
 
-export async function createSubject(data: { name: string; code: string; type?: string; maxMarks?: number; passingMarks?: number }) {
-  const existing = await prisma.subject.findUnique({ where: { code: data.code } })
+export async function createSubject(schoolId: string, data: { name: string; code: string; type?: string; maxMarks?: number; passingMarks?: number }) {
+  const existing = await prisma.subject.findFirst({ where: { organizationId: schoolId, code: data.code } })
   if (existing) throw AppError.conflict('A subject with this code already exists')
 
   const subject = await prisma.subject.create({
     data: {
+      organizationId: schoolId,
       name: data.name,
       code: data.code,
       type: data.type || 'theory',
@@ -302,12 +307,12 @@ export async function createSubject(data: { name: string; code: string; type?: s
   return { id: subject.id, name: subject.name, code: subject.code, type: subject.type, maxMarks: subject.maxMarks, passingMarks: subject.passingMarks }
 }
 
-export async function updateSubject(id: string, data: Record<string, unknown>) {
-  const existing = await prisma.subject.findUnique({ where: { id } })
+export async function updateSubject(schoolId: string, id: string, data: Record<string, unknown>) {
+  const existing = await prisma.subject.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Subject not found')
 
   if (data.code && data.code !== existing.code) {
-    const codeTaken = await prisma.subject.findUnique({ where: { code: data.code as string } })
+    const codeTaken = await prisma.subject.findFirst({ where: { organizationId: schoolId, code: data.code as string } })
     if (codeTaken) throw AppError.conflict('A subject with this code already exists')
   }
 
@@ -315,8 +320,8 @@ export async function updateSubject(id: string, data: Record<string, unknown>) {
   return { id: subject.id, name: subject.name, code: subject.code, type: subject.type, maxMarks: subject.maxMarks, passingMarks: subject.passingMarks }
 }
 
-export async function deleteSubject(id: string) {
-  const existing = await prisma.subject.findUnique({ where: { id } })
+export async function deleteSubject(schoolId: string, id: string) {
+  const existing = await prisma.subject.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Subject not found')
   await prisma.subject.delete({ where: { id } })
   return { success: true }
@@ -324,8 +329,8 @@ export async function deleteSubject(id: string) {
 
 // ==================== NOTIFICATION PREFERENCES ====================
 
-export async function getNotificationPreferences() {
-  const prefs = await prisma.notificationPreference.findFirst()
+export async function getNotificationPreferences(schoolId: string) {
+  const prefs = await prisma.notificationPreference.findFirst({ where: { organizationId: schoolId } })
   if (!prefs) throw AppError.notFound('Notification preferences not configured')
   return {
     emailNotifications: prefs.emailNotifications,
@@ -337,8 +342,8 @@ export async function getNotificationPreferences() {
   }
 }
 
-export async function updateNotificationPreferences(data: Record<string, unknown>) {
-  const existing = await prisma.notificationPreference.findFirst()
+export async function updateNotificationPreferences(schoolId: string, data: Record<string, unknown>) {
+  const existing = await prisma.notificationPreference.findFirst({ where: { organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Notification preferences not configured')
 
   const prefs = await prisma.notificationPreference.update({
@@ -357,8 +362,8 @@ export async function updateNotificationPreferences(data: Record<string, unknown
 
 // ==================== BACKUP CONFIG ====================
 
-export async function getBackupConfig() {
-  const config = await prisma.backupConfig.findFirst()
+export async function getBackupConfig(schoolId: string) {
+  const config = await prisma.backupConfig.findFirst({ where: { organizationId: schoolId } })
   if (!config) throw AppError.notFound('Backup configuration not configured')
   return {
     autoBackup: config.autoBackup,
@@ -368,8 +373,8 @@ export async function getBackupConfig() {
   }
 }
 
-export async function updateBackupConfig(data: Record<string, unknown>) {
-  const existing = await prisma.backupConfig.findFirst()
+export async function updateBackupConfig(schoolId: string, data: Record<string, unknown>) {
+  const existing = await prisma.backupConfig.findFirst({ where: { organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Backup configuration not configured')
 
   const config = await prisma.backupConfig.update({
@@ -384,8 +389,8 @@ export async function updateBackupConfig(data: Record<string, unknown>) {
   }
 }
 
-export async function triggerBackup() {
-  const existing = await prisma.backupConfig.findFirst()
+export async function triggerBackup(schoolId: string) {
+  const existing = await prisma.backupConfig.findFirst({ where: { organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Backup configuration not configured')
 
   const now = new Date()
@@ -403,8 +408,8 @@ export async function triggerBackup() {
 
 // ==================== THEME CONFIG ====================
 
-export async function getThemeConfig() {
-  const config = await prisma.themeConfig.findFirst()
+export async function getThemeConfig(schoolId: string) {
+  const config = await prisma.themeConfig.findFirst({ where: { organizationId: schoolId } })
   if (!config) throw AppError.notFound('Theme configuration not configured')
   return {
     mode: config.mode,
@@ -413,8 +418,8 @@ export async function getThemeConfig() {
   }
 }
 
-export async function updateThemeConfig(data: Record<string, unknown>) {
-  const existing = await prisma.themeConfig.findFirst()
+export async function updateThemeConfig(schoolId: string, data: Record<string, unknown>) {
+  const existing = await prisma.themeConfig.findFirst({ where: { organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Theme configuration not configured')
 
   const config = await prisma.themeConfig.update({
@@ -430,8 +435,8 @@ export async function updateThemeConfig(data: Record<string, unknown>) {
 
 // ==================== CALENDAR EVENTS ====================
 
-export async function listCalendarEvents(params: { type?: string; month?: string }) {
-  const where: Record<string, unknown> = {}
+export async function listCalendarEvents(schoolId: string, params: { type?: string; month?: string }) {
+  const where: Record<string, unknown> = { organizationId: schoolId }
 
   if (params.type) {
     where.type = params.type
@@ -466,7 +471,7 @@ export async function listCalendarEvents(params: { type?: string; month?: string
   }))
 }
 
-export async function createCalendarEvent(data: {
+export async function createCalendarEvent(schoolId: string, data: {
   title: string
   description?: string
   type: string
@@ -477,6 +482,7 @@ export async function createCalendarEvent(data: {
 }) {
   const event = await prisma.calendarEvent.create({
     data: {
+      organizationId: schoolId,
       title: data.title,
       description: data.description || '',
       type: data.type as 'holiday' | 'exam' | 'ptm' | 'sports' | 'cultural' | 'workshop' | 'vacation' | 'other',
@@ -500,8 +506,8 @@ export async function createCalendarEvent(data: {
   }
 }
 
-export async function updateCalendarEvent(id: string, data: Record<string, unknown>) {
-  const existing = await prisma.calendarEvent.findUnique({ where: { id } })
+export async function updateCalendarEvent(schoolId: string, id: string, data: Record<string, unknown>) {
+  const existing = await prisma.calendarEvent.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Event not found')
 
   const updateData: Record<string, unknown> = {}
@@ -527,8 +533,8 @@ export async function updateCalendarEvent(id: string, data: Record<string, unkno
   }
 }
 
-export async function deleteCalendarEvent(id: string) {
-  const existing = await prisma.calendarEvent.findUnique({ where: { id } })
+export async function deleteCalendarEvent(schoolId: string, id: string) {
+  const existing = await prisma.calendarEvent.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Event not found')
   await prisma.calendarEvent.delete({ where: { id } })
   return { success: true }
@@ -541,8 +547,8 @@ function extractTemplateVariables(text: string): string[] {
   return [...new Set(matches.map((m) => m.replace(/\{\{|\}\}/g, '')))]
 }
 
-export async function listEmailTemplates(params: { category?: string }) {
-  const where: Record<string, unknown> = {}
+export async function listEmailTemplates(schoolId: string, params: { category?: string }) {
+  const where: Record<string, unknown> = { organizationId: schoolId }
   if (params.category) where.category = params.category
 
   const templates = await prisma.emailTemplate.findMany({
@@ -563,8 +569,8 @@ export async function listEmailTemplates(params: { category?: string }) {
   }))
 }
 
-export async function getEmailTemplate(id: string) {
-  const t = await prisma.emailTemplate.findUnique({ where: { id } })
+export async function getEmailTemplate(schoolId: string, id: string) {
+  const t = await prisma.emailTemplate.findFirst({ where: { id, organizationId: schoolId } })
   if (!t) throw AppError.notFound('Template not found')
   return {
     id: t.id,
@@ -579,11 +585,12 @@ export async function getEmailTemplate(id: string) {
   }
 }
 
-export async function createEmailTemplate(data: { name: string; subject: string; body: string; category: string }) {
+export async function createEmailTemplate(schoolId: string, data: { name: string; subject: string; body: string; category: string }) {
   const variables = extractTemplateVariables(data.subject + data.body)
 
   const t = await prisma.emailTemplate.create({
     data: {
+      organizationId: schoolId,
       name: data.name,
       subject: data.subject,
       body: data.body,
@@ -607,8 +614,8 @@ export async function createEmailTemplate(data: { name: string; subject: string;
   }
 }
 
-export async function updateEmailTemplate(id: string, data: Record<string, unknown>) {
-  const existing = await prisma.emailTemplate.findUnique({ where: { id } })
+export async function updateEmailTemplate(schoolId: string, id: string, data: Record<string, unknown>) {
+  const existing = await prisma.emailTemplate.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Template not found')
 
   const updateData: Record<string, unknown> = { lastModified: new Date() }
@@ -639,8 +646,8 @@ export async function updateEmailTemplate(id: string, data: Record<string, unkno
   }
 }
 
-export async function deleteEmailTemplate(id: string) {
-  const existing = await prisma.emailTemplate.findUnique({ where: { id } })
+export async function deleteEmailTemplate(schoolId: string, id: string) {
+  const existing = await prisma.emailTemplate.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Template not found')
   await prisma.emailTemplate.delete({ where: { id } })
   return { success: true }

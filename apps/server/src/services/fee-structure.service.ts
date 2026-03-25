@@ -23,13 +23,14 @@ function formatFeeStructure(fs: any) {
   return {
     id: fs.id,
     feeTypeId: fs.feeTypeId,
+    feeTypeName: fs.feeType?.name || '',
     feeType: fs.feeType ? {
       id: fs.feeType.id,
       name: fs.feeType.name,
       category: feeCategoryReverse[fs.feeType.category] || fs.feeType.category,
     } : undefined,
     academicYear: fs.academicYear,
-    applicableClasses: fs.applicableClasses,
+    applicableClasses: fs.applicableClasses || [],
     amount: Number(fs.amount),
     frequency: frequencyReverse[fs.frequency] || fs.frequency,
     dueDay: fs.dueDay,
@@ -70,7 +71,7 @@ const feeStructureInclude = {
 
 // ==================== CRUD ====================
 
-export async function listFeeStructures(query: {
+export async function listFeeStructures(schoolId: string, query: {
   academicYear?: string
   feeTypeId?: string
   className?: string
@@ -81,6 +82,7 @@ export async function listFeeStructures(query: {
   const page = query.page || 1
   const limit = query.limit || 20
   const where: any = {}
+  where.organizationId = schoolId
 
   if (query.academicYear) where.academicYear = query.academicYear
   if (query.feeTypeId) where.feeTypeId = query.feeTypeId
@@ -112,18 +114,18 @@ export async function listFeeStructures(query: {
   }
 }
 
-export async function getFeeStructureById(id: string) {
-  const fs = await prisma.feeStructure.findUnique({
-    where: { id },
+export async function getFeeStructureById(schoolId: string, id: string) {
+  const fs = await prisma.feeStructure.findFirst({
+    where: { id, organizationId: schoolId },
     include: feeStructureInclude,
   })
   if (!fs) throw AppError.notFound('Fee structure not found')
   return formatFeeStructure(fs)
 }
 
-export async function createFeeStructure(input: CreateFeeStructureInput) {
+export async function createFeeStructure(schoolId: string, input: CreateFeeStructureInput) {
   // Verify fee type exists
-  const feeType = await prisma.feeType.findUnique({ where: { id: input.feeTypeId } })
+  const feeType = await prisma.feeType.findFirst({ where: { id: input.feeTypeId, organizationId: schoolId } })
   if (!feeType) throw AppError.badRequest('Fee type not found')
 
   const frequency = frequencyMap[input.frequency]
@@ -131,6 +133,7 @@ export async function createFeeStructure(input: CreateFeeStructureInput) {
 
   const fs = await prisma.feeStructure.create({
     data: {
+      organizationId: schoolId,
       feeTypeId: input.feeTypeId,
       academicYear: input.academicYear,
       applicableClasses: input.applicableClasses,
@@ -146,13 +149,13 @@ export async function createFeeStructure(input: CreateFeeStructureInput) {
   return formatFeeStructure(fs)
 }
 
-export async function updateFeeStructure(id: string, input: UpdateFeeStructureInput) {
-  const existing = await prisma.feeStructure.findUnique({ where: { id } })
+export async function updateFeeStructure(schoolId: string, id: string, input: UpdateFeeStructureInput) {
+  const existing = await prisma.feeStructure.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Fee structure not found')
 
   const data: any = {}
   if (input.feeTypeId !== undefined) {
-    const feeType = await prisma.feeType.findUnique({ where: { id: input.feeTypeId } })
+    const feeType = await prisma.feeType.findFirst({ where: { id: input.feeTypeId, organizationId: schoolId } })
     if (!feeType) throw AppError.badRequest('Fee type not found')
     data.feeTypeId = input.feeTypeId
   }
@@ -173,8 +176,8 @@ export async function updateFeeStructure(id: string, input: UpdateFeeStructureIn
   return formatFeeStructure(fs)
 }
 
-export async function toggleFeeStructure(id: string) {
-  const existing = await prisma.feeStructure.findUnique({ where: { id } })
+export async function toggleFeeStructure(schoolId: string, id: string) {
+  const existing = await prisma.feeStructure.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Fee structure not found')
 
   const fs = await prisma.feeStructure.update({
@@ -186,11 +189,11 @@ export async function toggleFeeStructure(id: string) {
   return formatFeeStructure(fs)
 }
 
-export async function deleteFeeStructure(id: string) {
-  const existing = await prisma.feeStructure.findUnique({ where: { id } })
+export async function deleteFeeStructure(schoolId: string, id: string) {
+  const existing = await prisma.feeStructure.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw AppError.notFound('Fee structure not found')
 
-  const feeCount = await prisma.studentFee.count({ where: { feeStructureId: id } })
+  const feeCount = await prisma.studentFee.count({ where: { feeStructureId: id, organizationId: schoolId } })
   if (feeCount > 0) {
     throw AppError.badRequest('Cannot delete fee structure with assigned student fees')
   }
@@ -199,9 +202,9 @@ export async function deleteFeeStructure(id: string) {
   return { success: true }
 }
 
-export async function assignFeeStructure(id: string, input: AssignFeeStructureInput) {
-  const fs = await prisma.feeStructure.findUnique({
-    where: { id },
+export async function assignFeeStructure(schoolId: string, id: string, input: AssignFeeStructureInput) {
+  const fs = await prisma.feeStructure.findFirst({
+    where: { id, organizationId: schoolId },
     include: { feeType: true },
   })
   if (!fs) throw AppError.notFound('Fee structure not found')
@@ -213,7 +216,7 @@ export async function assignFeeStructure(id: string, input: AssignFeeStructureIn
     studentIds = input.studentIds
   } else {
     // Find students in applicable classes
-    const classNames = fs.applicableClasses as string[]
+    const classNames = (fs.applicableClasses || []) as string[]
     if (!classNames || classNames.length === 0) {
       throw AppError.badRequest('No applicable classes defined for this fee structure')
     }
@@ -251,22 +254,21 @@ export async function assignFeeStructure(id: string, input: AssignFeeStructureIn
   }
 
   const dueDate = computeDueDate(fs.frequency, fs.dueDay, fs.academicYear)
-  let created = 0
-  let skipped = 0
 
-  for (const studentId of studentIds) {
-    // Check if already assigned
-    const existing = await prisma.studentFee.findFirst({
-      where: { studentId, feeStructureId: id },
-    })
-    if (existing) {
-      skipped++
-      continue
-    }
+  // Batch check existing assignments
+  const existingAssignments = await prisma.studentFee.findMany({
+    where: { feeStructureId: id, studentId: { in: studentIds } },
+    select: { studentId: true },
+  })
+  const existingSet = new Set(existingAssignments.map(e => e.studentId))
+  const newStudentIds = studentIds.filter(sid => !existingSet.has(sid))
+  const skipped = studentIds.length - newStudentIds.length
 
-    await prisma.studentFee.create({
-      data: {
+  if (newStudentIds.length > 0) {
+    await prisma.studentFee.createMany({
+      data: newStudentIds.map(studentId => ({
         studentId,
+        organizationId: schoolId,
         feeStructureId: id,
         feeTypeId: fs.feeTypeId,
         academicYear: fs.academicYear,
@@ -275,12 +277,11 @@ export async function assignFeeStructure(id: string, input: AssignFeeStructureIn
         discountAmount: 0,
         dueDate,
         status: 'fps_pending',
-      },
+      })),
     })
-    created++
   }
 
-  return { created, skipped }
+  return { created: newStudentIds.length, skipped }
 }
 
 export { frequencyMap, frequencyReverse }

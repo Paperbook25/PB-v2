@@ -8,7 +8,7 @@ const teacherRoles: Role[] = ['admin', 'principal', 'teacher']
 
 const getClassTimetableTool = tool(
   async (input) => {
-    const result = await calendarService.getClassSchedule(input.classId, input.sectionId)
+    const result = await calendarService.getClassSchedule('', input.classId, input.sectionId)
     return JSON.stringify(result)
   },
   {
@@ -24,7 +24,7 @@ const getClassTimetableTool = tool(
 
 const getTeacherTimetableTool = tool(
   async (input) => {
-    const result = await calendarService.getTeacherSchedule(input.teacherId)
+    const result = await calendarService.getTeacherSchedule('', input.teacherId)
     return JSON.stringify(result)
   },
   {

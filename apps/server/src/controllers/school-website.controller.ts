@@ -157,7 +157,7 @@ export async function aiGenerate(req: Request, res: Response, next: NextFunction
     await websiteAI.generatePageContent({
       schoolId: getSchoolId(req),
       pageSlug: input.pageSlug,
-      template: input.template,
+      template: input.template as 'classic' | 'modern' | 'minimal',
       onChunk: (chunk) => {
         res.write(`data: ${JSON.stringify(chunk)}\n\n`)
       },

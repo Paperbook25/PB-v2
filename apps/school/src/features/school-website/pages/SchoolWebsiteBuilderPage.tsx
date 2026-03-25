@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { PageBuilder } from '../components/PageBuilder'
 import { WebsiteSettingsPanel } from '../components/WebsiteSettingsPanel'
 import { AIGenerateDialog } from '../components/AIGenerateDialog'
+import { BlogManager } from '../components/BlogManager'
 import { useSchoolWebsite } from '../hooks/useSchoolWebsite'
 import type { TemplateStyle } from '../types/school-website.types'
 
@@ -29,7 +30,7 @@ const TEMPLATES: { value: TemplateStyle; label: string; description: string; pre
   },
 ]
 
-type Tab = 'pages' | 'settings'
+type Tab = 'pages' | 'settings' | 'blog'
 
 export function SchoolWebsiteBuilderPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -193,6 +194,7 @@ export function SchoolWebsiteBuilderPage() {
           <WebsiteSettingsPanel />
         </div>
       )}
+      {activeTab === 'blog' && <BlogManager />}
 
       {/* AI Dialog (for regeneration after initial setup) */}
       {showAIDialog && currentPage && (

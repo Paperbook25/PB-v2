@@ -99,14 +99,14 @@ export async function deleteContact(schoolId: string, id: string) {
 // ==================== Admin: Stats ====================
 
 export async function getContactStats(schoolId: string) {
-  const [byStatus, bySource, total] = await prisma.$transaction([
+  const [byStatus, bySource, total] = await Promise.all([
     prisma.contactSubmission.groupBy({
-      by: ['status'],
+      by: ['status'] as const,
       where: { organizationId: schoolId },
       _count: { id: true },
     }),
     prisma.contactSubmission.groupBy({
-      by: ['source'],
+      by: ['source'] as const,
       where: { organizationId: schoolId },
       _count: { id: true },
     }),

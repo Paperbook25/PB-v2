@@ -141,7 +141,7 @@ export function PageBuilder() {
                     >
                       <GripVertical className="h-3.5 w-3.5 text-gray-300 shrink-0" />
                       <span className="flex-1 truncate">
-                        {sectionMeta?.label || section.type.replace('_', ' ')}
+                        {sectionMeta?.label || (section.type || 'Section').replace('_', ' ')}
                       </span>
                       {!section.isVisible && (
                         <span className="text-xs text-gray-400">Hidden</span>

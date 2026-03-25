@@ -37,8 +37,9 @@ export function cardClass(cs: TemplateTheme['cardStyle'], cr: TemplateTheme['cor
 }
 
 /** Safely read a field from the section content record. */
-export function field<T = string>(content: Record<string, unknown>, key: string, fallback: T): T {
-  const v = content[key]
+export function field<T = string>(content: Record<string, unknown> | null | undefined, key: string, fallback: T): T {
+  if (!content || typeof content !== 'object') return fallback
+  const v = (content as Record<string, unknown>)[key]
   if (v === undefined || v === null) return fallback
   return v as T
 }

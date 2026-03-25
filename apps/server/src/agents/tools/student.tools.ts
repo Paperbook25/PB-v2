@@ -10,7 +10,7 @@ const countRoles: Role[] = ['admin', 'principal', 'teacher', 'accountant']
 
 const searchStudentsTool = tool(
   async (input) => {
-    const result = await studentService.listStudents({
+    const result = await studentService.listStudents('', {
       search: input.search,
       class: input.className,
       section: input.section,
@@ -37,7 +37,7 @@ const searchStudentsTool = tool(
 
 const getStudentDetailsTool = tool(
   async (input) => {
-    const result = await studentService.getStudentById(input.studentId)
+    const result = await studentService.getStudentById('', input.studentId)
     return JSON.stringify(result)
   },
   {

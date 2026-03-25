@@ -7,7 +7,7 @@ const allowedRoles: Role[] = ['admin', 'principal', 'teacher', 'parent']
 
 const getCalendarEventsTool = tool(
   async (input) => {
-    const result = await calendarService.getCalendarEvents({
+    const result = await calendarService.getCalendarEvents('', {
       startDate: input.startDate,
       endDate: input.endDate,
       type: input.type as 'all' | 'classes' | 'events' | 'holidays' | undefined,
@@ -34,7 +34,7 @@ const getUpcomingEventsTool = tool(
     const now = new Date()
     const nextWeek = new Date(now)
     nextWeek.setDate(nextWeek.getDate() + 7)
-    const result = await calendarService.getCalendarEvents({
+    const result = await calendarService.getCalendarEvents('', {
       startDate: now.toISOString().split('T')[0],
       endDate: nextWeek.toISOString().split('T')[0],
       type: 'events',

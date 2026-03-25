@@ -7,7 +7,7 @@ const allowedRoles: Role[] = ['admin', 'principal']
 
 const listStaffTool = tool(
   async (input) => {
-    const result = await staffService.listStaff({
+    const result = await staffService.listStaff('', {
       search: input.search,
       department: input.department,
       designation: input.designation,
@@ -34,7 +34,7 @@ const listStaffTool = tool(
 
 const getStaffDetailsTool = tool(
   async (input) => {
-    const result = await staffService.getStaffById(input.staffId)
+    const result = await staffService.getStaffById('', input.staffId)
     return JSON.stringify(result)
   },
   {

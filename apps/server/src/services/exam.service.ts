@@ -585,7 +585,7 @@ export async function getExamTimetable(schoolId: string, examId: string) {
   if (!exam) throw AppError.notFound('Exam not found')
 
   const slots = await prisma.examSlot.findMany({
-    where: { examId, organizationId: schoolId },
+    where: { examId },
     orderBy: { date: 'asc' },
   })
 
@@ -632,7 +632,6 @@ export async function createExamSlot(schoolId: string, examId: string, input: Cr
 
   const slot = await prisma.examSlot.create({
     data: {
-      organizationId: schoolId,
       examId,
       subjectId: input.subjectId,
       subjectName,
@@ -975,7 +974,7 @@ export async function listQuestionPapers(schoolId: string, query: { examId?: str
 
 export async function getQuestionPaperById(schoolId: string, id: string) {
   const paper = await prisma.questionPaper.findFirst({
-    where: { id, organizationId: schoolId },
+    where: { id },
     include: { exam: { select: { name: true } } },
   })
   if (!paper) throw AppError.notFound('Question paper not found')
@@ -1003,7 +1002,6 @@ export async function getQuestionPaperById(schoolId: string, id: string) {
 export async function createQuestionPaper(schoolId: string, input: CreateQuestionPaperInput, createdBy: string) {
   const paper = await prisma.questionPaper.create({
     data: {
-      organizationId: schoolId,
       examId: input.examId || null,
       subjectId: input.subjectId,
       subjectName: input.subjectName,
@@ -1041,7 +1039,7 @@ export async function createQuestionPaper(schoolId: string, input: CreateQuestio
 }
 
 export async function deleteQuestionPaper(schoolId: string, id: string) {
-  const existing = await prisma.questionPaper.findFirst({ where: { id, organizationId: schoolId } })
+  const existing = await prisma.questionPaper.findFirst({ where: { id } })
   if (!existing) throw AppError.notFound('Question paper not found')
   await prisma.questionPaper.delete({ where: { id } })
   return { success: true }

@@ -515,7 +515,6 @@ export async function getClassCapacity(schoolId: string) {
 
 export async function listExamSchedules(schoolId: string) {
   const schedules = await prisma.admEntranceExamSchedule.findMany({
-    where: { organizationId: schoolId },
     orderBy: { examDate: 'desc' },
   })
   return {
@@ -539,7 +538,6 @@ export async function listExamSchedules(schoolId: string) {
 export async function createExamSchedule(schoolId: string, input: CreateExamScheduleInput) {
   const schedule = await prisma.admEntranceExamSchedule.create({
     data: {
-      organizationId: schoolId,
       class: input.class,
       examDate: new Date(input.examDate),
       examTime: input.examTime,
@@ -651,7 +649,6 @@ export async function listCommunications(schoolId: string, query: { applicationI
 
 export async function listCommunicationTemplates(schoolId: string) {
   const templates = await prisma.admissionCommTemplate.findMany({
-    where: { organizationId: schoolId },
     orderBy: { createdAt: 'desc' },
   })
   return {

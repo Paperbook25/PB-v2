@@ -10,7 +10,7 @@ const staffAttRoles: Role[] = ['admin', 'principal']
 
 const getAttendanceSummaryTool = tool(
   async (input) => {
-    const result = await attendanceService.getAttendanceSummary({
+    const result = await attendanceService.getAttendanceSummary('', {
       classId: input.classId,
       className: input.className,
       sectionId: input.sectionId,
@@ -37,7 +37,7 @@ const getAttendanceSummaryTool = tool(
 
 const getStudentAttendanceTool = tool(
   async (input) => {
-    const result = await attendanceService.getStudentAttendanceHistory(input.studentId, {
+    const result = await attendanceService.getStudentAttendanceHistory('', input.studentId, {
       startDate: input.startDate,
       endDate: input.endDate,
     })

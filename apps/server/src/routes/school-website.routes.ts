@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import * as ctrl from '../controllers/school-website.controller.js'
 import * as publicCtrl from '../controllers/school-website-public.controller.js'
+import * as seoCtrl from '../controllers/seo.controller.js'
 import { authMiddleware, rbacMiddleware } from '../middleware/index.js'
 
 const router = Router()
@@ -45,6 +46,8 @@ router.post('/ai/generate', adminRoles, ctrl.aiGenerate)
 
 // ==================== Public Routes (no auth) ====================
 
+publicRouter.get('/sitemap.xml', seoCtrl.serveSitemap)
+publicRouter.get('/robots.txt', seoCtrl.serveRobotsTxt)
 publicRouter.get('/pages', publicCtrl.listPublishedPages)
 publicRouter.get('/pages/:slug', publicCtrl.getPublishedPage)
 publicRouter.get('/settings', publicCtrl.getPublicSettings)

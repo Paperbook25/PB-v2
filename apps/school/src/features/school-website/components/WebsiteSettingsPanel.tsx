@@ -57,6 +57,15 @@ export function WebsiteSettingsPanel() {
   const [metaTitle, setMetaTitle] = useState('')
   const [metaDescription, setMetaDescription] = useState('')
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({})
+  const [logoUrl, setLogoUrl] = useState('')
+  const [faviconUrl, setFaviconUrl] = useState('')
+  const [whatsappEnabled, setWhatsappEnabled] = useState(false)
+  const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [whatsappDefaultMessage, setWhatsappDefaultMessage] = useState('')
+  const [announcementEnabled, setAnnouncementEnabled] = useState(false)
+  const [announcementText, setAnnouncementText] = useState('')
+  const [announcementLink, setAnnouncementLink] = useState('')
+  const [gaTrackingId, setGaTrackingId] = useState('')
 
   useEffect(() => {
     if (settings) {
@@ -69,6 +78,15 @@ export function WebsiteSettingsPanel() {
       setMetaTitle(settings.metaTitle || '')
       setMetaDescription(settings.metaDescription || '')
       setSocialLinks((settings.socialLinks as Record<string, string>) || {})
+      setLogoUrl((settings as any)?.logoUrl || '')
+      setFaviconUrl((settings as any)?.faviconUrl || '')
+      setWhatsappNumber((settings as any)?.whatsappNumber || '')
+      setWhatsappEnabled(!!(settings as any)?.whatsappNumber)
+      setWhatsappDefaultMessage((settings as any)?.whatsappDefaultMessage || '')
+      setAnnouncementEnabled((settings as any)?.announcementEnabled || false)
+      setAnnouncementText((settings as any)?.announcementText || '')
+      setAnnouncementLink((settings as any)?.announcementLink || '')
+      setGaTrackingId((settings as any)?.gaTrackingId || '')
     }
   }, [settings])
 
@@ -90,7 +108,15 @@ export function WebsiteSettingsPanel() {
       metaTitle: metaTitle || null,
       metaDescription: metaDescription || null,
       socialLinks,
-    })
+      logoUrl,
+      faviconUrl,
+      whatsappNumber: whatsappEnabled ? whatsappNumber : null,
+      whatsappDefaultMessage: whatsappEnabled ? whatsappDefaultMessage : null,
+      announcementEnabled,
+      announcementText: announcementEnabled ? announcementText : null,
+      announcementLink: announcementEnabled ? announcementLink : null,
+      gaTrackingId: gaTrackingId || null,
+    } as any)
   }
 
   const filteredTemplates = getTemplatesByInstitution(institutionType)
@@ -146,6 +172,24 @@ export function WebsiteSettingsPanel() {
               <div className="text-xs text-gray-500 mt-1">{t.description}</div>
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Logo & Favicon */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900 mb-1">Logo & Favicon</h3>
+        <p className="text-xs text-gray-400 mb-3">Your school's logo appears on the website header and footer</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm text-gray-600">Logo URL</label>
+            {logoUrl && <img src={logoUrl} alt="Logo preview" className="h-16 w-16 object-contain border rounded-lg p-1" />}
+            <input type="text" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://... or paste image URL" className="w-full px-3 py-2 border rounded-lg text-sm" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm text-gray-600">Favicon URL</label>
+            {faviconUrl && <img src={faviconUrl} alt="Favicon preview" className="h-8 w-8 object-contain border rounded-lg p-1" />}
+            <input type="text" value={faviconUrl} onChange={e => setFaviconUrl(e.target.value)} placeholder="https://... (32x32 recommended)" className="w-full px-3 py-2 border rounded-lg text-sm" />
+          </div>
         </div>
       </div>
 
@@ -218,6 +262,107 @@ export function WebsiteSettingsPanel() {
               />
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* WhatsApp Chat */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900 mb-1">WhatsApp Chat</h3>
+        <p className="text-xs text-gray-400 mb-3">Show a floating WhatsApp chat button on your website</p>
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={whatsappEnabled}
+              onChange={e => setWhatsappEnabled(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">Enable WhatsApp chat button</span>
+          </label>
+          {whatsappEnabled && (
+            <>
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Phone Number</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-400 bg-gray-50 border rounded-lg px-3 py-2">+91</span>
+                  <input
+                    type="text"
+                    value={whatsappNumber}
+                    onChange={e => setWhatsappNumber(e.target.value)}
+                    placeholder="9876543210"
+                    className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Default Message (optional)</label>
+                <textarea
+                  value={whatsappDefaultMessage}
+                  onChange={e => setWhatsappDefaultMessage(e.target.value)}
+                  rows={2}
+                  placeholder="Hi! I'm interested in learning more about your school."
+                  className="w-full px-3 py-2 border rounded-lg text-sm"
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Announcement Bar */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900 mb-1">Announcement Bar</h3>
+        <p className="text-xs text-gray-400 mb-3">Show an announcement banner at the top of your website</p>
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={announcementEnabled}
+              onChange={e => setAnnouncementEnabled(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">Show announcement bar</span>
+          </label>
+          {announcementEnabled && (
+            <>
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Announcement Text</label>
+                <input
+                  type="text"
+                  value={announcementText}
+                  onChange={e => setAnnouncementText(e.target.value)}
+                  placeholder="e.g. Admissions open for 2026-27! Apply now."
+                  className="w-full px-3 py-2 border rounded-lg text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm text-gray-600">Link URL (optional)</label>
+                <input
+                  type="text"
+                  value={announcementLink}
+                  onChange={e => setAnnouncementLink(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 border rounded-lg text-sm"
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Google Analytics */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900 mb-1">Google Analytics</h3>
+        <p className="text-xs text-gray-400 mb-3">Track website visitors with Google Analytics 4</p>
+        <div className="space-y-1">
+          <label className="text-sm text-gray-600">GA4 Tracking ID</label>
+          <input
+            type="text"
+            value={gaTrackingId}
+            onChange={e => setGaTrackingId(e.target.value)}
+            placeholder="G-XXXXXXXXXX"
+            className="w-full px-3 py-2 border rounded-lg text-sm"
+          />
         </div>
       </div>
 

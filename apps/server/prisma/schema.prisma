@@ -2477,6 +2477,12 @@ model WebsiteSettings {
   logoUrl              String?  @map("logo_url") @db.Text
   faviconUrl           String?  @map("favicon_url") @db.Text
   ogDefaultImage       String?  @map("og_default_image") @db.Text
+  announcementText     String?  @map("announcement_text") @db.Text
+  announcementLink     String?  @map("announcement_link")
+  announcementEnabled  Boolean  @default(false) @map("announcement_enabled")
+  whatsappNumber       String?  @map("whatsapp_number")
+  whatsappDefaultMessage String? @map("whatsapp_default_message") @db.Text
+  gaTrackingId         String?  @map("ga_tracking_id")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
@@ -2496,6 +2502,36 @@ model WebsiteMedia {
 
   @@index([organizationId])
   @@map("website_media")
+}
+
+model BlogPost {
+  id              String    @id @default(uuid())
+  organizationId  String?   @map("organization_id")
+  slug            String
+  title           String
+  excerpt         String?   @db.Text
+  body            String    @db.Text
+  coverImage      String?   @map("cover_image") @db.Text
+  authorId        String?   @map("author_id")
+  authorName      String    @map("author_name")
+  category        String?
+  tags            Json      @default("[]")
+  status          String    @default("draft")
+  publishedAt     DateTime? @map("published_at")
+  metaTitle       String?   @map("meta_title")
+  metaDescription String?   @map("meta_description") @db.Text
+  ogImage         String?   @map("og_image") @db.Text
+  jsonLd          Json?     @map("json_ld")
+  viewCount       Int       @default(0) @map("view_count")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@index([status])
+  @@index([category])
+  @@index([publishedAt])
+  @@map("blog_posts")
 }
 
 model ContactSubmission {

@@ -588,7 +588,7 @@ export async function getStudentAttendanceHistory(schoolId: string, studentId: s
 
 export async function getMyAttendance(schoolId: string, userId: string) {
   // Find the student linked to this user
-  const user = await prisma.user.findFirst({ where: { id: userId, organizationId: schoolId } })
+  const user = await prisma.user.findFirst({ where: { id: userId } })
   if (!user || !user.studentId) throw AppError.notFound('No student record linked to this user')
 
   // Find student by admission number (studentId on User is like 'STU001')
@@ -689,7 +689,7 @@ export async function getMyAttendance(schoolId: string, userId: string) {
 }
 
 export async function getMyChildrenAttendance(schoolId: string, userId: string) {
-  const user = await prisma.user.findFirst({ where: { id: userId, organizationId: schoolId } })
+  const user = await prisma.user.findFirst({ where: { id: userId } })
   if (!user) throw AppError.notFound('User not found')
 
   let childIds: string[] = []
@@ -702,7 +702,7 @@ export async function getMyChildrenAttendance(schoolId: string, userId: string) 
 
   // childIds are user IDs — find linked students
   const childUsers = await prisma.user.findMany({
-    where: { id: { in: childIds }, organizationId: schoolId },
+    where: { id: { in: childIds } },
     select: { studentId: true },
   })
 

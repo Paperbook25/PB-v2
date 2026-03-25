@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import {
   usePages, usePage, useCreatePage, useDeletePage,
   usePublishPage, useUnpublishPage,
@@ -8,7 +8,7 @@ import {
 import type { WebsiteSection, SectionType } from '../types/school-website.types'
 
 function toSlug(title: string): string {
-  return title
+  return (title || '')
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
@@ -42,10 +42,12 @@ export function useSchoolWebsite() {
   const selectedSection = sections.find(s => s.id === selectedSectionId) ?? null
   const settings = settingsQuery.data ?? null
 
-  // Auto-select first page if none selected
-  if (!selectedPageId && pages.length > 0) {
-    setSelectedPageId(pages[0].id)
-  }
+  // Auto-select first page if none selected (use useEffect to avoid setState during render)
+  useEffect(() => {
+    if (!selectedPageId && pages.length > 0) {
+      setSelectedPageId(pages[0].id)
+    }
+  }, [selectedPageId, pages])
 
   const handleSelectPage = useCallback((id: string) => {
     setSelectedPageId(id)

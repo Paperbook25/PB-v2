@@ -1,4 +1,5 @@
 import { prisma } from '../config/db.js'
+import { regeneratePageSeo } from './seo.service.js'
 import type {
   CreatePageInput, UpdatePageInput,
   CreateSectionInput, UpdateSectionInput, ReorderSectionsInput,
@@ -71,10 +72,12 @@ export async function deletePage(schoolId: string, id: string) {
 export async function publishPage(schoolId: string, id: string) {
   const existing = await prisma.websitePage.findFirst({ where: { id, organizationId: schoolId } })
   if (!existing) throw new Error('Page not found')
-  return prisma.websitePage.update({
+  const result = await prisma.websitePage.update({
     where: { id },
     data: { isPublished: true },
   })
+  try { await regeneratePageSeo(schoolId, id) } catch { /* SEO generation is non-blocking */ }
+  return result
 }
 
 export async function unpublishPage(schoolId: string, id: string) {
@@ -100,7 +103,7 @@ export async function addSection(schoolId: string, pageId: string, input: Create
   })
   const sortOrder = input.sortOrder ?? (maxSort._max.sortOrder ?? -1) + 1
 
-  return prisma.websiteSection.create({
+  const section = await prisma.websiteSection.create({
     data: {
       pageId,
       type: input.type,
@@ -109,6 +112,8 @@ export async function addSection(schoolId: string, pageId: string, input: Create
       sortOrder,
     },
   })
+  try { await regeneratePageSeo(schoolId, pageId) } catch { /* SEO generation is non-blocking */ }
+  return section
 }
 
 export async function updateSection(schoolId: string, id: string, input: UpdateSectionInput) {
@@ -118,7 +123,7 @@ export async function updateSection(schoolId: string, id: string, input: UpdateS
   })
   if (!section) throw new Error('Section not found')
 
-  return prisma.websiteSection.update({
+  const result = await prisma.websiteSection.update({
     where: { id },
     data: {
       ...(input.title !== undefined && { title: input.title }),
@@ -126,6 +131,8 @@ export async function updateSection(schoolId: string, id: string, input: UpdateS
       ...(input.isVisible !== undefined && { isVisible: input.isVisible }),
     },
   })
+  try { await regeneratePageSeo(schoolId, section.pageId) } catch { /* SEO generation is non-blocking */ }
+  return result
 }
 
 export async function deleteSection(schoolId: string, id: string) {
@@ -180,6 +187,17 @@ export async function updateSettings(schoolId: string, input: UpdateSettingsInpu
         ...(input.socialLinks !== undefined && { socialLinks: input.socialLinks as any }),
         ...(input.headerHtml !== undefined && { headerHtml: input.headerHtml }),
         ...(input.footerHtml !== undefined && { footerHtml: input.footerHtml }),
+        ...(input.logoUrl !== undefined && { logoUrl: input.logoUrl }),
+        ...(input.faviconUrl !== undefined && { faviconUrl: input.faviconUrl }),
+        ...(input.institutionType !== undefined && { institutionType: input.institutionType }),
+        ...(input.admissionFormEnabled !== undefined && { admissionFormEnabled: input.admissionFormEnabled }),
+        ...(input.ogDefaultImage !== undefined && { ogDefaultImage: input.ogDefaultImage }),
+        ...(input.announcementText !== undefined && { announcementText: input.announcementText }),
+        ...(input.announcementLink !== undefined && { announcementLink: input.announcementLink }),
+        ...(input.announcementEnabled !== undefined && { announcementEnabled: input.announcementEnabled }),
+        ...(input.whatsappNumber !== undefined && { whatsappNumber: input.whatsappNumber }),
+        ...(input.whatsappDefaultMessage !== undefined && { whatsappDefaultMessage: input.whatsappDefaultMessage }),
+        ...(input.gaTrackingId !== undefined && { gaTrackingId: input.gaTrackingId }),
       },
     })
   }
@@ -267,7 +285,7 @@ export async function fetchFacultyData(schoolId: string) {
 
 export async function fetchSchoolProfile(schoolId: string) {
   try {
-    const profile = await prisma.schoolProfile.findFirst({ where: { organizationId: schoolId } })
+    const profile = await prisma.schoolProfile.findFirst({ where: { id: schoolId } })
     return profile
   } catch {
     return null

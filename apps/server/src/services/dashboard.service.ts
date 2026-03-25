@@ -226,7 +226,7 @@ export async function getEvents(schoolId: string) {
 
 export async function getActivities(schoolId: string) {
   const logs = await prisma.auditLog.findMany({
-    where: { organizationId: schoolId },
+    where: { schoolId },
     orderBy: { createdAt: 'desc' },
     take: 10,
   })

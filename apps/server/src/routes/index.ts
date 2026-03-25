@@ -21,6 +21,7 @@ import permissionRoutes from './permission.routes.js'
 import aiPlannerRoutes from './ai-planner.routes.js'
 import agentRoutes from './agent.routes.js'
 import websiteRoutes, { websitePublicRouter } from './school-website.routes.js'
+import blogRouter, { blogPublicRouter } from './blog.routes.js'
 import { contactRouter, contactPublicRouter } from './contact.routes.js'
 import adminRoutes from './admin/index.js'
 
@@ -82,6 +83,10 @@ router.use('/agents', requireTenant, agentRoutes)
 // School Website Builder
 router.use('/school-website', requireTenant, websiteRoutes)
 router.use('/public/school-website', websitePublicRouter) // Public endpoint — no tenant enforcement
+
+// Blog / News CMS
+router.use('/blog', requireTenant, blogRouter)
+router.use('/public/blog', blogPublicRouter) // Public endpoint — no tenant enforcement
 
 // Contact Submissions
 router.use('/contact', requireTenant, contactRouter)

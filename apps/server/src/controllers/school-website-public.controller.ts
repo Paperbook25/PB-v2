@@ -31,6 +31,14 @@ export async function getPublicSettings(req: Request, res: Response, next: NextF
         metaTitle: settings.metaTitle,
         metaDescription: settings.metaDescription,
         socialLinks: settings.socialLinks,
+        logoUrl: settings.logoUrl,
+        faviconUrl: settings.faviconUrl,
+        institutionType: settings.institutionType,
+        announcementText: settings.announcementText,
+        announcementLink: settings.announcementLink,
+        announcementEnabled: settings.announcementEnabled,
+        whatsappNumber: settings.whatsappNumber,
+        whatsappDefaultMessage: settings.whatsappDefaultMessage,
       },
     })
   } catch (err) { next(err) }

@@ -4,7 +4,7 @@ import { AppError } from '../utils/errors.js'
 // ==================== SCHOOL PROFILE ====================
 
 export async function getSchoolProfile(schoolId: string) {
-  const profile = await prisma.schoolProfile.findFirst({ where: { organizationId: schoolId } })
+  const profile = await prisma.schoolProfile.findFirst({ where: { id: schoolId } })
   if (!profile) throw AppError.notFound('School profile not configured')
   return {
     id: profile.id,
@@ -25,7 +25,7 @@ export async function getSchoolProfile(schoolId: string) {
 }
 
 export async function updateSchoolProfile(schoolId: string, data: Record<string, unknown>) {
-  const existing = await prisma.schoolProfile.findFirst({ where: { organizationId: schoolId } })
+  const existing = await prisma.schoolProfile.findFirst({ where: { id: schoolId } })
   if (!existing) throw AppError.notFound('School profile not configured')
 
   const profile = await prisma.schoolProfile.update({

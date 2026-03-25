@@ -83,6 +83,7 @@ import {
   Play,
   Calculator,
   Route as RouteIcon,
+  PenSquare,
   type LucideIcon,
 } from 'lucide-react'
 import type { Role } from '@/types/common.types'
@@ -544,6 +545,7 @@ export const MODULE_NAV: Record<string, ModuleNavConfig> = {
     basePath: '/school-website',
     items: [
       { type: 'item', name: 'Pages', href: '/school-website', icon: Layout },
+      { type: 'item', name: 'Blog', href: '/school-website?tab=blog', icon: PenSquare },
       { type: 'item', name: 'Look & Feel', href: '/school-website?tab=settings', icon: Paintbrush },
     ],
   },

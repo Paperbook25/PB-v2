@@ -126,6 +126,8 @@ const DocumentsPage = lazy(() => import('@/features/documents').then(m => ({ def
 // School Website
 const SchoolWebsiteBuilderPage = lazy(() => import('@/features/school-website/pages/SchoolWebsiteBuilderPage').then(m => ({ default: m.SchoolWebsiteBuilderPage })))
 const PublicSchoolPage = lazy(() => import('@/features/school-website/pages/PublicSchoolPage').then(m => ({ default: m.PublicSchoolPage })))
+const PublicBlogPage = lazy(() => import('@/features/school-website/pages/PublicBlogPage').then(m => ({ default: m.PublicBlogPage })))
+const PublicBlogPostPage = lazy(() => import('@/features/school-website/pages/PublicBlogPostPage').then(m => ({ default: m.PublicBlogPostPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -257,6 +259,8 @@ export default function App() {
           {/* Public routes (no layout) */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/apply" element={<LazyRoute><PublicApplicationPage /></LazyRoute>} />
+          <Route path="/s/blog" element={<LazyRoute><PublicBlogPage /></LazyRoute>} />
+          <Route path="/s/blog/:slug" element={<LazyRoute><PublicBlogPostPage /></LazyRoute>} />
           <Route path="/s/:slug" element={<LazyRoute><PublicSchoolPage /></LazyRoute>} />
 
           {/* ============================================

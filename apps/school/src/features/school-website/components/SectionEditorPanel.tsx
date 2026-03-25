@@ -316,6 +316,70 @@ function CustomHtmlEditor({ fields, setFields }: { fields: Record<string, unknow
   )
 }
 
+// Generic editor for new section types — shows JSON fields as text inputs
+function GenericItemsEditor({ fields, setFields }: { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }) {
+  if (!fields || typeof fields !== 'object') {
+    return <div className="text-sm text-gray-400">No content to edit. Add content by saving data in JSON format.</div>
+  }
+  return (
+    <div className="space-y-4">
+      {Object.entries(fields).map(([key, value]) => {
+        if (key == null || typeof key !== 'string') return null
+        if (key === 'items' || key === 'badges' || key === 'facilities' || key === 'routes' ||
+            key === 'leaders' || key === 'toppers' || key === 'highlights' || key === 'rows' ||
+            key === 'companies' || key === 'stats' || key === 'activities' || key === 'features' ||
+            key === 'alumni' || key === 'emergencyContacts' || key === 'questions') {
+          return (
+            <div key={key}>
+              <label className="text-xs font-medium text-gray-500 uppercase">{key} (JSON)</label>
+              <textarea
+                className="w-full mt-1 p-2 border rounded-md text-sm font-mono min-h-[120px]"
+                value={typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+                onChange={e => {
+                  try { setFields({ ...fields, [key]: JSON.parse(e.target.value) }) }
+                  catch { setFields({ ...fields, [key]: e.target.value }) }
+                }}
+              />
+            </div>
+          )
+        }
+        if (typeof value === 'boolean') {
+          return (
+            <label key={key} className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={!!value} onChange={e => setFields({ ...fields, [key]: e.target.checked })} />
+              {String(key).replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
+            </label>
+          )
+        }
+        if (Array.isArray(value)) {
+          return (
+            <div key={key}>
+              <label className="text-xs font-medium text-gray-500 uppercase">{key} (JSON array)</label>
+              <textarea
+                className="w-full mt-1 p-2 border rounded-md text-sm font-mono min-h-[80px]"
+                value={JSON.stringify(value, null, 2)}
+                onChange={e => {
+                  try { setFields({ ...fields, [key]: JSON.parse(e.target.value) }) }
+                  catch { /* keep current */ }
+                }}
+              />
+            </div>
+          )
+        }
+        return (
+          <TextField
+            key={key}
+            label={key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
+            value={String(value || '')}
+            onChange={v => setFields({ ...fields, [key]: v })}
+            multiline={String(value || '').length > 100}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
 const EDITOR_MAP: Record<SectionType, React.FC<{ fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }>> = {
   hero: HeroEditor,
   about: AboutEditor,
@@ -328,6 +392,22 @@ const EDITOR_MAP: Record<SectionType, React.FC<{ fields: Record<string, unknown>
   news: NewsEditor,
   contact: ContactEditor,
   custom_html: CustomHtmlEditor,
+  // New section types use generic editor
+  courses: GenericItemsEditor,
+  results: GenericItemsEditor,
+  fee_structure: GenericItemsEditor,
+  accreditation: GenericItemsEditor,
+  infrastructure: GenericItemsEditor,
+  placements: GenericItemsEditor,
+  leadership: GenericItemsEditor,
+  downloads: GenericItemsEditor,
+  faq: GenericItemsEditor,
+  transport: GenericItemsEditor,
+  student_life: GenericItemsEditor,
+  safety: GenericItemsEditor,
+  alumni: GenericItemsEditor,
+  virtual_tour: GenericItemsEditor,
+  cta_banner: GenericItemsEditor,
 }
 
 export function SectionEditorPanel({ section, onUpdate }: SectionEditorPanelProps) {
@@ -340,7 +420,7 @@ export function SectionEditorPanel({ section, onUpdate }: SectionEditorPanelProp
     <div className="space-y-5 max-w-2xl">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-semibold text-gray-900">{sectionMeta?.label || section.type.replace('_', ' ')}</h3>
+          <h3 className="font-semibold text-gray-900">{sectionMeta?.label || (section.type || 'Section').replace('_', ' ')}</h3>
           {sectionMeta && <p className="text-xs text-gray-400 mt-0.5">{sectionMeta.description}</p>}
         </div>
         <div className="flex items-center gap-1.5 text-xs text-gray-400">

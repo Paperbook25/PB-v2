@@ -22,6 +22,9 @@ export type UpdatePageInput = z.infer<typeof updatePageSchema>
 export const sectionTypeEnum = z.enum([
   'hero', 'about', 'stats', 'admissions', 'faculty', 'gallery',
   'testimonials', 'events', 'news', 'contact', 'custom_html',
+  'courses', 'results', 'fee_structure', 'accreditation', 'infrastructure',
+  'placements', 'leadership', 'downloads', 'faq', 'transport',
+  'student_life', 'safety', 'alumni', 'virtual_tour', 'cta_banner',
 ])
 
 export const createSectionSchema = z.object({
@@ -70,6 +73,17 @@ export const updateSettingsSchema = z.object({
   socialLinks: z.record(z.string()).optional(),
   headerHtml: z.string().optional().nullable(),
   footerHtml: z.string().optional().nullable(),
+  logoUrl: z.string().optional().nullable(),
+  faviconUrl: z.string().optional().nullable(),
+  institutionType: z.enum(['school', 'college', 'coaching']).optional(),
+  admissionFormEnabled: z.boolean().optional(),
+  ogDefaultImage: z.string().optional().nullable(),
+  announcementText: z.string().max(500).optional().nullable(),
+  announcementLink: z.string().max(500).optional().nullable(),
+  announcementEnabled: z.boolean().optional(),
+  whatsappNumber: z.string().max(20).optional().nullable(),
+  whatsappDefaultMessage: z.string().max(500).optional().nullable(),
+  gaTrackingId: z.string().max(50).optional().nullable(),
 })
 
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>

@@ -55,6 +55,77 @@ import { NewsList } from './variants/news/NewsList'
 import { EventsCards } from './variants/events/EventsCards'
 import { EventsTimeline } from './variants/events/EventsTimeline'
 
+// ==================== Courses variants ====================
+import { CoursesGrid } from './variants/courses/CoursesGrid'
+import { CoursesList } from './variants/courses/CoursesList'
+import { CoursesTabs } from './variants/courses/CoursesTabs'
+
+// ==================== Results variants ====================
+import { ResultsShowcase } from './variants/results/ResultsShowcase'
+import { ResultsGrid } from './variants/results/ResultsGrid'
+import { ResultsTimeline } from './variants/results/ResultsTimeline'
+
+// ==================== Fee Structure variants ====================
+import { FeeTable } from './variants/fee_structure/FeeTable'
+import { FeeCards } from './variants/fee_structure/FeeCards'
+import { FeeMinimal } from './variants/fee_structure/FeeMinimal'
+
+// ==================== Accreditation variants ====================
+import { AccreditationBadges } from './variants/accreditation/AccreditationBadges'
+import { AccreditationCards } from './variants/accreditation/AccreditationCards'
+import { AccreditationMinimal } from './variants/accreditation/AccreditationMinimal'
+
+// ==================== Infrastructure variants ====================
+import { InfraGrid } from './variants/infrastructure/InfraGrid'
+import { InfraCarousel } from './variants/infrastructure/InfraCarousel'
+import { InfraMinimal } from './variants/infrastructure/InfraMinimal'
+
+// ==================== Placements variants ====================
+import { PlacementsShowcase } from './variants/placements/PlacementsShowcase'
+import { PlacementsGrid } from './variants/placements/PlacementsGrid'
+import { PlacementsMinimal } from './variants/placements/PlacementsMinimal'
+
+// ==================== Leadership variants ====================
+import { LeadershipFeatured } from './variants/leadership/LeadershipFeatured'
+import { LeadershipGrid } from './variants/leadership/LeadershipGrid'
+import { LeadershipMinimal } from './variants/leadership/LeadershipMinimal'
+
+// ==================== Downloads variants ====================
+import { DownloadsGrid } from './variants/downloads/DownloadsGrid'
+import { DownloadsList } from './variants/downloads/DownloadsList'
+
+// ==================== FAQ variants ====================
+import { FaqAccordion } from './variants/faq/FaqAccordion'
+import { FaqCategorized } from './variants/faq/FaqCategorized'
+import { FaqMinimal } from './variants/faq/FaqMinimal'
+
+// ==================== Transport variants ====================
+import { TransportCards } from './variants/transport/TransportCards'
+import { TransportList } from './variants/transport/TransportList'
+
+// ==================== Student Life variants ====================
+import { StudentLifeGrid } from './variants/student_life/StudentLifeGrid'
+import { StudentLifeMasonry } from './variants/student_life/StudentLifeMasonry'
+import { StudentLifeMinimal } from './variants/student_life/StudentLifeMinimal'
+
+// ==================== Safety variants ====================
+import { SafetyGrid } from './variants/safety/SafetyGrid'
+import { SafetyMinimal } from './variants/safety/SafetyMinimal'
+
+// ==================== Alumni variants ====================
+import { AlumniCards } from './variants/alumni/AlumniCards'
+import { AlumniCarousel } from './variants/alumni/AlumniCarousel'
+import { AlumniMinimal } from './variants/alumni/AlumniMinimal'
+
+// ==================== Virtual Tour variants ====================
+import { VirtualTourHero } from './variants/virtual_tour/VirtualTourHero'
+import { VirtualTourGallery } from './variants/virtual_tour/VirtualTourGallery'
+
+// ==================== CTA Banner variants ====================
+import { CtaBannerFull } from './variants/cta_banner/CtaBannerFull'
+import { CtaBannerContained } from './variants/cta_banner/CtaBannerContained'
+import { CtaBannerMinimal } from './variants/cta_banner/CtaBannerMinimal'
+
 // ==================== Variant map ====================
 
 export const VARIANT_MAP: Record<string, Record<string, ComponentType<VariantProps>>> = {
@@ -103,6 +174,77 @@ export const VARIANT_MAP: Record<string, Record<string, ComponentType<VariantPro
   events: {
     cards: EventsCards,
     timeline: EventsTimeline,
+  },
+  courses: {
+    grid: CoursesGrid,
+    list: CoursesList,
+    tabs: CoursesTabs,
+  },
+  results: {
+    showcase: ResultsShowcase,
+    grid: ResultsGrid,
+    timeline: ResultsTimeline,
+  },
+  fee_structure: {
+    table: FeeTable,
+    cards: FeeCards,
+    minimal: FeeMinimal,
+  },
+  accreditation: {
+    badges: AccreditationBadges,
+    cards: AccreditationCards,
+    minimal: AccreditationMinimal,
+  },
+  infrastructure: {
+    grid: InfraGrid,
+    carousel: InfraCarousel,
+    minimal: InfraMinimal,
+  },
+  placements: {
+    showcase: PlacementsShowcase,
+    grid: PlacementsGrid,
+    minimal: PlacementsMinimal,
+  },
+  leadership: {
+    featured: LeadershipFeatured,
+    grid: LeadershipGrid,
+    minimal: LeadershipMinimal,
+  },
+  downloads: {
+    grid: DownloadsGrid,
+    list: DownloadsList,
+  },
+  faq: {
+    accordion: FaqAccordion,
+    categorized: FaqCategorized,
+    minimal: FaqMinimal,
+  },
+  transport: {
+    cards: TransportCards,
+    list: TransportList,
+  },
+  student_life: {
+    grid: StudentLifeGrid,
+    masonry: StudentLifeMasonry,
+    minimal: StudentLifeMinimal,
+  },
+  safety: {
+    grid: SafetyGrid,
+    minimal: SafetyMinimal,
+  },
+  alumni: {
+    cards: AlumniCards,
+    carousel: AlumniCarousel,
+    minimal: AlumniMinimal,
+  },
+  virtual_tour: {
+    hero: VirtualTourHero,
+    gallery: VirtualTourGallery,
+  },
+  cta_banner: {
+    full: CtaBannerFull,
+    contained: CtaBannerContained,
+    minimal: CtaBannerMinimal,
   },
 }
 

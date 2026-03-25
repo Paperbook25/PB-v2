@@ -430,7 +430,7 @@ export async function getIdCardData(schoolId: string, studentId: string) {
   })
   if (!student) throw AppError.notFound('Student not found')
 
-  const school = await prisma.schoolProfile.findFirst({ where: { organizationId: schoolId } })
+  const school = await prisma.schoolProfile.findFirst({ where: { id: schoolId } })
 
   return {
     student: {

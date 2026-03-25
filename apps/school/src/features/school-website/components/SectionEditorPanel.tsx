@@ -442,6 +442,508 @@ function GenericItemsEditor({ fields, setFields }: { fields: Record<string, unkn
   )
 }
 
+type EditorProps = { fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }
+
+function SelectField({ label, value, onChange, options, hint }: {
+  label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; hint?: string
+}) {
+  return (
+    <div className="space-y-1">
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      {hint && <p className="text-xs text-gray-400">{hint}</p>}
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+      >
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </div>
+  )
+}
+
+// ==================== Dedicated Section Editors ====================
+
+function CoursesEditor({ fields, setFields }: EditorProps) {
+  const items = (fields.items as Array<any>) || []
+
+  const updateItem = (idx: number, key: string, value: any) => {
+    const updated = [...items]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, items: updated })
+  }
+
+  const addItem = () => {
+    setFields({ ...fields, items: [...items, { name: '', description: '', duration: '', eligibility: '', fees: '', category: 'Primary', image: '' }] })
+  }
+
+  const removeItem = (idx: number) => {
+    setFields({ ...fields, items: items.filter((_: any, i: number) => i !== idx) })
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline />
+      <CheckboxField label="Show Fees" value={!!fields.showFees} onChange={v => setFields({ ...fields, showFees: v })} />
+      <SelectField
+        label="Layout"
+        value={String(fields.layout || 'grid')}
+        onChange={v => setFields({ ...fields, layout: v })}
+        options={[{ value: 'grid', label: 'Grid' }, { value: 'list', label: 'List' }, { value: 'tabs', label: 'Tabs' }]}
+      />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Programs / Courses</h4>
+        {items.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">Course #{i + 1}</span>
+              <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Course Name" value={item.name || ''} onChange={v => updateItem(i, 'name', v)} />
+            <TextField label="Description" value={item.description || ''} onChange={v => updateItem(i, 'description', v)} multiline />
+            <div className="grid grid-cols-2 gap-3">
+              <TextField label="Duration" value={item.duration || ''} onChange={v => updateItem(i, 'duration', v)} />
+              <TextField label="Fees" value={item.fees || ''} onChange={v => updateItem(i, 'fees', v)} />
+            </div>
+            <TextField label="Eligibility" value={item.eligibility || ''} onChange={v => updateItem(i, 'eligibility', v)} />
+            <SelectField
+              label="Category"
+              value={item.category || 'Primary'}
+              onChange={v => updateItem(i, 'category', v)}
+              options={[
+                { value: 'Foundation', label: 'Foundation' },
+                { value: 'Primary', label: 'Primary' },
+                { value: 'Middle', label: 'Middle' },
+                { value: 'Secondary', label: 'Secondary' },
+                { value: 'Senior Secondary', label: 'Senior Secondary' },
+                { value: 'UG', label: 'UG' },
+                { value: 'PG', label: 'PG' },
+                { value: 'Diploma', label: 'Diploma' },
+              ]}
+            />
+            <ImageField label="Image" value={item.image || ''} onChange={v => updateItem(i, 'image', v)} />
+          </div>
+        ))}
+        <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another course</button>
+      </div>
+    </div>
+  )
+}
+
+function ResultsEditor({ fields, setFields }: EditorProps) {
+  const highlights = (fields.highlights as Array<any>) || []
+  const toppers = (fields.toppers as Array<any>) || []
+
+  const updateHighlight = (idx: number, key: string, value: any) => {
+    const updated = [...highlights]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, highlights: updated })
+  }
+
+  const addHighlight = () => {
+    setFields({ ...fields, highlights: [...highlights, { label: '', value: '', year: '' }] })
+  }
+
+  const removeHighlight = (idx: number) => {
+    setFields({ ...fields, highlights: highlights.filter((_: any, i: number) => i !== idx) })
+  }
+
+  const updateTopper = (idx: number, key: string, value: any) => {
+    const updated = [...toppers]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, toppers: updated })
+  }
+
+  const addTopper = () => {
+    setFields({ ...fields, toppers: [...toppers, { name: '', score: '', exam: '', rank: '', year: '', photo: '' }] })
+  }
+
+  const removeTopper = (idx: number) => {
+    setFields({ ...fields, toppers: toppers.filter((_: any, i: number) => i !== idx) })
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline />
+      <CheckboxField label="Show Year Filter" value={!!fields.showYearFilter} onChange={v => setFields({ ...fields, showYearFilter: v })} />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Highlights</h4>
+        {highlights.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">Highlight #{i + 1}</span>
+              <button onClick={() => removeHighlight(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Label" value={item.label || ''} onChange={v => updateHighlight(i, 'label', v)} />
+            <div className="grid grid-cols-2 gap-3">
+              <TextField label="Value" value={item.value || ''} onChange={v => updateHighlight(i, 'value', v)} />
+              <TextField label="Year" value={item.year || ''} onChange={v => updateHighlight(i, 'year', v)} />
+            </div>
+          </div>
+        ))}
+        <button onClick={addHighlight} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another highlight</button>
+      </div>
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Toppers</h4>
+        {toppers.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">Topper #{i + 1}</span>
+              <button onClick={() => removeTopper(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Name" value={item.name || ''} onChange={v => updateTopper(i, 'name', v)} />
+            <div className="grid grid-cols-2 gap-3">
+              <TextField label="Score" value={item.score || ''} onChange={v => updateTopper(i, 'score', v)} />
+              <TextField label="Rank" value={item.rank || ''} onChange={v => updateTopper(i, 'rank', v)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <TextField label="Exam" value={item.exam || ''} onChange={v => updateTopper(i, 'exam', v)} />
+              <TextField label="Year" value={item.year || ''} onChange={v => updateTopper(i, 'year', v)} />
+            </div>
+            <ImageField label="Photo" value={item.photo || ''} onChange={v => updateTopper(i, 'photo', v)} />
+          </div>
+        ))}
+        <button onClick={addTopper} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another topper</button>
+      </div>
+    </div>
+  )
+}
+
+function FeeStructureEditor({ fields, setFields }: EditorProps) {
+  const rows = (fields.rows as Array<any>) || []
+  const paymentModes = (fields.paymentModes as Array<string>) || []
+
+  const updateRow = (idx: number, key: string, value: any) => {
+    const updated = [...rows]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, rows: updated })
+  }
+
+  const addRow = () => {
+    setFields({ ...fields, rows: [...rows, { category: '', tuitionFee: '', otherFees: '', totalFee: '', installments: '' }] })
+  }
+
+  const removeRow = (idx: number) => {
+    setFields({ ...fields, rows: rows.filter((_: any, i: number) => i !== idx) })
+  }
+
+  const updatePaymentMode = (idx: number, value: string) => {
+    const updated = [...paymentModes]
+    updated[idx] = value
+    setFields({ ...fields, paymentModes: updated })
+  }
+
+  const addPaymentMode = () => {
+    setFields({ ...fields, paymentModes: [...paymentModes, ''] })
+  }
+
+  const removePaymentMode = (idx: number) => {
+    setFields({ ...fields, paymentModes: paymentModes.filter((_: string, i: number) => i !== idx) })
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Fee Rows</h4>
+        {rows.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">Row #{i + 1}</span>
+              <button onClick={() => removeRow(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Category" value={item.category || ''} onChange={v => updateRow(i, 'category', v)} />
+            <div className="grid grid-cols-2 gap-3">
+              <TextField label="Tuition Fee" value={item.tuitionFee || ''} onChange={v => updateRow(i, 'tuitionFee', v)} />
+              <TextField label="Other Fees" value={item.otherFees || ''} onChange={v => updateRow(i, 'otherFees', v)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <TextField label="Total Fee" value={item.totalFee || ''} onChange={v => updateRow(i, 'totalFee', v)} />
+              <TextField label="Installments" value={item.installments || ''} onChange={v => updateRow(i, 'installments', v)} />
+            </div>
+          </div>
+        ))}
+        <button onClick={addRow} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another fee row</button>
+      </div>
+
+      <TextField label="Scholarship Info" value={String(fields.scholarshipInfo || '')} onChange={v => setFields({ ...fields, scholarshipInfo: v })} multiline />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Payment Modes</h4>
+        {paymentModes.map((mode: string, i: number) => (
+          <div key={i} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={mode}
+              onChange={e => updatePaymentMode(i, e.target.value)}
+              placeholder="e.g. Online, Cheque, Cash"
+              className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
+            <button onClick={() => removePaymentMode(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+          </div>
+        ))}
+        <button onClick={addPaymentMode} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add payment mode</button>
+      </div>
+
+      <TextField label="Disclaimer Text" value={String(fields.disclaimerText || '')} onChange={v => setFields({ ...fields, disclaimerText: v })} multiline />
+    </div>
+  )
+}
+
+function FaqEditor({ fields, setFields }: EditorProps) {
+  const items = (fields.questions as Array<any>) || (fields.items as Array<any>) || []
+  const itemsKey = fields.questions ? 'questions' : 'items'
+
+  const updateItem = (idx: number, key: string, value: any) => {
+    const updated = [...items]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, [itemsKey]: updated })
+  }
+
+  const addItem = () => {
+    setFields({ ...fields, [itemsKey]: [...items, { question: '', answer: '', category: 'General' }] })
+  }
+
+  const removeItem = (idx: number) => {
+    setFields({ ...fields, [itemsKey]: items.filter((_: any, i: number) => i !== idx) })
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline />
+      <CheckboxField label="Show Categories" value={!!fields.showCategories} onChange={v => setFields({ ...fields, showCategories: v })} />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">FAQ Items</h4>
+        {items.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">FAQ #{i + 1}</span>
+              <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Question" value={item.question || ''} onChange={v => updateItem(i, 'question', v)} />
+            <TextField label="Answer" value={item.answer || ''} onChange={v => updateItem(i, 'answer', v)} multiline />
+            <SelectField
+              label="Category"
+              value={item.category || 'General'}
+              onChange={v => updateItem(i, 'category', v)}
+              options={[
+                { value: 'Admissions', label: 'Admissions' },
+                { value: 'Fees', label: 'Fees' },
+                { value: 'Academics', label: 'Academics' },
+                { value: 'Transport', label: 'Transport' },
+                { value: 'General', label: 'General' },
+                { value: 'Activities', label: 'Activities' },
+              ]}
+            />
+          </div>
+        ))}
+        <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another FAQ</button>
+      </div>
+    </div>
+  )
+}
+
+function LeadershipEditor({ fields, setFields }: EditorProps) {
+  const items = (fields.leaders as Array<any>) || (fields.items as Array<any>) || []
+  const itemsKey = fields.leaders ? 'leaders' : 'items'
+
+  const updateItem = (idx: number, key: string, value: any) => {
+    const updated = [...items]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, [itemsKey]: updated })
+  }
+
+  const addItem = () => {
+    setFields({ ...fields, [itemsKey]: [...items, { name: '', designation: '', qualifications: '', photo: '', message: '' }] })
+  }
+
+  const removeItem = (idx: number) => {
+    setFields({ ...fields, [itemsKey]: items.filter((_: any, i: number) => i !== idx) })
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline />
+      <SelectField
+        label="Layout"
+        value={String(fields.layout || 'grid')}
+        onChange={v => setFields({ ...fields, layout: v })}
+        options={[{ value: 'featured', label: 'Featured' }, { value: 'grid', label: 'Grid' }]}
+      />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Leaders</h4>
+        {items.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">Leader #{i + 1}</span>
+              <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Name" value={item.name || ''} onChange={v => updateItem(i, 'name', v)} />
+            <TextField label="Designation" value={item.designation || ''} onChange={v => updateItem(i, 'designation', v)} />
+            <TextField label="Qualifications" value={item.qualifications || ''} onChange={v => updateItem(i, 'qualifications', v)} />
+            <TextField label="Message" value={item.message || ''} onChange={v => updateItem(i, 'message', v)} multiline />
+            <ImageField label="Photo" value={item.photo || ''} onChange={v => updateItem(i, 'photo', v)} />
+          </div>
+        ))}
+        <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another leader</button>
+      </div>
+    </div>
+  )
+}
+
+function AccreditationEditor({ fields, setFields }: EditorProps) {
+  const items = (fields.badges as Array<any>) || (fields.items as Array<any>) || []
+  const itemsKey = fields.badges ? 'badges' : 'items'
+
+  const updateItem = (idx: number, key: string, value: any) => {
+    const updated = [...items]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, [itemsKey]: updated })
+  }
+
+  const addItem = () => {
+    setFields({ ...fields, [itemsKey]: [...items, { name: '', certNumber: '', verificationUrl: '', validUntil: '', logo: '' }] })
+  }
+
+  const removeItem = (idx: number) => {
+    setFields({ ...fields, [itemsKey]: items.filter((_: any, i: number) => i !== idx) })
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Accreditation Badges</h4>
+        {items.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">Badge #{i + 1}</span>
+              <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Name" value={item.name || ''} onChange={v => updateItem(i, 'name', v)} />
+            <TextField label="Certificate Number" value={item.certNumber || ''} onChange={v => updateItem(i, 'certNumber', v)} />
+            <TextField label="Verification URL" value={item.verificationUrl || ''} onChange={v => updateItem(i, 'verificationUrl', v)} />
+            <TextField label="Valid Until" value={item.validUntil || ''} onChange={v => updateItem(i, 'validUntil', v)} hint="e.g. 2027-03-31" />
+            <ImageField label="Logo" value={item.logo || ''} onChange={v => updateItem(i, 'logo', v)} />
+          </div>
+        ))}
+        <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another badge</button>
+      </div>
+    </div>
+  )
+}
+
+function InfrastructureEditor({ fields, setFields }: EditorProps) {
+  const items = (fields.facilities as Array<any>) || (fields.items as Array<any>) || []
+  const itemsKey = fields.facilities ? 'facilities' : 'items'
+
+  const updateItem = (idx: number, key: string, value: any) => {
+    const updated = [...items]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, [itemsKey]: updated })
+  }
+
+  const addItem = () => {
+    setFields({ ...fields, [itemsKey]: [...items, { name: '', description: '', icon: '', image: '' }] })
+  }
+
+  const removeItem = (idx: number) => {
+    setFields({ ...fields, [itemsKey]: items.filter((_: any, i: number) => i !== idx) })
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline />
+      <SelectField
+        label="Layout"
+        value={String(fields.layout || 'grid')}
+        onChange={v => setFields({ ...fields, layout: v })}
+        options={[{ value: 'grid', label: 'Grid' }, { value: 'carousel', label: 'Carousel' }]}
+      />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Facilities</h4>
+        {items.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">Facility #{i + 1}</span>
+              <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Name" value={item.name || ''} onChange={v => updateItem(i, 'name', v)} />
+            <TextField label="Description" value={item.description || ''} onChange={v => updateItem(i, 'description', v)} multiline />
+            <TextField label="Icon" value={item.icon || ''} onChange={v => updateItem(i, 'icon', v)} hint="Icon name or emoji" />
+            <ImageField label="Image" value={item.image || ''} onChange={v => updateItem(i, 'image', v)} />
+          </div>
+        ))}
+        <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another facility</button>
+      </div>
+    </div>
+  )
+}
+
+function DownloadsEditor({ fields, setFields }: EditorProps) {
+  const items = (fields.items as Array<any>) || []
+
+  const updateItem = (idx: number, key: string, value: any) => {
+    const updated = [...items]
+    updated[idx] = { ...updated[idx], [key]: value }
+    setFields({ ...fields, items: updated })
+  }
+
+  const addItem = () => {
+    setFields({ ...fields, items: [...items, { title: '', description: '', fileUrl: '', fileType: 'pdf', fileSize: '', category: '' }] })
+  }
+
+  const removeItem = (idx: number) => {
+    setFields({ ...fields, items: items.filter((_: any, i: number) => i !== idx) })
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField label="Description" value={String(fields.description || '')} onChange={v => setFields({ ...fields, description: v })} multiline />
+      <CheckboxField label="Show Categories" value={!!fields.showCategories} onChange={v => setFields({ ...fields, showCategories: v })} />
+
+      <div className="space-y-3">
+        <h4 className="text-sm font-semibold text-gray-700">Downloadable Files</h4>
+        {items.map((item: any, i: number) => (
+          <div key={i} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-600">File #{i + 1}</span>
+              <button onClick={() => removeItem(i)} className="text-red-500 text-xs hover:underline">Remove</button>
+            </div>
+            <TextField label="Title" value={item.title || ''} onChange={v => updateItem(i, 'title', v)} />
+            <TextField label="Description" value={item.description || ''} onChange={v => updateItem(i, 'description', v)} multiline />
+            <TextField label="File URL" value={item.fileUrl || ''} onChange={v => updateItem(i, 'fileUrl', v)} hint="Link to the downloadable file" />
+            <div className="grid grid-cols-2 gap-3">
+              <SelectField
+                label="File Type"
+                value={item.fileType || 'pdf'}
+                onChange={v => updateItem(i, 'fileType', v)}
+                options={[
+                  { value: 'pdf', label: 'PDF' },
+                  { value: 'doc', label: 'Document' },
+                  { value: 'image', label: 'Image' },
+                  { value: 'other', label: 'Other' },
+                ]}
+              />
+              <TextField label="File Size" value={item.fileSize || ''} onChange={v => updateItem(i, 'fileSize', v)} hint="e.g. 2.5 MB" />
+            </div>
+            <TextField label="Category" value={item.category || ''} onChange={v => updateItem(i, 'category', v)} hint="e.g. Forms, Circulars, Reports" />
+          </div>
+        ))}
+        <button onClick={addItem} className="text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add another file</button>
+      </div>
+    </div>
+  )
+}
+
 const EDITOR_MAP: Record<SectionType, React.FC<{ fields: Record<string, unknown>; setFields: (f: Record<string, unknown>) => void }>> = {
   hero: HeroEditor,
   about: AboutEditor,
@@ -454,16 +956,17 @@ const EDITOR_MAP: Record<SectionType, React.FC<{ fields: Record<string, unknown>
   news: NewsEditor,
   contact: ContactEditor,
   custom_html: CustomHtmlEditor,
-  // New section types use generic editor
-  courses: GenericItemsEditor,
-  results: GenericItemsEditor,
-  fee_structure: GenericItemsEditor,
-  accreditation: GenericItemsEditor,
-  infrastructure: GenericItemsEditor,
+  // Dedicated editors for key section types
+  courses: CoursesEditor,
+  results: ResultsEditor,
+  fee_structure: FeeStructureEditor,
+  accreditation: AccreditationEditor,
+  infrastructure: InfrastructureEditor,
+  leadership: LeadershipEditor,
+  downloads: DownloadsEditor,
+  faq: FaqEditor,
+  // Remaining section types use generic editor
   placements: GenericItemsEditor,
-  leadership: GenericItemsEditor,
-  downloads: GenericItemsEditor,
-  faq: GenericItemsEditor,
   transport: GenericItemsEditor,
   student_life: GenericItemsEditor,
   safety: GenericItemsEditor,

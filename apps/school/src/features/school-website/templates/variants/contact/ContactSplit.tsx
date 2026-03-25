@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import type { VariantProps } from '../../section-variants'
 import { spacingClass, radiusClass, field } from '../shared'
 
 export function ContactSplit({ section, theme }: VariantProps) {
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const showMap = field<boolean>(section.content, 'showMap', false)
   const showForm = field<boolean>(section.content, 'showForm', true)
   const mapEmbed = field(section.content, 'mapEmbed', '')
@@ -16,6 +19,31 @@ export function ContactSplit({ section, theme }: VariantProps) {
   const email = field(section.content, 'email', 'info@school.edu')
   const whatsapp = field(section.content, 'whatsapp', '')
   const officeHours = field(section.content, 'officeHours', 'Mon - Sat: 8:00 AM - 4:00 PM')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!formData.name || !formData.email || !formData.message) return
+    setSubmitStatus('sending')
+    try {
+      const res = await fetch('/api/public/contact/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...formData,
+          pageSlug: window.location.pathname.split('/').pop() || 'home',
+        }),
+      })
+      if (res.ok) {
+        setSubmitStatus('sent')
+        setFormData({ name: '', email: '', phone: '', message: '' })
+      } else {
+        setSubmitStatus('error')
+      }
+    } catch {
+      setSubmitStatus('error')
+    }
+  }
 
   const primaryColor = theme.defaultPrimaryColor
   const accentColor = theme.defaultAccentColor
@@ -158,7 +186,7 @@ export function ContactSplit({ section, theme }: VariantProps) {
                   Fill in the details below and we will get back to you.
                 </p>
 
-                <div className="mt-8 space-y-5">
+                <form onSubmit={handleSubmit} className="mt-8 space-y-5">
                   {/* Name */}
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700">
@@ -167,8 +195,10 @@ export function ContactSplit({ section, theme }: VariantProps) {
                     <input
                       type="text"
                       placeholder="John Doe"
+                      value={formData.name}
+                      onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       className={`w-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400 focus:bg-white ${radiusClass(theme.cornerRadius)}`}
-                      readOnly
+                      required
                     />
                   </div>
 
@@ -180,8 +210,10 @@ export function ContactSplit({ section, theme }: VariantProps) {
                     <input
                       type="email"
                       placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
                       className={`w-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400 focus:bg-white ${radiusClass(theme.cornerRadius)}`}
-                      readOnly
+                      required
                     />
                   </div>
 
@@ -193,8 +225,9 @@ export function ContactSplit({ section, theme }: VariantProps) {
                     <input
                       type="tel"
                       placeholder="+91 98765 43210"
+                      value={formData.phone}
+                      onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                       className={`w-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400 focus:bg-white ${radiusClass(theme.cornerRadius)}`}
-                      readOnly
                     />
                   </div>
 
@@ -206,24 +239,47 @@ export function ContactSplit({ section, theme }: VariantProps) {
                     <textarea
                       placeholder="Tell us how we can help..."
                       rows={4}
+                      value={formData.message}
+                      onChange={e => setFormData(prev => ({ ...prev, message: e.target.value }))}
                       className={`w-full border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400 focus:bg-white ${radiusClass(theme.cornerRadius)}`}
-                      readOnly
+                      required
                     />
                   </div>
 
+                  {/* Status messages */}
+                  {submitStatus === 'sent' && (
+                    <p className="text-sm text-green-600 text-center font-medium">
+                      Thank you! We'll get back to you within 24 hours.
+                    </p>
+                  )}
+                  {submitStatus === 'error' && (
+                    <p className="text-sm text-red-600 text-center font-medium">
+                      Something went wrong. Please try again.
+                    </p>
+                  )}
+
                   {/* Submit */}
                   <button
-                    type="button"
-                    className={`w-full px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg ${radiusClass(theme.cornerRadius)}`}
+                    type="submit"
+                    disabled={submitStatus === 'sending'}
+                    className={`w-full px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg disabled:opacity-70 ${radiusClass(theme.cornerRadius)}`}
                     style={{ backgroundColor: accentColor }}
                   >
-                    Send Message
+                    {submitStatus === 'sending' ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Sending...
+                      </span>
+                    ) : 'Send Message'}
                   </button>
 
                   <p className="text-center text-xs text-gray-400">
                     We typically respond within 24 hours.
                   </p>
-                </div>
+                </form>
               </div>
             </div>
           )}

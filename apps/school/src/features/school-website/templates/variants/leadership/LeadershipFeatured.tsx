@@ -1,5 +1,5 @@
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, cardClass, radiusClass, field } from '../shared'
+import { spacingClass, cardClass, radiusClass, field, tint } from '../shared'
 
 interface Leader {
   name: string
@@ -55,6 +55,7 @@ export function LeadershipFeatured({ section, theme }: VariantProps) {
         {primary && (
           <div
             className={`mt-10 flex flex-col gap-8 p-8 md:flex-row md:items-center ${cardClass(theme.cardStyle, theme.cornerRadius)}`}
+            style={{ borderTop: `3px solid ${theme.defaultPrimaryColor}` }}
           >
             {/* Photo */}
             <div className="flex-shrink-0">
@@ -80,7 +81,7 @@ export function LeadershipFeatured({ section, theme }: VariantProps) {
                 &ldquo;{primary.message}&rdquo;
               </blockquote>
               <div className="mt-6">
-                <p className="text-lg font-semibold text-gray-900">{primary.name}</p>
+                <p className="text-lg font-semibold" style={{ color: theme.defaultPrimaryColor }}>{primary.name}</p>
                 <p className="text-sm" style={{ color: theme.defaultAccentColor }}>
                   {primary.designation}
                 </p>
@@ -113,7 +114,7 @@ export function LeadershipFeatured({ section, theme }: VariantProps) {
                     </div>
                   )}
                   <div>
-                    <p className="font-semibold text-gray-900">{leader.name}</p>
+                    <p className="font-semibold" style={{ color: theme.defaultPrimaryColor }}>{leader.name}</p>
                     <p className="text-sm" style={{ color: theme.defaultAccentColor }}>
                       {leader.designation}
                     </p>

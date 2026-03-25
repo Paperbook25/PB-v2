@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, radiusClass, field } from '../shared'
+import { spacingClass, radiusClass, field, tint } from '../shared'
 
 interface FaqItem {
   question: string
@@ -41,16 +41,19 @@ export function FaqAccordion({ section, theme }: VariantProps) {
             return (
               <div
                 key={idx}
-                className={`overflow-hidden border border-gray-200 ${radiusClass(theme.cornerRadius)}`}
+                className={`overflow-hidden border ${radiusClass(theme.cornerRadius)}`}
+                style={{ borderColor: tint(theme.defaultPrimaryColor, 0.15) }}
               >
                 <button
                   type="button"
                   onClick={() => toggle(idx)}
-                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50"
+                  className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors"
+                  style={isOpen ? { backgroundColor: tint(theme.defaultPrimaryColor, 0.05) } : undefined}
                 >
                   <span className="pr-4 font-medium text-gray-900">{item.question}</span>
                   <svg
-                    className={`h-5 w-5 shrink-0 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`h-5 w-5 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    style={{ color: isOpen ? theme.defaultPrimaryColor : '#9CA3AF' }}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -60,7 +63,7 @@ export function FaqAccordion({ section, theme }: VariantProps) {
                   </svg>
                 </button>
                 {isOpen && (
-                  <div className="border-t border-gray-100 px-5 py-4">
+                  <div className="border-t px-5 py-4" style={{ borderColor: tint(theme.defaultPrimaryColor, 0.1) }}>
                     <p className="text-sm leading-relaxed text-gray-600">{item.answer}</p>
                   </div>
                 )}

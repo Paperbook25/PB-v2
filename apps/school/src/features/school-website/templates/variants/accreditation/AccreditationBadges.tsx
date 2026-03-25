@@ -1,5 +1,5 @@
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, field } from '../shared'
+import { spacingClass, field, tint } from '../shared'
 
 interface Badge {
   name: string
@@ -25,7 +25,7 @@ export function AccreditationBadges({ section, theme }: VariantProps) {
   return (
     <section
       className={spacingClass(theme.sectionSpacing)}
-      style={{ backgroundColor: `${theme.defaultPrimaryColor}05` }}
+      style={{ backgroundColor: tint(theme.defaultPrimaryColor, 0.04) }}
     >
       <div className="mx-auto max-w-5xl px-6">
         <h2
@@ -47,7 +47,8 @@ export function AccreditationBadges({ section, theme }: VariantProps) {
                   <img
                     src={badge.logo}
                     alt={badge.name}
-                    className="h-24 w-24 rounded-full border-2 border-gray-200 object-contain p-2 transition-shadow group-hover:shadow-lg"
+                    className="h-24 w-24 rounded-full border-2 object-contain p-2 transition-shadow group-hover:shadow-lg"
+                    style={{ borderColor: tint(theme.defaultPrimaryColor, 0.2) }}
                   />
                 ) : (
                   <div
@@ -77,7 +78,7 @@ export function AccreditationBadges({ section, theme }: VariantProps) {
                   <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900" />
                 </div>
               </div>
-              <p className="mt-3 text-sm font-medium text-gray-700">{badge.name}</p>
+              <p className="mt-3 text-sm font-medium" style={{ color: tint(theme.defaultPrimaryColor, 0.85) }}>{badge.name}</p>
             </div>
           ))}
         </div>

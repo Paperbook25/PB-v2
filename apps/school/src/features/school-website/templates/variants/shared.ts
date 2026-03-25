@@ -1,6 +1,47 @@
 // Shared utilities for section variant components.
 
+import type React from 'react'
 import type { TemplateTheme } from '../registry'
+
+/** Convert hex color to RGB components */
+export function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return result
+    ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) }
+    : { r: 37, g: 99, b: 235 } // fallback blue
+}
+
+/** Generate a light tint of the primary color at given opacity (0-1) */
+export function tint(hex: string, opacity: number): string {
+  const { r, g, b } = hexToRgb(hex)
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`
+}
+
+/** Darken a color by mixing with black */
+export function darken(hex: string, amount: number): string {
+  const { r, g, b } = hexToRgb(hex)
+  const f = 1 - amount
+  return `rgb(${Math.round(r * f)}, ${Math.round(g * f)}, ${Math.round(b * f)})`
+}
+
+/** Get section background style based on index for alternating look */
+export function sectionBg(theme: TemplateTheme, index: number): React.CSSProperties {
+  if (index % 2 === 0) return {}
+  return { backgroundColor: tint(theme.defaultPrimaryColor, 0.04) }
+}
+
+/** Get heading color style using primary color */
+export function headingColor(theme: TemplateTheme): React.CSSProperties {
+  return { color: theme.defaultPrimaryColor }
+}
+
+/** Get accent tag/badge style */
+export function accentBadgeStyle(theme: TemplateTheme): React.CSSProperties {
+  return {
+    backgroundColor: tint(theme.defaultAccentColor, 0.12),
+    color: theme.defaultAccentColor,
+  }
+}
 
 /** Map cornerRadius token to Tailwind border-radius class. */
 export function radiusClass(cr: TemplateTheme['cornerRadius']): string {

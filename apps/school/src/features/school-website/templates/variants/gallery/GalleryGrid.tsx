@@ -1,5 +1,5 @@
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, radiusClass, field } from '../shared'
+import { spacingClass, radiusClass, field, tint } from '../shared'
 import type { GalleryImage } from '../../../types/school-website.types'
 
 export function GalleryGrid({ section, theme }: VariantProps) {
@@ -44,7 +44,10 @@ export function GalleryGrid({ section, theme }: VariantProps) {
                 </div>
               )}
               {img.caption && img.url && (
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-3">
+                <div
+                  className="absolute inset-x-0 bottom-0 px-4 py-3"
+                  style={{ background: `linear-gradient(to top, ${tint(theme.defaultPrimaryColor, 0.7)}, transparent)` }}
+                >
                   <p className="text-sm text-white">{img.caption}</p>
                 </div>
               )}

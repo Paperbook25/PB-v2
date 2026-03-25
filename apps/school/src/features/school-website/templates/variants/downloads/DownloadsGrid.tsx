@@ -1,5 +1,5 @@
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, cardClass, radiusClass, field } from '../shared'
+import { spacingClass, cardClass, radiusClass, field, tint } from '../shared'
 
 interface DownloadFile {
   title: string
@@ -66,8 +66,8 @@ export function DownloadsGrid({ section, theme }: VariantProps) {
               <div className="flex items-start gap-4">
                 {/* File type icon */}
                 <div
-                  className={`flex h-12 w-12 flex-shrink-0 items-center justify-center text-xs font-bold text-white ${radiusClass(theme.cornerRadius)}`}
-                  style={{ backgroundColor: fileTypeColor(file.fileType) }}
+                  className={`flex h-12 w-12 flex-shrink-0 items-center justify-center text-xs font-bold ${radiusClass(theme.cornerRadius)}`}
+                  style={{ backgroundColor: tint(theme.defaultPrimaryColor, 0.1), color: theme.defaultPrimaryColor }}
                 >
                   {fileTypeLabel(file.fileType)}
                 </div>

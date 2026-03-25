@@ -1,5 +1,5 @@
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, radiusClass, field } from '../shared'
+import { spacingClass, radiusClass, field, tint } from '../shared'
 
 interface FeeRow {
   category: string
@@ -45,7 +45,10 @@ export function FeeTable({ section, theme }: VariantProps) {
         )}
 
         {/* Fee table */}
-        <div className={`mt-10 overflow-hidden border border-gray-200 ${radiusClass(theme.cornerRadius)}`}>
+        <div
+          className={`mt-10 overflow-hidden border ${radiusClass(theme.cornerRadius)}`}
+          style={{ borderColor: tint(theme.defaultPrimaryColor, 0.15) }}
+        >
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
@@ -61,7 +64,8 @@ export function FeeTable({ section, theme }: VariantProps) {
                 {displayFees.map((row, idx) => (
                   <tr
                     key={idx}
-                    className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                    className="bg-white"
+                    style={idx % 2 !== 0 ? { backgroundColor: tint(theme.defaultPrimaryColor, 0.03) } : undefined}
                   >
                     <td className="px-5 py-3 font-medium text-gray-900">{row.category}</td>
                     <td className="px-5 py-3 text-gray-600">{row.tuition}</td>
@@ -83,7 +87,7 @@ export function FeeTable({ section, theme }: VariantProps) {
             className={`mt-8 border-l-4 p-5 ${radiusClass(theme.cornerRadius)}`}
             style={{
               borderLeftColor: theme.defaultAccentColor,
-              backgroundColor: `${theme.defaultAccentColor}08`,
+              backgroundColor: tint(theme.defaultAccentColor, 0.06),
             }}
           >
             <h4 className="font-semibold text-gray-900">Scholarships &amp; Financial Aid</h4>
@@ -101,7 +105,7 @@ export function FeeTable({ section, theme }: VariantProps) {
                   key={mode}
                   className={`px-3 py-1 text-xs font-medium ${radiusClass(theme.cornerRadius)}`}
                   style={{
-                    backgroundColor: `${theme.defaultPrimaryColor}10`,
+                    backgroundColor: tint(theme.defaultPrimaryColor, 0.08),
                     color: theme.defaultPrimaryColor,
                   }}
                 >

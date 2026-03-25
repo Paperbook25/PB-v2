@@ -1,5 +1,5 @@
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, cardClass, radiusClass, field } from '../shared'
+import { spacingClass, cardClass, radiusClass, field, tint } from '../shared'
 
 interface EventItem {
   title: string
@@ -44,6 +44,7 @@ export function EventsCards({ section, theme }: VariantProps) {
               <div
                 key={idx}
                 className={`flex gap-5 p-5 ${cardClass(theme.cardStyle, theme.cornerRadius)}`}
+                style={{ borderLeft: `3px solid ${tint(theme.defaultPrimaryColor, 0.3)}` }}
               >
                 {/* Date badge */}
                 <div

@@ -1,5 +1,5 @@
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, cardClass, radiusClass, field } from '../shared'
+import { spacingClass, cardClass, radiusClass, field, tint } from '../shared'
 
 interface Facility {
   name: string
@@ -61,7 +61,7 @@ export function InfraGrid({ section, theme }: VariantProps) {
               ) : (
                 <div
                   className="relative flex h-48 items-center justify-center"
-                  style={{ backgroundColor: `${theme.defaultPrimaryColor}10` }}
+                  style={{ backgroundColor: tint(theme.defaultPrimaryColor, 0.06) }}
                 >
                   <span className="text-5xl">{facility.icon || '🏫'}</span>
                 </div>

@@ -1,5 +1,5 @@
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, radiusClass, field } from '../shared'
+import { spacingClass, radiusClass, field, tint } from '../shared'
 
 interface Topper {
   name: string
@@ -57,12 +57,13 @@ export function ResultsShowcase({ section, theme }: VariantProps) {
 
       {/* Toppers scrollable row */}
       <div className="mx-auto max-w-7xl px-6 py-12">
-        <h3 className="text-xl font-semibold text-gray-900">Our Toppers</h3>
+        <h3 className="text-xl font-semibold" style={{ color: theme.defaultPrimaryColor }}>Our Toppers</h3>
         <div className="mt-6 flex gap-6 overflow-x-auto pb-4">
           {displayToppers.map((topper, idx) => (
             <div
               key={idx}
               className={`flex-shrink-0 w-56 overflow-hidden bg-white shadow-md ${radiusClass(theme.cornerRadius)}`}
+              style={{ borderBottom: `3px solid ${tint(theme.defaultPrimaryColor, 0.3)}` }}
             >
               {topper.photo ? (
                 <img src={topper.photo} alt={topper.name} className="h-56 w-full object-cover" />

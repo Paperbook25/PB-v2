@@ -179,14 +179,25 @@ export function SchoolWebsiteBuilderPage() {
           <h1 className="text-xl font-bold text-gray-900">Your School Website</h1>
           <p className="text-sm text-gray-500">Edit your pages and customize how your website looks</p>
         </div>
-        <button
-          onClick={() => setShowAIDialog(true)}
-          disabled={!currentPage}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-        >
-          <Sparkles className="h-4 w-4" />
-          Regenerate with AI
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href="/s/home"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+          >
+            <Globe className="h-4 w-4" />
+            Visit Website
+          </a>
+          <button
+            onClick={() => setShowAIDialog(true)}
+            disabled={!currentPage}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+          >
+            <Sparkles className="h-4 w-4" />
+            Regenerate with AI
+          </button>
+        </div>
       </div>
 
       {/* Content — switched by sidebar ?tab= param */}

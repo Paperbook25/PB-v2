@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { VariantProps } from '../../section-variants'
-import { spacingClass, cardClass, radiusClass, field } from '../shared'
+import { spacingClass, cardClass, radiusClass, field, tint } from '../shared'
 
 interface Course {
   name: string
@@ -57,9 +57,11 @@ export function CoursesGrid({ section, theme }: VariantProps) {
               className={`px-4 py-2 text-sm font-medium transition-colors ${radiusClass(theme.cornerRadius)} ${
                 activeCategory === cat
                   ? 'text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'text-gray-700'
               }`}
-              style={activeCategory === cat ? { backgroundColor: theme.defaultAccentColor } : undefined}
+              style={activeCategory === cat
+                ? { backgroundColor: theme.defaultAccentColor }
+                : { backgroundColor: tint(theme.defaultPrimaryColor, 0.08) }}
             >
               {cat}
             </button>

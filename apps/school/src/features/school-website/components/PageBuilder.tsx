@@ -2,12 +2,13 @@ import { useState } from 'react'
 import {
   Plus, Eye, EyeOff, Trash2, ChevronUp, ChevronDown,
   Globe, FileText, GripVertical, Layers, PanelRightOpen, PanelRightClose,
-  Monitor, Tablet, Smartphone,
+  Monitor, Tablet, Smartphone, ExternalLink, Copy,
 } from 'lucide-react'
 import { useSchoolWebsite } from '../hooks/useSchoolWebsite'
+import { useAddSection } from '../api/school-website.api'
 import { SectionEditorPanel } from './SectionEditorPanel'
 import { SectionRenderer } from './SectionRenderers'
-import { SECTION_TYPES, type SectionType } from '../types/school-website.types'
+import { SECTION_TYPES, type SectionType, type WebsiteSection } from '../types/school-website.types'
 import { cn } from '@/lib/utils'
 
 export function PageBuilder() {
@@ -18,6 +19,8 @@ export function PageBuilder() {
     createPage, deletePage, publishPage, unpublishPage,
     addSection, updateSection, deleteSection, moveSection, reorderSections,
   } = useSchoolWebsite()
+
+  const addSectionMutation = useAddSection()
 
   const [showAddSection, setShowAddSection] = useState(false)
   const [newPageTitle, setNewPageTitle] = useState('')
@@ -57,6 +60,16 @@ export function PageBuilder() {
       return { id: s.id, sortOrder: newOrder }
     })
     await reorderSections.mutateAsync({ pageId: selectedPageId, sections: reordered })
+  }
+
+  const handleDuplicateSection = async (section: WebsiteSection) => {
+    if (!selectedPageId) return
+    await addSectionMutation.mutateAsync({
+      pageId: selectedPageId,
+      type: section.type as SectionType,
+      title: `${section.title || section.type} (copy)`,
+      content: section.content as Record<string, unknown>,
+    })
   }
 
   const previewWidths = {
@@ -117,24 +130,37 @@ export function PageBuilder() {
           )}
           <div className="space-y-0.5">
             {pages.map(page => (
-              <button
-                key={page.id}
-                onClick={() => setSelectedPageId(page.id)}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-sm text-left transition ${
-                  selectedPageId === page.id
-                    ? 'bg-blue-100 text-blue-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <FileText className="h-4 w-4 shrink-0" />
-                <span className="truncate flex-1">{page.title}</span>
+              <div key={page.id} className="flex items-center group/page">
+                <button
+                  onClick={() => setSelectedPageId(page.id)}
+                  className={`flex-1 flex items-center gap-2 px-2.5 py-2 rounded-md text-sm text-left transition ${
+                    selectedPageId === page.id
+                      ? 'bg-blue-100 text-blue-700 font-medium'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <FileText className="h-4 w-4 shrink-0" />
+                  <span className="truncate flex-1">{page.title}</span>
+                  {page.isPublished && (
+                    <span className="flex items-center gap-1 text-xs text-green-600">
+                      <Globe className="h-3 w-3" />
+                      Live
+                    </span>
+                  )}
+                </button>
                 {page.isPublished && (
-                  <span className="flex items-center gap-1 text-xs text-green-600">
-                    <Globe className="h-3 w-3" />
-                    Live
-                  </span>
+                  <a
+                    href={`/s/${page.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1 text-gray-400 hover:text-blue-600 opacity-0 group-hover/page:opacity-100 transition"
+                    title={`Open /s/${page.slug}`}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
                 )}
-              </button>
+              </div>
             ))}
           </div>
         </div>
@@ -234,6 +260,13 @@ export function PageBuilder() {
                           title={section.isVisible ? 'Hide this section' : 'Show this section'}
                         >
                           {section.isVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3 text-gray-400" />}
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDuplicateSection(section) }}
+                          className="p-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition"
+                          title="Duplicate section"
+                        >
+                          <Copy className="h-3 w-3" />
                         </button>
                         <button
                           onClick={e => { e.stopPropagation(); deleteSection.mutate(section.id) }}

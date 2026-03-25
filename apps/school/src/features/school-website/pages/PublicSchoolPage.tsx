@@ -680,7 +680,10 @@ export function PublicSchoolPage() {
     }
   }, [templateId])
 
-  const publishedPages = pages || []
+  const publishedPages = [
+    ...(pages || []),
+    { slug: 'blog', title: 'Blog', sortOrder: 99 },
+  ]
 
   // Extract contact info from contact sections across all pages
   const contactInfo = useMemo(() => {

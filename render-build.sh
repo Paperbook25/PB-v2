@@ -1,39 +1,30 @@
 #!/usr/bin/env bash
-# Render build script — uses npm directly (not pnpm) for compatibility
+# Render build script — uses pnpm with --filter for workspace compatibility
 set -o errexit
 
 echo "=== Node version ==="
 node --version
 
-echo "=== Installing ALL dependencies via npm ==="
-# Install root dependencies
-npm install
+echo "=== Installing pnpm globally ==="
+npm install -g pnpm@9
 
-# Install each app's dependencies
-cd apps/server && npm install && cd ../..
-cd apps/school && npm install && cd ../..
-cd apps/admin && npm install && cd ../..
+echo "=== Installing all workspace dependencies ==="
+pnpm install --no-frozen-lockfile
 
 echo "=== Generating Prisma client ==="
-cd apps/server
-npx prisma generate
+pnpm --filter "@paperbook/server" exec prisma generate
 
-echo "=== Syncing database ==="
-npx prisma db push --accept-data-loss 2>/dev/null || echo "DB sync skipped"
+echo "=== Syncing database schema ==="
+pnpm --filter "@paperbook/server" exec prisma db push --accept-data-loss 2>/dev/null || echo "DB sync skipped"
 
-echo "=== Building server (TypeScript) ==="
-npx tsc
-cd ../..
+echo "=== Building server ==="
+pnpm --filter "@paperbook/server" run build
 
-echo "=== Building school app (Vite) ==="
-cd apps/school
-npx vite build
-cd ../..
+echo "=== Building school app ==="
+pnpm --filter "@paperbook/school" run build
 
-echo "=== Building admin app (Vite) ==="
-cd apps/admin
-npx vite build
-cd ../..
+echo "=== Building admin app (Gravity Portal) ==="
+pnpm --filter "@paperbook/admin" run build
 
 echo "=== Copying frontend builds ==="
 cp -r apps/school/dist apps/server/client-dist

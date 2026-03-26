@@ -17,6 +17,17 @@ const AddonsPage = lazy(() => import('./features/addons/pages/AddonsPage').then(
 const UsersPage = lazy(() => import('./features/users/pages/UsersPage').then(m => ({ default: m.UsersPage })))
 const AuditLogPage = lazy(() => import('./features/audit/pages/AuditLogPage').then(m => ({ default: m.AuditLogPage })))
 const SettingsPage = lazy(() => import('./features/settings/pages/SettingsPage').then(m => ({ default: m.SettingsPage })))
+const SubscriptionsPage = lazy(() => import('./features/subscriptions/pages/SubscriptionsPage').then(m => ({ default: m.SubscriptionsPage })))
+const BillingPage = lazy(() => import('./features/billing/pages/BillingPage').then(m => ({ default: m.BillingPage })))
+const LeadsPage = lazy(() => import('./features/crm/pages/LeadsPage').then(m => ({ default: m.LeadsPage })))
+const AnnouncementsPage = lazy(() => import('./features/announcements/pages/AnnouncementsPage').then(m => ({ default: m.AnnouncementsPage })))
+const AnalyticsPage = lazy(() => import('./features/analytics/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })))
+const UsagePage = lazy(() => import('./features/usage/pages/UsagePage').then(m => ({ default: m.UsagePage })))
+const HealthPage = lazy(() => import('./features/health/pages/HealthPage').then(m => ({ default: m.HealthPage })))
+const SecurityPage = lazy(() => import('./features/security/pages/SecurityPage').then(m => ({ default: m.SecurityPage })))
+const SubscriptionDetailPage = lazy(() => import('./features/subscriptions/pages/SubscriptionDetailPage').then(m => ({ default: m.SubscriptionDetailPage })))
+const InvoiceDetailPage = lazy(() => import('./features/billing/pages/InvoiceDetailPage').then(m => ({ default: m.InvoiceDetailPage })))
+const LeadDetailPage = lazy(() => import('./features/crm/pages/LeadDetailPage').then(m => ({ default: m.LeadDetailPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +52,17 @@ export default function App() {
                 <Route index element={<DashboardPage />} />
                 <Route path="/schools" element={<SchoolsPage />} />
                 <Route path="/schools/:id" element={<SchoolDetailPage />} />
+                <Route path="/crm" element={<LeadsPage />} />
+                <Route path="/crm/:id" element={<LeadDetailPage />} />
+                <Route path="/subscriptions" element={<SubscriptionsPage />} />
+                <Route path="/subscriptions/:id" element={<SubscriptionDetailPage />} />
+                <Route path="/billing" element={<BillingPage />} />
+                <Route path="/billing/invoices/:id" element={<InvoiceDetailPage />} />
+                <Route path="/announcements" element={<AnnouncementsPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/usage" element={<UsagePage />} />
+                <Route path="/health" element={<HealthPage />} />
+                <Route path="/security" element={<SecurityPage />} />
                 <Route path="/addons" element={<AddonsPage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/audit" element={<AuditLogPage />} />

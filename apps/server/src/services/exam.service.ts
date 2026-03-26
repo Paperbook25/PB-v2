@@ -74,8 +74,8 @@ function computeGrade(percentage: number, ranges: any[]): string {
   return 'F'
 }
 
-async function getDefaultGradeRanges() {
-  const scale = await prisma.gradeScale.findFirst({ where: { isDefault: true } })
+async function getDefaultGradeRanges(schoolId: string) {
+  const scale = await prisma.gradeScale.findFirst({ where: { isDefault: true, organizationId: schoolId } })
   if (scale) return scale.ranges as any[]
   return [
     { grade: 'A', minPercentage: 90, maxPercentage: 100 },
@@ -296,7 +296,7 @@ export async function submitMarks(schoolId: string, examId: string, input: Submi
   const subjectDef = subjects.find((s: any) => s.id === input.subjectId)
   const maxMarks = subjectDef?.maxMarks || 100
 
-  const gradeRanges = await getDefaultGradeRanges()
+  const gradeRanges = await getDefaultGradeRanges(schoolId)
 
   let count = 0
   for (const mark of input.marks) {
@@ -407,7 +407,7 @@ export async function generateReportCards(schoolId: string, input: GenerateRepor
   const exam = await prisma.exam.findFirst({ where: { id: input.examId, organizationId: schoolId } })
   if (!exam) throw AppError.notFound('Exam not found')
 
-  const gradeRanges = await getDefaultGradeRanges()
+  const gradeRanges = await getDefaultGradeRanges(schoolId)
   const examSubjects = exam.subjects as any[]
 
   // Get marks for this exam
@@ -718,7 +718,7 @@ export async function getExamAnalytics(schoolId: string, examId: string, query: 
     : 0
 
   // Grade distribution
-  const gradeRanges = await getDefaultGradeRanges()
+  const gradeRanges = await getDefaultGradeRanges(schoolId)
   const gradeDist: Record<string, number> = {}
   // Get per-student percentage
   const perStudent = new Map<string, { total: number; obtained: number }>()
@@ -884,7 +884,7 @@ export async function submitCoScholastic(schoolId: string, input: SubmitCoSchola
   if (!student) throw AppError.notFound('Student not found')
 
   // Get current academic year
-  const currentAY = await prisma.academicYear.findFirst({ where: { isCurrent: true } })
+  const currentAY = await prisma.academicYear.findFirst({ where: { isCurrent: true, organizationId: schoolId } })
   const academicYear = currentAY?.name || `${new Date().getFullYear()}-${(new Date().getFullYear() + 1).toString().slice(2)}`
 
   const results = []
@@ -1053,9 +1053,9 @@ export async function getMyMarks(schoolId: string, userId: string, query: { acad
   if (!user?.studentId) throw AppError.forbidden('Not a student user')
 
   // Find student by user.studentId field (which might be the student record id or admission number)
-  let student = await prisma.student.findUnique({ where: { id: user.studentId } })
+  let student = await prisma.student.findFirst({ where: { id: user.studentId, organizationId: schoolId } })
   if (!student) {
-    student = await prisma.student.findFirst({ where: { admissionNumber: user.studentId } })
+    student = await prisma.student.findFirst({ where: { admissionNumber: user.studentId, organizationId: schoolId } })
   }
   if (!student) throw AppError.notFound('Student not found')
 
@@ -1183,9 +1183,9 @@ export async function getMyReportCard(schoolId: string, userId: string, query: {
   const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user?.studentId) throw AppError.forbidden('Not a student user')
 
-  let student = await prisma.student.findUnique({ where: { id: user.studentId } })
+  let student = await prisma.student.findFirst({ where: { id: user.studentId, organizationId: schoolId } })
   if (!student) {
-    student = await prisma.student.findFirst({ where: { admissionNumber: user.studentId } })
+    student = await prisma.student.findFirst({ where: { admissionNumber: user.studentId, organizationId: schoolId } })
   }
   if (!student) throw AppError.notFound('Student not found')
 

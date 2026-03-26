@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import compression from 'compression'
 import rateLimit from 'express-rate-limit'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -30,6 +31,11 @@ app.use(helmet({
 }))
 
 // ---------------------------------------------------------------------------
+// Gzip compression (60-80% bandwidth reduction)
+// ---------------------------------------------------------------------------
+app.use(compression({ level: 6, threshold: 1024 }))
+
+// ---------------------------------------------------------------------------
 // Rate limiting
 // ---------------------------------------------------------------------------
 
@@ -42,10 +48,10 @@ const authLimiter = rateLimit({
   message: { error: 'Too many authentication attempts. Try again later.' },
 })
 
-// Rate limit for public endpoints (tenant resolution)
+// Rate limit for public endpoints (tenant resolution, public website)
 const publicLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: env.isProd ? 200 : 2000, // Relaxed in dev — SPA hot-reload triggers many requests
   standardHeaders: true,
   legacyHeaders: false,
 })
@@ -61,12 +67,17 @@ const allowedOrigins = [
   'http://localhost:4173',
   'http://localhost:5173',
   'http://localhost:5174',
+  'http://localhost:8000',  // PB marketing website
+  'http://localhost:8080',
 ].filter(Boolean) as string[]
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (same-origin, curl, server-to-server)
+    // Allow requests with no origin (same-origin, curl, server-to-server, file://)
     if (!origin) return callback(null, true)
+
+    // Allow PB marketing website (any origin for public lead-signup)
+    if (origin === 'null' || origin.startsWith('file://')) return callback(null, true)
 
     // Allow explicitly listed origins
     if (allowedOrigins.includes(origin)) return callback(null, true)
@@ -97,6 +108,16 @@ app.use(cors({
 app.use(subdomainTenantMiddleware)
 
 // ---------------------------------------------------------------------------
+// Request timeout (30s — prevents slowloris & hanging connections)
+// ---------------------------------------------------------------------------
+app.use((_req, res, next) => {
+  res.setTimeout(30000, () => {
+    res.status(408).json({ error: 'Request timeout' })
+  })
+  next()
+})
+
+// ---------------------------------------------------------------------------
 // better-auth handler (must be before body parser for auth routes)
 // ---------------------------------------------------------------------------
 app.all('/api/auth/*', toNodeHandler(auth))
@@ -113,6 +134,33 @@ app.use('/api', routes)
 
 // Serve uploaded media files statically
 app.use('/uploads', express.static(resolve(process.cwd(), 'public/uploads')))
+
+// ---------------------------------------------------------------------------
+// Production: serve the Gravity Portal (admin) SPA
+// ---------------------------------------------------------------------------
+if (env.isProd) {
+  const adminDist = resolve(__dirname, '../../admin-dist')
+  if (existsSync(adminDist)) {
+    const adminHtml = readFileSync(resolve(adminDist, 'index.html'), 'utf-8')
+
+    // Serve admin on admin.paperbook.app subdomain
+    app.use((req, res, next) => {
+      const host = (req.hostname || '').toLowerCase()
+      if (host === `admin.${env.APP_DOMAIN}`) {
+        // Serve static admin assets
+        const staticPath = resolve(adminDist, req.path.slice(1))
+        if (req.path !== '/' && existsSync(staticPath)) {
+          return res.sendFile(staticPath)
+        }
+        // SPA fallback for admin
+        res.setHeader('Content-Type', 'text/html')
+        res.setHeader('Cache-Control', 'no-cache')
+        return res.send(adminHtml)
+      }
+      next()
+    })
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Production: serve the school SPA with server-injected tenant config

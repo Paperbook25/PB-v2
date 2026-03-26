@@ -63,3 +63,16 @@ for (const key of required) {
     throw new Error(`Missing required environment variable: ${key}`)
   }
 }
+
+// Enforce minimum secret length in production
+if (env.isProd) {
+  if (env.JWT_SECRET.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters in production')
+  }
+  if (env.JWT_REFRESH_SECRET.length < 32) {
+    throw new Error('JWT_REFRESH_SECRET must be at least 32 characters in production')
+  }
+  if (env.BETTER_AUTH_SECRET.length < 32) {
+    throw new Error('BETTER_AUTH_SECRET must be at least 32 characters in production')
+  }
+}

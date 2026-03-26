@@ -76,4 +76,83 @@ export const adminApi = {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
     return adminFetch<PaginatedResponse<ActivityItem>>(`/audit${qs}`)
   },
+
+  // Subscriptions
+  listSubscriptions: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/subscriptions${qs}`)
+  },
+  getSubscription: (id: string) => adminFetch<any>(`/subscriptions/${id}`).then((r: any) => r.data),
+  createSubscription: (data: any) => adminFetch<any>('/subscriptions', { method: 'POST', body: JSON.stringify(data) }),
+  updateSubscription: (id: string, data: any) => adminFetch<any>(`/subscriptions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  cancelSubscription: (id: string, reason?: string) => adminFetch<any>(`/subscriptions/${id}/cancel`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
+  getSubscriptionAnalytics: () => adminFetch<any>('/subscriptions/analytics').then((r: any) => r.data),
+  getExpiringTrials: (days?: number) => adminFetch<any>(`/subscriptions/trials?days=${days || 14}`).then((r: any) => r.data),
+
+  // Billing
+  listInvoices: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/billing/invoices${qs}`)
+  },
+  getInvoice: (id: string) => adminFetch<any>(`/billing/invoices/${id}`).then((r: any) => r.data),
+  createInvoice: (data: any) => adminFetch<any>('/billing/invoices', { method: 'POST', body: JSON.stringify(data) }),
+  updateInvoice: (id: string, data: any) => adminFetch<any>(`/billing/invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  sendInvoice: (id: string) => adminFetch<any>(`/billing/invoices/${id}/send`, { method: 'PATCH' }),
+  cancelInvoice: (id: string) => adminFetch<any>(`/billing/invoices/${id}/cancel`, { method: 'PATCH' }),
+  recordPayment: (invoiceId: string, data: any) => adminFetch<any>(`/billing/invoices/${invoiceId}/payment`, { method: 'POST', body: JSON.stringify(data) }),
+  getRevenueSummary: () => adminFetch<any>('/billing/revenue').then((r: any) => r.data),
+  listPayments: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/billing/payments${qs}`)
+  },
+
+  // Leads (CRM)
+  listLeads: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/leads${qs}`)
+  },
+  getLeadPipeline: () => adminFetch<any>('/leads/pipeline').then((r: any) => r.data),
+  getLead: (id: string) => adminFetch<any>(`/leads/${id}`).then((r: any) => r.data),
+  createLead: (data: any) => adminFetch<any>('/leads', { method: 'POST', body: JSON.stringify(data) }),
+  updateLead: (id: string, data: any) => adminFetch<any>(`/leads/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateLeadStatus: (id: string, status: string) => adminFetch<any>(`/leads/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  addLeadActivity: (id: string, data: any) => adminFetch<any>(`/leads/${id}/activities`, { method: 'POST', body: JSON.stringify(data) }),
+  deleteLead: (id: string) => adminFetch<any>(`/leads/${id}`, { method: 'DELETE' }),
+
+  // Announcements
+  listAnnouncements: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/announcements${qs}`)
+  },
+  getAnnouncement: (id: string) => adminFetch<any>(`/announcements/${id}`).then((r: any) => r.data),
+  createAnnouncement: (data: any) => adminFetch<any>('/announcements', { method: 'POST', body: JSON.stringify(data) }),
+  updateAnnouncement: (id: string, data: any) => adminFetch<any>(`/announcements/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  sendAnnouncement: (id: string) => adminFetch<any>(`/announcements/${id}/send`, { method: 'POST' }),
+  deleteAnnouncement: (id: string) => adminFetch<any>(`/announcements/${id}`, { method: 'DELETE' }),
+
+  // Analytics
+  getAnalyticsOverview: () => adminFetch<any>('/analytics/overview').then((r: any) => r.data),
+  getFeatureAdoption: () => adminFetch<any>('/analytics/feature-adoption').then((r: any) => r.data),
+  getBenchmarks: () => adminFetch<any>('/analytics/benchmarks').then((r: any) => r.data),
+  getAnalyticsTrends: () => adminFetch<any>('/analytics/trends').then((r: any) => r.data),
+
+  // Usage Tracking
+  getUsageOverview: () => adminFetch<any>('/usage/overview').then((r: any) => r.data),
+  getSchoolUsage: () => adminFetch<any>('/usage/schools').then((r: any) => r.data),
+  getSchoolUsageDetail: (id: string) => adminFetch<any>(`/usage/schools/${id}`).then((r: any) => r.data),
+
+  // System Health
+  getHealthStatus: () => adminFetch<any>('/health/status').then((r: any) => r.data),
+  getHealthMetrics: (period?: string) => adminFetch<any>(`/health/metrics${period ? `?period=${period}` : ''}`).then((r: any) => r.data),
+  getHealthAlerts: () => adminFetch<any>('/health/alerts').then((r: any) => r.data),
+  resolveAlert: (id: string) => adminFetch<any>(`/health/alerts/${id}/resolve`, { method: 'PATCH' }),
+  createAlert: (data: any) => adminFetch<any>('/health/alerts', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Security
+  listGravityAdmins: () => adminFetch<any>('/security/admins').then((r: any) => r.data),
+  createGravityAdmin: (data: any) => adminFetch<any>('/security/admins', { method: 'POST', body: JSON.stringify(data) }),
+  updateGravityAdmin: (id: string, data: any) => adminFetch<any>(`/security/admins/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  removeGravityAdmin: (id: string) => adminFetch<any>(`/security/admins/${id}`, { method: 'DELETE' }),
+  getComplianceStatus: () => adminFetch<any>('/security/compliance').then((r: any) => r.data),
+  getLoginHistory: () => adminFetch<any>('/security/login-history').then((r: any) => r.data),
 }

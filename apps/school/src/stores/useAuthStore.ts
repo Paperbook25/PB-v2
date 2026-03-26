@@ -6,13 +6,13 @@ import { usePermissionStore } from './usePermissionStore'
 
 const rolePermissions: Record<Role, string[]> = {
   admin: ['*'],
-  principal: ['dashboard', 'students', 'staff', 'attendance', 'admissions', 'library', 'transport', 'finance', 'settings'],
-  teacher: ['dashboard', 'students.view', 'attendance', 'library.view'],
-  accountant: ['dashboard', 'finance', 'students.view'],
-  librarian: ['dashboard', 'library', 'students.view'],
-  transport_manager: ['dashboard', 'transport', 'students.view'],
-  student: ['dashboard.student', 'library.view', 'attendance.view'],
-  parent: ['dashboard.parent', 'attendance.view', 'finance.view', 'transport.view'],
+  principal: ['dashboard', 'students', 'staff', 'attendance', 'admissions', 'library', 'transport', 'finance', 'settings', 'exams', 'reports', 'communication', 'operations', 'management', 'website'],
+  teacher: ['dashboard', 'students.view', 'attendance', 'attendance.mark', 'exams', 'exams.marks', 'library.view', 'timetable.view', 'communication', 'settings.communication', 'lms', 'behavior.view', 'parent-portal'],
+  accountant: ['dashboard', 'finance', 'finance.collect', 'finance.reports', 'students.view', 'reports'],
+  librarian: ['dashboard', 'library', 'library.manage', 'students.view'],
+  transport_manager: ['dashboard', 'transport', 'transport.manage', 'operations.transport', 'students.view'],
+  student: ['dashboard.student', 'library.view', 'attendance.view', 'timetable.view', 'exams.view', 'lms.view'],
+  parent: ['dashboard.parent', 'attendance.view', 'finance.view', 'finance.my-fees', 'transport.view', 'parent-portal'],
 }
 
 interface AuthState {

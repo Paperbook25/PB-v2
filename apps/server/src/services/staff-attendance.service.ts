@@ -199,7 +199,7 @@ export async function getLeaveBalance(staffId: string) {
   if (!staff) throw AppError.notFound('Staff not found')
 
   const academicYear = await prisma.academicYear.findFirst({
-    where: { isCurrent: true },
+    where: { isCurrent: true, organizationId: staff.organizationId },
   })
   if (!academicYear) throw AppError.notFound('No active academic year found')
 
@@ -318,7 +318,7 @@ export async function createLeaveRequest(staffId: string, input: CreateLeaveRequ
   if (!staff) throw AppError.notFound('Staff not found')
 
   const academicYear = await prisma.academicYear.findFirst({
-    where: { isCurrent: true },
+    where: { isCurrent: true, organizationId: staff.organizationId },
   })
   if (!academicYear) throw AppError.notFound('No active academic year found')
 
@@ -404,7 +404,7 @@ export async function updateLeaveRequest(id: string, input: UpdateLeaveRequestIn
   // If approving, update leave balance
   if (input.status === 'approved') {
     const academicYear = await prisma.academicYear.findFirst({
-      where: { isCurrent: true },
+      where: { isCurrent: true, organizationId: request.staff.organizationId },
     })
     if (academicYear) {
       await prisma.leaveBalance.updateMany({

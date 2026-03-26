@@ -95,7 +95,7 @@ export function feeReminderEmail(
   ).join('')
 
   return {
-    to: '',
+    to: '', // caller sets this
     subject: `Fee Reminder - ${studentName} (${className}) | ${schoolName}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

@@ -20,8 +20,9 @@ import {
 
 const router = Router()
 
-// All settings routes require auth
+// All settings routes require auth + at minimum admin/principal/teacher role
 router.use(authMiddleware)
+router.use(rbacMiddleware('admin', 'principal', 'teacher'))
 
 // ==================== SCHOOL PROFILE ====================
 

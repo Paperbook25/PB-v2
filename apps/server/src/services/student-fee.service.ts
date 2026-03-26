@@ -140,7 +140,7 @@ export async function listStudentFees(schoolId: string, query: {
   }
   if (query.academicYear) where.academicYear = query.academicYear
   if (query.className) {
-    const cls = await prisma.class.findFirst({ where: { name: query.className } })
+    const cls = await prisma.class.findFirst({ where: { name: query.className, organizationId: schoolId } })
     if (cls) {
       where.student = { classId: cls.id }
     }
@@ -173,7 +173,7 @@ export async function getStudentFeeById(schoolId: string, id: string) {
 }
 
 export async function getStudentFees(schoolId: string, studentId: string) {
-  const student = await prisma.student.findUnique({ where: { id: studentId } })
+  const student = await prisma.student.findFirst({ where: { id: studentId, organizationId: schoolId } })
   if (!student) throw AppError.notFound('Student not found')
 
   const fees = await prisma.studentFee.findMany({
@@ -247,14 +247,14 @@ export async function bulkAssignFees(schoolId: string, input: BulkAssignInput) {
   if (input.studentIds && input.studentIds.length > 0) {
     studentIds = input.studentIds
   } else {
-    const whereClause: any = { status: 'active' }
+    const whereClause: any = { status: 'active', organizationId: schoolId }
     if (input.className) {
-      const cls = await prisma.class.findFirst({ where: { name: input.className } })
+      const cls = await prisma.class.findFirst({ where: { name: input.className, organizationId: schoolId } })
       if (!cls) throw AppError.badRequest(`Class '${input.className}' not found`)
       whereClause.classId = cls.id
     }
     if (input.sectionName && input.className) {
-      const cls = await prisma.class.findFirst({ where: { name: input.className } })
+      const cls = await prisma.class.findFirst({ where: { name: input.className, organizationId: schoolId } })
       if (cls) {
         const section = await prisma.section.findFirst({
           where: { classId: cls.id, name: input.sectionName },
@@ -632,7 +632,7 @@ export async function getOutstandingDues(schoolId: string, query: {
   }
   if (query.academicYear) where.academicYear = query.academicYear
   if (query.className) {
-    const cls = await prisma.class.findFirst({ where: { name: query.className } })
+    const cls = await prisma.class.findFirst({ where: { name: query.className, organizationId: schoolId } })
     if (cls) where.student = { classId: cls.id }
   }
 

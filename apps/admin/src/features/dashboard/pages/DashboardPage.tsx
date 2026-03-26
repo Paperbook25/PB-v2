@@ -6,6 +6,7 @@ import {
   TrendingUp,
   Loader2,
   AlertCircle,
+  IndianRupee,
 } from 'lucide-react'
 import {
   LineChart,
@@ -41,6 +42,11 @@ export function DashboardPage() {
   const activityQuery = useQuery({
     queryKey: ['admin', 'dashboard', 'activity'],
     queryFn: adminApi.getActivity,
+  })
+
+  const subAnalyticsQuery = useQuery({
+    queryKey: ['admin', 'subscriptions', 'analytics'],
+    queryFn: adminApi.getSubscriptionAnalytics,
   })
 
   const stats = statsQuery.data
@@ -93,10 +99,10 @@ export function DashboardPage() {
             trend={stats?.activeTrend ? { value: stats.activeTrend, label: 'this month' } : undefined}
           />
           <StatCard
-            title="Monthly Growth"
-            value={stats?.monthlyGrowth ? `${stats.monthlyGrowth}%` : '0%'}
-            icon={TrendingUp}
-            trend={stats?.growthTrend ? { value: stats.growthTrend, label: 'vs last month' } : undefined}
+            title="MRR"
+            value={subAnalyticsQuery.data?.mrr ? `₹${subAnalyticsQuery.data.mrr >= 1000 ? `${(subAnalyticsQuery.data.mrr / 1000).toFixed(1)}K` : subAnalyticsQuery.data.mrr}` : '₹0'}
+            icon={IndianRupee}
+            trend={subAnalyticsQuery.data?.activeCount ? { value: subAnalyticsQuery.data.activeCount, label: 'active subs' } : undefined}
           />
         </div>
       )}

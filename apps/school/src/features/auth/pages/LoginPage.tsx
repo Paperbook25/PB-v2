@@ -184,8 +184,19 @@ export function LoginPage() {
           </button>
         </div>
 
+        {/* Register link */}
+        <p className="text-center text-sm text-gray-500 mt-4">
+          Don't have a school yet?{' '}
+          <button
+            onClick={() => navigate('/register')}
+            className="text-indigo-600 hover:text-indigo-700 font-medium"
+          >
+            Register your school
+          </button>
+        </p>
+
         {/* Powered by */}
-        <p className="text-center text-xs text-gray-400 mt-8">
+        <p className="text-center text-xs text-gray-400 mt-6">
           Powered by{' '}
           <span className="font-medium text-gray-500">Paperbook</span>
         </p>

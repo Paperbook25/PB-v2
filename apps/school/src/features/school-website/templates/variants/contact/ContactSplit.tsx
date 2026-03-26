@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import DOMPurify from 'dompurify'
 import type { VariantProps } from '../../section-variants'
 import { spacingClass, radiusClass, field } from '../shared'
 import { useFormTracking } from '../../../components/FormTracker'
@@ -172,7 +173,7 @@ export function ContactSplit({ section, theme }: VariantProps) {
             {showMap && mapEmbed && (
               <div
                 className={`mt-10 aspect-video overflow-hidden ${radiusClass(theme.cornerRadius)} shadow-md`}
-                dangerouslySetInnerHTML={{ __html: mapEmbed }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(mapEmbed, { ADD_TAGS: ['iframe'], ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'loading'] }) }}
               />
             )}
           </div>

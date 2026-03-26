@@ -68,8 +68,14 @@ export function requireAddon(addonSlug: string) {
         })
       }
       next()
-    } catch {
-      next() // Don't block on addon check failures
+    } catch (error) {
+      // Fail closed — deny access if addon check fails (security-safe default)
+      console.error(`[Addon] Check failed for ${addonSlug}:`, error)
+      return _res.status(503).json({
+        error: 'Unable to verify module access',
+        message: 'Please try again in a moment.',
+        code: 'ADDON_CHECK_FAILED',
+      })
     }
   }
 }

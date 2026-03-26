@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import rateLimit from 'express-rate-limit'
 import { requireTenant } from '../middleware/tenant.middleware.js'
 import { schoolAuthMiddleware } from '../middleware/school-auth.middleware.js'
 import authRoutes from './auth.routes.js'
@@ -47,6 +48,11 @@ import emailCampaignRouter from './email-campaign.routes.js'
 import { requireAddon } from '../middleware/addon.middleware.js'
 import subscriptionRoutes from './subscription.routes.js'
 import adminRoutes from './admin/index.js'
+import onboardingRoutes from './onboarding.routes.js'
+import invitationRoutes from './invitation.routes.js'
+import profileRoutes from './profile.routes.js'
+import { registerSchool } from '../controllers/onboarding.controller.js'
+import { acceptInvitation, getInviteDetails } from '../controllers/invitation.controller.js'
 
 const router = Router()
 
@@ -63,6 +69,92 @@ router.get('/me', schoolAuthMiddleware, (req, res) => {
 
 // --- Public / unscoped routes (no tenant enforcement) ---
 router.use('/auth', authRoutes)
+
+// Public registration & invitation endpoints (NOT under /auth/* to avoid better-auth interception)
+router.post('/public/register-school', registerSchool)
+router.post('/public/accept-invite', acceptInvitation)
+router.get('/public/invite-details/:id', getInviteDetails)
+
+// --- Public lead signup (for PB marketing website → Gravity CRM) ---
+const leadSignupLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, message: { error: 'Too many signup attempts. Please try again later.' } })
+router.post('/public/lead-signup', leadSignupLimiter, async (req, res, next) => {
+  try {
+    const { prisma } = await import('../config/db.js')
+    const { schoolName, contactName, contactEmail, contactPhone, city, state, source, message, expectedPlan } = req.body
+
+    if (!schoolName || !contactName || !contactEmail) {
+      return res.status(400).json({ error: 'schoolName, contactName, and contactEmail are required' })
+    }
+
+    // Check for duplicate lead by email
+    const existing = await prisma.lead.findFirst({
+      where: { contactEmail },
+    })
+    if (existing) {
+      return res.status(200).json({ success: true, message: 'Already registered', leadId: existing.id })
+    }
+
+    // Create lead in Gravity CRM
+    const lead = await prisma.lead.create({
+      data: {
+        schoolName,
+        contactName,
+        contactEmail,
+        contactPhone: contactPhone || null,
+        city: city || null,
+        state: state || null,
+        source: source || 'website',
+        expectedPlan: expectedPlan || null,
+        status: 'lead_new',
+        notes: message || null,
+      },
+    })
+
+    // Auto-create first activity
+    await prisma.leadActivity.create({
+      data: {
+        leadId: lead.id,
+        type: 'note',
+        content: `Lead signed up via website form. ${message ? `Message: ${message}` : ''}`.trim(),
+        createdBy: null,
+      },
+    })
+
+    res.status(201).json({ success: true, leadId: lead.id })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// --- User profile (authenticated, no tenant required) ---
+router.use('/profile', profileRoutes)
+
+// --- Platform announcements (for school app to fetch) ---
+router.get('/platform-announcements', requireTenant, async (req, res, next) => {
+  try {
+    const { prisma } = await import('../config/db.js')
+    const schoolProfile = await prisma.schoolProfile.findUnique({
+      where: { id: req.schoolId },
+      select: { planTier: true, status: true },
+    })
+    if (!schoolProfile) return res.json({ data: [] })
+
+    const announcements = await prisma.platformAnnouncement.findMany({
+      where: {
+        status: 'ann_sent',
+        OR: [
+          { targetPlans: { isEmpty: true } },
+          { targetPlans: { has: schoolProfile.planTier } },
+        ],
+      },
+      orderBy: { sentAt: 'desc' },
+      take: 10,
+      select: { id: true, title: true, body: true, channel: true, sentAt: true },
+    })
+
+    res.json({ data: announcements })
+  } catch (err) { next(err) }
+})
 
 // --- School-facing routes (tenant enforcement required) ---
 router.use('/users', requireTenant, userRoutes)
@@ -182,12 +274,24 @@ router.use('/public/chat', chatbotPublicRouter) // Public endpoint — no tenant
 // Email Campaigns / Drip System
 router.use('/email-campaigns', requireTenant, emailCampaignRouter)
 
+// Onboarding Wizard & Setup Checklist
+router.use('/onboarding', requireTenant, onboardingRoutes)
+
+// Staff Invitations
+router.use('/invitations', requireTenant, invitationRoutes)
+
 // Super Admin Panel (better-auth protected — has its own auth)
 router.use('/admin', adminRoutes)
 
-// Health check
-router.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+// Health check — tests DB connectivity for proper liveness probing
+router.get('/health', async (_req, res) => {
+  try {
+    const { prisma } = await import('../config/db.js')
+    await prisma.$queryRaw`SELECT 1`
+    res.json({ status: 'ok', db: 'connected', timestamp: new Date().toISOString() })
+  } catch {
+    res.status(503).json({ status: 'error', db: 'disconnected', timestamp: new Date().toISOString() })
+  }
 })
 
 export default router

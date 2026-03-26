@@ -39,7 +39,7 @@ export async function generateAndPreview(req: Request, res: Response, next: Next
       return res.status(400).json({ error: 'classId and sectionId are required' })
     }
 
-    const context = await gatherSchedulingContext(classId, sectionId)
+    const context = await gatherSchedulingContext(classId, sectionId, req.schoolId)
     const schedule = generateSchedule(context)
 
     res.json({ schedule })

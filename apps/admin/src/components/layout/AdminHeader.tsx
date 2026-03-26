@@ -27,7 +27,7 @@ export function AdminHeader() {
   return (
     <header className="flex h-16 items-center justify-between border-b border-border bg-card px-6">
       <div>
-        <h2 className="text-sm font-semibold text-foreground">Super Admin</h2>
+        <h2 className="text-sm font-semibold text-foreground">Gravity Portal</h2>
       </div>
 
       <div className="flex items-center gap-4">

@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Tag, Copy, Check, Loader2 } from 'lucide-react'
 import { useState, useCallback } from 'react'
+import DOMPurify from 'dompurify'
 import { usePublicBlogPost } from '../api/blog.api'
 import { PublicLayout } from '../components/PublicLayout'
 
@@ -151,7 +152,7 @@ export function PublicBlogPostPage() {
       {/* Body */}
       <div
         className="prose prose-lg max-w-none mb-10"
-        dangerouslySetInnerHTML={{ __html: post.body }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.body) }}
       />
 
       {/* Tags */}

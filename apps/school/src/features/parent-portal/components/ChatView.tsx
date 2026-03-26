@@ -15,7 +15,7 @@ interface ChatViewProps {
   conversation: Conversation
   currentUserId: string
   currentUserName: string
-  currentUserType: 'parent' | 'teacher'
+  currentUserType: 'parent' | 'teacher' | 'student'
   currentUserAvatar?: string
 }
 

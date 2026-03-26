@@ -88,7 +88,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
  * Uses upsert so it's safe to run multiple times.
  */
 export async function seedPermissions(): Promise<void> {
-  console.log('[Permissions] Seeding permission definitions...')
+  // Log at info level only in dev
+  if (process.env.NODE_ENV === 'development') console.log('[Permissions] Seeding permission definitions...')
 
   // Upsert all permission definitions
   for (const perm of PERMISSION_DEFINITIONS) {
@@ -109,7 +110,7 @@ export async function seedPermissions(): Promise<void> {
       },
     })
   }
-  console.log(`[Permissions] Upserted ${PERMISSION_DEFINITIONS.length} permission definitions`)
+  if (process.env.NODE_ENV === 'development') console.log(`[Permissions] Upserted ${PERMISSION_DEFINITIONS.length} permission definitions`)
 
   // Fetch all permissions for lookup
   const allPermissions = await prisma.permission.findMany()
@@ -136,7 +137,7 @@ export async function seedPermissions(): Promise<void> {
       })
     }
   }
-  console.log(`[Permissions] Seeded default role permissions for ${roles.length} roles`)
+  if (process.env.NODE_ENV === 'development') console.log(`[Permissions] Seeded default role permissions for ${roles.length} roles`)
 }
 
 /**

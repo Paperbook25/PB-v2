@@ -1,32 +1,44 @@
 #!/usr/bin/env bash
-# Render build script - builds both frontend and backend for single-instance deployment
+# Render build script — builds all apps for production deployment
+# Uses pnpm workspaces + Turborepo
 set -o errexit
 
-echo "=== Installing frontend dependencies ==="
-npm ci
+echo "=== Installing pnpm ==="
+npm install -g pnpm@9
 
-echo "=== Installing server dependencies ==="
-cd server
-npm ci
+echo "=== Installing dependencies ==="
+pnpm install --frozen-lockfile
 
 echo "=== Generating Prisma client ==="
+cd apps/server
 npx prisma generate
 
 echo "=== Running database migrations ==="
-npx prisma migrate deploy
-
-echo "=== Seeding database (if empty) ==="
-npx prisma db seed || echo "Seed skipped or already seeded"
+npx prisma migrate deploy || echo "Migration skipped (using db push in dev)"
 
 echo "=== Building server ==="
-npm run build
-cd ..
+pnpm build
+cd ../..
 
-echo "=== Building frontend ==="
-npm run build
+echo "=== Building school app (frontend) ==="
+cd apps/school
+pnpm build
+cd ../..
 
-echo "=== Moving frontend build to server directory ==="
-# The server expects the frontend build at server/client-dist/
-cp -r dist server/client-dist
+echo "=== Building admin app (Gravity Portal) ==="
+cd apps/admin
+pnpm build
+cd ../..
+
+echo "=== Moving frontend builds to server directory ==="
+# School app → served by Express in production
+cp -r apps/school/dist apps/server/client-dist
+
+# Admin app → served separately or as subfolder
+mkdir -p apps/server/admin-dist
+cp -r apps/admin/dist/* apps/server/admin-dist/
 
 echo "=== Build complete ==="
+echo "Server: apps/server/dist/"
+echo "School frontend: apps/server/client-dist/"
+echo "Admin frontend: apps/server/admin-dist/"

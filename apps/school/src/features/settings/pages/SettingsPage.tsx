@@ -22,10 +22,6 @@ export function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { hasRole } = useAuthStore()
 
-  // Get tab from URL (standardized naming: tab for primary, subtab for secondary)
-  const activeTab = (searchParams.get('tab') as SettingsSection) || 'general'
-  const subTab = searchParams.get('subtab') || ''
-
   // Role-based access
   const canAccessGeneral = hasRole(['admin', 'principal'])
   const canAccessCommunication = hasRole(['admin', 'principal', 'teacher'])
@@ -33,6 +29,12 @@ export function SettingsPage() {
   const canAccessModules = hasRole(['admin'])
   const canAccessPermissions = hasRole(['admin', 'principal'])
   const canAccessSubscription = hasRole(['admin'])
+
+  // Get tab from URL — auto-default to first accessible tab for the role
+  const urlTab = searchParams.get('tab') as SettingsSection | null
+  const defaultTab: SettingsSection = canAccessGeneral ? 'general' : canAccessCommunication ? 'communication' : 'general'
+  const activeTab = urlTab || defaultTab
+  const subTab = searchParams.get('subtab') || ''
 
   // Get current subtabs with defaults
   const generalSubTab = (activeTab === 'general' ? subTab as GeneralTab : null) || 'school'

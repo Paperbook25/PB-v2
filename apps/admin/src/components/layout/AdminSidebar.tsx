@@ -6,12 +6,28 @@ import {
   Users,
   ScrollText,
   Settings,
-  ShieldCheck,
+  Orbit,
+  CreditCard,
+  Receipt,
+  Target,
+  Megaphone,
+  BarChart3,
+  Activity,
+  HeartPulse,
+  Shield,
 } from 'lucide-react'
 
 const navItems = [
   { label: 'Dashboard', to: '/', icon: LayoutDashboard, end: true },
   { label: 'Schools', to: '/schools', icon: School },
+  { label: 'CRM', to: '/crm', icon: Target },
+  { label: 'Subscriptions', to: '/subscriptions', icon: CreditCard },
+  { label: 'Billing', to: '/billing', icon: Receipt },
+  { label: 'Announcements', to: '/announcements', icon: Megaphone },
+  { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+  { label: 'Usage', to: '/usage', icon: Activity },
+  { label: 'Health', to: '/health', icon: HeartPulse },
+  { label: 'Security', to: '/security', icon: Shield },
   { label: 'Addons', to: '/addons', icon: Puzzle },
   { label: 'Users', to: '/users', icon: Users },
   { label: 'Audit Log', to: '/audit', icon: ScrollText },
@@ -24,12 +40,12 @@ export function AdminSidebar() {
       {/* Logo */}
       <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-6">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <ShieldCheck className="h-4.5 w-4.5 text-primary-foreground" />
+          <Orbit className="h-4.5 w-4.5 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-sm font-bold text-sidebar-foreground">Paperbook</h1>
+          <h1 className="text-sm font-bold text-sidebar-foreground">Gravity</h1>
           <p className="text-[10px] font-medium uppercase tracking-wider text-sidebar-muted">
-            Admin Portal
+            Portal
           </p>
         </div>
       </div>
@@ -58,7 +74,7 @@ export function AdminSidebar() {
       {/* Footer */}
       <div className="border-t border-sidebar-border px-4 py-3">
         <p className="text-[11px] text-sidebar-muted">
-          Paperbook Admin v0.1.0
+          Gravity Portal v1.0.0
         </p>
       </div>
     </aside>

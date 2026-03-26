@@ -26,6 +26,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { ErrorCard } from '@/components/ErrorBoundary'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { SetupChecklist } from '@/features/onboarding/SetupChecklist'
 import {
   BarChart,
   Bar,
@@ -464,6 +465,9 @@ export function DashboardPage() {
         description={`Welcome back, ${userName}`}
         actions={<QuickActions />}
       />
+
+      {/* Setup Checklist (shown only for admin/principal if setup incomplete) */}
+      {(user?.role === 'admin' || user?.role === 'principal') && <SetupChecklist />}
 
       {/* Quick Stats Row */}
       <QuickStatsSection />

@@ -441,11 +441,7 @@ export function SchoolDetailPage() {
       )}
 
       {activeTab === 'activity' && (
-        <div className="rounded-lg border bg-card p-6">
-          <p className="text-sm text-muted-foreground">
-            Activity log for this school will be available once the audit system is connected.
-          </p>
-        </div>
+        <SchoolActivityTab schoolId={id!} />
       )}
     </div>
   )
@@ -482,6 +478,48 @@ function InfoRow({
           <p className="text-sm font-medium text-foreground">{value}</p>
         )}
       </div>
+    </div>
+  )
+}
+
+function SchoolActivityTab({ schoolId }: { schoolId: string }) {
+  // Uses the already-imported useQuery and adminApi from top of file
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin', 'audit', 'school', schoolId],
+    queryFn: () => adminApi.getAuditLog({ schoolId, limit: '20' }),
+  })
+
+  const logs = data?.data || []
+
+  const actionColors: Record<string, string> = {
+    create: 'bg-green-50 text-green-700',
+    update: 'bg-blue-50 text-blue-700',
+    delete: 'bg-red-50 text-red-700',
+    login: 'bg-purple-50 text-purple-700',
+    status_change: 'bg-amber-50 text-amber-700',
+  }
+
+  if (isLoading) return <div className="text-center py-8 text-sm text-muted-foreground">Loading activity...</div>
+
+  return (
+    <div className="rounded-lg border bg-card">
+      {logs.length === 0 ? (
+        <div className="px-6 py-8 text-center text-sm text-muted-foreground">No activity recorded for this school yet.</div>
+      ) : (
+        <div className="divide-y">
+          {logs.map((log: any) => (
+            <div key={log.id} className="px-6 py-3 flex items-center gap-3">
+              <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium ${actionColors[log.action] || 'bg-gray-50 text-gray-700'}`}>
+                {log.action}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm">{log.description || `${log.action} on ${log.entityType}`}</p>
+                <p className="text-xs text-muted-foreground">{log.userName} — {new Date(log.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

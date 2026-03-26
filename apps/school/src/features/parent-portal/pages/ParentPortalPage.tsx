@@ -19,32 +19,41 @@ export function ParentPortalPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false)
 
-  // Mock parent data - in real app, get from user context
-  const parentId = user?.id || 'PAR001'
-  const parentName = user?.name || 'Parent User'
+  const userId = user?.id || ''
+  const userName = user?.name || 'User'
+  const isStudent = user?.role === 'student'
+  const isParent = user?.role === 'parent'
+  const isTeacher = user?.role === 'teacher'
+  const userType = isStudent ? 'student' : isParent ? 'parent' : 'teacher'
+
+  const portalTitle = isStudent ? 'My Portal' : isTeacher ? 'Parent Communication' : 'Parent Portal'
+  const portalDesc = isStudent
+    ? 'Message your teachers and track your academic progress'
+    : isTeacher
+    ? 'Communicate with parents and manage meetings'
+    : 'Communicate with teachers and track your child\'s progress'
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation)
   }
 
-  const handleViewMeetingDetails = (meeting: Meeting) => {
-    // Navigate to calendar event or show detail modal
-    alert(`Meeting details for "${meeting.subject}" coming soon`)
+  const handleViewMeetingDetails = (_meeting: Meeting) => {
+    // TODO: Navigate to calendar event or show detail modal
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Parent Portal"
-        description="Communicate with teachers and track your child's progress"
+        title={portalTitle}
+        description={portalDesc}
         breadcrumbs={[
           { label: 'Home', href: '/' },
-          { label: 'Parent Portal' },
+          { label: portalTitle },
         ]}
         moduleColor="parent-portal"
       />
 
-      <ParentPortalStatsCards parentId={parentId} />
+      {(isParent || isStudent) && <ParentPortalStatsCards parentId={userId} />}
 
       {/* Content — switched by sidebar ?tab= param */}
       {activeTab === 'messages' && (
@@ -59,9 +68,9 @@ export function ParentPortalPage() {
             {selectedConversation ? (
               <ChatView
                 conversation={selectedConversation}
-                currentUserId={parentId}
-                currentUserName={parentName}
-                currentUserType="parent"
+                currentUserId={userId}
+                currentUserName={userName}
+                currentUserType={userType}
               />
             ) : (
               <div className="h-full flex items-center justify-center bg-muted/30 rounded-lg border-2 border-dashed">
@@ -87,12 +96,14 @@ export function ParentPortalPage() {
         </div>
       )}
 
-      <ScheduleMeetingDialog
-        open={scheduleDialogOpen}
-        onOpenChange={setScheduleDialogOpen}
-        parentId={parentId}
-        parentName={parentName}
-      />
+      {(isParent || isTeacher) && (
+        <ScheduleMeetingDialog
+          open={scheduleDialogOpen}
+          onOpenChange={setScheduleDialogOpen}
+          parentId={userId}
+          parentName={userName}
+        />
+      )}
     </div>
   )
 }

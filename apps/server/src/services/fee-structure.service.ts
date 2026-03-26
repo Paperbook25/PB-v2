@@ -222,18 +222,18 @@ export async function assignFeeStructure(schoolId: string, id: string, input: As
     }
 
     const classes = await prisma.class.findMany({
-      where: { name: { in: classNames } },
+      where: { name: { in: classNames }, organizationId: schoolId },
       select: { id: true },
     })
     const classIds = classes.map((c) => c.id)
 
-    const whereClause: any = { classId: { in: classIds }, status: 'active' }
+    const whereClause: any = { classId: { in: classIds }, status: 'active', organizationId: schoolId }
     if (input.className) {
-      const cls = await prisma.class.findFirst({ where: { name: input.className } })
+      const cls = await prisma.class.findFirst({ where: { name: input.className, organizationId: schoolId } })
       if (cls) whereClause.classId = cls.id
     }
     if (input.sectionName && input.className) {
-      const cls = await prisma.class.findFirst({ where: { name: input.className } })
+      const cls = await prisma.class.findFirst({ where: { name: input.className, organizationId: schoolId } })
       if (cls) {
         const section = await prisma.section.findFirst({
           where: { classId: cls.id, name: input.sectionName },

@@ -236,10 +236,11 @@ export async function subdomainTenantMiddleware(
 
     next()
   } catch (error) {
-    // Don't crash the server on tenant resolution failure
     console.error('[Tenant] Resolution error:', error)
     req.tenantSlug = null
     req.tenantOrg = null
+    // In production, fail for school-facing API routes (requireTenant will block anyway)
+    // Allow public/admin/auth routes to proceed
     next()
   }
 }

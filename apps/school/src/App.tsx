@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppShell } from '@/components/layout/AppShell'
@@ -17,6 +17,10 @@ import { AddonGate } from '@/components/AddonGate'
 
 // Eagerly load LoginPage for fast initial render
 import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { RegisterSchoolPage } from '@/features/auth/pages/RegisterSchoolPage'
+
+// Lazy load onboarding & invite pages
+const AcceptInvitePage = lazy(() => import('@/features/auth/pages/AcceptInvitePage').then(m => ({ default: m.AcceptInvitePage })))
 
 // Lazy load all other pages for code splitting
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
@@ -66,6 +70,9 @@ const ParentFeeDashboardPage = lazy(() => import('@/features/finance/pages/Paren
 
 // Settings
 const SettingsPage = lazy(() => import('@/features/settings/pages/SettingsPage').then(m => ({ default: m.SettingsPage })))
+
+// Profile (accessible to all roles)
+const ProfilePage = lazy(() => import('@/features/auth/pages/ProfilePage').then(m => ({ default: m.ProfilePage })))
 
 // Exams
 const ExamsPage = lazy(() => import('@/features/exams/pages').then(m => ({ default: m.ExamsPage })))
@@ -149,13 +156,26 @@ function useSessionRefresh() {
 
   useEffect(() => {
     if (!isAuthenticated) return
-    fetch('/api/me', { credentials: 'include' })
-      .then(async (res) => {
-        if (res.ok) {
-          const me = await res.json()
+    // Refresh session + load DB permissions in parallel
+    Promise.all([
+      fetch('/api/me', { credentials: 'include' }),
+      fetch('/api/profile/permissions', { credentials: 'include' }),
+    ])
+      .then(async ([meRes, permRes]) => {
+        if (meRes.ok) {
+          const me = await meRes.json()
           login({ id: me.id, name: me.name, email: me.email, role: me.role })
-        } else if (res.status === 401) {
+        } else if (meRes.status === 401) {
           logout('session_expired')
+          return
+        }
+        // Load DB-backed permissions into store
+        if (permRes.ok) {
+          const { permissions } = await permRes.json()
+          if (permissions && permissions.length > 0) {
+            const { usePermissionStore } = await import('@/stores/usePermissionStore')
+            usePermissionStore.getState().setPermissions(permissions)
+          }
         }
       })
       .catch(() => {}) // silent — use cached data
@@ -164,20 +184,42 @@ function useSessionRefresh() {
 
 /** Single authenticated layout — ModuleSidebar handles all nav switching */
 function AuthLayout() {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, user } = useAuthStore()
+  const [onboardingDone, setOnboardingDone] = useState(true)
+  const [checkOnboarding, setCheckOnboarding] = useState(false)
   useSessionRefresh()
+
+  useEffect(() => {
+    // Only check onboarding for admin/principal roles
+    if (isAuthenticated && (user?.role === 'admin' || user?.role === 'principal')) {
+      setCheckOnboarding(true)
+      setOnboardingDone(false)
+    }
+  }, [isAuthenticated, user?.role])
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
   return (
-    <AppShell sidebar={<ModuleSidebar />}>
-      <Suspense fallback={<PageLoader />}>
-        <Outlet />
-      </Suspense>
-    </AppShell>
+    <>
+      {checkOnboarding && !onboardingDone && (
+        <Suspense fallback={null}>
+          <OnboardingWizardWrapper onComplete={() => setOnboardingDone(true)} />
+        </Suspense>
+      )}
+      <AppShell sidebar={<ModuleSidebar />}>
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
+      </AppShell>
+    </>
   )
+}
+
+const OnboardingWizardLazy = lazy(() => import('@/features/onboarding/OnboardingWizard').then(m => ({ default: m.OnboardingWizard })))
+function OnboardingWizardWrapper({ onComplete }: { onComplete: () => void }) {
+  return <OnboardingWizardLazy onComplete={onComplete} />
 }
 
 /** Role gate for use inside layout routes (no AppShell wrapping) */
@@ -259,6 +301,8 @@ export default function App() {
         <Routes>
           {/* Public routes (no layout) */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterSchoolPage />} />
+          <Route path="/accept-invite" element={<LazyRoute><AcceptInvitePage /></LazyRoute>} />
           <Route path="/apply" element={<LazyRoute><PublicApplicationPage /></LazyRoute>} />
           <Route path="/s/blog" element={<LazyRoute><PublicBlogPage /></LazyRoute>} />
           <Route path="/s/blog/:slug" element={<LazyRoute><PublicBlogPostPage /></LazyRoute>} />
@@ -270,6 +314,9 @@ export default function App() {
               ============================================ */}
           <Route element={<AuthLayout />}>
             <Route path="/" element={<RoleDashboard />} />
+
+            {/* Profile — accessible to ALL authenticated roles */}
+            <Route path="/profile" element={<ProfilePage />} />
 
             {/* People */}
             <Route path="/people" element={<PeoplePage />} />
@@ -461,9 +508,11 @@ export default function App() {
             <Route path="/timetable" element={<Navigate to="/calendar" replace />} />
             <Route path="/timetable/*" element={<Navigate to="/calendar" replace />} />
 
-            {/* Parent Portal */}
-            <Route path="/parent-portal" element={<RoleGate allowedRoles={['parent', 'teacher', 'admin', 'principal']}><ParentPortalPage /></RoleGate>} />
-            <Route path="/parent-portal/*" element={<RoleGate allowedRoles={['parent', 'teacher', 'admin', 'principal']}><ParentPortalPage /></RoleGate>} />
+            {/* Portal (parent, student, teacher communication) */}
+            <Route path="/parent-portal" element={<RoleGate allowedRoles={['parent', 'student', 'teacher', 'admin', 'principal']}><ParentPortalPage /></RoleGate>} />
+            <Route path="/parent-portal/*" element={<RoleGate allowedRoles={['parent', 'student', 'teacher', 'admin', 'principal']}><ParentPortalPage /></RoleGate>} />
+            <Route path="/my-portal" element={<RoleGate allowedRoles={['parent', 'student', 'teacher', 'admin', 'principal']}><ParentPortalPage /></RoleGate>} />
+            <Route path="/my-portal/*" element={<RoleGate allowedRoles={['parent', 'student', 'teacher', 'admin', 'principal']}><ParentPortalPage /></RoleGate>} />
 
             {/* School Website Builder */}
             <Route path="/school-website" element={<AddonGate slug="school-website"><RoleGate allowedRoles={['admin', 'principal']}><SchoolWebsiteBuilderPage /></RoleGate></AddonGate>} />

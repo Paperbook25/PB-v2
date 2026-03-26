@@ -6,8 +6,34 @@ import {
   Users,
   CheckCircle,
   Star,
+  BookOpen,
+  GraduationCap,
+  ClipboardCheck,
+  Bus,
+  Building2,
+  Package,
+  FolderOpen,
+  Trophy,
+  Shield,
+  Globe,
+  MessageCircle,
+  Heart,
+  Eye,
+  Blocks,
+  Warehouse,
+  Award,
+  MessageSquareWarning,
+  UserCheck,
+  type LucideIcon,
 } from 'lucide-react'
 import { adminApi } from '../../../lib/api'
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  BookOpen, GraduationCap, ClipboardCheck, Bus, Building2, Package,
+  FolderOpen, Trophy, Shield, Globe, MessageCircle, Heart, Eye,
+  Users, Blocks, Warehouse, Puzzle, Star, Award, MessageSquareWarning,
+  UserCheck,
+}
 
 interface Addon {
   id: string
@@ -100,11 +126,12 @@ export function AddonsPage() {
               {/* Addon Header */}
               <div className="flex items-start gap-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  {addon.icon ? (
-                    <span className="text-xl">{addon.icon}</span>
-                  ) : (
-                    <Puzzle className="h-5.5 w-5.5 text-primary" />
-                  )}
+                  {(() => {
+                    const IconComponent = addon.icon ? ICON_MAP[addon.icon] : null
+                    return IconComponent
+                      ? <IconComponent className="h-5 w-5 text-primary" />
+                      : <Puzzle className="h-5 w-5 text-primary" />
+                  })()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

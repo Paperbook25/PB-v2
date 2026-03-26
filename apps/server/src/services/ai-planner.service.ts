@@ -63,16 +63,20 @@ function guessWeeklyPeriods(subjectName: string): number {
 
 // ==================== Context Gathering ====================
 
-export async function gatherSchedulingContext(classId: string, sectionId: string): Promise<SchedulingContext> {
-  const academicYear = await prisma.academicYear.findFirst({ where: { isCurrent: true } })
+export async function gatherSchedulingContext(classId: string, sectionId: string, schoolId?: string): Promise<SchedulingContext> {
+  // Derive schoolId from the class if not provided
+  const classData = await prisma.class.findUnique({ where: { id: classId } })
+  const effectiveSchoolId = schoolId || classData?.organizationId || undefined
+  const orgFilter = effectiveSchoolId ? { organizationId: effectiveSchoolId } : {}
+
+  const academicYear = await prisma.academicYear.findFirst({ where: { isCurrent: true, ...orgFilter } })
   if (!academicYear) throw new Error('No current academic year found')
 
-  const classData = await prisma.class.findUnique({ where: { id: classId } })
   const sectionData = await prisma.section.findUnique({ where: { id: sectionId } })
 
   const [periods, classSubjects, teachers, rooms, existingEntries] = await Promise.all([
     prisma.periodDefinition.findMany({
-      where: { isActive: true },
+      where: { isActive: true, ...orgFilter },
       orderBy: { periodNumber: 'asc' },
     }),
     prisma.classSubject.findMany({
@@ -80,11 +84,11 @@ export async function gatherSchedulingContext(classId: string, sectionId: string
       include: { subject: true },
     }),
     prisma.staff.findMany({
-      where: { status: 'active' },
+      where: { status: 'active', ...orgFilter },
       select: { id: true, firstName: true, lastName: true, specialization: true },
     }),
     prisma.room.findMany({
-      where: { isActive: true },
+      where: { isActive: true, ...orgFilter },
       select: { id: true, name: true, type: true, capacity: true },
     }),
     prisma.timetableEntry.findMany({

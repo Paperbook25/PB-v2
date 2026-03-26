@@ -82,7 +82,7 @@ export async function cancelLeave(schoolId: string, id: string) {
   // If it was approved, restore the leave balance
   if (request.status === 'leave_approved') {
     const academicYear = await prisma.academicYear.findFirst({
-      where: { isCurrent: true },
+      where: { isCurrent: true, organizationId: schoolId },
     })
     if (academicYear) {
       await prisma.leaveBalance.updateMany({

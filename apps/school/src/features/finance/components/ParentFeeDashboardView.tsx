@@ -80,7 +80,7 @@ export function ParentFeeDashboardView() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Academic Year</p>
-                <p className="text-2xl font-bold">2024-25</p>
+                <p className="text-2xl font-bold">{(dashboard as any).academicYear || `${new Date().getFullYear()}-${(new Date().getFullYear() + 1).toString().slice(-2)}`}</p>
               </div>
             </CardContent>
           </Card>
@@ -220,7 +220,15 @@ export function ParentFeeDashboardView() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{formatCurrency(receipt.amount)}</span>
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        // Download receipt as PDF via API
+                        window.open(`/api/finance/receipts/${receipt.receiptNumber}/download`, '_blank')
+                      }}
+                      title="Download receipt"
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
                   </div>

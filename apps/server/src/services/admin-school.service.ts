@@ -341,7 +341,25 @@ export async function createSchool(data: CreateSchoolData) {
       })
     }
 
-    // 7. Create an audit log entry
+    // 7. Auto-create platform subscription record
+    const trialEndsAt = new Date()
+    trialEndsAt.setDate(trialEndsAt.getDate() + 14)
+    await tx.platformSubscription.create({
+      data: {
+        schoolId: school.id,
+        planTier: (data.planTier || 'free') as any,
+        status: 'sub_trial',
+        billingCycle: 'monthly',
+        amount: 0,
+        trialStartedAt: new Date(),
+        trialEndsAt,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: trialEndsAt,
+        nextBillingDate: trialEndsAt,
+      },
+    })
+
+    // 8. Create an audit log entry
     await tx.auditLog.create({
       data: {
         userId: null,

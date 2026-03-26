@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import DOMPurify from 'dompurify'
 import { getVariantComponent } from '../templates/section-variants'
 import { getTemplateConfig, type TemplateConfig } from '../templates/registry'
 import type { WebsiteSection, CustomHtmlContent } from '../types/school-website.types'
@@ -47,7 +48,7 @@ function FallbackRenderer({ section }: { section: WebsiteSection }) {
     return (
       <div
         className="py-8 px-6 max-w-6xl mx-auto"
-        dangerouslySetInnerHTML={{ __html: content?.html || '' }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content?.html || '') }}
       />
     )
   }

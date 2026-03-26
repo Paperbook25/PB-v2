@@ -7,8 +7,8 @@ corepack prepare pnpm@9.15.0 --activate
 
 echo "pnpm version: $(pnpm --version)"
 
-# Install all workspace dependencies
-pnpm install --no-frozen-lockfile
+# Install all workspace dependencies (including devDependencies needed for build)
+NODE_ENV=development pnpm install --no-frozen-lockfile
 
 # Prisma: generate client + push schema
 pnpm -C apps/server exec prisma generate

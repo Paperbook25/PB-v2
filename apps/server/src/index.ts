@@ -139,7 +139,7 @@ app.use('/uploads', express.static(resolve(process.cwd(), 'public/uploads')))
 // Production: serve the Gravity Portal (admin) SPA
 // ---------------------------------------------------------------------------
 if (env.isProd) {
-  const adminDist = resolve(__dirname, '../../admin-dist')
+  const adminDist = resolve(__dirname, '../admin-dist')
   if (existsSync(adminDist)) {
     const adminHtml = readFileSync(resolve(adminDist, 'index.html'), 'utf-8')
 
@@ -166,7 +166,7 @@ if (env.isProd) {
 // Production: serve the school SPA with server-injected tenant config
 // ---------------------------------------------------------------------------
 if (env.isProd) {
-  const clientDist = resolve(__dirname, '../../client-dist')
+  const clientDist = resolve(__dirname, '../client-dist')
   if (existsSync(clientDist)) {
     const indexHtml = readFileSync(resolve(clientDist, 'index.html'), 'utf-8')
 

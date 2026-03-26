@@ -14,23 +14,23 @@ pnpm install --no-frozen-lockfile
 
 echo "=== Generating Prisma client ==="
 cd apps/server
-npx prisma generate
+pnpm exec prisma generate
 
 echo "=== Running database migrations ==="
-npx prisma migrate deploy 2>/dev/null || npx prisma db push --accept-data-loss 2>/dev/null || echo "DB sync skipped"
+pnpm exec prisma migrate deploy 2>/dev/null || pnpm exec prisma db push --accept-data-loss 2>/dev/null || echo "DB sync skipped"
 
 echo "=== Building server ==="
-npx tsc
+pnpm exec tsc
 cd ../..
 
 echo "=== Building school app ==="
 cd apps/school
-npx vite build
+pnpm exec vite build
 cd ../..
 
 echo "=== Building admin app (Gravity Portal) ==="
 cd apps/admin
-npx vite build
+pnpm exec vite build
 cd ../..
 
 echo "=== Moving frontend builds to server ==="

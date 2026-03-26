@@ -3,7 +3,7 @@
 
 databases:
   - name: paperbook-db
-    plan: starter  # Starter tier includes backups + HA
+    plan: basic
     databaseName: paperbook
     user: paperbook
 

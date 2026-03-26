@@ -3,7 +3,7 @@
 
 databases:
   - name: paperbook-db
-    plan: basic
+    plan: free
     databaseName: paperbook
     user: paperbook
 

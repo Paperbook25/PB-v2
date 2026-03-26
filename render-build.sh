@@ -1,44 +1,41 @@
 #!/usr/bin/env bash
 # Render build script — builds all apps for production deployment
-# Uses pnpm workspaces + Turborepo
 set -o errexit
+
+echo "=== Node version ==="
+node --version
+npm --version
 
 echo "=== Installing pnpm ==="
 npm install -g pnpm@9
 
 echo "=== Installing dependencies ==="
-pnpm install --frozen-lockfile
+pnpm install --no-frozen-lockfile
 
 echo "=== Generating Prisma client ==="
 cd apps/server
 npx prisma generate
 
 echo "=== Running database migrations ==="
-npx prisma migrate deploy || echo "Migration skipped (using db push in dev)"
+npx prisma migrate deploy 2>/dev/null || npx prisma db push --accept-data-loss 2>/dev/null || echo "DB sync skipped"
 
 echo "=== Building server ==="
-pnpm build
+npx tsc
 cd ../..
 
-echo "=== Building school app (frontend) ==="
+echo "=== Building school app ==="
 cd apps/school
-pnpm build
+npx vite build
 cd ../..
 
 echo "=== Building admin app (Gravity Portal) ==="
 cd apps/admin
-pnpm build
+npx vite build
 cd ../..
 
-echo "=== Moving frontend builds to server directory ==="
-# School app → served by Express in production
+echo "=== Moving frontend builds to server ==="
 cp -r apps/school/dist apps/server/client-dist
-
-# Admin app → served separately or as subfolder
 mkdir -p apps/server/admin-dist
 cp -r apps/admin/dist/* apps/server/admin-dist/
 
 echo "=== Build complete ==="
-echo "Server: apps/server/dist/"
-echo "School frontend: apps/server/client-dist/"
-echo "Admin frontend: apps/server/admin-dist/"

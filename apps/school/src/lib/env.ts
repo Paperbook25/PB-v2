@@ -16,7 +16,7 @@ const envSchema = z.object({
   VITE_ENABLE_MSW: z
     .enum(['true', 'false'])
     .optional()
-    .default('true')
+    .default('false')
     .transform(val => val === 'true'),
 
   VITE_ENABLE_ANALYTICS: z
@@ -48,7 +48,7 @@ const envSchema = z.object({
   VITE_APP_ENV: z
     .enum(['development', 'staging', 'production'])
     .optional()
-    .default('development'),
+    .default('production'),
 })
 
 /**

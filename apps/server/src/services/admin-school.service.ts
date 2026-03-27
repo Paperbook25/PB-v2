@@ -2,6 +2,8 @@ import { hashPassword } from 'better-auth/crypto'
 import { prisma } from '../config/db.js'
 import { AppError } from '../utils/errors.js'
 import { evictTenantCache } from '../middleware/tenant.middleware.js'
+import { provisionAddonsForPlan } from './addon.service.js'
+import type { PlanTier } from '../config/plan-tiers.js'
 
 // ============================================================================
 // Types
@@ -325,21 +327,13 @@ export async function createSchool(data: CreateSchoolData) {
       },
     })
 
-    // 6. Seed default addons for the school
-    const coreAddons = await tx.addon.findMany({
-      where: { isCore: true },
-    })
-
-    if (coreAddons.length > 0) {
-      await tx.schoolAddon.createMany({
-        data: coreAddons.map((addon) => ({
-          schoolId: school.id,
-          addonId: addon.id,
-          enabled: true,
-          enabledBy: adminUser.id,
-        })),
-      })
-    }
+    // 6. Auto-enable all addons included in the school's plan tier
+    await provisionAddonsForPlan(
+      school.id,
+      (data.planTier || 'free') as PlanTier,
+      adminUser.id,
+      tx,
+    )
 
     // 7. Auto-create platform subscription record
     const trialEndsAt = new Date()

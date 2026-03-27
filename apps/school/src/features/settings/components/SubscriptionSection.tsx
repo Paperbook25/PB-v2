@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { Check, X, Crown, Zap, Building2, Rocket, Users, GraduationCap, UserCheck, Lock, Unlock } from 'lucide-react'
+import { Check, X, Crown, Zap, Building2, Rocket, Users, GraduationCap, UserCheck, Lock, Unlock, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { apiPatch } from '@/lib/api-client'
+import { useAddonStore } from '@/stores/useAddonStore'
+import { toast } from '@/hooks/use-toast'
 import { useCurrentPlan, useAvailablePlans, useUpgradePlan } from '../hooks/useSubscription'
 import type { PlanConfig } from '../api/subscription.api'
 
@@ -254,6 +259,104 @@ function PlanComparisonTable({ plans, currentPlanId, onUpgrade, isUpgrading }: {
   )
 }
 
+function ModuleAccessSection({ subscription }: { subscription: { plan: PlanConfig; includedModules: string[]; enabledModules: string[] } }) {
+  const queryClient = useQueryClient()
+  const [togglingSlug, setTogglingSlug] = useState<string | null>(null)
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ slug, enabled }: { slug: string; enabled: boolean }) =>
+      apiPatch<{ slug: string; enabled: boolean }>(`/api/addons/${slug}`, { enabled }),
+    onSuccess: (_data, { slug, enabled }) => {
+      const { addons, setAddons } = useAddonStore.getState()
+      setAddons(addons.map((a) => (a.slug === slug ? { ...a, enabled } : a)))
+      queryClient.invalidateQueries({ queryKey: ['subscription'] })
+      queryClient.invalidateQueries({ queryKey: ['addons'] })
+      const mod = ALL_MODULES_DISPLAY.find(m => m.slug === slug)
+      toast({
+        title: enabled ? `${mod?.label || slug} enabled` : `${mod?.label || slug} disabled`,
+        description: enabled
+          ? `${mod?.label || slug} is now available in your school modules.`
+          : `${mod?.label || slug} has been removed from active modules.`,
+      })
+    },
+    onError: () => {
+      toast({
+        title: 'Failed to update module',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      })
+    },
+    onSettled: () => {
+      setTogglingSlug(null)
+    },
+  })
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Module Access</CardTitle>
+        <CardDescription>
+          Modules included in your {subscription.plan.name} plan — toggle to enable or disable
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {ALL_MODULES_DISPLAY.map(mod => {
+            const included = subscription.includedModules.includes(mod.slug)
+            const enabled = subscription.enabledModules.includes(mod.slug)
+            const isPending = togglingSlug === mod.slug
+            return (
+              <div
+                key={mod.slug}
+                className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${
+                  included
+                    ? enabled
+                      ? 'border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800'
+                      : 'border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700'
+                    : 'border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700 opacity-60'
+                }`}
+              >
+                {included ? (
+                  enabled ? (
+                    <Unlock className="h-4 w-4 text-green-600 shrink-0" />
+                  ) : (
+                    <Lock className="h-4 w-4 text-gray-400 shrink-0" />
+                  )
+                ) : (
+                  <Lock className="h-4 w-4 text-gray-400 shrink-0" />
+                )}
+                <span className={`flex-1 ${included && enabled ? 'font-medium' : 'text-muted-foreground'}`}>
+                  {mod.label}
+                </span>
+                {included ? (
+                  <div className="flex items-center gap-1 shrink-0">
+                    {isPending && <Loader2 className="h-3 w-3 animate-spin text-gray-400" />}
+                    <Switch
+                      checked={enabled}
+                      disabled={isPending}
+                      onCheckedChange={(checked) => {
+                        setTogglingSlug(mod.slug)
+                        toggleMutation.mutate({ slug: mod.slug, enabled: checked })
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <Lock className="h-3 w-3 text-gray-300 shrink-0" />
+                )}
+              </div>
+            )
+          })}
+        </div>
+        {subscription.includedModules.length < ALL_MODULES_DISPLAY.length && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Upgrade your plan to unlock more modules.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 export function SubscriptionSection() {
   const { data: subscription, isLoading: loadingCurrent } = useCurrentPlan()
   const { data: plans, isLoading: loadingPlans } = useAvailablePlans()
@@ -337,56 +440,8 @@ export function SubscriptionSection() {
         </CardContent>
       </Card>
 
-      {/* Module Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Module Access</CardTitle>
-          <CardDescription>
-            Modules included in your {subscription.plan.name} plan
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {ALL_MODULES_DISPLAY.map(mod => {
-              const included = subscription.includedModules.includes(mod.slug)
-              const enabled = subscription.enabledModules.includes(mod.slug)
-              return (
-                <div
-                  key={mod.slug}
-                  className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${
-                    included
-                      ? enabled
-                        ? 'border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800'
-                        : 'border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800'
-                      : 'border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700 opacity-60'
-                  }`}
-                >
-                  {included ? (
-                    enabled ? (
-                      <Unlock className="h-4 w-4 text-green-600 shrink-0" />
-                    ) : (
-                      <Unlock className="h-4 w-4 text-blue-600 shrink-0" />
-                    )
-                  ) : (
-                    <Lock className="h-4 w-4 text-gray-400 shrink-0" />
-                  )}
-                  <span className={included ? 'font-medium' : 'text-muted-foreground'}>
-                    {mod.label}
-                  </span>
-                  {included && !enabled && (
-                    <Badge variant="outline" className="ml-auto text-xs">Off</Badge>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-          {subscription.includedModules.length < ALL_MODULES_DISPLAY.length && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Upgrade your plan to unlock more modules.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      {/* Module Status with Toggles */}
+      <ModuleAccessSection subscription={subscription} />
 
       <Separator />
 

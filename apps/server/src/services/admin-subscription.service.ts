@@ -1,5 +1,6 @@
 import { prisma } from '../config/db.js'
 import { AppError } from '../utils/errors.js'
+import { provisionAddonsForPlan } from './addon.service.js'
 import type { PlanTier, BillingCycle, SubscriptionStatus } from '@prisma/client'
 
 // ==================== List Subscriptions ====================
@@ -120,7 +121,7 @@ export async function createSubscription(input: {
     },
   })
 
-  // Sync school plan tier
+  // Sync school plan tier and auto-provision addons
   await prisma.schoolProfile.update({
     where: { id: input.schoolId },
     data: {
@@ -129,6 +130,7 @@ export async function createSubscription(input: {
       trialEndsAt,
     },
   })
+  await provisionAddonsForPlan(input.schoolId, input.planTier as PlanTier)
 
   return sub
 }
@@ -152,12 +154,13 @@ export async function updateSubscription(id: string, input: {
 
   const updated = await prisma.platformSubscription.update({ where: { id }, data })
 
-  // Sync school plan tier
+  // Sync school plan tier and auto-provision addons for the new plan
   if (input.planTier) {
     await prisma.schoolProfile.update({
       where: { id: sub.schoolId },
       data: { planTier: input.planTier as PlanTier },
     })
+    await provisionAddonsForPlan(sub.schoolId, input.planTier as PlanTier)
   }
 
   return updated

@@ -5,6 +5,8 @@ import { prisma } from '../config/db.js'
 import { env } from '../config/env.js'
 import { AppError } from '../utils/errors.js'
 import { sendEmail } from './email.service.js'
+import { provisionAddonsForPlan } from './addon.service.js'
+import type { PlanTier } from '../config/plan-tiers.js'
 
 export interface RegisterSchoolInput {
   schoolName: string
@@ -142,20 +144,8 @@ export async function registerSchool(input: RegisterSchoolInput) {
       },
     })
 
-    // 7. Auto-enable default addon (school-website)
-    const websiteAddon = await tx.addon.findFirst({
-      where: { slug: 'school-website' },
-    })
-    if (websiteAddon) {
-      await tx.schoolAddon.create({
-        data: {
-          schoolId: orgId,
-          addonId: websiteAddon.id,
-          enabled: true,
-          enabledBy: userId,
-        },
-      })
-    }
+    // 7. Auto-enable all addons included in the plan tier
+    await provisionAddonsForPlan(orgId, 'free' as PlanTier, userId, tx)
 
     // 8. Auto-create platform subscription (trial)
     await tx.platformSubscription.create({

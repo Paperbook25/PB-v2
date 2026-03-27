@@ -46,8 +46,8 @@ export const PLAN_CONFIGS: Record<PlanTier, PlanConfig> = {
     maxUsers: 500,
     modules: [
       'school-website', 'library', 'transport', 'documents',
-      'visitors', 'complaints', 'lms', 'hostel', 'operations',
-      'exams', 'alumni', 'clubs', 'scholarships', 'behavior',
+      'visitors', 'complaints', 'lms', 'hostel', 'operations', 'behavior',
+      'exams', 'alumni', 'clubs', 'scholarships',
     ],
     features: [
       'advanced_reports', 'email_notifications', 'sms_notifications',
@@ -68,8 +68,14 @@ export const PLAN_CONFIGS: Record<PlanTier, PlanConfig> = {
   },
 }
 
-/** All known module slugs (union of all plan modules). */
-const ALL_MODULE_SLUGS = PLAN_CONFIGS.professional.modules
+/** All known module slugs (union of all plan modules across all tiers). */
+const ALL_MODULE_SLUGS = [
+  ...new Set(
+    Object.values(PLAN_CONFIGS)
+      .flatMap(c => c.modules)
+      .filter(m => m !== '*')
+  ),
+]
 
 /**
  * Returns the list of module slugs available for a given plan tier.

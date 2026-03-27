@@ -1,5 +1,6 @@
 import { prisma } from '../config/db.js'
-import { clearAddonCache } from '../middleware/addon.middleware.js'
+import { clearAddonCache, clearPlanCache } from '../middleware/addon.middleware.js'
+import { getModulesForPlan, type PlanTier } from '../config/plan-tiers.js'
 
 // All available addons with their definitions
 const ADDON_DEFINITIONS = [
@@ -70,6 +71,44 @@ export async function toggleAddon(schoolId: string, slug: string, enabled: boole
   clearAddonCache(schoolId)
 
   return { slug, enabled }
+}
+
+/**
+ * Auto-provision (enable) all addons included in a plan tier for a school.
+ * Upserts SchoolAddon records so existing enabled addons are preserved.
+ * Call this when a school is created or its plan tier changes.
+ */
+export async function provisionAddonsForPlan(
+  schoolId: string,
+  planTier: PlanTier,
+  enabledBy?: string | null,
+  tx?: any, // Prisma transaction client
+) {
+  const db = tx || prisma
+  const config = (await import('../config/plan-tiers.js')).PLAN_CONFIGS[planTier]
+  const isUnlimited = config.modules.includes('*')
+
+  // Enterprise ('*') gets ALL addons; other tiers get their listed modules
+  const addons = isUnlimited
+    ? await db.addon.findMany({ select: { id: true, slug: true } })
+    : await db.addon.findMany({
+        where: { slug: { in: config.modules } },
+        select: { id: true, slug: true },
+      })
+
+  if (addons.length === 0) return
+
+  for (const addon of addons) {
+    await db.schoolAddon.upsert({
+      where: { schoolId_addonId: { schoolId, addonId: addon.id } },
+      update: { enabled: true, enabledBy: enabledBy || undefined },
+      create: { schoolId, addonId: addon.id, enabled: true, enabledBy: enabledBy || undefined },
+    })
+  }
+
+  // Invalidate caches so middleware picks up changes immediately
+  clearAddonCache(schoolId)
+  clearPlanCache(schoolId)
 }
 
 export async function getEnabledAddonSlugs(schoolId: string): Promise<string[]> {

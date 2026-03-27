@@ -1,11 +1,19 @@
 import type { Request, Response, NextFunction } from 'express'
 import { prisma } from '../config/db.js'
+import { AppError } from '../utils/errors.js'
 import * as userService from '../services/user.service.js'
 import type { CreateUserInput, UpdateUserInput } from '../validators/user.validators.js'
 
-export async function listUsers(_req: Request, res: Response, next: NextFunction) {
+function getSchoolId(req: Request): string {
+  if (!req.schoolId) {
+    throw AppError.badRequest('No school context. Access via a school subdomain.')
+  }
+  return req.schoolId
+}
+
+export async function listUsers(req: Request, res: Response, next: NextFunction) {
   try {
-    const users = await userService.listUsers()
+    const users = await userService.listUsers(getSchoolId(req))
     res.json({ data: users })
   } catch (err) {
     next(err)
@@ -23,7 +31,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
 
 export async function createUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const user = await userService.createUser(req.body as CreateUserInput)
+    const user = await userService.createUser(getSchoolId(req), req.body as CreateUserInput)
     res.status(201).json({ data: user })
   } catch (err) {
     next(err)

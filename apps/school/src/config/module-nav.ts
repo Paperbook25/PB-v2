@@ -176,9 +176,9 @@ export const MODULE_NAV: Record<string, ModuleNavConfig> = {
         type: 'group',
         name: 'Students',
         icon: GraduationCap,
-        defaultHref: '/people?tab=students',
+        defaultHref: '/people',
         children: [
-          { type: 'item', name: 'Dashboard', href: '/people?tab=students&subtab=dashboard', icon: LayoutDashboard },
+          { type: 'item', name: 'Dashboard', href: '/people', icon: LayoutDashboard },
           { type: 'item', name: 'All Students', href: '/people?tab=students&subtab=list', icon: Users },
           { type: 'item', name: 'Documents', href: '/people?tab=students&subtab=documents', icon: FileText },
           { type: 'item', name: 'Health Records', href: '/people?tab=students&subtab=health', icon: Heart },

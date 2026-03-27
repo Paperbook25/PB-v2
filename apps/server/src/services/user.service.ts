@@ -42,8 +42,24 @@ function formatUser(user: {
   }
 }
 
-export async function listUsers() {
+/**
+ * List users scoped to a school.
+ * Uses OrgMember to find users that belong to the organization,
+ * then fetches their legacy User records.
+ */
+export async function listUsers(schoolId: string) {
+  // Find all user IDs that are members of this school's organization
+  const members = await prisma.orgMember.findMany({
+    where: { organizationId: schoolId },
+    select: { userId: true },
+  })
+  const memberUserIds = members.map(m => m.userId)
+
+  if (memberUserIds.length === 0) return []
+
+  // Fetch matching legacy User records
   const users = await prisma.user.findMany({
+    where: { id: { in: memberUserIds } },
     orderBy: { createdAt: 'desc' },
   })
   return users.map(formatUser)
@@ -55,7 +71,7 @@ export async function getUserById(id: string) {
   return formatUser(user)
 }
 
-export async function createUser(input: CreateUserInput) {
+export async function createUser(schoolId: string, input: CreateUserInput) {
   // Check for duplicate email
   const existing = await prisma.user.findUnique({
     where: { email: input.email },
@@ -66,23 +82,73 @@ export async function createUser(input: CreateUserInput) {
 
   const passwordHash = await bcrypt.hash(input.password, 12)
 
-  const user = await prisma.user.create({
-    data: {
-      email: input.email,
-      passwordHash,
-      name: input.name,
-      role: input.role,
-      phone: input.phone || null,
-      avatarUrl: input.avatarUrl || null,
-      studentId: input.studentId || null,
-      class: input.class || null,
-      section: input.section || null,
-      rollNumber: input.rollNumber || null,
-      childIds: input.childIds ? JSON.stringify(input.childIds) : null,
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    // Create the legacy User record
+    const user = await tx.user.create({
+      data: {
+        email: input.email,
+        passwordHash,
+        name: input.name,
+        role: input.role,
+        phone: input.phone || null,
+        avatarUrl: input.avatarUrl || null,
+        studentId: input.studentId || null,
+        class: input.class || null,
+        section: input.section || null,
+        rollNumber: input.rollNumber || null,
+        childIds: input.childIds ? JSON.stringify(input.childIds) : null,
+      },
+    })
+
+    // Also create a BetterAuthUser + Account + OrgMember so the user can log in
+    const existingAuthUser = await tx.betterAuthUser.findUnique({
+      where: { email: input.email },
+    })
+
+    if (!existingAuthUser) {
+      const { hashPassword } = await import('better-auth/crypto')
+      const authPasswordHash = await hashPassword(input.password)
+
+      await tx.betterAuthUser.create({
+        data: {
+          id: user.id,
+          name: input.name,
+          email: input.email,
+          emailVerified: false,
+          role: 'user',
+        },
+      })
+
+      await tx.betterAuthAccount.create({
+        data: {
+          id: crypto.randomUUID(),
+          accountId: user.id,
+          providerId: 'credential',
+          userId: user.id,
+          password: authPasswordHash,
+        },
+      })
+    }
+
+    // Link user to the school's organization
+    const existingMember = await tx.orgMember.findFirst({
+      where: { organizationId: schoolId, userId: user.id },
+    })
+    if (!existingMember) {
+      await tx.orgMember.create({
+        data: {
+          id: crypto.randomUUID(),
+          organizationId: schoolId,
+          userId: user.id,
+          role: input.role === 'admin' ? 'admin' : 'member',
+        },
+      })
+    }
+
+    return user
   })
 
-  return formatUser(user)
+  return formatUser(result)
 }
 
 export async function updateUser(id: string, input: UpdateUserInput) {

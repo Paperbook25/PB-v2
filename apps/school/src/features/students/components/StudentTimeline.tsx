@@ -79,9 +79,12 @@ function TimelineItem({ event }: { event: TimelineEvent }) {
             </p>
           </div>
           <time className="shrink-0 text-xs text-muted-foreground whitespace-nowrap">
-            {formatDistanceToNow(new Date(event.timestamp), {
-              addSuffix: true,
-            })}
+            {(() => {
+              try {
+                const d = new Date(event.timestamp)
+                return isNaN(d.getTime()) ? '—' : formatDistanceToNow(d, { addSuffix: true })
+              } catch { return '—' }
+            })()}
           </time>
         </div>
       </div>

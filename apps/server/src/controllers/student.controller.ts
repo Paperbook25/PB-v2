@@ -300,18 +300,16 @@ export async function bulkImport(req: Request, res: Response, next: NextFunction
           firstName: row.firstName || row.first_name || (row.name || '').split(' ')[0] || '',
           lastName: row.lastName || row.last_name || (row.name || '').split(' ').slice(1).join(' ') || '',
           email: row.email || '',
-          admissionNumber: row.admissionNumber || row.admission_number || '',
           class: row.class || row.className || '',
           section: row.section || '',
           dateOfBirth: row.dateOfBirth || row.date_of_birth || undefined,
           gender: row.gender || undefined,
           phone: row.phone || undefined,
-          parentName: row.parentName || row.parent_name || row.fatherName || row.motherName || undefined,
-          parentPhone: row.parentPhone || row.parent_phone || row.guardianPhone || undefined,
-          parentEmail: row.parentEmail || row.parent_email || undefined,
-          fatherName: row.fatherName || undefined,
-          motherName: row.motherName || undefined,
-          guardianPhone: row.guardianPhone || undefined,
+          parent: {
+            fatherName: row.fatherName || row.parentName || row.parent_name || undefined,
+            motherName: row.motherName || undefined,
+            guardianPhone: row.guardianPhone || row.parentPhone || row.parent_phone || undefined,
+          },
         })),
       }
     }

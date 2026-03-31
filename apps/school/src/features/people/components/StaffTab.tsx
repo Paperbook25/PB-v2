@@ -86,6 +86,7 @@ import { MonthlySalaryRun } from '@/features/staff/components/MonthlySalaryRun'
 import { SalarySlipView } from '@/features/staff/components/SalarySlipView'
 import { TimetableView } from '@/features/staff/components/TimetableView'
 import { SubstitutionManager } from '@/features/staff/components/SubstitutionManager'
+import { StaffBulkImportDialog } from '@/features/staff/components/StaffBulkImportDialog'
 import {
   LEAVE_TYPE_LABELS,
   DAYS_OF_WEEK,
@@ -133,6 +134,7 @@ function StaffListTab() {
   const [page, setPage] = useState(1)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
+  const [showBulkImport, setShowBulkImport] = useState(false)
   const limit = 10
 
   const deleteMutation = useMutation({
@@ -236,6 +238,10 @@ function StaffListTab() {
           {meta.total} staff member{meta.total !== 1 ? 's' : ''}
         </p>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowBulkImport(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Bulk Import
+          </Button>
           <Button variant="outline" size="sm" onClick={handleExport} disabled={isExporting}>
             <Download className="h-4 w-4 mr-2" />
             {isExporting ? 'Exporting...' : 'Export'}
@@ -246,6 +252,8 @@ function StaffListTab() {
           </Button>
         </div>
       </div>
+
+      <StaffBulkImportDialog open={showBulkImport} onOpenChange={setShowBulkImport} />
 
       <Card>
         <CardContent className="p-4">

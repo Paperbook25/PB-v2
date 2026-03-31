@@ -610,6 +610,7 @@ export async function bulkImportStudents(schoolId: string, input: BulkImportStud
       const student = await createStudent(schoolId, studentInput)
       results.push({ admissionNumber: student.admissionNumber, name: student.name, status: 'created' })
     } catch (err: any) {
+      console.error(`[BulkImport] Failed for ${studentInput.email}:`, err.message)
       results.push({ email: studentInput.email, status: 'failed', error: err.message })
     }
   }

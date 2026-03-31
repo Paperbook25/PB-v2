@@ -75,12 +75,12 @@ export const updateStudentSchema = z.object({
 
 export const listStudentsSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(10),
+  limit: z.coerce.number().int().positive().default(10).transform(n => Math.min(n, 500)),
   search: z.string().optional(),
   class: z.string().optional(),
   section: z.string().optional(),
-  status: studentStatusEnum.optional(),
-  gender: genderEnum.optional(),
+  status: studentStatusEnum.optional().catch(undefined),
+  gender: genderEnum.optional().catch(undefined),
 })
 
 // ==================== Documents ====================

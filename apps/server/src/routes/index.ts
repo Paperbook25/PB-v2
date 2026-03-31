@@ -81,10 +81,84 @@ const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { e
 router.post('/public/login', loginLimiter, async (req, res, next) => {
   try {
     const { login } = await import('../services/auth.service.js')
+    const jwt = await import('jsonwebtoken')
+    const { env } = await import('../config/env.js')
     const result = await login(req.body, req.headers['user-agent'], req.ip)
-    res.json(result)
+
+    // Create a short-lived login token for cross-subdomain auto-login
+    const loginToken = jwt.default.sign(
+      { userId: result.user.id, email: result.user.email },
+      env.JWT_SECRET,
+      { expiresIn: '60s' }
+    )
+
+    res.json({ ...result, loginToken })
   } catch (err) {
     next(err)
+  }
+})
+
+// --- Auto-login endpoint (validates one-time token, creates better-auth session, redirects) ---
+router.get('/public/auto-login', async (req, res) => {
+  try {
+    const jwt = await import('jsonwebtoken')
+    const crypto = await import('crypto')
+    const { env } = await import('../config/env.js')
+    const { prisma } = await import('../config/db.js')
+
+    const token = req.query.token as string
+    const redirect = (req.query.redirect as string) || '/'
+
+    if (!token) {
+      return res.redirect('/login')
+    }
+
+    // Verify the one-time login token
+    let payload: { userId: string; email: string }
+    try {
+      payload = jwt.default.verify(token, env.JWT_SECRET) as { userId: string; email: string }
+    } catch {
+      return res.redirect('/login?error=expired')
+    }
+
+    // Find the BetterAuthUser
+    const user = await prisma.betterAuthUser.findUnique({
+      where: { email: payload.email },
+    })
+    if (!user) {
+      return res.redirect('/login?error=notfound')
+    }
+
+    // Create a better-auth session directly in the DB
+    const sessionToken = crypto.randomBytes(32).toString('hex')
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+
+    const sessionId = crypto.randomBytes(16).toString('hex')
+    await prisma.betterAuthSession.create({
+      data: {
+        id: sessionId,
+        token: sessionToken,
+        userId: user.id,
+        expiresAt,
+        ipAddress: req.ip || null,
+        userAgent: req.headers['user-agent'] || null,
+      },
+    })
+
+    // Set the better-auth session cookie on the parent domain
+    res.cookie('better-auth.session_token', sessionToken, {
+      domain: `.${env.APP_DOMAIN}`,
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      expires: expiresAt,
+    })
+
+    res.redirect(redirect)
+  } catch (err) {
+    console.error('[Auto-login] Error:', err)
+    res.redirect('/login?error=failed')
   }
 })
 

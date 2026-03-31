@@ -55,7 +55,10 @@ const COLUMN_LABELS: Record<ExpectedColumn, string> = {
 }
 
 const VALID_GENDERS = ['male', 'female', 'other']
-const VALID_CLASSES = Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`)
+const VALID_CLASSES = [
+  ...Array.from({ length: 12 }, (_, i) => `Class ${i + 1}`),
+  ...Array.from({ length: 12 }, (_, i) => `${i + 1}`),
+]
 const VALID_SECTIONS = ['A', 'B', 'C', 'D']
 
 type Step = 'upload' | 'preview' | 'import'
@@ -125,7 +128,7 @@ function validateRow(row: Record<string, string>): Record<string, string> {
   if (!row.class?.trim()) {
     errors.class = 'Class is required'
   } else if (!VALID_CLASSES.includes(row.class.trim())) {
-    errors.class = 'Invalid class (Class 1 through Class 12)'
+    errors.class = 'Invalid class (1 through 12, or Class 1 through Class 12)'
   }
 
   if (!row.section?.trim()) {

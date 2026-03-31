@@ -75,6 +75,19 @@ router.post('/public/register-school', registerSchool)
 router.post('/public/accept-invite', acceptInvitation)
 router.get('/public/invite-details/:id', getInviteDetails)
 
+// --- Public login (for landing page → redirect to school subdomain) ---
+// This lives under /public/* because /auth/* is intercepted by better-auth handler
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many login attempts. Try again later.' } })
+router.post('/public/login', loginLimiter, async (req, res, next) => {
+  try {
+    const { login } = await import('../services/auth.service.js')
+    const result = await login(req.body, req.headers['user-agent'], req.ip)
+    res.json(result)
+  } catch (err) {
+    next(err)
+  }
+})
+
 // --- Public lead signup (for PB marketing website → Gravity CRM) ---
 const leadSignupLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, message: { error: 'Too many signup attempts. Please try again later.' } })
 router.post('/public/lead-signup', leadSignupLimiter, async (req, res, next) => {

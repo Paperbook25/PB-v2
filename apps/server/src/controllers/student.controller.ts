@@ -306,14 +306,20 @@ export async function bulkImport(req: Request, res: Response, next: NextFunction
           dateOfBirth: row.dateOfBirth || row.date_of_birth || undefined,
           gender: row.gender || undefined,
           phone: row.phone || undefined,
-          parentName: row.parentName || row.parent_name || undefined,
-          parentPhone: row.parentPhone || row.parent_phone || undefined,
+          parentName: row.parentName || row.parent_name || row.fatherName || row.motherName || undefined,
+          parentPhone: row.parentPhone || row.parent_phone || row.guardianPhone || undefined,
           parentEmail: row.parentEmail || row.parent_email || undefined,
+          fatherName: row.fatherName || undefined,
+          motherName: row.motherName || undefined,
+          guardianPhone: row.guardianPhone || undefined,
         })),
       }
     }
     const results = await studentService.bulkImportStudents(getSchoolId(req), input as BulkImportStudentsInput)
-    res.status(201).json({ data: results })
+    // Return format expected by frontend: { successful, failed, results }
+    const successful = results.filter((r: any) => r.status === 'created').length
+    const failed = results.filter((r: any) => r.status === 'failed').length
+    res.status(201).json({ data: { successful, failed, results } })
   } catch (err) {
     next(err)
   }

@@ -1,0 +1,104 @@
+###############################################################################
+# Paperbook Platform — Production Docker Compose (DigitalOcean Droplet)
+#
+# Usage:
+#   1. Copy .env.production.example → .env.production and fill in values
+#   2. docker compose -f docker-compose.prod.yml up -d
+#   3. First time: docker compose -f docker-compose.prod.yml exec app sh -c \
+#        "cd /app/apps/server && npx prisma migrate deploy"
+#
+# Architecture:
+#   Nginx (443/80) → App (3001) → PostgreSQL (5432)
+#   Nginx handles SSL (wildcard cert via Certbot + DigitalOcean DNS)
+###############################################################################
+
+services:
+  # --------------------------------------------------------------------------
+  # PostgreSQL Database
+  # --------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: paperbook-db
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    env_file:
+      - .env.production
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------------
+  # Paperbook App (Express API + static frontends)
+  # --------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.production
+    container_name: paperbook-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/apps/server/public/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # --------------------------------------------------------------------------
+  # Nginx Reverse Proxy (SSL termination)
+  # --------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: paperbook-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
+    depends_on:
+      app:
+        condition: service_healthy
+
+  # --------------------------------------------------------------------------
+  # Certbot (SSL certificate renewal)
+  # --------------------------------------------------------------------------
+  certbot:
+    image: certbot/dns-digitalocean
+    container_name: paperbook-certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+      - /root/.secrets:/root/.secrets:ro
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h; done'"
+
+volumes:
+  pgdata:
+    driver: local
+  uploads:
+    driver: local
+  certbot-webroot:
+    driver: local

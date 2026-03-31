@@ -30,6 +30,7 @@ export interface AuthTokens {
     rollNumber?: number | null
     childIds?: string[]
   }
+  organizationSlug?: string | null
   enabledAddons: string[]
   permissions: string[]
 }
@@ -59,7 +60,10 @@ export async function login(
   // Look up the user's org membership to include in the JWT
   const orgMembership = await prisma.orgMember.findFirst({
     where: { userId: user.id },
-    select: { organizationId: true },
+    select: {
+      organizationId: true,
+      organization: { select: { slug: true } },
+    },
   })
 
   // Create session
@@ -140,6 +144,7 @@ export async function login(
       rollNumber: user.rollNumber,
       childIds,
     },
+    organizationSlug: orgMembership?.organization?.slug ?? null,
     enabledAddons,
     permissions: permissionSlugs,
   }

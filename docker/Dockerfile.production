@@ -38,6 +38,7 @@ COPY . .
 RUN pnpm --filter @paperbook/server db:generate
 
 # Build all packages and apps in dependency order
+ENV NODE_OPTIONS="--max-old-space-size=1536"
 RUN pnpm build
 
 # ---------- Production runtime ----------
@@ -47,7 +48,7 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
 # Copy only what's needed for production
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./
 COPY --from=deps /app/pnpm-workspace.yaml ./
 
@@ -61,8 +62,8 @@ COPY --from=builder /app/apps/server/node_modules ./apps/server/node_modules
 COPY --from=builder /app/apps/school/dist ./apps/server/client-dist
 COPY --from=builder /app/apps/admin/dist ./apps/server/admin-dist
 
-# Shared packages
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+# Shared packages (exports raw .ts source, no dist)
+COPY --from=builder /app/packages/shared/src ./packages/shared/src
 COPY --from=builder /app/packages/shared/package.json ./packages/shared/
 
 # Security: run as non-root

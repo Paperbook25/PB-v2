@@ -1,28 +1,9 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Eye, EyeOff, BookOpen } from 'lucide-react'
-import { useAuthStore } from '@/stores/useAuthStore'
-import { usePermissionStore } from '@/stores/usePermissionStore'
-import type { Role } from '@/types/common.types'
 
-const USE_MOCK_API = import.meta.env.VITE_USE_MOCK_API === 'true'
-
-// Demo accounts for quick login
-const staffAccounts = [
-  { role: 'admin' as Role, name: 'Admin User', email: 'admin@paperbook.in', label: 'Admin' },
-  { role: 'principal' as Role, name: 'Dr. Sharma', email: 'principal@paperbook.in', label: 'Principal' },
-  { role: 'teacher' as Role, name: 'Priya Nair', email: 'teacher@paperbook.in', label: 'Teacher' },
-  { role: 'accountant' as Role, name: 'Rahul Accounts', email: 'accounts@paperbook.in', label: 'Accountant' },
-  { role: 'librarian' as Role, name: 'Meera Librarian', email: 'librarian@paperbook.in', label: 'Librarian' },
-  { role: 'transport_manager' as Role, name: 'Vijay Transport', email: 'transport@paperbook.in', label: 'Transport' },
-]
-
-const userAccounts = [
-  { role: 'student' as Role, name: 'Aarav Patel', email: 'student@paperbook.in', label: 'Student' },
-  { role: 'parent' as Role, name: 'Rajesh Patel', email: 'parent@paperbook.in', label: 'Parent' },
-]
-
-const demoAccounts = [...staffAccounts, ...userAccounts]
+const API_URL = import.meta.env.VITE_API_URL || ''
+const APP_DOMAIN = import.meta.env.VITE_APP_DOMAIN || 'paperbook.app'
 
 export function LoginPage() {
   const [email, setEmail] = useState('')
@@ -31,76 +12,14 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
-  const { login, loginWithTokens } = useAuthStore()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
 
-    if (USE_MOCK_API) {
-      // Mock login — load demo data dynamically
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      const { demoStudent } = await import('@/mocks/data/students.data')
-      const { demoTeacher } = await import('@/mocks/data/staff.data')
-
-      const mockAccounts = [
-        ...staffAccounts.map((a) =>
-          a.role === 'teacher'
-            ? { ...a, name: demoTeacher.name, staffId: demoTeacher.id }
-            : a
-        ),
-        {
-          ...userAccounts[0],
-          name: demoStudent.name,
-          studentId: demoStudent.id,
-          class: demoStudent.class,
-          section: demoStudent.section,
-        },
-        {
-          ...userAccounts[1],
-          name: demoStudent.parent.fatherName,
-          childIds: [demoStudent.id],
-        },
-      ]
-
-      const account = mockAccounts.find((a) => a.email === email) || mockAccounts[0]
-
-      const id = 'staffId' in account
-        ? (account as unknown as { staffId: string }).staffId
-        : 'studentId' in account
-          ? (account as unknown as { studentId: string }).studentId
-          : account.role === 'parent'
-            ? 'PAR001'
-            : crypto.randomUUID()
-
-      const userData: Parameters<typeof login>[0] = {
-        id,
-        name: account.name,
-        email: account.email,
-        role: account.role,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${account.name}`,
-      }
-
-      if ('studentId' in account) {
-        const sa = account as unknown as { studentId: string; class: string; section: string }
-        userData.studentId = sa.studentId
-        userData.class = sa.class
-        userData.section = sa.section
-      }
-      if ('childIds' in account) {
-        userData.childIds = (account as unknown as { childIds: string[] }).childIds
-      }
-
-      login(userData)
-      setIsLoading(false)
-      navigate('/')
-      return
-    }
-
-    // Real API login
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -114,35 +33,18 @@ export function LoginPage() {
       }
 
       const data = await response.json()
-      loginWithTokens(data.accessToken, data.refreshToken, {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        role: data.user.role as Role,
-        avatar: data.user.avatar,
-        phone: data.user.phone,
-        studentId: data.user.studentId,
-        class: data.user.class,
-        section: data.user.section,
-        rollNumber: data.user.rollNumber,
-        childIds: data.user.childIds,
-      })
 
-      // Store granular permissions from the backend
-      usePermissionStore.getState().setPermissions(data.permissions || [])
-
-      setIsLoading(false)
-      navigate('/')
+      // Redirect to the user's school subdomain
+      if (data.organizationSlug) {
+        window.location.href = `https://${data.organizationSlug}.${APP_DOMAIN}/login`
+      } else {
+        setError('No school associated with this account. Please contact your administrator.')
+        setIsLoading(false)
+      }
     } catch {
       setError('Unable to connect to the server. Please try again.')
       setIsLoading(false)
     }
-  }
-
-  const handleDemoLogin = (account: (typeof demoAccounts)[0]) => {
-    setEmail(account.email)
-    setPassword('demo123')
-    setError('')
   }
 
   return (
@@ -173,7 +75,7 @@ export function LoginPage() {
               <input
                 id="email"
                 type="email"
-                placeholder="admin@paperbook.in"
+                placeholder="you@school.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -214,44 +116,21 @@ export function LoginPage() {
               disabled={isLoading}
               className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Signing in...' : 'Continue'}
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
         </div>
 
-        {/* Divider */}
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-[#f9fafb] px-3 text-gray-400 uppercase tracking-wide">or</span>
-          </div>
-        </div>
+        {/* Sign up link */}
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            Register your school
+          </Link>
+        </p>
 
-        {/* Demo Accounts */}
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-400 mb-3">
-            Demo Accounts
-          </p>
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden divide-y divide-gray-100">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.role}
-                type="button"
-                onClick={() => handleDemoLogin(account)}
-                className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-gray-50 transition-colors"
-              >
-                <span className="text-sm font-medium text-gray-700">{account.label}</span>
-                <span className="text-xs text-gray-400">{account.email}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer hint */}
-        <p className="text-center text-xs text-gray-400 mt-6">
-          {USE_MOCK_API ? 'Demo mode -- no real authentication required' : 'Password: demo123'}
+        <p className="text-center text-xs text-gray-400 mt-4">
+          Powered by <span className="font-medium text-gray-500">Paperbook</span>
         </p>
       </div>
     </div>

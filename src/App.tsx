@@ -8,8 +8,9 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import { RoleProtectedRoute, ALL_ROLES } from '@/components/auth/RoleProtectedRoute'
 import { setQueryClient } from '@/lib/prefetch'
 
-// Eagerly load LoginPage for fast initial render
+// Eagerly load LoginPage and SignupPage for fast initial render
 import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { SignupPage } from '@/features/auth/pages/SignupPage'
 
 // Lazy load all other pages for code splitting
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
@@ -189,6 +190,7 @@ export default function App() {
         <Toaster />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/apply" element={<LazyRoute><PublicApplicationPage /></LazyRoute>} />
           <Route path="/s/:slug" element={<LazyRoute><PublicSchoolPage /></LazyRoute>} />
 

@@ -143,10 +143,10 @@ if (env.isProd) {
   if (existsSync(adminDist)) {
     const adminHtml = readFileSync(resolve(adminDist, 'index.html'), 'utf-8')
 
-    // Serve admin on admin.paperbook.app subdomain
+    // Serve admin on gravity.paperbook.app subdomain
     app.use((req, res, next) => {
       const host = (req.hostname || '').toLowerCase()
-      if (host === `admin.${env.APP_DOMAIN}`) {
+      if (host === `gravity.${env.APP_DOMAIN}`) {
         // Serve static admin assets
         const staticPath = resolve(adminDist, req.path.slice(1))
         if (req.path !== '/' && existsSync(staticPath)) {

@@ -116,7 +116,16 @@ export function StaffDetailPage() {
   const staff = staffData.data
   const summary = attendanceSummary?.data
   const attendance = attendanceRecords?.data || []
-  const balance = leaveBalance?.data
+  // Backend may return array of balances — transform to keyed object if needed
+  const rawBalance = leaveBalance?.data
+  const balance = rawBalance && !Array.isArray(rawBalance)
+    ? rawBalance
+    : Array.isArray(rawBalance)
+      ? rawBalance.reduce((acc: any, b: any) => {
+          acc[b.type] = { total: b.total, used: b.used, available: b.remaining ?? (b.total - b.used) }
+          return acc
+        }, { year: new Date().getFullYear() } as any)
+      : undefined
   const leaves = leaveRequests?.data || []
   const structure = salaryStructure?.data
   const slips = salarySlips?.data || []

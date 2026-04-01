@@ -13,11 +13,14 @@ const LEAVE_COLORS: Record<LeaveType, { bg: string; progress: string }> = {
   PL: { bg: 'bg-purple-50 dark:bg-purple-800', progress: 'bg-purple-500' },
 }
 
+const DEFAULT_BALANCE = { total: 0, used: 0, available: 0 }
+
 export function LeaveBalanceCard({ balance }: LeaveBalanceCardProps) {
   const leaveTypes: LeaveType[] = ['EL', 'CL', 'SL', 'PL']
 
-  const totalAvailable = leaveTypes.reduce((sum, type) => sum + balance[type].available, 0)
-  const totalUsed = leaveTypes.reduce((sum, type) => sum + balance[type].used, 0)
+  const getBalance = (type: LeaveType) => balance[type] || DEFAULT_BALANCE
+  const totalAvailable = leaveTypes.reduce((sum, type) => sum + getBalance(type).available, 0)
+  const totalUsed = leaveTypes.reduce((sum, type) => sum + getBalance(type).used, 0)
 
   return (
     <Card>
@@ -32,8 +35,8 @@ export function LeaveBalanceCard({ balance }: LeaveBalanceCardProps) {
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {leaveTypes.map((type) => {
-            const data = balance[type]
-            const usedPercentage = (data.used / data.total) * 100
+            const data = getBalance(type)
+            const usedPercentage = data.total > 0 ? (data.used / data.total) * 100 : 0
 
             return (
               <div key={type} className={`p-4 rounded-lg ${LEAVE_COLORS[type].bg}`}>

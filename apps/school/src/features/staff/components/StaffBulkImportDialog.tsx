@@ -22,7 +22,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
 import { useBulkImportStaff } from '../hooks/useStaff'
 import { useToast } from '@/hooks/use-toast'
-import { DEPARTMENTS, DESIGNATIONS } from '../types/staff.types'
 import type { BulkImportStaffResult } from '../types/staff.types'
 
 // ==================== CONSTANTS ====================
@@ -114,13 +113,8 @@ function validateRow(row: Record<string, string>): Record<string, string> {
     errors.gender = 'Gender must be male or female'
   }
 
-  if (row.department && !DEPARTMENTS.includes(row.department.trim() as typeof DEPARTMENTS[number])) {
-    errors.department = `Invalid department`
-  }
-
-  if (row.designation && !DESIGNATIONS.includes(row.designation.trim() as typeof DESIGNATIONS[number])) {
-    errors.designation = `Invalid designation`
-  }
+  // Department and designation are auto-created on the backend if they don't exist,
+  // so no client-side validation against a fixed list is needed.
 
   if (row.joiningDate && !validateDate(row.joiningDate.trim())) {
     errors.joiningDate = 'Invalid date format'
@@ -138,6 +132,31 @@ function validateRow(row: Record<string, string>): Record<string, string> {
 
 // ==================== CSV PARSING ====================
 
+function parseCSVLine(line: string): string[] {
+  const values: string[] = []
+  let current = ''
+  let inQuotes = false
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i]
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"'
+        i++ // skip escaped quote
+      } else {
+        inQuotes = !inQuotes
+      }
+    } else if (char === ',' && !inQuotes) {
+      values.push(current.trim())
+      current = ''
+    } else {
+      current += char
+    }
+  }
+  values.push(current.trim())
+  return values
+}
+
 function parseCSV(text: string): { headers: string[]; rows: Record<string, string>[] } {
   const lines = text
     .split('\n')
@@ -148,11 +167,11 @@ function parseCSV(text: string): { headers: string[]; rows: Record<string, strin
     return { headers: [], rows: [] }
   }
 
-  const headers = lines[0].split(',').map((h) => h.trim())
+  const headers = parseCSVLine(lines[0])
   const rows: Record<string, string>[] = []
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map((v) => v.trim())
+    const values = parseCSVLine(lines[i])
     const row: Record<string, string> = {}
     headers.forEach((header, index) => {
       row[header] = values[index] || ''
@@ -278,7 +297,8 @@ export function StaffBulkImportDialog({ open, onOpenChange }: StaffBulkImportDia
 
     try {
       const response = await bulkImport.mutateAsync(validRows)
-      const result = response.data
+      // Backend returns { data: { total, successful, failed, errors } }
+      const result: BulkImportStaffResult = response.data ?? response
       setImportResult(result)
 
       if (result.failed === 0) {

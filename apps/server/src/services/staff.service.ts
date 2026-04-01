@@ -765,16 +765,24 @@ export async function updateClearance(schoolId: string, staffId: string, departm
 // ==================== Bulk ====================
 
 export async function bulkImportStaff(schoolId: string, input: BulkImportStaffInput) {
-  const results = []
-  for (const staffInput of input.staff) {
+  const result = {
+    total: input.staff.length,
+    successful: 0,
+    failed: 0,
+    errors: [] as Array<{ row: number; field: string; message: string }>,
+  }
+
+  for (let i = 0; i < input.staff.length; i++) {
     try {
-      const staff = await createStaff(schoolId, staffInput)
-      results.push({ employeeId: staff.employeeId, name: staff.name, status: 'created' })
+      await createStaff(schoolId, input.staff[i])
+      result.successful++
     } catch (err: any) {
-      results.push({ email: staffInput.email, status: 'failed', error: err.message })
+      result.failed++
+      result.errors.push({ row: i + 1, field: 'general', message: err.message })
     }
   }
-  return results
+
+  return result
 }
 
 export async function exportStaff(schoolId: string) {

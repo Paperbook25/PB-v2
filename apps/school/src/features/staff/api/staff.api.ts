@@ -246,9 +246,25 @@ export async function deletePD(id: string): Promise<{ success: boolean }> {
 export async function bulkImportStaff(
   rows: Record<string, string>[]
 ): Promise<{ data: import('../types/staff.types').BulkImportStaffResult }> {
+  // Transform raw CSV rows into the shape expected by the backend schema
+  const staff = rows.map((row) => ({
+    name: row.name?.trim() || '',
+    email: row.email?.trim() || '',
+    phone: row.phone?.trim() || undefined,
+    dateOfBirth: row.dateOfBirth?.trim() || undefined,
+    gender: row.gender?.trim().toLowerCase() || undefined,
+    department: row.department?.trim() || 'General',
+    designation: row.designation?.trim() || 'Teacher',
+    joiningDate: row.joiningDate?.trim() || undefined,
+    qualification: row.qualification?.trim()
+      ? row.qualification.split(/[;|]/).map((q: string) => q.trim()).filter(Boolean)
+      : undefined,
+    salary: row.salary ? parseFloat(row.salary) || undefined : undefined,
+  }))
+
   return apiPost<{ data: import('../types/staff.types').BulkImportStaffResult }>(
     `${API_BASE}/bulk-import`,
-    { rows }
+    { staff }
   )
 }
 

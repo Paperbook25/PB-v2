@@ -266,7 +266,7 @@ export function StaffDetailPage() {
                 <InfoRow
                   icon={MapPin}
                   label="Address"
-                  value={`${staff.address.street}, ${staff.address.city}, ${staff.address.state} - ${staff.address.pincode}`}
+                  value={staff.address ? `${staff.address.street || ''}, ${staff.address.city || ''}, ${staff.address.state || ''} - ${staff.address.pincode || ''}`.replace(/^[, -]+|[, -]+$/g, '') || 'Not provided' : 'Not provided'}
                 />
               </CardContent>
             </Card>
@@ -277,7 +277,7 @@ export function StaffDetailPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <InfoRow icon={Building} label="Department" value={staff.department} />
-                <InfoRow icon={GraduationCap} label="Qualification" value={staff.qualification.join(', ')} />
+                <InfoRow icon={GraduationCap} label="Qualification" value={staff.qualification?.length ? staff.qualification.join(', ') : 'Not provided'} />
                 <InfoRow icon={GraduationCap} label="Specialization" value={staff.specialization} />
               </CardContent>
             </Card>

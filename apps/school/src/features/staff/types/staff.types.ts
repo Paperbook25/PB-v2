@@ -124,6 +124,7 @@ export interface CreateLeaveRequest {
   type: LeaveType
   startDate: string
   endDate: string
+  days: number
   reason: string
 }
 

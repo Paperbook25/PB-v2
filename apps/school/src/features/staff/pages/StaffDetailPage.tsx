@@ -149,7 +149,7 @@ export function StaffDetailPage() {
     })
   }
 
-  const handleLeaveSubmit = (data: { type: LeaveType; startDate: string; endDate: string; reason: string }) => {
+  const handleLeaveSubmit = (data: { type: LeaveType; startDate: string; endDate: string; days: number; reason: string }) => {
     createLeaveRequest.mutate(
       { staffId: id!, data },
       {
@@ -399,7 +399,7 @@ export function StaffDetailPage() {
 
         {/* Salary Tab */}
         <TabsContent value="salary" className="space-y-4">
-          {structure && (
+          {structure ? (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Salary Structure</CardTitle>
@@ -466,6 +466,24 @@ export function StaffDetailPage() {
                     <span className="text-2xl font-bold">{formatCurrency(structure.netSalary)}</span>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Salary Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {staff.salary ? (
+                  <div className="p-4 bg-primary/5 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Monthly Salary (CTC)</span>
+                      <span className="text-2xl font-bold">{formatCurrency(staff.salary)}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">No salary information available. Update the staff profile to add salary details.</p>
+                )}
               </CardContent>
             </Card>
           )}

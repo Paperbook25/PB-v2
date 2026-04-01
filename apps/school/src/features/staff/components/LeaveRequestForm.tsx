@@ -25,7 +25,7 @@ import { LEAVE_TYPE_LABELS, type LeaveType, type LeaveBalance } from '../types/s
 interface LeaveRequestFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: { type: LeaveType; startDate: string; endDate: string; reason: string }) => void
+  onSubmit: (data: { type: LeaveType; startDate: string; endDate: string; days: number; reason: string }) => void
   isSubmitting?: boolean
   leaveBalance?: LeaveBalance
 }
@@ -57,8 +57,8 @@ export function LeaveRequestForm({
   const hasInsufficientBalance = selectedLeaveBalance && numberOfDays > selectedLeaveBalance.available
 
   const handleSubmit = () => {
-    if (type && startDate && endDate && reason) {
-      onSubmit({ type, startDate, endDate, reason })
+    if (type && startDate && endDate && reason && numberOfDays > 0) {
+      onSubmit({ type, startDate, endDate, days: numberOfDays, reason })
     }
   }
 
@@ -96,7 +96,7 @@ export function LeaveRequestForm({
                   <SelectItem key={lt} value={lt}>
                     <div className="flex items-center justify-between w-full">
                       <span>{LEAVE_TYPE_LABELS[lt]}</span>
-                      {leaveBalance && (
+                      {leaveBalance?.[lt] && (
                         <span className="text-muted-foreground ml-4">
                           ({leaveBalance[lt].available} available)
                         </span>

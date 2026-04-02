@@ -85,8 +85,8 @@ const StudentRow = memo(function StudentRow({
         {student.class} - {student.section}
       </TableCell>
       <TableCell>
-        <p className="text-sm">{student.parent.fatherName}</p>
-        <p className="text-xs text-muted-foreground">{student.parent.guardianPhone}</p>
+        <p className="text-sm">{student.parent?.fatherName || '—'}</p>
+        <p className="text-xs text-muted-foreground">{student.parent?.guardianPhone || '—'}</p>
       </TableCell>
       <TableCell>{getStatusBadge(student.status)}</TableCell>
       <TableCell>

@@ -80,8 +80,8 @@ export function EditStudentPage() {
     class: student.class,
     section: student.section,
     rollNumber: student.rollNumber,
-    address: student.address,
-    parent: student.parent,
+    address: student.address ? { street: student.address.street || '', city: student.address.city || '', state: student.address.state || '', pincode: student.address.pincode || '' } : undefined,
+    parent: student.parent ? { fatherName: student.parent.fatherName || '', motherName: student.parent.motherName || '', guardianPhone: student.parent.guardianPhone || '', guardianEmail: student.parent.guardianEmail || '', occupation: student.parent.occupation || '' } : undefined,
   }
 
   return (

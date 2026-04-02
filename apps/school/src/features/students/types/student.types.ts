@@ -12,19 +12,19 @@ export interface Student {
   rollNumber: number
   admissionDate: string
   photoUrl: string
-  address: {
-    street: string
-    city: string
-    state: string
-    pincode: string
-  }
-  parent: {
-    fatherName: string
-    motherName: string
-    guardianPhone: string
-    guardianEmail: string
-    occupation: string
-  }
+  address?: {
+    street?: string
+    city?: string
+    state?: string
+    pincode?: string
+  } | null
+  parent?: {
+    fatherName?: string
+    motherName?: string
+    guardianPhone?: string
+    guardianEmail?: string
+    occupation?: string
+  } | null
   status: 'active' | 'inactive' | 'graduated' | 'transferred'
   // New fields
   siblingIds?: string[]

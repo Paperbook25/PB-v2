@@ -25,8 +25,8 @@ interface MessageParentDialogProps {
     id: string
     name: string
     parent: {
-      guardianPhone: string
-      guardianEmail: string
+      guardianPhone?: string
+      guardianEmail?: string
     }
   }
 }
@@ -98,11 +98,11 @@ export function MessageParentDialog({ open, onOpenChange, student }: MessagePare
           <div className="bg-muted/50 p-3 rounded-lg space-y-1 text-sm">
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-muted-foreground" />
-              <span>{student.parent.guardianPhone}</span>
+              <span>{student.parent?.guardianPhone || '—'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <span>{student.parent.guardianEmail}</span>
+              <span>{student.parent?.guardianEmail || '—'}</span>
             </div>
           </div>
 

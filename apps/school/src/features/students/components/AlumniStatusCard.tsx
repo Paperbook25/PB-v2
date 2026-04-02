@@ -231,7 +231,7 @@ export function AlumniStatusCard({ studentId, studentStatus, studentClass }: Alu
                   {contributions.slice(0, 3).map((c) => (
                     <div key={c.id} className="text-sm p-2 bg-muted rounded">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium">{CONTRIBUTION_TYPE_LABELS[c.type]}</span>
+                        <span className="font-medium">{CONTRIBUTION_TYPE_LABELS[c.type] || c.type}</span>
                         {c.amount && (
                           <span className="text-muted-foreground">{formatCurrency(c.amount)}</span>
                         )}
@@ -270,7 +270,7 @@ export function AlumniStatusCard({ studentId, studentStatus, studentClass }: Alu
                       <div className="flex items-center justify-between">
                         <span className="font-medium truncate">{a.title}</span>
                         <Badge variant="secondary" className="text-xs">
-                          {ACHIEVEMENT_CATEGORY_LABELS[a.category]}
+                          {ACHIEVEMENT_CATEGORY_LABELS[a.category] || a.category}
                         </Badge>
                       </div>
                       <p className="text-xs text-muted-foreground">{formatDate(a.date)}</p>

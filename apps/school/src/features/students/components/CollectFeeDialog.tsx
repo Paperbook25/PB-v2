@@ -166,7 +166,7 @@ export function CollectFeeDialog({ open, onOpenChange, student }: CollectFeeDial
                 ) : (
                   <div className="space-y-2 max-h-[250px] overflow-y-auto">
                     {pendingFees.map((fee) => {
-                      const dueAmount = fee.totalAmount - fee.discountAmount - fee.paidAmount
+                      const dueAmount = (fee.totalAmount || 0) - (fee.discountAmount || 0) - (fee.paidAmount || 0)
                       const isSelected = selectedFees[fee.id] !== undefined
 
                       return (

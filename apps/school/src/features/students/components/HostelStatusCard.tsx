@@ -101,7 +101,7 @@ export function HostelStatusCard({ studentId }: HostelStatusCardProps) {
               <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm text-muted-foreground">Hostel</p>
-                <p className="font-medium">{allocation.hostelName}</p>
+                <p className="font-medium">{allocation.hostelName || '—'}</p>
               </div>
             </div>
 
@@ -109,7 +109,7 @@ export function HostelStatusCard({ studentId }: HostelStatusCardProps) {
               <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm text-muted-foreground">Room Number</p>
-                <p className="font-medium">Room {allocation.roomNumber}</p>
+                <p className="font-medium">Room {allocation.roomNumber || '—'}</p>
               </div>
             </div>
 
@@ -117,7 +117,7 @@ export function HostelStatusCard({ studentId }: HostelStatusCardProps) {
               <BedDouble className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm text-muted-foreground">Bed Number</p>
-                <p className="font-medium">Bed {allocation.bedNumber}</p>
+                <p className="font-medium">Bed {allocation.bedNumber || '—'}</p>
               </div>
             </div>
           </div>
@@ -180,7 +180,7 @@ export function HostelStatusCard({ studentId }: HostelStatusCardProps) {
                 {fees.slice(0, 6).map((fee) => (
                   <TableRow key={fee.id}>
                     <TableCell className="font-medium">
-                      {HOSTEL_FEE_TYPE_LABELS[fee.feeType]}
+                      {HOSTEL_FEE_TYPE_LABELS[fee.feeType] || fee.feeType}
                     </TableCell>
                     <TableCell>{fee.month}</TableCell>
                     <TableCell>{formatCurrency(fee.amount)}</TableCell>

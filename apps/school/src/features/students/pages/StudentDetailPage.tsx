@@ -424,7 +424,7 @@ export function StudentDetailPage() {
         student={{
           id: student.id,
           name: student.name,
-          parent: student.parent ?? { guardianPhone: '—', guardianEmail: '—' },
+          parent: { guardianPhone: student.parent?.guardianPhone || '—', guardianEmail: student.parent?.guardianEmail || '—' },
         }}
       />
     </div>

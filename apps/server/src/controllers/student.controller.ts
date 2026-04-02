@@ -314,10 +314,12 @@ export async function bulkImport(req: Request, res: Response, next: NextFunction
       }
     }
     const results = await studentService.bulkImportStudents(getSchoolId(req), input as BulkImportStudentsInput)
-    // Return format expected by frontend: { successful, failed, results }
     const successful = results.filter((r: any) => r.status === 'created').length
     const failed = results.filter((r: any) => r.status === 'failed').length
-    res.status(201).json({ data: { successful, failed, results } })
+    const errors = results
+      .map((r: any, i: number) => r.status === 'failed' ? { row: i + 1, field: 'general', message: r.error || 'Unknown error' } : null)
+      .filter(Boolean)
+    res.status(201).json({ data: { total: results.length, successful, failed, errors } })
   } catch (err) {
     next(err)
   }

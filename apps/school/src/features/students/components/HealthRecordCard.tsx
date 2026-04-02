@@ -299,10 +299,10 @@ export function HealthRecordCard({ studentId }: HealthRecordCardProps) {
 
   const hasRecord =
     health &&
-    (health.allergies.length > 0 ||
-      health.medicalConditions.length > 0 ||
-      health.medications.length > 0 ||
-      health.emergencyContact.name ||
+    ((health.allergies?.length ?? 0) > 0 ||
+      (health.medicalConditions?.length ?? 0) > 0 ||
+      (health.medications?.length ?? 0) > 0 ||
+      health.emergencyContact?.name ||
       health.bloodGroup ||
       health.height ||
       health.weight)
@@ -365,14 +365,14 @@ export function HealthRecordCard({ studentId }: HealthRecordCardProps) {
         ) : (
           <div className="space-y-4">
             {/* Allergies */}
-            {health.allergies.length > 0 && (
+            {(health.allergies?.length ?? 0) > 0 && (
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-sm font-medium">
                   <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
                   Allergies
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {health.allergies.map((allergy) => (
+                  {(health.allergies ?? []).map((allergy) => (
                     <Badge
                       key={allergy}
                       variant="destructive"
@@ -386,11 +386,11 @@ export function HealthRecordCard({ studentId }: HealthRecordCardProps) {
             )}
 
             {/* Medical Conditions */}
-            {health.medicalConditions.length > 0 && (
+            {(health.medicalConditions?.length ?? 0) > 0 && (
               <div className="space-y-1.5">
                 <p className="text-sm font-medium">Medical Conditions</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {health.medicalConditions.map((condition) => (
+                  {(health.medicalConditions ?? []).map((condition) => (
                     <Badge
                       key={condition}
                       variant="warning"
@@ -404,14 +404,14 @@ export function HealthRecordCard({ studentId }: HealthRecordCardProps) {
             )}
 
             {/* Medications */}
-            {health.medications.length > 0 && (
+            {(health.medications?.length ?? 0) > 0 && (
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-sm font-medium">
                   <Pill className="h-3.5 w-3.5" />
                   Medications
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {health.medications.map((med) => (
+                  {(health.medications ?? []).map((med) => (
                     <Badge key={med} variant="secondary" className="text-xs">
                       {med}
                     </Badge>
@@ -421,7 +421,7 @@ export function HealthRecordCard({ studentId }: HealthRecordCardProps) {
             )}
 
             {/* Emergency Contact */}
-            {health.emergencyContact.name && (
+            {health.emergencyContact?.name && (
               <>
                 <Separator />
                 <div className="space-y-1.5">
@@ -432,9 +432,9 @@ export function HealthRecordCard({ studentId }: HealthRecordCardProps) {
                   <div className="text-sm text-muted-foreground">
                     <p>
                       {health.emergencyContact.name} (
-                      {health.emergencyContact.relationship})
+                      {health.emergencyContact.relationship ?? 'Not specified'})
                     </p>
-                    <p>{health.emergencyContact.phone}</p>
+                    <p>{health.emergencyContact.phone ?? '—'}</p>
                   </div>
                 </div>
               </>
@@ -473,7 +473,7 @@ export function HealthRecordCard({ studentId }: HealthRecordCardProps) {
                       <div>
                         <p className="text-xs text-muted-foreground">Vision</p>
                         <p className="text-sm font-medium">
-                          L: {health.visionLeft} / R: {health.visionRight}
+                          L: {health.visionLeft || '—'} / R: {health.visionRight || '—'}
                         </p>
                       </div>
                     </div>

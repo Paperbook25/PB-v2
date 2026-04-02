@@ -386,8 +386,8 @@ function StaffListTab() {
                         </div>
                       </TableCell>
                       <TableCell className="font-mono text-sm">{staff.employeeId}</TableCell>
-                      <TableCell>{staff.department}</TableCell>
-                      <TableCell>{staff.designation}</TableCell>
+                      <TableCell>{staff.department || '—'}</TableCell>
+                      <TableCell>{staff.designation || '—'}</TableCell>
                       <TableCell>{getStatusBadge(staff.status)}</TableCell>
                       <TableCell>
                         <DropdownMenu>

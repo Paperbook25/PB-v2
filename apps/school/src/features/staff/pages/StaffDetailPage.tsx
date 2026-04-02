@@ -237,7 +237,7 @@ export function StaffDetailPage() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Salary</p>
-                  <p className="font-medium">{formatCurrency(staff.salary)}/month</p>
+                  <p className="font-medium">{staff.salary ? `${formatCurrency(staff.salary)}/month` : 'Not set'}</p>
                 </div>
               </div>
             </div>
@@ -271,7 +271,7 @@ export function StaffDetailPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <InfoRow icon={Mail} label="Email" value={staff.email} />
-                <InfoRow icon={Phone} label="Phone" value={staff.phone} />
+                <InfoRow icon={Phone} label="Phone" value={staff.phone || 'Not provided'} />
                 <InfoRow
                   icon={MapPin}
                   label="Address"
@@ -287,7 +287,7 @@ export function StaffDetailPage() {
               <CardContent className="space-y-2">
                 <InfoRow icon={Building} label="Department" value={staff.department} />
                 <InfoRow icon={GraduationCap} label="Qualification" value={staff.qualification?.length ? staff.qualification.join(', ') : 'Not provided'} />
-                <InfoRow icon={GraduationCap} label="Specialization" value={staff.specialization} />
+                <InfoRow icon={GraduationCap} label="Specialization" value={staff.specialization || 'Not provided'} />
               </CardContent>
             </Card>
           </div>

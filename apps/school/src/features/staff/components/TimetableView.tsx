@@ -115,7 +115,7 @@ export function TimetableView({ staffId }: TimetableViewProps) {
     return <TimetableGridSkeleton />
   }
 
-  if (!timetableData || timetableData.entries.length === 0) {
+  if (!timetableData?.entries?.length) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-16">

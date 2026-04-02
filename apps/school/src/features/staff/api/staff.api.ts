@@ -79,8 +79,14 @@ export async function fetchStaffAttendance(
   year?: number
 ): Promise<{ data: StaffAttendanceRecord[] }> {
   const params = new URLSearchParams()
-  if (month) params.set('month', String(month))
-  if (year) params.set('year', String(year))
+  // Backend expects startDate/endDate, not month/year
+  if (month && year) {
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`
+    const lastDay = new Date(year, month, 0).getDate()
+    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+    params.set('startDate', startDate)
+    params.set('endDate', endDate)
+  }
 
   return apiGet<{ data: StaffAttendanceRecord[] }>(`${API_BASE}/${staffId}/attendance?${params.toString()}`)
 }
@@ -162,7 +168,7 @@ export async function markSalaryPaid(slipId: string): Promise<{ data: SalarySlip
 // ==================== TIMETABLE ====================
 
 export async function fetchStaffTimetable(staffId: string): Promise<{ data: StaffTimetable }> {
-  return apiGet<{ data: StaffTimetable }>(`${API_BASE}/${staffId}/timetable`)
+  return apiGet<{ data: StaffTimetable }>(`/api/timetable/teachers/${staffId}/timetable`)
 }
 
 export async function fetchClassTimetable(cls: string, section: string): Promise<{ data: ClassTimetable }> {

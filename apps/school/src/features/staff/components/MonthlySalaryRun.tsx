@@ -47,9 +47,9 @@ export function MonthlySalaryRun({ onProcess, isProcessing }: MonthlySalaryRunPr
     setProcessedSlips(slips)
   }
 
-  const totalGross = processedSlips?.reduce((sum, s) => sum + s.earnings.gross, 0) || 0
-  const totalDeductions = processedSlips?.reduce((sum, s) => sum + s.deductions.total, 0) || 0
-  const totalNet = processedSlips?.reduce((sum, s) => sum + s.netPayable, 0) || 0
+  const totalGross = processedSlips?.reduce((sum, s) => sum + (s.earnings?.gross || 0), 0) || 0
+  const totalDeductions = processedSlips?.reduce((sum, s) => sum + (s.deductions?.total || 0), 0) || 0
+  const totalNet = processedSlips?.reduce((sum, s) => sum + (s.netPayable || 0), 0) || 0
 
   return (
     <div className="space-y-6">

@@ -17,7 +17,8 @@ export function formatDate(date: string | Date | null | undefined, options?: Int
   }).format(d)
 }
 
-export function formatCurrency(amount: number) {
+export function formatCurrency(amount: number | null | undefined) {
+  if (amount == null) return '—'
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',

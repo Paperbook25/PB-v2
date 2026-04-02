@@ -26,7 +26,7 @@ export function LeaveBalanceCard({ balance }: LeaveBalanceCardProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Leave Balance ({balance.year})</span>
+          <span>Leave Balance ({balance.year || new Date().getFullYear()})</span>
           <span className="text-sm font-normal text-muted-foreground">
             {totalAvailable} days available
           </span>

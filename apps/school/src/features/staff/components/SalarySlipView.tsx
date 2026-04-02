@@ -22,11 +22,23 @@ export function SalarySlipView({ slip, onMarkPaid, isMarkingPaid }: SalarySlipVi
     window.print()
   }
 
+  if (!slip.earnings || !slip.deductions) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center text-muted-foreground">
+          Salary slip data is incomplete.
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const monthName = slip.month >= 1 && slip.month <= 12 ? MONTHS[slip.month - 1] : 'Unknown'
+
   return (
     <Card className="print:shadow-none">
       <CardHeader className="flex flex-row items-center justify-between print:hidden">
         <CardTitle className="text-base">
-          Salary Slip - {MONTHS[slip.month - 1]} {slip.year}
+          Salary Slip - {monthName} {slip.year}
         </CardTitle>
         <div className="flex gap-2">
           {slip.status === 'generated' && onMarkPaid && (
@@ -49,7 +61,7 @@ export function SalarySlipView({ slip, onMarkPaid, isMarkingPaid }: SalarySlipVi
             <p className="text-sm text-muted-foreground">Salary Slip</p>
           </div>
           <div className="text-right">
-            <p className="font-medium">{MONTHS[slip.month - 1]} {slip.year}</p>
+            <p className="font-medium">{monthName} {slip.year}</p>
             <Badge variant={slip.status === 'paid' ? 'default' : 'secondary'}>
               {slip.status === 'paid' ? 'Paid' : 'Generated'}
             </Badge>

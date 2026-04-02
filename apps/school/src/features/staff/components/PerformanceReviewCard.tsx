@@ -320,7 +320,7 @@ function ReviewDetail({ review }: { review: PerformanceReview }) {
       <div className="space-y-2.5">
         <p className="text-sm font-medium text-muted-foreground">Category Ratings</p>
         <div className="grid gap-2">
-          {review.ratings.map((r) => (
+          {(review.ratings || []).map((r) => (
             <div key={r.category} className="flex items-center gap-3">
               <span className="text-sm min-w-[160px]">{r.category}</span>
               <Progress value={(r.rating / 5) * 100} className="h-2 flex-1" />

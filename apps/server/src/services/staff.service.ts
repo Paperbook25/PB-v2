@@ -483,8 +483,8 @@ export async function getSkillsMatrix(schoolId: string) {
   })
 
   const matrix = allStaff.map((s) => ({
-    id: s.id,
-    name: `${s.firstName} ${s.lastName}`.trim(),
+    staffId: s.id,
+    staffName: `${s.firstName} ${s.lastName}`.trim(),
     employeeId: s.employeeId,
     department: s.department?.name || null,
     skills: s.skillRecords.map((sk) => ({

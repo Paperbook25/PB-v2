@@ -133,3 +133,33 @@ export const updatePeriodDefinitionSchema = z.object({
 })
 
 export type UpdatePeriodDefinitionInput = z.infer<typeof updatePeriodDefinitionSchema>
+
+// ==================== Attendance Policy ====================
+
+export const updateAttendancePolicySchema = z.object({
+  minimumPercentage: z.number().min(0).max(100).optional(),
+  warningPercentage: z.number().min(0).max(100).optional(),
+  consecutiveAbsenceDays: z.number().min(1).max(30).optional(),
+  examEligibilityPercentage: z.number().min(0).max(100).optional(),
+  notifyParent: z.boolean().optional(),
+  notifyTeacher: z.boolean().optional(),
+  notifyPrincipal: z.boolean().optional(),
+  enabled: z.boolean().optional(),
+  schoolStartTime: z.string().optional(),
+  lateAfterMinutes: z.number().min(0).max(120).optional(),
+  halfDayAfterTime: z.string().optional(),
+  lateDetectionEnabled: z.boolean().optional(),
+})
+
+export type UpdateAttendancePolicyInput = z.infer<typeof updateAttendancePolicySchema>
+
+export const listAlertsSchema = z.object({
+  studentId: z.string().optional(),
+  type: z.string().optional(),
+  severity: z.string().optional(),
+  acknowledged: z.string().optional(),
+  page: z.string().optional(),
+  limit: z.string().optional(),
+})
+
+export type ListAlertsInput = z.infer<typeof listAlertsSchema>

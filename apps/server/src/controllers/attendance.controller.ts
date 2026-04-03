@@ -128,3 +128,33 @@ export async function getPeriodSummary(req: Request, res: Response, next: NextFu
     res.json(result)
   } catch (err) { next(err) }
 }
+
+// ==================== Attendance Policy ====================
+
+export async function getAttendancePolicy(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await attendanceService.getAttendancePolicy(getSchoolId(req))
+    res.json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function updateAttendancePolicy(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await attendanceService.updateAttendancePolicy(getSchoolId(req), req.body)
+    res.json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function listAttendanceAlerts(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await attendanceService.listAttendanceAlerts(getSchoolId(req), req.query as any)
+    res.json(result)
+  } catch (err) { next(err) }
+}
+
+export async function acknowledgeAttendanceAlert(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await attendanceService.acknowledgeAlert(String(req.params.id), req.user?.name || 'Unknown')
+    res.json({ data })
+  } catch (err) { next(err) }
+}

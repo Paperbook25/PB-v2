@@ -3,7 +3,7 @@ import * as attendanceController from '../controllers/attendance.controller.js'
 import { authMiddleware, rbacMiddleware, validate } from '../middleware/index.js'
 import {
   markDailyAttendanceSchema, markPeriodAttendanceSchema,
-  updatePeriodDefinitionSchema,
+  updatePeriodDefinitionSchema, updateAttendancePolicySchema,
 } from '../validators/attendance.validators.js'
 
 const router = Router()
@@ -18,6 +18,14 @@ const studentRole = rbacMiddleware('student')
 const parentRole = rbacMiddleware('parent')
 
 // ==================== Static routes (before /:id) ====================
+
+// Attendance policy (admin/principal only)
+router.get('/policies', adminPrincipal, attendanceController.getAttendancePolicy)
+router.put('/policies', adminPrincipal, validate(updateAttendancePolicySchema), attendanceController.updateAttendancePolicy)
+
+// Attendance alerts
+router.get('/alerts', readRoles, attendanceController.listAttendanceAlerts)
+router.post('/alerts/:id/acknowledge', readRoles, attendanceController.acknowledgeAttendanceAlert)
 
 // Student self-view and parent view
 router.get('/my', studentRole, attendanceController.getMyAttendance)

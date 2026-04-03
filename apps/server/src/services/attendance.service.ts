@@ -969,3 +969,105 @@ export async function getPeriodSummary(schoolId: string, input: PeriodSummaryInp
     })),
   }
 }
+
+// ==================== Attendance Policy ====================
+
+export async function getAttendancePolicy(schoolId: string) {
+  let policy = await prisma.attendancePolicy.findUnique({
+    where: { organizationId: schoolId },
+  })
+
+  // Auto-create with defaults if not exists
+  if (!policy) {
+    policy = await prisma.attendancePolicy.create({
+      data: { organizationId: schoolId },
+    })
+  }
+
+  return {
+    id: policy.id,
+    minimumPercentage: policy.minimumPercentage,
+    warningPercentage: policy.warningPercentage,
+    consecutiveAbsenceDays: policy.consecutiveAbsenceDays,
+    examEligibilityPercentage: policy.examEligibilityPercentage,
+    notifyParent: policy.notifyParent,
+    notifyTeacher: policy.notifyTeacher,
+    notifyPrincipal: policy.notifyPrincipal,
+    enabled: policy.enabled,
+    schoolStartTime: policy.schoolStartTime,
+    lateAfterMinutes: policy.lateAfterMinutes,
+    halfDayAfterTime: policy.halfDayAfterTime,
+    lateDetectionEnabled: policy.lateDetectionEnabled,
+  }
+}
+
+export async function updateAttendancePolicy(schoolId: string, input: Record<string, unknown>) {
+  const existing = await prisma.attendancePolicy.findUnique({
+    where: { organizationId: schoolId },
+  })
+
+  if (existing) {
+    return prisma.attendancePolicy.update({
+      where: { organizationId: schoolId },
+      data: input as any,
+    })
+  }
+
+  return prisma.attendancePolicy.create({
+    data: { organizationId: schoolId, ...input } as any,
+  })
+}
+
+// ==================== Attendance Alerts ====================
+
+export async function listAttendanceAlerts(schoolId: string, filters: {
+  studentId?: string; type?: string; severity?: string; acknowledged?: string;
+  page?: string; limit?: string;
+}) {
+  const page = parseInt(filters.page || '1')
+  const limit = parseInt(filters.limit || '20')
+  const skip = (page - 1) * limit
+
+  const where: any = { organizationId: schoolId }
+  if (filters.studentId) where.studentId = filters.studentId
+  if (filters.type) where.type = filters.type
+  if (filters.severity) where.severity = filters.severity
+  if (filters.acknowledged === 'true') where.acknowledgedAt = { not: null }
+  if (filters.acknowledged === 'false') where.acknowledgedAt = null
+
+  const [data, total] = await Promise.all([
+    prisma.attendanceAlert.findMany({
+      where,
+      include: { student: { select: { firstName: true, lastName: true, admissionNumber: true } } },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.attendanceAlert.count({ where }),
+  ])
+
+  return {
+    data: data.map(a => ({
+      id: a.id,
+      studentId: a.studentId,
+      studentName: `${a.student.firstName} ${a.student.lastName}`.trim(),
+      admissionNumber: a.student.admissionNumber,
+      type: a.type,
+      severity: a.severity,
+      currentPercentage: a.currentPercentage,
+      threshold: a.threshold,
+      message: a.message,
+      acknowledgedAt: a.acknowledgedAt,
+      acknowledgedBy: a.acknowledgedBy,
+      createdAt: a.createdAt,
+    })),
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  }
+}
+
+export async function acknowledgeAlert(alertId: string, userId: string) {
+  return prisma.attendanceAlert.update({
+    where: { id: alertId },
+    data: { acknowledgedAt: new Date(), acknowledgedBy: userId },
+  })
+}

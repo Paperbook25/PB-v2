@@ -68,3 +68,39 @@ export const listLeaveRequestsSchema = z.object({
 })
 
 export type ListLeaveRequestsInput = z.infer<typeof listLeaveRequestsSchema>
+
+// ==================== Leave Policy ====================
+
+export const updateLeavePolicySchema = z.object({
+  defaultEL: z.number().min(0).max(60).optional(),
+  defaultCL: z.number().min(0).max(60).optional(),
+  defaultSL: z.number().min(0).max(60).optional(),
+  defaultPL: z.number().min(0).max(60).optional(),
+  maxCarryForwardDays: z.number().min(0).max(30).optional(),
+  carryForwardExpiryMonths: z.number().min(0).max(12).optional(),
+  minNoticeDays: z.number().min(0).max(30).optional(),
+  maxConsecutiveDays: z.number().min(1).max(90).optional(),
+  sandwichLeaveEnabled: z.boolean().optional(),
+  probationLeaveFactor: z.number().min(0).max(1).optional(),
+})
+
+export type UpdateLeavePolicyInput = z.infer<typeof updateLeavePolicySchema>
+
+export const createCustomLeaveTypeSchema = z.object({
+  name: z.string().min(1).max(100),
+  code: z.string().min(1).max(10).toUpperCase(),
+  isPaid: z.boolean().optional(),
+  maxDaysPerYear: z.number().min(1).max(365).optional(),
+  requiresApproval: z.boolean().optional(),
+})
+
+export type CreateCustomLeaveTypeInput = z.infer<typeof createCustomLeaveTypeSchema>
+
+export const createBlackoutDateSchema = z.object({
+  startDate: z.string().min(1),
+  endDate: z.string().min(1),
+  reason: z.string().min(1).max(500),
+  appliesTo: z.enum(['all_staff', 'teachers_only', 'non_teaching']).optional(),
+})
+
+export type CreateBlackoutDateInput = z.infer<typeof createBlackoutDateSchema>

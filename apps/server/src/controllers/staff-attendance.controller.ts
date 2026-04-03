@@ -94,3 +94,80 @@ export async function cancelLeaveRequest(req: Request, res: Response, next: Next
     res.json(result)
   } catch (err) { next(err) }
 }
+
+// ==================== Leave Policy ====================
+
+function getSchoolId(req: Request): string {
+  if (!req.schoolId) throw AppError.badRequest('No school context')
+  return req.schoolId
+}
+
+export async function getLeavePolicy(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await staffAttendanceService.getLeavePolicy(getSchoolId(req))
+    res.json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function updateLeavePolicy(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await staffAttendanceService.updateLeavePolicy(getSchoolId(req), req.body)
+    res.json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function listCustomLeaveTypes(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await staffAttendanceService.listCustomLeaveTypes(getSchoolId(req))
+    res.json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function createCustomLeaveType(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await staffAttendanceService.createCustomLeaveType(getSchoolId(req), req.body)
+    res.status(201).json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function updateCustomLeaveType(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await staffAttendanceService.updateCustomLeaveType(String(req.params.id), req.body)
+    res.json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function deleteCustomLeaveType(req: Request, res: Response, next: NextFunction) {
+  try {
+    await staffAttendanceService.deleteCustomLeaveType(String(req.params.id))
+    res.json({ success: true })
+  } catch (err) { next(err) }
+}
+
+export async function listBlackoutDates(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await staffAttendanceService.listBlackoutDates(getSchoolId(req))
+    res.json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function createBlackoutDate(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await staffAttendanceService.createBlackoutDate(getSchoolId(req), req.body)
+    res.status(201).json({ data })
+  } catch (err) { next(err) }
+}
+
+export async function deleteBlackoutDate(req: Request, res: Response, next: NextFunction) {
+  try {
+    await staffAttendanceService.deleteBlackoutDate(String(req.params.id))
+    res.json({ success: true })
+  } catch (err) { next(err) }
+}
+
+export async function allocateAnnualLeave(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await staffAttendanceService.allocateAnnualLeave(getSchoolId(req))
+    res.json({ data })
+  } catch (err) { next(err) }
+}

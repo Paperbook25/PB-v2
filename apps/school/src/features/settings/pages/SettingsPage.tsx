@@ -16,6 +16,8 @@ import { IntegrationsSection } from '../components/IntegrationsSection'
 import { AddonManager } from '../components/AddonManager'
 import { RolePermissionsManager } from '../components/RolePermissionsManager'
 import { SubscriptionSection } from '../components/SubscriptionSection'
+import { AttendancePolicySettings } from '../components/AttendancePolicySettings'
+import { LeavePolicySettings } from '../components/LeavePolicySettings'
 import type { SettingsSection, GeneralTab, CommunicationTab, IntegrationsTab } from '../types/settings.types'
 
 export function SettingsPage() {
@@ -103,6 +105,8 @@ function GeneralContent({ activeTab }: { activeTab: GeneralTab }) {
       {activeTab === 'audit' && <AuditLogView />}
       {activeTab === 'backup' && <BackupSettings />}
       {activeTab === 'appearance' && <ThemeSettings />}
+      {activeTab === 'attendance-policy' && <AttendancePolicySettings />}
+      {activeTab === 'leave-policy' && <LeavePolicySettings />}
     </>
   )
 }

@@ -195,18 +195,17 @@ const DEFAULT_LEAVE_BALANCES: Record<string, number> = {
 }
 
 async function getLeaveAllocation(organizationId: string | null): Promise<Record<string, number>> {
-  // Try to load school-specific leave allocation from organization metadata JSON
+  // Read from StaffLeavePolicy model if it exists
   if (organizationId) {
     try {
-      const org = await prisma.organization.findUnique({ where: { id: organizationId } })
-      if (org?.metadata) {
-        const meta = JSON.parse(org.metadata)
-        if (meta?.leaveAllocation && typeof meta.leaveAllocation === 'object') {
-          return meta.leaveAllocation as Record<string, number>
-        }
+      const policy = await prisma.staffLeavePolicy.findUnique({
+        where: { organizationId },
+      })
+      if (policy) {
+        return { EL: policy.defaultEL, CL: policy.defaultCL, SL: policy.defaultSL, PL: policy.defaultPL }
       }
     } catch {
-      // Fall through to defaults if parse fails or field missing
+      // Fall through to defaults if table doesn't exist yet
     }
   }
   return DEFAULT_LEAVE_BALANCES
@@ -467,4 +466,141 @@ export async function updateLeaveRequest(id: string, input: UpdateLeaveRequestIn
       createdAt: updated.createdAt,
     },
   }
+}
+
+// ==================== Leave Policy ====================
+
+const appliesToMap: Record<string, string> = {
+  all_staff: 'blackout_all_staff',
+  teachers_only: 'blackout_teachers_only',
+  non_teaching: 'blackout_non_teaching',
+}
+
+export async function getLeavePolicy(schoolId: string) {
+  let policy = await prisma.staffLeavePolicy.findUnique({
+    where: { organizationId: schoolId },
+  })
+
+  if (!policy) {
+    policy = await prisma.staffLeavePolicy.create({
+      data: { organizationId: schoolId },
+    })
+  }
+
+  return policy
+}
+
+export async function updateLeavePolicy(schoolId: string, input: Record<string, unknown>) {
+  const existing = await prisma.staffLeavePolicy.findUnique({
+    where: { organizationId: schoolId },
+  })
+
+  if (existing) {
+    return prisma.staffLeavePolicy.update({
+      where: { organizationId: schoolId },
+      data: input as any,
+    })
+  }
+
+  return prisma.staffLeavePolicy.create({
+    data: { organizationId: schoolId, ...input } as any,
+  })
+}
+
+// ==================== Custom Leave Types ====================
+
+export async function listCustomLeaveTypes(schoolId: string) {
+  return prisma.customLeaveType.findMany({
+    where: { organizationId: schoolId },
+    orderBy: { name: 'asc' },
+  })
+}
+
+export async function createCustomLeaveType(schoolId: string, input: { name: string; code: string; isPaid?: boolean; maxDaysPerYear?: number; requiresApproval?: boolean }) {
+  return prisma.customLeaveType.create({
+    data: {
+      organizationId: schoolId,
+      name: input.name,
+      code: input.code,
+      isPaid: input.isPaid ?? true,
+      maxDaysPerYear: input.maxDaysPerYear ?? 10,
+      requiresApproval: input.requiresApproval ?? true,
+    },
+  })
+}
+
+export async function updateCustomLeaveType(id: string, input: Record<string, unknown>) {
+  return prisma.customLeaveType.update({ where: { id }, data: input as any })
+}
+
+export async function deleteCustomLeaveType(id: string) {
+  return prisma.customLeaveType.delete({ where: { id } })
+}
+
+// ==================== Blackout Dates ====================
+
+export async function listBlackoutDates(schoolId: string) {
+  return prisma.blackoutDate.findMany({
+    where: { organizationId: schoolId },
+    orderBy: { startDate: 'asc' },
+  })
+}
+
+export async function createBlackoutDate(schoolId: string, input: { startDate: string; endDate: string; reason: string; appliesTo?: string }) {
+  return prisma.blackoutDate.create({
+    data: {
+      organizationId: schoolId,
+      startDate: new Date(input.startDate),
+      endDate: new Date(input.endDate),
+      reason: input.reason,
+      appliesTo: (appliesToMap[input.appliesTo || 'all_staff'] || 'blackout_all_staff') as any,
+    },
+  })
+}
+
+export async function deleteBlackoutDate(id: string) {
+  return prisma.blackoutDate.delete({ where: { id } })
+}
+
+// ==================== Batch Allocate Annual Leave ====================
+
+export async function allocateAnnualLeave(schoolId: string) {
+  const policy = await getLeavePolicy(schoolId)
+  const academicYear = await prisma.academicYear.findFirst({
+    where: { isCurrent: true, organizationId: schoolId },
+  })
+  if (!academicYear) throw AppError.notFound('No active academic year found')
+
+  const activeStaff = await prisma.staff.findMany({
+    where: { organizationId: schoolId, status: 'active' },
+    select: { id: true },
+  })
+
+  const allocation: Record<string, number> = {
+    EL: policy.defaultEL,
+    CL: policy.defaultCL,
+    SL: policy.defaultSL,
+    PL: policy.defaultPL,
+  }
+
+  let created = 0
+  let skipped = 0
+
+  for (const staff of activeStaff) {
+    for (const [type, total] of Object.entries(allocation)) {
+      const existing = await prisma.leaveBalance.findUnique({
+        where: { staffId_type_academicYearId: { staffId: staff.id, type: type as any, academicYearId: academicYear.id } },
+      })
+      if (existing) {
+        skipped++
+        continue
+      }
+      await prisma.leaveBalance.create({
+        data: { staffId: staff.id, type: type as any, academicYearId: academicYear.id, total, used: 0, organizationId: schoolId },
+      })
+      created++
+    }
+  }
+
+  return { totalStaff: activeStaff.length, balancesCreated: created, balancesSkipped: skipped }
 }

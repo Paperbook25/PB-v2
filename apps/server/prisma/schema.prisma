@@ -726,6 +726,7 @@ model Student {
   marks               StudentMark[]
   reportCards         ReportCard[]
   coScholasticRecords CoScholasticRecord[]
+  attendanceAlerts    AttendanceAlert[]
 
   @@unique([organizationId, email])
   @@unique([organizationId, admissionNumber])
@@ -1410,6 +1411,118 @@ model LeaveRequest {
   @@index([startDate, endDate])
   @@index([organizationId])
   @@map("leave_requests")
+}
+
+// ==================== Attendance & Leave Policy Models ====================
+
+enum AlertType {
+  alert_below_threshold
+  alert_consecutive_absences
+  alert_exam_ineligible
+}
+
+enum AlertSeverity {
+  alert_warning
+  alert_critical
+}
+
+enum BlackoutAppliesTo {
+  blackout_all_staff
+  blackout_teachers_only
+  blackout_non_teaching
+}
+
+model AttendancePolicy {
+  id                        String   @id @default(uuid())
+  organizationId            String   @unique @map("organization_id")
+  minimumPercentage         Int      @default(75) @map("minimum_percentage")
+  warningPercentage         Int      @default(85) @map("warning_percentage")
+  consecutiveAbsenceDays    Int      @default(3) @map("consecutive_absence_days")
+  examEligibilityPercentage Int      @default(80) @map("exam_eligibility_percentage")
+  notifyParent              Boolean  @default(true) @map("notify_parent")
+  notifyTeacher             Boolean  @default(true) @map("notify_teacher")
+  notifyPrincipal           Boolean  @default(true) @map("notify_principal")
+  enabled                   Boolean  @default(true)
+  schoolStartTime           String?  @map("school_start_time") @db.VarChar(10)
+  lateAfterMinutes          Int      @default(15) @map("late_after_minutes")
+  halfDayAfterTime          String?  @map("half_day_after_time") @db.VarChar(10)
+  lateDetectionEnabled      Boolean  @default(false) @map("late_detection_enabled")
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+
+  @@map("attendance_policies")
+}
+
+model AttendanceAlert {
+  id                String        @id @default(uuid())
+  organizationId    String?       @map("organization_id")
+  studentId         String        @map("student_id")
+  type              AlertType
+  severity          AlertSeverity
+  currentPercentage Float?        @map("current_percentage")
+  threshold         Float?
+  message           String?       @db.Text
+  acknowledgedAt    DateTime?     @map("acknowledged_at")
+  acknowledgedBy    String?       @map("acknowledged_by")
+  createdAt         DateTime      @default(now()) @map("created_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([organizationId])
+  @@index([type])
+  @@index([acknowledgedAt])
+  @@map("attendance_alerts")
+}
+
+model StaffLeavePolicy {
+  id                      String   @id @default(uuid())
+  organizationId          String   @unique @map("organization_id")
+  defaultEL               Int      @default(15) @map("default_el")
+  defaultCL               Int      @default(12) @map("default_cl")
+  defaultSL               Int      @default(12) @map("default_sl")
+  defaultPL               Int      @default(7) @map("default_pl")
+  maxCarryForwardDays     Int      @default(5) @map("max_carry_forward_days")
+  carryForwardExpiryMonths Int     @default(3) @map("carry_forward_expiry_months")
+  minNoticeDays           Int      @default(1) @map("min_notice_days")
+  maxConsecutiveDays      Int      @default(15) @map("max_consecutive_days")
+  sandwichLeaveEnabled    Boolean  @default(false) @map("sandwich_leave_enabled")
+  probationLeaveFactor    Float    @default(0.5) @map("probation_leave_factor")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  @@map("staff_leave_policies")
+}
+
+model BlackoutDate {
+  id             String            @id @default(uuid())
+  organizationId String?           @map("organization_id")
+  startDate      DateTime          @map("start_date") @db.Date
+  endDate        DateTime          @map("end_date") @db.Date
+  reason         String
+  appliesTo      BlackoutAppliesTo @default(blackout_all_staff) @map("applies_to")
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  @@index([organizationId])
+  @@index([startDate, endDate])
+  @@map("blackout_dates")
+}
+
+model CustomLeaveType {
+  id               String   @id @default(uuid())
+  organizationId   String?  @map("organization_id")
+  name             String
+  code             String
+  isPaid           Boolean  @default(true) @map("is_paid")
+  maxDaysPerYear   Int      @default(10) @map("max_days_per_year")
+  requiresApproval Boolean  @default(true) @map("requires_approval")
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@map("custom_leave_types")
 }
 
 // ==================== Timetable Models ====================

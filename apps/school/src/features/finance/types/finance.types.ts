@@ -275,7 +275,7 @@ export interface RejectExpenseRequest {
 }
 
 export interface MarkExpensePaidRequest {
-  paymentRef?: string
+  paidRef?: string
 }
 
 // ==================== LEDGER ====================

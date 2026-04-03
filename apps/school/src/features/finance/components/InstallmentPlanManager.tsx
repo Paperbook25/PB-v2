@@ -170,7 +170,7 @@ export function InstallmentPlanManager() {
                             <td className="px-3 py-2 text-right">{formatCurrency(inst.paidAmount)}</td>
                             <td className="px-3 py-2">
                               <Badge variant={inst.status === 'paid' ? 'default' : inst.status === 'partial' ? 'outline' : 'secondary'}>
-                                {PAYMENT_STATUS_LABELS[inst.status]}
+                                {PAYMENT_STATUS_LABELS[inst.status] || inst.status}
                               </Badge>
                             </td>
                           </tr>

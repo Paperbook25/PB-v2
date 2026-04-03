@@ -11,7 +11,14 @@ export function FinanceStats() {
   const { data, isLoading, error } = useFinanceStats()
 
   if (error) {
-    return null
+    return (
+      <Card>
+        <CardContent className="p-4 flex items-center gap-2 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4" />
+          Failed to load finance stats. Please refresh.
+        </CardContent>
+      </Card>
+    )
   }
 
   const stats = data?.data

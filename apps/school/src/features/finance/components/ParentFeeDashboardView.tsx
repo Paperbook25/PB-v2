@@ -8,9 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useParentFeeDashboard } from '../hooks/useFinance'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { PAYMENT_STATUS_LABELS, PAYMENT_MODE_LABELS, type PaymentStatus, type PaymentMode } from '../types/finance.types'
-
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount)
+import { formatCurrency, formatDate } from '@/lib/utils'
 
 export function ParentFeeDashboardView() {
   const { data: result, isLoading } = useParentFeeDashboard()
@@ -80,7 +78,7 @@ export function ParentFeeDashboardView() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Academic Year</p>
-                <p className="text-2xl font-bold">{(dashboard as any).academicYear || `${new Date().getFullYear()}-${(new Date().getFullYear() + 1).toString().slice(-2)}`}</p>
+                <p className="text-2xl font-bold">{(dashboard as unknown as { academicYear?: string }).academicYear || `${new Date().getFullYear()}-${(new Date().getFullYear() + 1).toString().slice(-2)}`}</p>
               </div>
             </CardContent>
           </Card>
@@ -98,8 +96,8 @@ export function ParentFeeDashboardView() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2 mb-3">
-              <Progress value={child.paymentPercentage} className="flex-1 h-2" />
-              <span className="text-sm font-medium">{child.paymentPercentage}% paid</span>
+              <Progress value={child.paymentPercentage ?? 0} className="flex-1 h-2" />
+              <span className="text-sm font-medium">{child.paymentPercentage ?? 0}% paid</span>
             </div>
             <div className="grid grid-cols-4 gap-2 text-sm mb-3">
               <div><span className="text-muted-foreground">Total:</span> <span className="font-medium">{formatCurrency(child.totalFees)}</span></div>
@@ -124,10 +122,10 @@ export function ParentFeeDashboardView() {
                       <TableCell>{fee.feeTypeName}</TableCell>
                       <TableCell className="text-right">{formatCurrency(fee.totalAmount)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(fee.paidAmount)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(fee.totalAmount - fee.paidAmount - fee.discountAmount)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency((fee.totalAmount || 0) - (fee.paidAmount || 0) - (fee.discountAmount || 0))}</TableCell>
                       <TableCell>
                         <Badge variant={fee.status === 'paid' ? 'default' : fee.status === 'overdue' ? 'destructive' : 'secondary'}>
-                          {PAYMENT_STATUS_LABELS[fee.status]}
+                          {PAYMENT_STATUS_LABELS[fee.status] || fee.status || 'Unknown'}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -188,11 +186,11 @@ export function ParentFeeDashboardView() {
               <TableBody>
                 {dashboard.recentPayments.slice(0, 10).map(payment => (
                   <TableRow key={payment.id}>
-                    <TableCell>{new Date(payment.collectedAt).toLocaleDateString()}</TableCell>
+                    <TableCell>{formatDate(payment.collectedAt)}</TableCell>
                     <TableCell className="font-mono text-xs">{payment.receiptNumber}</TableCell>
                     <TableCell>{payment.feeTypeName}</TableCell>
                     <TableCell className="text-right font-medium">{formatCurrency(payment.amount)}</TableCell>
-                    <TableCell><Badge variant="outline">{PAYMENT_MODE_LABELS[payment.paymentMode]}</Badge></TableCell>
+                    <TableCell><Badge variant="outline">{PAYMENT_MODE_LABELS[payment.paymentMode] || payment.paymentMode}</Badge></TableCell>
                   </TableRow>
                 ))}
               </TableBody>

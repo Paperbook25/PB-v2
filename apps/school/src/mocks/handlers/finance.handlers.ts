@@ -915,7 +915,7 @@ export const financeHandlers = [
       status: 'paid',
       paidAt,
       paidBy: 'Current User',
-      paymentRef: body.paymentRef,
+      paymentRef: body.paidRef,
     }
 
     // Add ledger entry for expense

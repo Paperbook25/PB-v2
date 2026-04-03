@@ -52,8 +52,8 @@ router.post('/fee-structures/:id/assign', adminRoles, validate(assignFeeStructur
 
 // Static routes first
 router.post('/student-fees/bulk-assign', adminRoles, validate(bulkAssignSchema), audit, financeController.bulkAssignFees)
-router.get('/student-fees', adminRoles, financeController.listStudentFees)
-router.get('/student-fees/:id', adminRoles, financeController.getStudentFee)
+router.get('/student-fees', readRoles, financeController.listStudentFees)
+router.get('/student-fees/:id', readRoles, financeController.getStudentFee)
 router.put('/student-fees/:id', adminRoles, validate(updateStudentFeeSchema), audit, financeController.updateStudentFee)
 router.patch('/student-fees/:id/waive', adminRoles, audit, financeController.waiveStudentFee)
 router.delete('/student-fees/:id', adminRoles, audit, financeController.deleteStudentFee)

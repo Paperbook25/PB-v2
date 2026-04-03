@@ -72,7 +72,7 @@ export function ExpenseApprovalDialog({
     try {
       await markPaidMutation.mutateAsync({
         id: expense.id,
-        data: { paymentRef: paymentRef || undefined },
+        data: { paidRef: paymentRef || undefined },
       })
       setPaymentRef('')
       setAction(null)

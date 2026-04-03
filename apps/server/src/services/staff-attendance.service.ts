@@ -194,6 +194,24 @@ const DEFAULT_LEAVE_BALANCES: Record<string, number> = {
   EL: 15, CL: 12, SL: 12, PL: 7,
 }
 
+async function getLeaveAllocation(organizationId: string | null): Promise<Record<string, number>> {
+  // Try to load school-specific leave allocation from organization metadata JSON
+  if (organizationId) {
+    try {
+      const org = await prisma.organization.findUnique({ where: { id: organizationId } })
+      if (org?.metadata) {
+        const meta = JSON.parse(org.metadata)
+        if (meta?.leaveAllocation && typeof meta.leaveAllocation === 'object') {
+          return meta.leaveAllocation as Record<string, number>
+        }
+      }
+    } catch {
+      // Fall through to defaults if parse fails or field missing
+    }
+  }
+  return DEFAULT_LEAVE_BALANCES
+}
+
 export async function getLeaveBalance(staffId: string) {
   const staff = await prisma.staff.findUnique({ where: { id: staffId } })
   if (!staff) throw AppError.notFound('Staff not found')
@@ -209,7 +227,8 @@ export async function getLeaveBalance(staffId: string) {
   })
 
   if (existing.length === 0) {
-    for (const [type, total] of Object.entries(DEFAULT_LEAVE_BALANCES)) {
+    const allocation = await getLeaveAllocation(staff.organizationId)
+    for (const [type, total] of Object.entries(allocation)) {
       await prisma.leaveBalance.create({
         data: {
           staffId,

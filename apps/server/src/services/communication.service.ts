@@ -9,6 +9,7 @@ interface ListAnnouncementsQuery {
   type?: string
   published?: string
   search?: string
+  audience?: string // Filter by targetAudience (e.g., 'students', 'parents', 'staff')
 }
 
 interface CreateAnnouncementInput {
@@ -71,6 +72,7 @@ export async function listAnnouncements(schoolId: string, query: ListAnnouncemen
   if (query.type) where.type = query.type
   if (query.published === 'true') where.isPublished = true
   if (query.published === 'false') where.isPublished = false
+  if (query.audience) where.targetAudience = { in: ['all', query.audience] }
   if (query.search) {
     where.OR = [
       { title: { contains: query.search, mode: 'insensitive' } },

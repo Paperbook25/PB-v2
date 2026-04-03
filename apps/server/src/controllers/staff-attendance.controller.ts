@@ -1,5 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as staffAttendanceService from '../services/staff-attendance.service.js'
+import * as leaveService from '../services/leave.service.js'
+import { AppError } from '../utils/errors.js'
 import {
   getStaffAttendanceSchema, staffAttendanceHistorySchema,
   staffAttendanceSummarySchema, listLeaveRequestsSchema,
@@ -81,6 +83,14 @@ export async function updateLeaveRequest(req: Request, res: Response, next: Next
     const result = await staffAttendanceService.updateLeaveRequest(
       String(req.params.id), req.body as UpdateLeaveRequestInput, reviewedBy
     )
+    res.json(result)
+  } catch (err) { next(err) }
+}
+
+export async function cancelLeaveRequest(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.schoolId) throw AppError.badRequest('No school context')
+    const result = await leaveService.cancelLeave(req.schoolId, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 }

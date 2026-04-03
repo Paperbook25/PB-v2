@@ -23,6 +23,7 @@ router.post('/attendance', adminPrincipal, validate(markStaffAttendanceSchema), 
 // Leave requests (all)
 router.get('/leave-requests', adminPrincipal, staffAttendanceController.listAllLeaveRequests)
 router.patch('/leave-requests/:id', adminPrincipal, validate(updateLeaveRequestSchema), staffAttendanceController.updateLeaveRequest)
+router.patch('/leave-requests/:id/cancel', writeRoles, staffAttendanceController.cancelLeaveRequest)
 
 // ==================== Per-staff routes (MUST be before /:id in main staff router) ====================
 

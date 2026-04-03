@@ -376,6 +376,28 @@ export async function createLeaveRequest(staffId: string, input: CreateLeaveRequ
     throw AppError.badRequest(`Insufficient ${input.type} leave balance. Available: ${currentBalance - pendingDays}, Requested: ${input.days}`)
   }
 
+  // Check blackout dates
+  if (staff.organizationId) {
+    const blackouts = await prisma.blackoutDate.findMany({
+      where: {
+        organizationId: staff.organizationId,
+        startDate: { lte: new Date(input.endDate) },
+        endDate: { gte: new Date(input.startDate) },
+      },
+    })
+    if (blackouts.length > 0) {
+      throw AppError.badRequest(`Leave cannot be taken during blackout period: ${blackouts[0].reason}`)
+    }
+
+    // Check max consecutive days from policy
+    const policy = await prisma.staffLeavePolicy.findUnique({
+      where: { organizationId: staff.organizationId },
+    })
+    if (policy && input.days > policy.maxConsecutiveDays) {
+      throw AppError.badRequest(`Maximum ${policy.maxConsecutiveDays} consecutive leave days allowed`)
+    }
+  }
+
   const request = await prisma.leaveRequest.create({
     data: {
       staffId,

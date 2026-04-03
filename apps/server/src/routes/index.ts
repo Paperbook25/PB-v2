@@ -40,6 +40,7 @@ import hostelRouter from './hostel.routes.js'
 import behaviorRouter from './behavior.routes.js'
 import lmsRouter from './lms.routes.js'
 import parentPortalRouter from './parent-portal.routes.js'
+import messagingRouter from './messaging.routes.js'
 import alumniRouter from './alumni.routes.js'
 import clubRouter from './club.routes.js'
 import facilityRouter from './facility.routes.js'
@@ -334,6 +335,9 @@ router.use('/lms', requireTenant, requireAddon('lms'), lmsRouter)
 
 // Parent Portal
 router.use('/parent-portal', requireTenant, parentPortalRouter)
+
+// Messaging
+router.use('/messaging', requireTenant, messagingRouter)
 
 // Alumni Management
 router.use('/alumni', requireTenant, requireAddon('alumni'), alumniRouter)

@@ -14,6 +14,7 @@ import { SchoolSuspendedPage } from '@/features/tenant/pages/SchoolSuspendedPage
 import { TenantLoadingPage } from '@/features/tenant/pages/TenantLoadingPage'
 import type { Role } from '@/types/common.types'
 import { AddonGate } from '@/components/AddonGate'
+import { DevRoleSwitcher } from '@/components/dev/DevRoleSwitcher'
 
 // Eagerly load LoginPage for fast initial render
 import { LoginPage } from '@/features/auth/pages/LoginPage'
@@ -298,6 +299,7 @@ export default function App() {
       <TenantGate>
       <BrowserRouter>
         <Toaster />
+        <DevRoleSwitcher />
         <Routes>
           {/* Public routes (no layout) */}
           <Route path="/login" element={<LoginPage />} />

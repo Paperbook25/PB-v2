@@ -728,6 +728,7 @@ model Student {
   coScholasticRecords CoScholasticRecord[]
   attendanceAlerts    AttendanceAlert[]
   conversations       Conversation[]
+  leaveRequests       StudentLeaveRequest[]
 
   @@unique([organizationId, email])
   @@unique([organizationId, admissionNumber])
@@ -976,6 +977,7 @@ model Staff {
   timetableEntries        TimetableEntry[]               @relation("EntryTeacher")
   originalSubstitutions   Substitution[]                 @relation("OriginalTeacher")
   substituteSubstitutions Substitution[]                 @relation("SubstituteTeacher")
+  leaveEncashments        LeaveEncashment[]
 
   @@unique([organizationId, email])
   @@unique([organizationId, employeeId])
@@ -1524,6 +1526,96 @@ model CustomLeaveType {
   @@unique([organizationId, code])
   @@index([organizationId])
   @@map("custom_leave_types")
+}
+
+// ==================== Work Schedule & Shift Models ====================
+
+model WorkSchedule {
+  id               String   @id @default(uuid())
+  organizationId   String?  @map("organization_id")
+  name             String   // "Default", "Morning Shift", "Evening Shift"
+  startTime        String   @map("start_time") @db.VarChar(10) // "09:00"
+  endTime          String   @map("end_time") @db.VarChar(10)   // "17:00"
+  breakStartTime   String?  @map("break_start_time") @db.VarChar(10)
+  breakEndTime     String?  @map("break_end_time") @db.VarChar(10)
+  workingDays      Json     @map("working_days") // ["monday","tuesday","wednesday","thursday","friday","saturday"]
+  graceMinutes     Int      @default(15) @map("grace_minutes")
+  halfDayMinHours  Float    @default(4) @map("half_day_min_hours")
+  fullDayMinHours  Float    @default(8) @map("full_day_min_hours")
+  isDefault        Boolean  @default(false) @map("is_default")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@map("work_schedules")
+}
+
+// ==================== Leave Encashment Models ====================
+
+enum EncashmentStatus {
+  encash_pending
+  encash_approved
+  encash_rejected
+  encash_processed
+}
+
+model LeaveEncashment {
+  id             String           @id @default(uuid())
+  organizationId String?          @map("organization_id")
+  staffId        String           @map("staff_id")
+  leaveType      LeaveType        @map("leave_type")
+  daysEncashed   Float            @map("days_encashed")
+  dailyRate      Float            @map("daily_rate")
+  totalAmount    Float            @map("total_amount")
+  status         EncashmentStatus @default(encash_pending)
+  requestedAt    DateTime         @default(now()) @map("requested_at")
+  processedBy    String?          @map("processed_by")
+  processedAt    DateTime?        @map("processed_at")
+  remarks        String?          @db.Text
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
+  @@index([status])
+  @@index([organizationId])
+  @@map("leave_encashments")
+}
+
+// ==================== Student Leave Models ====================
+
+enum StudentLeaveStatus {
+  student_leave_pending
+  student_leave_approved
+  student_leave_rejected
+  student_leave_cancelled
+}
+
+model StudentLeaveRequest {
+  id             String             @id @default(uuid())
+  organizationId String?            @map("organization_id")
+  studentId      String             @map("student_id")
+  reason         String             @db.Text
+  startDate      DateTime           @map("start_date") @db.Date
+  endDate        DateTime           @map("end_date") @db.Date
+  days           Float
+  category       String             @default("general") // medical, family, personal, general
+  attachmentUrl  String?            @map("attachment_url")
+  status         StudentLeaveStatus @default(student_leave_pending)
+  appliedBy      String?            @map("applied_by") // parent email or student email
+  reviewedBy     String?            @map("reviewed_by")
+  reviewRemarks  String?            @map("review_remarks") @db.Text
+  reviewedAt     DateTime?          @map("reviewed_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@index([startDate, endDate])
+  @@index([organizationId])
+  @@map("student_leave_requests")
 }
 
 // ==================== Messaging Models ====================

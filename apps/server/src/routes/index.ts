@@ -41,6 +41,8 @@ import behaviorRouter from './behavior.routes.js'
 import lmsRouter from './lms.routes.js'
 import parentPortalRouter from './parent-portal.routes.js'
 import messagingRouter from './messaging.routes.js'
+import studentLeaveRouter from './student-leave.routes.js'
+import workScheduleRouter from './work-schedule.routes.js'
 import alumniRouter from './alumni.routes.js'
 import clubRouter from './club.routes.js'
 import facilityRouter from './facility.routes.js'
@@ -338,6 +340,12 @@ router.use('/parent-portal', requireTenant, parentPortalRouter)
 
 // Messaging
 router.use('/messaging', requireTenant, messagingRouter)
+
+// Student Leave Requests
+router.use('/student-leave', requireTenant, studentLeaveRouter)
+
+// Work Schedules & Leave Encashment
+router.use('/staff-management', requireTenant, workScheduleRouter)
 
 // Alumni Management
 router.use('/alumni', requireTenant, requireAddon('alumni'), alumniRouter)

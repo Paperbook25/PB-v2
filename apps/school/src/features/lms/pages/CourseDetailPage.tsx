@@ -214,7 +214,7 @@ export function CourseDetailPage() {
                   <p className="text-xs text-muted-foreground">Rating</p>
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4" style={{ fill: ratingColors.star, color: ratingColors.star }} />
-                    <span className="font-semibold">{course.rating.toFixed(1)}</span>
+                    <span className="font-semibold">{(course.rating ?? 0).toFixed(1)}</span>
                   </div>
                 </div>
                 <div>

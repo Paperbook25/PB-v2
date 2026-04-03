@@ -177,7 +177,7 @@ export function StockPage() {
                       <TableRow key={item.id}>
                         <TableCell className="font-mono text-sm">{item.sku}</TableCell>
                         <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell>{STOCK_CATEGORY_LABELS[item.category]}</TableCell>
+                        <TableCell>{STOCK_CATEGORY_LABELS[item.category] || item.category}</TableCell>
                         <TableCell>{item.location}</TableCell>
                         <TableCell>
                           {item.currentStock} {item.unit}

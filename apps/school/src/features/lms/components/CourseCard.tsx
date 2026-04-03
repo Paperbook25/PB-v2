@@ -103,7 +103,7 @@ export function CourseCard({ course, onClick }: CourseCardProps) {
           <div className="flex items-center gap-3 text-muted-foreground">
             <span className="flex items-center gap-1">
               <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-              {course.rating.toFixed(1)}
+              {(course.rating ?? 0).toFixed(1)}
             </span>
             <span className="flex items-center gap-1">
               <Users className="h-3.5 w-3.5" />

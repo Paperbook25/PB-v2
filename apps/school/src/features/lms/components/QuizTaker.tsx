@@ -173,8 +173,8 @@ function QuizView({
   const [showConfirm, setShowConfirm] = useState(false)
 
   const hasTimer = quiz.duration > 0
-  const totalQuestions = quiz.questions.length
-  const question = quiz.questions[currentQuestion]
+  const totalQuestions = quiz.questions?.length ?? 0
+  const question = quiz.questions?.[currentQuestion]
   const answeredCount = Object.keys(answers).filter(
     (k) => answers[k]?.trim()
   ).length
@@ -268,6 +268,9 @@ function QuizView({
       </div>
 
       {/* Question card */}
+      {!question ? (
+        <Card><CardContent className="py-8 text-center text-muted-foreground">No questions available.</CardContent></Card>
+      ) : (
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -325,6 +328,7 @@ function QuizView({
           )}
         </CardContent>
       </Card>
+      )}
 
       {/* Navigation + Submit */}
       <div className="flex items-center justify-between pt-2">

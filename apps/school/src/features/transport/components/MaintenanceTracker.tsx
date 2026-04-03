@@ -184,7 +184,7 @@ export function MaintenanceTracker() {
                   <TableCell>{statusIcon(record.status)}</TableCell>
                   <TableCell className="font-mono text-xs">{record.vehicleNumber}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-xs">{MAINTENANCE_TYPE_LABELS[record.type]}</Badge>
+                    <Badge variant="outline" className="text-xs">{MAINTENANCE_TYPE_LABELS[record.type] || record.type}</Badge>
                   </TableCell>
                   <TableCell className="max-w-[200px] truncate text-sm">{record.description}</TableCell>
                   <TableCell className="text-xs">{record.scheduledDate}</TableCell>
@@ -192,7 +192,7 @@ export function MaintenanceTracker() {
                   <TableCell className="text-right font-medium">{formatCurrency(record.cost)}</TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(record.status)}>
-                      {MAINTENANCE_STATUS_LABELS[record.status]}
+                      {MAINTENANCE_STATUS_LABELS[record.status] || record.status}
                     </Badge>
                   </TableCell>
                   <TableCell>

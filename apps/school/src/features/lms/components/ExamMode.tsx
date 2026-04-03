@@ -96,7 +96,7 @@ function ExamResults({ attempt, questions, onClose }: ExamResultsProps) {
                 {attempt.score} / {attempt.totalPoints}
               </p>
               <p className="text-lg text-muted-foreground">
-                {attempt.percentage.toFixed(1)}%
+                {(attempt.percentage ?? 0).toFixed(1)}%
               </p>
               <Badge
                 variant={attempt.passed ? 'default' : 'destructive'}

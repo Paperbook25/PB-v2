@@ -269,7 +269,7 @@ export function StudentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {attendanceData?.recentRecords?.slice(0, 5).map((record: any) => (
+              {(attendanceData?.recentRecords ?? []).slice(0, 5).map((record: any) => (
                 <div key={record.id} className="flex items-center justify-between py-2 border-b last:border-0">
                   <div>
                     <p className="text-sm font-medium">{formatDate(record.date, { weekday: 'short', month: 'short', day: 'numeric' })}</p>
@@ -314,7 +314,7 @@ export function StudentDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {announcements?.slice(0, 4).map((item: any) => (
+            {(announcements ?? []).slice(0, 4).map((item: any) => (
               <div key={item.id} className="space-y-1 pb-3 border-b last:border-0">
                 <div className="flex items-center gap-2">
                   <Badge
@@ -359,7 +359,7 @@ export function StudentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2">
-              {courses?.slice(0, 4).map((course: any) => (
+              {(courses ?? []).slice(0, 4).map((course: any) => (
                 <Link key={course.id} to={`/lms/courses/${course.id}/learn`}>
                   <div className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="p-2 rounded-lg bg-primary/10">
@@ -456,7 +456,7 @@ export function StudentDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-              {assignments?.slice(0, 4).map((assignment: any) => (
+              {(assignments ?? []).slice(0, 4).map((assignment: any) => (
                 <div
                   key={assignment.id}
                   className={cn(
@@ -495,7 +495,7 @@ export function StudentDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {events?.slice(0, 4).map((event: any) => (
+            {(events ?? []).slice(0, 4).map((event: any) => (
               <div
                 key={event.id}
                 className={cn(

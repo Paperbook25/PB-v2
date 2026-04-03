@@ -141,7 +141,7 @@ export function HostelPage() {
                       <div className="text-right">
                         <p className="font-medium">{formatCurrency(fee.amount)}</p>
                         <Badge variant={fee.status === 'overdue' ? 'destructive' : 'secondary'}>
-                          {HOSTEL_FEE_STATUS_LABELS[fee.status]}
+                          {HOSTEL_FEE_STATUS_LABELS[fee.status] || fee.status}
                         </Badge>
                       </div>
                     </div>

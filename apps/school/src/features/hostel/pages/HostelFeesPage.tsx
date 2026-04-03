@@ -279,7 +279,7 @@ export function HostelFeesPage() {
                       <TableCell>{fee.dueDate}</TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(fee.status)}>
-                          {HOSTEL_FEE_STATUS_LABELS[fee.status]}
+                          {HOSTEL_FEE_STATUS_LABELS[fee.status] || fee.status}
                         </Badge>
                       </TableCell>
                       <TableCell>

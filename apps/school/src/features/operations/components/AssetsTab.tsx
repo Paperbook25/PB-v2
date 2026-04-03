@@ -760,7 +760,7 @@ function StockSubTab() {
                     <TableRow key={item.id}>
                       <TableCell className="font-mono text-sm">{item.sku}</TableCell>
                       <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell>{STOCK_CATEGORY_LABELS[item.category]}</TableCell>
+                      <TableCell>{STOCK_CATEGORY_LABELS[item.category] || item.category}</TableCell>
                       <TableCell>{item.location}</TableCell>
                       <TableCell>
                         {item.currentStock} {item.unit}
@@ -1342,7 +1342,7 @@ function VendorsSubTab() {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{vendor.rating.toFixed(1)}</span>
+                        <span>{(vendor.rating ?? 0).toFixed(1)}</span>
                       </div>
                     </TableCell>
                     <TableCell>{vendor.totalOrders}</TableCell>

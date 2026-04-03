@@ -3753,6 +3753,162 @@ model UsageMetric {
 }
 
 // ============================================================================
+// Gravity Portal — Feature Usage Tracking
+// ============================================================================
+
+model FeatureUsageAggregate {
+  id         String   @id @default(uuid())
+  schoolId   String   @map("school_id")
+  module     String   // attendance, finance, students, staff, exams, lms, library, etc.
+  action     String   // create, update, delete, export, import
+  count      Int      @default(0)
+  date       DateTime @db.Date
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([schoolId, module, action, date])
+  @@index([schoolId])
+  @@index([module])
+  @@index([date])
+  @@map("feature_usage_aggregates")
+}
+
+// ============================================================================
+// Gravity Portal — Support Ticketing
+// ============================================================================
+
+enum TicketStatus {
+  ticket_open
+  ticket_in_progress
+  ticket_waiting
+  ticket_resolved
+  ticket_closed
+}
+
+enum TicketPriority {
+  ticket_low
+  ticket_medium
+  ticket_high
+  ticket_urgent
+}
+
+model SupportTicket {
+  id          String         @id @default(uuid())
+  schoolId    String         @map("school_id")
+  schoolName  String         @map("school_name")
+  subject     String
+  description String         @db.Text
+  category    String         @default("general") // general, billing, technical, feature_request, bug
+  priority    TicketPriority @default(ticket_medium)
+  status      TicketStatus   @default(ticket_open)
+  assignedTo  String?        @map("assigned_to") // gravity admin id
+  assignedName String?       @map("assigned_name")
+  reportedBy  String?        @map("reported_by") // school admin email
+  resolvedAt  DateTime?      @map("resolved_at")
+  closedAt    DateTime?      @map("closed_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  responses TicketResponse[]
+
+  @@index([schoolId])
+  @@index([status])
+  @@index([priority])
+  @@index([assignedTo])
+  @@map("support_tickets")
+}
+
+model TicketResponse {
+  id        String   @id @default(uuid())
+  ticketId  String   @map("ticket_id")
+  authorId  String   @map("author_id")
+  authorName String  @map("author_name")
+  authorType String  @map("author_type") // school_admin, gravity_admin
+  content   String   @db.Text
+  isInternal Boolean @default(false) @map("is_internal") // internal notes not visible to school
+  createdAt DateTime @default(now()) @map("created_at")
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_responses")
+}
+
+// ============================================================================
+// Gravity Portal — Credit Notes
+// ============================================================================
+
+enum CreditNoteStatus {
+  cn_draft
+  cn_issued
+  cn_applied
+  cn_cancelled
+}
+
+model CreditNote {
+  id          String           @id @default(uuid())
+  schoolId    String           @map("school_id")
+  invoiceId   String?          @map("invoice_id") // linked invoice if refund
+  amount      Decimal          @db.Decimal(12, 2)
+  reason      String           @db.Text
+  status      CreditNoteStatus @default(cn_draft)
+  issuedAt    DateTime?        @map("issued_at")
+  issuedBy    String?          @map("issued_by")
+  appliedAt   DateTime?        @map("applied_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@index([schoolId])
+  @@index([status])
+  @@map("credit_notes")
+}
+
+// ============================================================================
+// Gravity Portal — Communication Archive
+// ============================================================================
+
+model CommunicationLog {
+  id          String   @id @default(uuid())
+  schoolId    String?  @map("school_id")
+  schoolName  String?  @map("school_name")
+  channel     String   // email, sms, in_app, phone, meeting
+  direction   String   // inbound, outbound
+  subject     String?
+  content     String   @db.Text
+  fromAddress String?  @map("from_address")
+  toAddress   String?  @map("to_address")
+  sentBy      String?  @map("sent_by") // gravity admin who sent
+  sentByName  String?  @map("sent_by_name")
+  metadata    String?  @db.Text // JSON for extra context
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([schoolId])
+  @@index([channel])
+  @@index([createdAt])
+  @@map("communication_logs")
+}
+
+// ============================================================================
+// Gravity Portal — Custom Dashboard
+// ============================================================================
+
+model DashboardWidget {
+  id          String   @id @default(uuid())
+  adminId     String   @map("admin_id") // gravity admin who created
+  title       String
+  type        String   // stat_card, line_chart, bar_chart, pie_chart, table, heatmap
+  dataSource  String   @map("data_source") // schools, subscriptions, revenue, usage, tickets, etc.
+  config      String   @db.Text // JSON config (filters, date range, metric, groupBy)
+  position    Int      @default(0) // order on dashboard
+  width       Int      @default(1) // 1=quarter, 2=half, 4=full
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([adminId])
+  @@map("dashboard_widgets")
+}
+
+// ============================================================================
 // Gravity Portal — System Health
 // ============================================================================
 

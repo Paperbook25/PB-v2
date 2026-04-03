@@ -13,6 +13,11 @@ import analyticsRouter from './analytics.routes.js'
 import usageRouter from './usage.routes.js'
 import healthRouter from './health.routes.js'
 import securityRouter from './security.routes.js'
+import featureUsageRouter from './feature-usage.routes.js'
+import ticketRouter from './ticket.routes.js'
+import creditNoteRouter from './credit-note.routes.js'
+import communicationLogRouter from './communication-log.routes.js'
+import dashboardWidgetRouter from './dashboard-widget.routes.js'
 
 const router = Router()
 
@@ -33,5 +38,10 @@ router.use('/analytics', analyticsRouter)
 router.use('/usage', usageRouter)
 router.use('/health', healthRouter)
 router.use('/security', securityRouter)
+router.use('/feature-usage', featureUsageRouter)
+router.use('/tickets', ticketRouter)
+router.use('/credit-notes', creditNoteRouter)
+router.use('/communication-logs', communicationLogRouter)
+router.use('/dashboard-widgets', dashboardWidgetRouter)
 
 export default router

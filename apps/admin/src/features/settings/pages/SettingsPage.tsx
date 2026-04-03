@@ -8,14 +8,43 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  Mail,
   Globe,
-  Bell,
 } from 'lucide-react'
+
+interface PlatformSettings {
+  platformName: string
+  defaultTrialDuration: number
+  defaultPlan: 'free' | 'starter' | 'professional' | 'enterprise'
+  primaryColor: string
+}
+
+interface SecuritySettings {
+  minPasswordLength: number
+  sessionTimeoutHours: number
+  require2FA: boolean
+  maxLoginAttempts: number
+}
+
+const DEFAULT_PLATFORM: PlatformSettings = {
+  platformName: 'PaperBook',
+  defaultTrialDuration: 14,
+  defaultPlan: 'free',
+  primaryColor: '#6366f1',
+}
+
+const DEFAULT_SECURITY: SecuritySettings = {
+  minPasswordLength: 8,
+  sessionTimeoutHours: 168,
+  require2FA: false,
+  maxLoginAttempts: 5,
+}
 
 export function SettingsPage() {
   const user = useAdminAuthStore((s) => s.user)
 
+  const [settingsTab, setSettingsTab] = useState<'account' | 'platform' | 'security'>('account')
+
+  // --- Account state ---
   const [accountForm, setAccountForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -35,6 +64,31 @@ export function SettingsPage() {
   const [passwordSuccess, setPasswordSuccess] = useState(false)
   const [passwordError, setPasswordError] = useState('')
 
+  // --- Platform state ---
+  const [platformForm, setPlatformForm] = useState<PlatformSettings>(() => {
+    try {
+      const saved = localStorage.getItem('pb_platform_settings')
+      return saved ? { ...DEFAULT_PLATFORM, ...JSON.parse(saved) } : DEFAULT_PLATFORM
+    } catch {
+      return DEFAULT_PLATFORM
+    }
+  })
+  const [platformSaving, setPlatformSaving] = useState(false)
+  const [platformSuccess, setPlatformSuccess] = useState(false)
+
+  // --- Security state ---
+  const [securityForm, setSecurityForm] = useState<SecuritySettings>(() => {
+    try {
+      const saved = localStorage.getItem('pb_security_settings')
+      return saved ? { ...DEFAULT_SECURITY, ...JSON.parse(saved) } : DEFAULT_SECURITY
+    } catch {
+      return DEFAULT_SECURITY
+    }
+  })
+  const [securitySaving, setSecuritySaving] = useState(false)
+  const [securitySuccess, setSecuritySuccess] = useState(false)
+
+  // --- Account handlers ---
   const handleAccountSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setAccountSaving(true)
@@ -100,6 +154,30 @@ export function SettingsPage() {
     }
   }
 
+  // --- Platform handler ---
+  const handlePlatformSave = (e: React.FormEvent) => {
+    e.preventDefault()
+    setPlatformSaving(true)
+    setTimeout(() => {
+      localStorage.setItem('pb_platform_settings', JSON.stringify(platformForm))
+      setPlatformSaving(false)
+      setPlatformSuccess(true)
+      setTimeout(() => setPlatformSuccess(false), 3000)
+    }, 400)
+  }
+
+  // --- Security handler ---
+  const handleSecuritySave = (e: React.FormEvent) => {
+    e.preventDefault()
+    setSecuritySaving(true)
+    setTimeout(() => {
+      localStorage.setItem('pb_security_settings', JSON.stringify(securityForm))
+      setSecuritySaving(false)
+      setSecuritySuccess(true)
+      setTimeout(() => setSecuritySuccess(false), 3000)
+    }, 400)
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -110,207 +188,397 @@ export function SettingsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Main Content */}
-        <div className="space-y-6 lg:col-span-2">
-          {/* Account Information */}
+      {/* Tab Switcher */}
+      <div className="flex gap-1 border-b mb-6">
+        {(['account', 'platform', 'security'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setSettingsTab(tab)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors capitalize ${
+              settingsTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab === 'account' ? 'Account' : tab === 'platform' ? 'Platform' : 'Security'}
+          </button>
+        ))}
+      </div>
+
+      {/* ==================== ACCOUNT TAB ==================== */}
+      {settingsTab === 'account' && (
+        <div className="space-y-6">
+          {/* Admin Profile Card */}
+          <div className="rounded-lg border bg-card p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-xl font-bold text-primary">
+                {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">{user?.name || 'Admin'}</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">{user?.email || 'admin@paperbook.io'}</p>
+                <span className="mt-1 inline-block rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold capitalize text-primary">
+                  {user?.role || 'super_admin'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Two-column grid for Account Info + Password */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Account Information */}
+            <div className="rounded-lg border bg-card">
+              <div className="border-b border-border px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <User className="h-4.5 w-4.5 text-muted-foreground" />
+                  <h2 className="text-sm font-semibold text-foreground">Account Information</h2>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Update your profile information
+                </p>
+              </div>
+              <form onSubmit={handleAccountSave} className="space-y-4 px-6 py-5">
+                {accountError && (
+                  <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {accountError}
+                  </div>
+                )}
+                {accountSuccess && (
+                  <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Account updated successfully
+                  </div>
+                )}
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={accountForm.name}
+                    onChange={(e) => setAccountForm((p) => ({ ...p, name: e.target.value }))}
+                    className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={accountForm.email}
+                    disabled
+                    className="h-10 w-full rounded-lg border border-input bg-muted px-3 text-sm text-muted-foreground cursor-not-allowed"
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Email cannot be changed from this portal
+                  </p>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={accountSaving}
+                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                  >
+                    {accountSaving ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Save className="h-3.5 w-3.5" />
+                    )}
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Change Password */}
+            <div className="rounded-lg border bg-card">
+              <div className="border-b border-border px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4.5 w-4.5 text-muted-foreground" />
+                  <h2 className="text-sm font-semibold text-foreground">Change Password</h2>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Update your password for security
+                </p>
+              </div>
+              <form onSubmit={handlePasswordChange} className="space-y-4 px-6 py-5">
+                {passwordError && (
+                  <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {passwordError}
+                  </div>
+                )}
+                {passwordSuccess && (
+                  <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Password changed successfully
+                  </div>
+                )}
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                    required
+                    className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+                    required
+                    placeholder="Minimum 8 characters"
+                    className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                    required
+                    className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={passwordSaving}
+                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                  >
+                    {passwordSaving ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Lock className="h-3.5 w-3.5" />
+                    )}
+                    Change Password
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== PLATFORM TAB ==================== */}
+      {settingsTab === 'platform' && (
+        <div className="max-w-2xl">
           <div className="rounded-lg border bg-card">
             <div className="border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
-                <User className="h-4.5 w-4.5 text-muted-foreground" />
-                <h2 className="text-sm font-semibold text-foreground">Account Information</h2>
+                <Globe className="h-4.5 w-4.5 text-muted-foreground" />
+                <h2 className="text-sm font-semibold text-foreground">Platform Settings</h2>
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Update your profile information
+                Configure platform-wide defaults and branding
               </p>
             </div>
-            <form onSubmit={handleAccountSave} className="space-y-4 px-6 py-5">
-              {accountError && (
-                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                  <AlertCircle className="h-3.5 w-3.5" />
-                  {accountError}
-                </div>
-              )}
-              {accountSuccess && (
+            <form onSubmit={handlePlatformSave} className="space-y-4 px-6 py-5">
+              {platformSuccess && (
                 <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
                   <CheckCircle className="h-3.5 w-3.5" />
-                  Account updated successfully
+                  Platform settings saved successfully
                 </div>
               )}
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                  Full Name
+                  Platform Name
                 </label>
                 <input
                   type="text"
-                  value={accountForm.name}
-                  onChange={(e) => setAccountForm((p) => ({ ...p, name: e.target.value }))}
+                  value={platformForm.platformName}
+                  onChange={(e) => setPlatformForm((p) => ({ ...p, platformName: e.target.value }))}
                   className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                  Email Address
+                  Default Trial Duration (days)
                 </label>
                 <input
-                  type="email"
-                  value={accountForm.email}
-                  disabled
-                  className="h-10 w-full rounded-lg border border-input bg-muted px-3 text-sm text-muted-foreground cursor-not-allowed"
+                  type="number"
+                  min={1}
+                  max={365}
+                  value={platformForm.defaultTrialDuration}
+                  onChange={(e) => setPlatformForm((p) => ({ ...p, defaultTrialDuration: Number(e.target.value) }))}
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Email cannot be changed from this portal
-                </p>
               </div>
 
-              <div className="flex justify-end">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  Default Plan
+                </label>
+                <select
+                  value={platformForm.defaultPlan}
+                  onChange={(e) => setPlatformForm((p) => ({ ...p, defaultPlan: e.target.value as PlatformSettings['defaultPlan'] }))}
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                  <option value="free">Free</option>
+                  <option value="starter">Starter</option>
+                  <option value="professional">Professional</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  Primary Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={platformForm.primaryColor}
+                    onChange={(e) => setPlatformForm((p) => ({ ...p, primaryColor: e.target.value }))}
+                    placeholder="#6366f1"
+                    className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                  <div
+                    className="h-10 w-10 shrink-0 rounded-lg border border-input"
+                    style={{ backgroundColor: platformForm.primaryColor }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
-                  disabled={accountSaving}
+                  disabled={platformSaving}
                   className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
                 >
-                  {accountSaving ? (
+                  {platformSaving ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     <Save className="h-3.5 w-3.5" />
                   )}
-                  Save Changes
+                  Save Settings
                 </button>
               </div>
             </form>
           </div>
+        </div>
+      )}
 
-          {/* Change Password */}
+      {/* ==================== SECURITY TAB ==================== */}
+      {settingsTab === 'security' && (
+        <div className="max-w-2xl">
           <div className="rounded-lg border bg-card">
             <div className="border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
-                <Lock className="h-4.5 w-4.5 text-muted-foreground" />
-                <h2 className="text-sm font-semibold text-foreground">Change Password</h2>
+                <Shield className="h-4.5 w-4.5 text-muted-foreground" />
+                <h2 className="text-sm font-semibold text-foreground">Security Settings</h2>
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Update your password for security
+                Configure authentication and security policies
               </p>
             </div>
-            <form onSubmit={handlePasswordChange} className="space-y-4 px-6 py-5">
-              {passwordError && (
-                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                  <AlertCircle className="h-3.5 w-3.5" />
-                  {passwordError}
-                </div>
-              )}
-              {passwordSuccess && (
+            <form onSubmit={handleSecuritySave} className="space-y-4 px-6 py-5">
+              {securitySuccess && (
                 <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
                   <CheckCircle className="h-3.5 w-3.5" />
-                  Password changed successfully
+                  Security settings saved successfully
                 </div>
               )}
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                  Current Password
+                  Minimum Password Length
                 </label>
                 <input
-                  type="password"
-                  value={passwordForm.currentPassword}
-                  onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
-                  required
+                  type="number"
+                  min={6}
+                  max={128}
+                  value={securityForm.minPasswordLength}
+                  onChange={(e) => setSecurityForm((p) => ({ ...p, minPasswordLength: Number(e.target.value) }))}
                   className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                  New Password
+                  Session Timeout (hours)
                 </label>
                 <input
-                  type="password"
-                  value={passwordForm.newPassword}
-                  onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
-                  required
-                  placeholder="Minimum 8 characters"
-                  className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                  type="number"
+                  min={1}
+                  max={720}
+                  value={securityForm.sessionTimeoutHours}
+                  onChange={(e) => setSecurityForm((p) => ({ ...p, sessionTimeoutHours: Number(e.target.value) }))}
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Default is 168 hours (7 days)
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="require2fa"
+                  checked={securityForm.require2FA}
+                  onChange={(e) => setSecurityForm((p) => ({ ...p, require2FA: e.target.checked }))}
+                  className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
+                />
+                <label htmlFor="require2fa" className="text-sm font-medium text-foreground">
+                  Require Two-Factor Authentication (2FA)
+                </label>
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                  Confirm New Password
+                  Max Login Attempts
                 </label>
                 <input
-                  type="password"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
-                  required
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={securityForm.maxLoginAttempts}
+                  onChange={(e) => setSecurityForm((p) => ({ ...p, maxLoginAttempts: Number(e.target.value) }))}
                   className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Account locks after this many failed attempts
+                </p>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
-                  disabled={passwordSaving}
+                  disabled={securitySaving}
                   className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
                 >
-                  {passwordSaving ? (
+                  {securitySaving ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <Lock className="h-3.5 w-3.5" />
+                    <Save className="h-3.5 w-3.5" />
                   )}
-                  Change Password
+                  Save Settings
                 </button>
               </div>
             </form>
           </div>
         </div>
-
-        {/* Sidebar */}
-        <div className="space-y-4">
-          {/* Admin Profile Card */}
-          <div className="rounded-lg border bg-card p-6">
-            <div className="flex flex-col items-center text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-xl font-bold text-primary">
-                {user?.name?.charAt(0)?.toUpperCase() || 'A'}
-              </div>
-              <h3 className="mt-3 text-sm font-semibold text-foreground">{user?.name || 'Admin'}</h3>
-              <p className="mt-0.5 text-xs text-muted-foreground">{user?.email || 'admin@paperbook.io'}</p>
-              <span className="mt-2 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold capitalize text-primary">
-                {user?.role || 'super_admin'}
-              </span>
-            </div>
-          </div>
-
-          {/* Platform Settings Placeholder */}
-          <div className="rounded-lg border bg-card p-6">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              Platform Settings
-            </h3>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Platform-wide configuration settings will be available in a future update. This will include:
-            </p>
-            <ul className="mt-3 space-y-2">
-              <li className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Shield className="h-3 w-3" />
-                Security policies
-              </li>
-              <li className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Mail className="h-3 w-3" />
-                Email templates
-              </li>
-              <li className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Bell className="h-3 w-3" />
-                Notification preferences
-              </li>
-              <li className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Globe className="h-3 w-3" />
-                Branding & customization
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   )
 }

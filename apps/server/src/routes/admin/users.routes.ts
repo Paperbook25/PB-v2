@@ -9,6 +9,12 @@ router.get('/', controller.listUsers)
 // POST   /api/admin/users/impersonate  — Impersonate a user (placeholder)
 router.post('/impersonate', controller.impersonate)
 
+// PATCH  /api/admin/users/:id/role   — Update user role
+router.patch('/:id/role', controller.updateUserRole)
+
+// DELETE /api/admin/users/:id        — Delete a user
+router.delete('/:id', controller.deleteUser)
+
 // GET    /api/admin/users/:id          — Get user details
 router.get('/:id', controller.getUser)
 

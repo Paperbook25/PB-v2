@@ -259,3 +259,61 @@ export async function unbanUser(id: string) {
     unbannedAt: new Date().toISOString(),
   }
 }
+
+/**
+ * Update a user's role.
+ */
+export async function updateUserRole(id: string, newRole: string) {
+  const user = await prisma.user.findUnique({ where: { id } })
+  if (!user) throw AppError.notFound('User not found')
+
+  const oldRole = user.role
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({ where: { id }, data: { role: newRole as any } })
+    await tx.auditLog.create({
+      data: {
+        userId: null,
+        userName: 'System',
+        userRole: 'admin',
+        action: 'update',
+        module: 'users',
+        entityType: 'User',
+        entityId: id,
+        entityName: user.name,
+        description: `User "${user.name}" role changed from ${oldRole} to ${newRole}`,
+        changes: JSON.stringify([{ field: 'role', oldValue: oldRole, newValue: newRole }]),
+      },
+    })
+  })
+
+  return { id, name: user.name, email: user.email, role: newRole }
+}
+
+/**
+ * Delete a user and their sessions.
+ */
+export async function deleteUser(id: string) {
+  const user = await prisma.user.findUnique({ where: { id } })
+  if (!user) throw AppError.notFound('User not found')
+  if (user.role === 'admin') throw AppError.badRequest('Cannot delete admin users from this endpoint')
+
+  await prisma.$transaction(async (tx) => {
+    await tx.session.deleteMany({ where: { userId: id } })
+    await tx.auditLog.create({
+      data: {
+        userId: null,
+        userName: 'System',
+        userRole: 'admin',
+        action: 'delete',
+        module: 'users',
+        entityType: 'User',
+        entityId: id,
+        entityName: user.name,
+        description: `User "${user.name}" (${user.email}) deleted`,
+      },
+    })
+    await tx.user.delete({ where: { id } })
+  })
+
+  return { success: true }
+}

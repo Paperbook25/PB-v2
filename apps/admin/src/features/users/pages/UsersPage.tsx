@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { type ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
+import { useNavigate } from 'react-router-dom'
 import {
   Ban,
   CheckCircle,
@@ -10,6 +11,8 @@ import {
   AlertCircle,
   MoreHorizontal,
   Eye,
+  Trash2,
+  Edit2,
 } from 'lucide-react'
 import { adminApi } from '../../../lib/api'
 import { DataTable } from '../../../components/shared/DataTable'
@@ -30,11 +33,17 @@ interface User {
   createdAt: string
 }
 
+const ROLE_OPTIONS = ['admin', 'teacher', 'student', 'parent', 'accountant', 'librarian', 'transport_manager', 'principal'] as const
+
 export function UsersPage() {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const [schoolFilter, setSchoolFilter] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [actionMenuId, setActionMenuId] = useState<string | null>(null)
+  const [editRoleUser, setEditRoleUser] = useState<{ id: string; name: string; role: string } | null>(null)
+  const [selectedRole, setSelectedRole] = useState('')
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null)
 
   const params: Record<string, string> = {}
   if (schoolFilter) params.schoolId = schoolFilter
@@ -61,6 +70,22 @@ export function UsersPage() {
       if (data?.redirectUrl) {
         window.open(data.redirectUrl, '_blank')
       }
+    },
+  })
+
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: string }) => adminApi.updateUserRole(id, role),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+      setEditRoleUser(null)
+    },
+  })
+
+  const deleteUserMutation = useMutation({
+    mutationFn: (id: string) => adminApi.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+      setDeleteUserId(null)
     },
   })
 
@@ -147,12 +172,23 @@ export function UsersPage() {
                   <button
                     onClick={() => {
                       setActionMenuId(null)
-                      // Could navigate to user detail page
+                      navigate(`/users/${user.id}`)
                     }}
                     className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted"
                   >
                     <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                     View Details
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActionMenuId(null)
+                      setEditRoleUser({ id: user.id, name: user.name, role: user.role })
+                      setSelectedRole(user.role)
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted"
+                  >
+                    <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    Edit Role
                   </button>
                   <button
                     onClick={() => {
@@ -187,6 +223,16 @@ export function UsersPage() {
                       Ban User
                     </button>
                   )}
+                  <button
+                    onClick={() => {
+                      setActionMenuId(null)
+                      setDeleteUserId(user.id)
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete User
+                  </button>
                 </div>
               </>
             )}
@@ -249,6 +295,71 @@ export function UsersPage() {
             </>
           }
         />
+      )}
+
+      {/* Edit Role Dialog */}
+      {editRoleUser && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => setEditRoleUser(null)}>
+          <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-foreground">Edit Role</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Change role for <span className="font-medium text-foreground">{editRoleUser.name}</span>
+            </p>
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="mt-4 h-10 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground capitalize focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              {ROLE_OPTIONS.map((r) => (
+                <option key={r} value={r} className="capitalize">
+                  {r.replace('_', ' ')}
+                </option>
+              ))}
+            </select>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setEditRoleUser(null)}
+                className="rounded-lg border border-input px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => updateRoleMutation.mutate({ id: editRoleUser.id, role: selectedRole })}
+                disabled={updateRoleMutation.isPending}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {updateRoleMutation.isPending ? 'Updating...' : 'Update Role'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete User Dialog */}
+      {deleteUserId && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center" onClick={() => setDeleteUserId(null)}>
+          <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-foreground">Delete User</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Are you sure you want to delete this user? This action cannot be undone.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteUserId(null)}
+                className="rounded-lg border border-input px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteUserMutation.mutate(deleteUserId)}
+                disabled={deleteUserMutation.isPending}
+                className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-white hover:bg-destructive/90 disabled:opacity-50"
+              >
+                {deleteUserMutation.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -19,6 +19,7 @@ const CHANNEL_LABELS: Record<string, string> = {
 export function AnnouncementsPage() {
   const queryClient = useQueryClient()
   const [showCreate, setShowCreate] = useState(false)
+  const [editingAnn, setEditingAnn] = useState<any>(null)
   const [form, setForm] = useState({ title: '', body: '', channel: 'in_app', targetPlans: [] as string[], targetStatuses: [] as string[], scheduledAt: '' })
   const [error, setError] = useState('')
 
@@ -32,6 +33,17 @@ export function AnnouncementsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'announcements'] })
       setShowCreate(false)
+      setForm({ title: '', body: '', channel: 'in_app', targetPlans: [], targetStatuses: [], scheduledAt: '' })
+    },
+    onError: (err: any) => setError(err.message),
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: (data: any) => adminApi.updateAnnouncement(editingAnn.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'announcements'] })
+      setShowCreate(false)
+      setEditingAnn(null)
       setForm({ title: '', body: '', channel: 'in_app', targetPlans: [], targetStatuses: [], scheduledAt: '' })
     },
     onError: (err: any) => setError(err.message),
@@ -108,14 +120,34 @@ export function AnnouncementsPage() {
                 </div>
                 <div className="flex items-center gap-1 ml-4">
                   {ann.status !== 'ann_sent' && (
-                    <button
-                      onClick={() => sendMutation.mutate(ann.id)}
-                      disabled={sendMutation.isPending}
-                      className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100"
-                      title="Send now"
-                    >
-                      <Send className="h-3 w-3" /> Send
-                    </button>
+                    <>
+                      <button
+                        onClick={() => {
+                          setEditingAnn(ann)
+                          setForm({
+                            title: ann.title,
+                            body: ann.body,
+                            channel: ann.channel,
+                            targetPlans: ann.targetPlans || [],
+                            targetStatuses: ann.targetStatuses || [],
+                            scheduledAt: ann.scheduledAt ? new Date(ann.scheduledAt).toISOString().slice(0, 16) : '',
+                          })
+                          setShowCreate(true)
+                        }}
+                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100"
+                        title="Edit"
+                      >
+                        <Edit2 className="h-3 w-3" /> Edit
+                      </button>
+                      <button
+                        onClick={() => sendMutation.mutate(ann.id)}
+                        disabled={sendMutation.isPending}
+                        className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100"
+                        title="Send now"
+                      >
+                        <Send className="h-3 w-3" /> Send
+                      </button>
+                    </>
                   )}
                   {ann.status === 'ann_sent' && (
                     <span className="inline-flex items-center gap-1 text-xs text-green-600"><Check className="h-3 w-3" /> Sent</span>
@@ -136,9 +168,9 @@ export function AnnouncementsPage() {
 
       {/* Create Dialog */}
       {showCreate && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => { setShowCreate(false); setEditingAnn(null) }}>
           <div className="bg-card rounded-xl shadow-lg w-full max-w-lg p-6 border" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold mb-4">New Announcement</h2>
+            <h2 className="text-lg font-semibold mb-4">{editingAnn ? 'Edit Announcement' : 'New Announcement'}</h2>
             {error && <div className="p-2.5 text-sm text-red-600 bg-red-50 rounded-md mb-3">{error}</div>}
             <div className="space-y-3">
               <input
@@ -209,21 +241,28 @@ export function AnnouncementsPage() {
             </div>
 
             <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm text-muted-foreground">Cancel</button>
+              <button onClick={() => { setShowCreate(false); setEditingAnn(null) }} className="px-4 py-2 text-sm text-muted-foreground">Cancel</button>
               <button
                 onClick={() => {
                   setError('')
-                  createMutation.mutate({
+                  const payload = {
                     ...form,
                     scheduledAt: form.scheduledAt || undefined,
                     targetPlans: form.targetPlans.length > 0 ? form.targetPlans : undefined,
                     targetStatuses: form.targetStatuses.length > 0 ? form.targetStatuses : undefined,
-                  })
+                  }
+                  if (editingAnn) {
+                    updateMutation.mutate(payload)
+                  } else {
+                    createMutation.mutate(payload)
+                  }
                 }}
-                disabled={createMutation.isPending}
+                disabled={editingAnn ? updateMutation.isPending : createMutation.isPending}
                 className="px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50"
               >
-                {createMutation.isPending ? 'Creating...' : form.scheduledAt ? 'Schedule' : 'Create Draft'}
+                {editingAnn
+                  ? (updateMutation.isPending ? 'Updating...' : 'Update')
+                  : (createMutation.isPending ? 'Creating...' : form.scheduledAt ? 'Schedule' : 'Create Draft')}
               </button>
             </div>
           </div>

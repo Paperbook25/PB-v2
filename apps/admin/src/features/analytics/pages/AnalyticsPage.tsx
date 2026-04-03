@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Users, GraduationCap, School, Puzzle, TrendingUp, TrendingDown } from 'lucide-react'
+import { Users, GraduationCap, School, Puzzle, TrendingUp, TrendingDown, IndianRupee } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 import { StatCard } from '@/components/shared/StatCard'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
@@ -25,6 +25,11 @@ export function AnalyticsPage() {
     queryFn: adminApi.getAnalyticsTrends,
   })
 
+  const { data: revenue } = useQuery({
+    queryKey: ['admin', 'billing', 'revenue'],
+    queryFn: adminApi.getRevenueSummary,
+  })
+
   return (
     <div className="space-y-6">
       <div>
@@ -45,6 +50,17 @@ export function AnalyticsPage() {
         <StatCard title="Churned Schools" value={overviewLoading ? '...' : overview?.churnedSchools || 0} icon={TrendingDown} />
       </div>
 
+      {/* Revenue Overview */}
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Revenue Overview</h2>
+        <div className="grid gap-4 md:grid-cols-4">
+          <StatCard title="Total Revenue" value={`₹${((revenue?.totalRevenue || 0) / 1000).toFixed(1)}K`} icon={IndianRupee} />
+          <StatCard title="Revenue This Month" value={`₹${((revenue?.revenueThisMonth || 0) / 1000).toFixed(1)}K`} icon={IndianRupee} />
+          <StatCard title="Outstanding" value={`₹${revenue?.outstanding || 0}`} icon={IndianRupee} />
+          <StatCard title="Collection Rate" value={`${revenue?.collectionRate || 0}%`} icon={IndianRupee} />
+        </div>
+      </div>
+
       {/* Trends Chart */}
       <div className="rounded-lg border bg-card p-6">
         <h3 className="text-sm font-semibold mb-4">Platform Growth Trends (12 months)</h3>
@@ -61,6 +77,24 @@ export function AnalyticsPage() {
             </LineChart>
           </ResponsiveContainer>
         ) : <p className="text-sm text-muted-foreground py-8 text-center">No trend data yet</p>}
+      </div>
+
+      {/* Revenue Trend */}
+      <div className="rounded-lg border bg-card p-6">
+        <h3 className="text-sm font-semibold mb-4">Monthly Revenue (Last 12 Months)</h3>
+        {revenue?.monthlyRevenue?.length ? (
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={revenue.monthlyRevenue}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+              <YAxis tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="invoiced" name="Invoiced" fill="#94a3b8" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="collected" name="Collected" fill="#6366f1" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : <p className="text-sm text-muted-foreground py-8 text-center">No revenue data yet</p>}
       </div>
 
       {/* Feature Adoption */}

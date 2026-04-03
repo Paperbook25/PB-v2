@@ -70,6 +70,8 @@ export const adminApi = {
   banUser: (id: string) => adminFetch<MessageResponse>(`/users/${id}/ban`, { method: 'PATCH' }),
   unbanUser: (id: string) => adminFetch<MessageResponse>(`/users/${id}/unban`, { method: 'PATCH' }),
   impersonate: (userId: string) => adminFetch<ImpersonateResponse>('/impersonate', { method: 'POST', body: JSON.stringify({ userId }) }),
+  updateUserRole: (id: string, role: string) => adminFetch<any>(`/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) }),
+  deleteUser: (id: string) => adminFetch<any>(`/users/${id}`, { method: 'DELETE' }),
 
   // Audit
   getAuditLog: (params?: Record<string, string>) => {

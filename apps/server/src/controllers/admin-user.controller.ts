@@ -91,3 +91,17 @@ export async function impersonate(req: Request, res: Response, next: NextFunctio
     next(error)
   }
 }
+
+export async function updateUserRole(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await adminUserService.updateUserRole(paramStr(req.params.id), req.body.role)
+    res.json(result)
+  } catch (err) { next(err) }
+}
+
+export async function deleteUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await adminUserService.deleteUser(paramStr(req.params.id))
+    res.json(result)
+  } catch (err) { next(err) }
+}

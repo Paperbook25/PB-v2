@@ -6,6 +6,15 @@ const router = Router()
 // GET    /api/admin/schools              — List schools (paginated, filterable)
 router.get('/', controller.listSchools)
 
+// GET    /api/admin/schools/export       — Export schools as CSV
+router.get('/export', controller.exportSchools)
+
+// POST   /api/admin/schools/bulk-suspend  — Bulk suspend schools
+router.post('/bulk-suspend', controller.bulkSuspend)
+
+// POST   /api/admin/schools/bulk-plan-change — Bulk change plan tier
+router.post('/bulk-plan-change', controller.bulkChangePlan)
+
 // POST   /api/admin/schools              — Create a new school
 router.post('/', controller.createSchool)
 

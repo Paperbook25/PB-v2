@@ -190,3 +190,39 @@ export async function toggleSchoolAddon(req: Request, res: Response, next: NextF
     next(error)
   }
 }
+
+export async function bulkSuspend(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { schoolIds, reason } = req.body
+    const result = await adminSchoolService.bulkSuspendSchools(schoolIds, reason)
+    res.json(result)
+  } catch (err) { next(err) }
+}
+
+export async function bulkChangePlan(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { schoolIds, planTier } = req.body
+    const result = await adminSchoolService.bulkChangePlan(schoolIds, planTier)
+    res.json(result)
+  } catch (err) { next(err) }
+}
+
+export async function exportSchools(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { generateCsv, setCsvHeaders } = await import('../utils/csv-export.js')
+    const result = await adminSchoolService.listSchools({ limit: 10000 })
+    const csv = generateCsv(result.data, [
+      { key: 'name', header: 'School Name' },
+      { key: 'slug', header: 'Slug' },
+      { key: 'status', header: 'Status' },
+      { key: 'planTier', header: 'Plan' },
+      { key: 'email', header: 'Email' },
+      { key: 'city', header: 'City' },
+      { key: 'createdAt', header: 'Created' },
+    ])
+    setCsvHeaders(res, `schools-${new Date().toISOString().split('T')[0]}.csv`)
+    res.send(csv)
+  } catch (error) {
+    next(error)
+  }
+}

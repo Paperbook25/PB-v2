@@ -107,6 +107,7 @@ export const adminApi = {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
     return adminFetch<any>(`/billing/payments${qs}`)
   },
+  generateInvoices: () => adminFetch<any>('/billing/generate-invoices', { method: 'POST' }),
 
   // Leads (CRM)
   listLeads: (params?: Record<string, string>) => {

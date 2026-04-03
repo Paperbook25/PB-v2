@@ -78,3 +78,29 @@ export async function listPayments(req: Request, res: Response, next: NextFuncti
     res.json(result)
   } catch (err) { next(err) }
 }
+
+export async function generateInvoices(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { generateRecurringInvoices } = await import('../jobs/invoice-generation.js')
+    const result = await generateRecurringInvoices()
+    res.json(result)
+  } catch (err) { next(err) }
+}
+
+export async function exportInvoices(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { generateCsv, setCsvHeaders } = await import('../utils/csv-export.js')
+    const result = await billingService.listInvoices({ limit: 10000 })
+    const csv = generateCsv(result.data, [
+      { key: 'invoiceNumber', header: 'Invoice #' },
+      { key: 'schoolName', header: 'School' },
+      { key: 'status', header: 'Status' },
+      { key: 'totalAmount', header: 'Amount' },
+      { key: 'dueDate', header: 'Due Date' },
+      { key: 'paidAt', header: 'Paid Date' },
+      { key: 'createdAt', header: 'Created' },
+    ])
+    setCsvHeaders(res, `invoices-${new Date().toISOString().split('T')[0]}.csv`)
+    res.send(csv)
+  } catch (err) { next(err) }
+}

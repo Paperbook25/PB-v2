@@ -224,6 +224,27 @@ async function main() {
 
       // Start background jobs
       scheduleDailyAggregation()
+
+      // Schedule recurring invoice generation (runs daily at 6 AM)
+      setTimeout(async () => {
+        const { generateRecurringInvoices } = await import('./jobs/invoice-generation.js')
+
+        function scheduleInvoiceGeneration() {
+          const now = new Date()
+          const next = new Date(now)
+          next.setDate(next.getDate() + 1)
+          next.setHours(6, 0, 0, 0)
+          const delay = next.getTime() - now.getTime()
+
+          setTimeout(async () => {
+            await generateRecurringInvoices()
+            scheduleInvoiceGeneration()
+          }, delay)
+        }
+
+        scheduleInvoiceGeneration()
+        console.log('[InvoiceGeneration] Daily invoice generation scheduled')
+      }, 5000)
     })
   } catch (error) {
     console.error('[Server] Failed to start:', error)

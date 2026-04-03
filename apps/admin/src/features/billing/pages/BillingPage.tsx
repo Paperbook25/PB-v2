@@ -5,6 +5,7 @@ import { Receipt, IndianRupee, AlertCircle, TrendingUp, Plus, Trash2 } from 'luc
 import { adminApi } from '@/lib/api'
 import { StatCard } from '@/components/shared/StatCard'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { ExportButton } from '@/components/shared/ExportButton'
 import type { School } from '@/lib/types'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { CreditNotesTab } from '../components/CreditNotesTab'
@@ -41,6 +42,14 @@ export function BillingPage() {
       setInvoiceForm({ schoolId: '', lineItems: [{ description: '', quantity: 1, unitPrice: 0 }], taxRate: 18, discount: 0, dueDate: '', notes: '' })
     },
     onError: (err: any) => setInvoiceError(err.message || 'Failed to create invoice'),
+  })
+
+  const generateMutation = useMutation({
+    mutationFn: () => adminApi.generateInvoices(),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'billing'] })
+      alert(`Generated ${data.generated} invoices`)
+    },
   })
 
   const { data: revenue, isLoading: revenueLoading } = useQuery({
@@ -85,12 +94,22 @@ export function BillingPage() {
           <h1 className="text-2xl font-bold">Billing</h1>
           <p className="text-sm text-muted-foreground">Invoices, payments, and revenue tracking</p>
         </div>
-        <button
-          onClick={() => setShowCreateInvoice(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" /> New Invoice
-        </button>
+        <div className="flex items-center gap-2">
+          <ExportButton endpoint="/billing/invoices/export" filename="invoices.csv" />
+          <button
+            onClick={() => generateMutation.mutate()}
+            disabled={generateMutation.isPending}
+            className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
+          >
+            {generateMutation.isPending ? 'Generating...' : 'Generate Invoices'}
+          </button>
+          <button
+            onClick={() => setShowCreateInvoice(true)}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" /> New Invoice
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

@@ -713,3 +713,48 @@ export async function toggleSchoolAddon(schoolId: string, addonSlug: string) {
     enabled: newEnabled,
   }
 }
+
+/**
+ * Bulk suspend multiple schools.
+ */
+export async function bulkSuspendSchools(schoolIds: string[], reason?: string) {
+  let suspended = 0
+  for (const id of schoolIds) {
+    try {
+      await suspendSchool(id, reason)
+      suspended++
+    } catch (err) {
+      console.error(`Failed to suspend school ${id}:`, err)
+    }
+  }
+  return { suspended, total: schoolIds.length }
+}
+
+/**
+ * Bulk change plan tier for multiple schools.
+ */
+export async function bulkChangePlan(schoolIds: string[], planTier: string) {
+  let updated = 0
+  for (const id of schoolIds) {
+    try {
+      await prisma.schoolProfile.update({
+        where: { id },
+        data: { planTier: planTier as any },
+      })
+      // Also update subscription if exists
+      const sub = await prisma.platformSubscription.findFirst({
+        where: { schoolId: id, status: { in: ['sub_active', 'sub_trial'] } },
+      })
+      if (sub) {
+        await prisma.platformSubscription.update({
+          where: { id: sub.id },
+          data: { planTier: planTier as any },
+        })
+      }
+      updated++
+    } catch (err) {
+      console.error(`Failed to change plan for school ${id}:`, err)
+    }
+  }
+  return { updated, total: schoolIds.length }
+}

@@ -72,6 +72,8 @@ export interface DashboardStats {
   activeSchools: number
   totalUsers: number
   totalStudents: number
+  monthlyRevenue: number
+  annualRevenue: number
   schoolsTrend?: number
   usersTrend?: number
   activeTrend?: number

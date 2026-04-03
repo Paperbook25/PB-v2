@@ -100,9 +100,14 @@ export function DashboardPage() {
           />
           <StatCard
             title="MRR"
-            value={subAnalyticsQuery.data?.mrr ? `₹${subAnalyticsQuery.data.mrr >= 1000 ? `${(subAnalyticsQuery.data.mrr / 1000).toFixed(1)}K` : subAnalyticsQuery.data.mrr}` : '₹0'}
+            value={(() => {
+              const mrr = subAnalyticsQuery.data?.mrr || stats?.monthlyRevenue || 0
+              if (mrr >= 100000) return `₹${(mrr / 100000).toFixed(1)}L`
+              if (mrr >= 1000) return `₹${(mrr / 1000).toFixed(1)}K`
+              return `₹${mrr}`
+            })()}
             icon={IndianRupee}
-            trend={subAnalyticsQuery.data?.activeCount ? { value: subAnalyticsQuery.data.activeCount, label: 'active subs' } : undefined}
+            trend={subAnalyticsQuery.data?.trialCount ? { value: subAnalyticsQuery.data.activeCount + subAnalyticsQuery.data.trialCount, label: 'total subs' } : undefined}
           />
         </div>
       )}

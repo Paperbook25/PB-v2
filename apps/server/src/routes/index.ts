@@ -49,6 +49,7 @@ import facilityRouter from './facility.routes.js'
 import scholarshipRouter from './scholarship.routes.js'
 import emailCampaignRouter from './email-campaign.routes.js'
 import { requireAddon } from '../middleware/addon.middleware.js'
+import { usageTrackingMiddleware } from '../middleware/usage-tracking.middleware.js'
 import subscriptionRoutes from './subscription.routes.js'
 import adminRoutes from './admin/index.js'
 import onboardingRoutes from './onboarding.routes.js'
@@ -245,6 +246,9 @@ router.get('/platform-announcements', requireTenant, async (req, res, next) => {
     res.json({ data: announcements })
   } catch (err) { next(err) }
 })
+
+// --- Usage tracking for all tenant-scoped routes ---
+router.use(usageTrackingMiddleware)
 
 // --- School-facing routes (tenant enforcement required) ---
 router.use('/users', requireTenant, userRoutes)

@@ -15,6 +15,8 @@ import {
   Activity,
   HeartPulse,
   Shield,
+  TicketCheck,
+  MessageSquare,
 } from 'lucide-react'
 
 const navItems = [
@@ -23,6 +25,8 @@ const navItems = [
   { label: 'CRM', to: '/crm', icon: Target },
   { label: 'Subscriptions', to: '/subscriptions', icon: CreditCard },
   { label: 'Billing', to: '/billing', icon: Receipt },
+  { label: 'Tickets', to: '/tickets', icon: TicketCheck },
+  { label: 'Communications', to: '/communications', icon: MessageSquare },
   { label: 'Announcements', to: '/announcements', icon: Megaphone },
   { label: 'Analytics', to: '/analytics', icon: BarChart3 },
   { label: 'Usage', to: '/usage', icon: Activity },

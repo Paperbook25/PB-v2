@@ -7,6 +7,7 @@ import { StatCard } from '@/components/shared/StatCard'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import type { School } from '@/lib/types'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { CreditNotesTab } from '../components/CreditNotesTab'
 
 const STATUS_LABELS: Record<string, string> = {
   inv_draft: 'Draft',
@@ -20,7 +21,7 @@ const STATUS_LABELS: Record<string, string> = {
 export function BillingPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState<'invoices' | 'payments'>('invoices')
+  const [activeTab, setActiveTab] = useState<'invoices' | 'payments' | 'credit-notes'>('invoices')
   const [statusFilter, setStatusFilter] = useState('')
   const [showCreateInvoice, setShowCreateInvoice] = useState(false)
   const [invoiceForm, setInvoiceForm] = useState({ schoolId: '', lineItems: [{ description: '', quantity: 1, unitPrice: 0 }], taxRate: 18, discount: 0, dueDate: '', notes: '' })
@@ -154,6 +155,14 @@ export function BillingPage() {
         >
           Payments
         </button>
+        <button
+          onClick={() => setActiveTab('credit-notes')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'credit-notes' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Credit Notes
+        </button>
       </div>
 
       {/* Invoices Tab */}
@@ -249,6 +258,9 @@ export function BillingPage() {
           </table>
         </div>
       )}
+
+      {/* Credit Notes Tab */}
+      {activeTab === 'credit-notes' && <CreditNotesTab />}
 
       {/* Create Invoice Dialog */}
       {showCreateInvoice && (

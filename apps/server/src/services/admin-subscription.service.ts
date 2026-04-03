@@ -217,11 +217,15 @@ export async function getSubscriptionAnalytics() {
   const trialSubs = allSubs.filter((s) => s.status === 'sub_trial')
   const cancelledSubs = allSubs.filter((s) => s.status === 'sub_cancelled')
 
-  // MRR: normalize all active subscriptions to monthly
-  const mrr = activeSubs.reduce((sum, s) => {
-    const monthly = normalizeToMonthly(Number(s.amount), s.billingCycle)
-    return sum + monthly
+  // MRR: normalize all active + trial subscriptions to monthly
+  // Include trial subs because they represent committed/expected revenue
+  const activeMrr = activeSubs.reduce((sum, s) => {
+    return sum + normalizeToMonthly(Number(s.amount), s.billingCycle)
   }, 0)
+  const trialMrr = trialSubs.reduce((sum, s) => {
+    return sum + normalizeToMonthly(Number(s.amount), s.billingCycle)
+  }, 0)
+  const mrr = activeMrr + trialMrr
 
   // Churn rate (last 30 days)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000)
@@ -254,8 +258,9 @@ export async function getSubscriptionAnalytics() {
     ? Math.round((convertedTrials / Math.max(totalTrialsExpired, convertedTrials)) * 100)
     : 0
 
-  // ARPU
-  const arpu = activeSubs.length > 0 ? mrr / activeSubs.length : 0
+  // ARPU (based on all revenue-generating subscriptions)
+  const totalRevenueSubs = activeSubs.length + trialSubs.length
+  const arpu = totalRevenueSubs > 0 ? mrr / totalRevenueSubs : 0
 
   // MRR trend (last 6 months, simplified)
   const mrrTrend = []
@@ -263,9 +268,9 @@ export async function getSubscriptionAnalytics() {
     const date = new Date()
     date.setMonth(date.getMonth() - i)
     const monthName = date.toLocaleString('default', { month: 'short' })
-    // Simplified: use current MRR scaled by subscription age
+    // Simplified: use current MRR scaled by subscription count at that point
     const subsAtMonth = allSubs.filter((s) => s.createdAt <= date && s.status !== 'sub_cancelled').length
-    mrrTrend.push({ month: monthName, mrr: Math.round(mrr * (subsAtMonth / Math.max(activeSubs.length, 1))) })
+    mrrTrend.push({ month: monthName, mrr: Math.round(mrr * (subsAtMonth / Math.max(totalRevenueSubs, 1))) })
   }
 
   return {

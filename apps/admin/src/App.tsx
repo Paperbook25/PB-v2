@@ -28,6 +28,9 @@ const SecurityPage = lazy(() => import('./features/security/pages/SecurityPage')
 const SubscriptionDetailPage = lazy(() => import('./features/subscriptions/pages/SubscriptionDetailPage').then(m => ({ default: m.SubscriptionDetailPage })))
 const InvoiceDetailPage = lazy(() => import('./features/billing/pages/InvoiceDetailPage').then(m => ({ default: m.InvoiceDetailPage })))
 const LeadDetailPage = lazy(() => import('./features/crm/pages/LeadDetailPage').then(m => ({ default: m.LeadDetailPage })))
+const TicketsPage = lazy(() => import('./features/tickets/pages/TicketsPage').then(m => ({ default: m.TicketsPage })))
+const TicketDetailPage = lazy(() => import('./features/tickets/pages/TicketDetailPage').then(m => ({ default: m.TicketDetailPage })))
+const CommunicationLogPage = lazy(() => import('./features/communication/pages/CommunicationLogPage').then(m => ({ default: m.CommunicationLogPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,6 +61,9 @@ export default function App() {
                 <Route path="/subscriptions/:id" element={<SubscriptionDetailPage />} />
                 <Route path="/billing" element={<BillingPage />} />
                 <Route path="/billing/invoices/:id" element={<InvoiceDetailPage />} />
+                <Route path="/tickets" element={<TicketsPage />} />
+                <Route path="/tickets/:id" element={<TicketDetailPage />} />
+                <Route path="/communications" element={<CommunicationLogPage />} />
                 <Route path="/announcements" element={<AnnouncementsPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
                 <Route path="/usage" element={<UsagePage />} />

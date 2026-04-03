@@ -1,10 +1,18 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as featureUsageService from '../services/admin-feature-usage.service.js'
+import { backfillUsageAggregation } from '../jobs/feature-usage-aggregation.js'
 
 export async function aggregateUsage(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await featureUsageService.aggregateUsage()
     res.json(result)
+  } catch (err) { next(err) }
+}
+
+export async function backfillAggregation(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await backfillUsageAggregation()
+    res.json({ success: true, ...result })
   } catch (err) { next(err) }
 }
 

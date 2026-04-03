@@ -111,6 +111,82 @@ export async function updateAddon(id: string, data: UpdateAddonData) {
 }
 
 /**
+ * Create a new addon.
+ */
+export async function createAddon(data: {
+  slug: string
+  name: string
+  description?: string
+  icon?: string
+  category?: string
+  isCore?: boolean
+  isDefault?: boolean
+  availableTiers?: string[]
+  sortOrder?: number
+}) {
+  // Check slug uniqueness
+  const existing = await prisma.addon.findUnique({ where: { slug: data.slug } })
+  if (existing) throw AppError.conflict(`Addon with slug "${data.slug}" already exists`)
+
+  const addon = await prisma.addon.create({
+    data: {
+      slug: data.slug,
+      name: data.name,
+      description: data.description || null,
+      icon: data.icon || null,
+      category: data.category || 'general',
+      isCore: data.isCore ?? false,
+      isDefault: data.isDefault ?? false,
+      availableTiers: data.availableTiers || ['free', 'starter', 'professional', 'enterprise'],
+      sortOrder: data.sortOrder ?? 99,
+    },
+  })
+
+  await prisma.auditLog.create({
+    data: {
+      userName: 'System',
+      userRole: 'admin',
+      action: 'create',
+      module: 'addons',
+      entityType: 'Addon',
+      entityId: addon.id,
+      entityName: addon.name,
+      description: `Addon "${addon.name}" created`,
+    },
+  })
+
+  return addon
+}
+
+/**
+ * Delete an addon and all school associations.
+ */
+export async function deleteAddon(id: string) {
+  const addon = await prisma.addon.findUnique({ where: { id } })
+  if (!addon) throw AppError.notFound('Addon not found')
+  if (addon.isCore) throw AppError.badRequest('Cannot delete a core addon')
+
+  // Delete all school-addon links first
+  await prisma.schoolAddon.deleteMany({ where: { addonId: id } })
+  await prisma.addon.delete({ where: { id } })
+
+  await prisma.auditLog.create({
+    data: {
+      userName: 'System',
+      userRole: 'admin',
+      action: 'delete',
+      module: 'addons',
+      entityType: 'Addon',
+      entityId: id,
+      entityName: addon.name,
+      description: `Addon "${addon.name}" deleted`,
+    },
+  })
+
+  return { success: true }
+}
+
+/**
  * Get usage details for a specific addon: which schools have it enabled.
  */
 export async function getAddonUsage(id: string) {

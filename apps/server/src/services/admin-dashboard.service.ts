@@ -22,39 +22,44 @@ function monthLabel(d: Date): string {
 export async function getStats() {
   const [
     totalSchools,
+    activeSchools,
     totalUsers,
+    activeUsers,
     totalStudents,
     totalStaff,
     totalAddons,
     enabledAddonLinks,
+    totalRevenue,
   ] = await Promise.all([
     prisma.schoolProfile.count(),
+    prisma.schoolProfile.count({ where: { status: { in: ['active', 'trial'] } } }),
     prisma.user.count(),
+    prisma.user.count({ where: { isActive: true } }),
     prisma.student.count({ where: { status: 'active' } }),
     prisma.staff.count({ where: { status: 'active' } }),
     prisma.addon.count(),
     prisma.schoolAddon.count({ where: { enabled: true } }),
+    prisma.platformPayment.aggregate({ _sum: { amount: true } }),
   ])
 
-  // Active schools: schools that have at least one enabled addon
-  const activeSchoolIds = await prisma.schoolAddon.findMany({
-    where: { enabled: true },
-    select: { schoolId: true },
-    distinct: ['schoolId'],
+  // Monthly revenue: sum payments from current month
+  const monthStart = startOfMonth(new Date())
+  const monthlyPayments = await prisma.platformPayment.aggregate({
+    _sum: { amount: true },
+    where: { paidAt: { gte: monthStart } },
   })
 
   return {
     totalSchools,
-    activeSchools: activeSchoolIds.length,
+    activeSchools,
     totalUsers,
-    activeUsers: await prisma.user.count({ where: { isActive: true } }),
+    activeUsers,
     totalStudents,
     totalStaff,
     totalAddons,
     enabledAddonLinks,
-    // Revenue is a placeholder until billing is integrated
-    monthlyRevenue: 0,
-    annualRevenue: 0,
+    monthlyRevenue: Number(monthlyPayments._sum.amount || 0),
+    annualRevenue: Number(totalRevenue._sum.amount || 0),
   }
 }
 

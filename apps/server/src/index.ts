@@ -14,6 +14,7 @@ import routes from './routes/index.js'
 import tenantRoutes from './routes/tenant.routes.js'
 import { subdomainTenantMiddleware } from './middleware/tenant.middleware.js'
 import { errorMiddleware } from './middleware/error.middleware.js'
+import { scheduleDailyAggregation } from './jobs/feature-usage-aggregation.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -220,6 +221,9 @@ async function main() {
       console.log(`[Server] better-auth mounted at /api/auth/*`)
       console.log(`[Server] Admin API mounted at /api/admin/*`)
       console.log(`[Server] Tenant resolution: *.${env.APP_DOMAIN}`)
+
+      // Start background jobs
+      scheduleDailyAggregation()
     })
   } catch (error) {
     console.error('[Server] Failed to start:', error)

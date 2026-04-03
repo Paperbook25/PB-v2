@@ -155,4 +155,39 @@ export const adminApi = {
   removeGravityAdmin: (id: string) => adminFetch<any>(`/security/admins/${id}`, { method: 'DELETE' }),
   getComplianceStatus: () => adminFetch<any>('/security/compliance').then((r: any) => r.data),
   getLoginHistory: () => adminFetch<any>('/security/login-history').then((r: any) => r.data),
+
+  // Support Tickets
+  getTicketStats: () => adminFetch<any>('/tickets/stats').then((r: any) => r.data),
+  listTickets: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/tickets${qs}`)
+  },
+  getTicket: (id: string) => adminFetch<any>(`/tickets/${id}`).then((r: any) => r.data),
+  createTicket: (data: any) => adminFetch<any>('/tickets', { method: 'POST', body: JSON.stringify(data) }),
+  updateTicket: (id: string, data: any) => adminFetch<any>(`/tickets/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  addTicketResponse: (id: string, data: any) => adminFetch<any>(`/tickets/${id}/responses`, { method: 'POST', body: JSON.stringify(data) }),
+
+  // Credit Notes
+  listCreditNotes: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/credit-notes${qs}`)
+  },
+  createCreditNote: (data: any) => adminFetch<any>('/credit-notes', { method: 'POST', body: JSON.stringify(data) }),
+  issueCreditNote: (id: string) => adminFetch<any>(`/credit-notes/${id}/issue`, { method: 'PATCH' }),
+  applyCreditNote: (id: string) => adminFetch<any>(`/credit-notes/${id}/apply`, { method: 'PATCH' }),
+  cancelCreditNote: (id: string) => adminFetch<any>(`/credit-notes/${id}/cancel`, { method: 'PATCH' }),
+
+  // Communication Log
+  listCommunicationLogs: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/communication-log${qs}`)
+  },
+  logCommunication: (data: any) => adminFetch<any>('/communication-log', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Feature Usage
+  backfillFeatureUsage: () => adminFetch<any>('/feature-usage/backfill', { method: 'POST' }),
+
+  // Addons - Create & Delete
+  createAddon: (data: any) => adminFetch<any>('/addons', { method: 'POST', body: JSON.stringify(data) }),
+  deleteAddon: (id: string) => adminFetch<any>(`/addons/${id}`, { method: 'DELETE' }),
 }

@@ -32,6 +32,32 @@ export async function updateAddon(req: Request, res: Response, next: NextFunctio
 }
 
 /**
+ * POST /api/admin/addons
+ * Create a new addon.
+ */
+export async function createAddon(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await adminAddonService.createAddon(req.body)
+    res.status(201).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * DELETE /api/admin/addons/:id
+ * Delete an addon.
+ */
+export async function deleteAddon(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await adminAddonService.deleteAddon(paramStr(req.params.id))
+    res.json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
  * GET /api/admin/addons/:id/usage
  * Get usage details for a specific addon.
  */

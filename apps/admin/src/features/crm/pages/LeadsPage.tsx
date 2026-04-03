@@ -27,6 +27,10 @@ export function LeadsPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [createForm, setCreateForm] = useState({ schoolName: '', contactName: '', contactEmail: '', contactPhone: '', city: '', source: 'website', expectedRevenue: '', notes: '' })
   const [createError, setCreateError] = useState('')
+  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set())
+  const [showBulkAction, setShowBulkAction] = useState(false)
+  const [bulkAction, setBulkAction] = useState<'status' | 'delete' | null>(null)
+  const [bulkStatus, setBulkStatus] = useState('')
 
   const { data: pipelineData, isLoading } = useQuery({
     queryKey: ['admin', 'leads', 'pipeline'],
@@ -44,6 +48,28 @@ export function LeadsPage() {
     mutationFn: ({ id, status }: { id: string; status: string }) => adminApi.updateLeadStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'leads'] })
+    },
+  })
+
+  const bulkStatusMutation = useMutation({
+    mutationFn: async ({ ids, status }: { ids: string[]; status: string }) => {
+      await Promise.all(ids.map(id => adminApi.updateLeadStatus(id, status)))
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'leads'] })
+      setSelectedLeads(new Set())
+      setBulkAction(null)
+    },
+  })
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      await Promise.all(ids.map(id => adminApi.deleteLead(id)))
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'leads'] })
+      setSelectedLeads(new Set())
+      setBulkAction(null)
     },
   })
 
@@ -153,12 +179,42 @@ export function LeadsPage() {
         </div>
       )}
 
+      {/* Bulk Action Bar */}
+      {selectedLeads.size > 0 && view === 'table' && (
+        <div className="flex items-center gap-3 rounded-lg border bg-primary/5 px-4 py-2.5">
+          <span className="text-sm font-medium">{selectedLeads.size} selected</span>
+          <button onClick={() => setBulkAction('status')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100">
+            Change Status
+          </button>
+          <button onClick={() => setBulkAction('delete')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-red-50 text-red-700 hover:bg-red-100">
+            Delete Selected
+          </button>
+          <button onClick={() => setSelectedLeads(new Set())} className="ml-auto text-xs text-muted-foreground hover:text-foreground">
+            Clear Selection
+          </button>
+        </div>
+      )}
+
       {/* Table View */}
       {view === 'table' && (
         <div className="rounded-lg border bg-card">
           <table className="w-full">
             <thead>
               <tr className="border-b text-left text-xs font-medium text-muted-foreground">
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={leads.length > 0 && selectedLeads.size === leads.length}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedLeads(new Set(leads.map((l: any) => l.id)))
+                      } else {
+                        setSelectedLeads(new Set())
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                </th>
                 <th className="px-4 py-3">School</th>
                 <th className="px-4 py-3">Contact</th>
                 <th className="px-4 py-3">Phone</th>
@@ -170,9 +226,21 @@ export function LeadsPage() {
             </thead>
             <tbody>
               {leads.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">No leads yet. Add one to start your pipeline.</td></tr>
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-sm text-muted-foreground">No leads yet. Add one to start your pipeline.</td></tr>
               ) : leads.map((lead: any) => (
                 <tr key={lead.id} className="border-b last:border-0 hover:bg-muted/50 cursor-pointer" onClick={() => navigate(`/crm/${lead.id}`)}>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={selectedLeads.has(lead.id)}
+                      onChange={(e) => {
+                        const next = new Set(selectedLeads)
+                        if (e.target.checked) { next.add(lead.id) } else { next.delete(lead.id) }
+                        setSelectedLeads(next)
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                  </td>
                   <td className="px-4 py-3">
                     <div className="text-sm font-medium">{lead.schoolName}</div>
                     <div className="text-xs text-muted-foreground">{lead.city || ''}</div>
@@ -240,6 +308,41 @@ export function LeadsPage() {
                 className="px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50"
               >
                 {createMutation.isPending ? 'Creating...' : 'Add Lead'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Status Dialog */}
+      {bulkAction === 'status' && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setBulkAction(null)}>
+          <div className="bg-card rounded-xl shadow-lg w-full max-w-sm p-6 border" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold mb-4">Change Status ({selectedLeads.size} leads)</h2>
+            <select value={bulkStatus} onChange={e => setBulkStatus(e.target.value)} className="h-9 w-full rounded-lg border bg-background px-3 text-sm mb-4">
+              <option value="">Select status...</option>
+              {PIPELINE_STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
+            </select>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setBulkAction(null)} className="px-4 py-2 text-sm text-muted-foreground">Cancel</button>
+              <button onClick={() => bulkStatusMutation.mutate({ ids: [...selectedLeads], status: bulkStatus })} disabled={!bulkStatus || bulkStatusMutation.isPending} className="px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg disabled:opacity-50">
+                {bulkStatusMutation.isPending ? 'Updating...' : 'Update'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Dialog */}
+      {bulkAction === 'delete' && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setBulkAction(null)}>
+          <div className="bg-card rounded-xl shadow-lg w-full max-w-sm p-6 border" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold mb-2">Delete {selectedLeads.size} leads?</h2>
+            <p className="text-sm text-muted-foreground mb-4">This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setBulkAction(null)} className="px-4 py-2 text-sm text-muted-foreground">Cancel</button>
+              <button onClick={() => bulkDeleteMutation.mutate([...selectedLeads])} disabled={bulkDeleteMutation.isPending} className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg disabled:opacity-50">
+                {bulkDeleteMutation.isPending ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>

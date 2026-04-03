@@ -20,11 +20,12 @@ import {
   Edit3,
   Save,
   X,
+  BarChart3,
 } from 'lucide-react'
 import { adminApi } from '../../../lib/api'
 import { StatusBadge } from '../../../components/shared/StatusBadge'
 
-type TabId = 'overview' | 'users' | 'addons' | 'activity'
+type TabId = 'overview' | 'users' | 'addons' | 'usage' | 'activity'
 
 export function SchoolDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -83,6 +84,7 @@ export function SchoolDetailPage() {
     { id: 'overview', label: 'Overview', icon: School },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'addons', label: 'Addons', icon: Puzzle },
+    { id: 'usage', label: 'Usage', icon: BarChart3 },
     { id: 'activity', label: 'Activity', icon: Activity },
   ]
 
@@ -440,6 +442,10 @@ export function SchoolDetailPage() {
         </div>
       )}
 
+      {activeTab === 'usage' && (
+        <SchoolUsageTab schoolId={id!} />
+      )}
+
       {activeTab === 'activity' && (
         <SchoolActivityTab schoolId={id!} />
       )}
@@ -476,6 +482,69 @@ function InfoRow({
           />
         ) : (
           <p className="text-sm font-medium text-foreground">{value}</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SchoolUsageTab({ schoolId }: { schoolId: string }) {
+  const { data: usageData, isLoading: usageLoading } = useQuery({
+    queryKey: ['admin', 'usage', 'school', schoolId],
+    queryFn: () => adminApi.getSchoolUsageDetail(schoolId),
+  })
+
+  const { data: featureData, isLoading: featureLoading } = useQuery({
+    queryKey: ['admin', 'feature-usage', 'school', schoolId],
+    queryFn: () => fetch(`/api/admin/feature-usage/schools/${schoolId}`, { credentials: 'include' }).then(r => r.json()).then(r => r.data),
+  })
+
+  if (usageLoading || featureLoading) {
+    return <div className="text-center py-8 text-sm text-muted-foreground">Loading usage data...</div>
+  }
+
+  const metrics = usageData?.metrics || []
+  const features = featureData || []
+
+  return (
+    <div className="space-y-6">
+      {/* Usage Metrics */}
+      <div className="grid gap-4 md:grid-cols-4">
+        {['api_calls', 'active_users', 'storage_mb', 'logins'].map((type) => {
+          const metric = metrics.find((m: any) => m.metricType === type)
+          const labels: Record<string, string> = { api_calls: 'API Calls (30d)', active_users: 'Active Users', storage_mb: 'Storage (MB)', logins: 'Logins (30d)' }
+          return (
+            <div key={type} className="rounded-lg border bg-card p-4">
+              <p className="text-xs text-muted-foreground">{labels[type] || type}</p>
+              <p className="text-2xl font-bold mt-1">{metric ? Number(metric.total).toLocaleString() : '0'}</p>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Feature Usage */}
+      <div className="rounded-lg border bg-card">
+        <div className="px-6 py-4 border-b">
+          <h3 className="text-sm font-semibold">Module Usage (Last 30 Days)</h3>
+        </div>
+        {features.length === 0 ? (
+          <div className="px-6 py-8 text-center text-sm text-muted-foreground">
+            No feature usage data yet. Usage is aggregated daily.
+          </div>
+        ) : (
+          <div className="divide-y">
+            {features.map((f: any) => (
+              <div key={f.module} className="px-6 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium capitalize">{f.module.replace(/_/g, ' ')}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {Object.entries(f.actions || {}).map(([action, count]) => `${action}: ${count}`).join(', ')}
+                  </p>
+                </div>
+                <span className="text-sm font-semibold text-primary">{f.totalActions} actions</span>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

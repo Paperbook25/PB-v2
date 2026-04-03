@@ -129,3 +129,27 @@ export async function quickSetupFees(req: Request, res: Response, next: NextFunc
     next(err)
   }
 }
+
+export async function quickSetupSubjects(req: Request, res: Response, next: NextFunction) {
+  try {
+    const schoolId = req.schoolId || req.user?.organizationId
+    if (!schoolId) throw AppError.badRequest('School context required')
+
+    const result = await onboardingService.quickSetupSubjects(schoolId, req.body)
+    res.status(201).json(result)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function quickSetupPolicies(req: Request, res: Response, next: NextFunction) {
+  try {
+    const schoolId = req.schoolId || req.user?.organizationId
+    if (!schoolId) throw AppError.badRequest('School context required')
+
+    const result = await onboardingService.quickSetupPolicies(schoolId, req.body)
+    res.json(result)
+  } catch (err) {
+    next(err)
+  }
+}

@@ -5,6 +5,7 @@ import { WelcomeStep } from './steps/WelcomeStep'
 import { SchoolProfileStep } from './steps/SchoolProfileStep'
 import { AcademicStructureStep } from './steps/AcademicStructureStep'
 import { FeeStructureStep } from './steps/FeeStructureStep'
+import { PoliciesSetupStep } from './steps/PoliciesSetupStep'
 import { InviteTeamStep } from './steps/InviteTeamStep'
 import { WebsiteSetupStep } from './steps/WebsiteSetupStep'
 
@@ -27,6 +28,7 @@ const STEPS = [
   { title: 'School Profile', icon: Sparkles },
   { title: 'Academic Structure', icon: Sparkles },
   { title: 'Fee Structure', icon: Sparkles },
+  { title: 'Policies', icon: Sparkles },
   { title: 'Invite Team', icon: Sparkles },
   { title: 'Website', icon: Sparkles },
 ]
@@ -62,7 +64,7 @@ export function OnboardingWizard({ onComplete }: { onComplete: () => void }) {
       // Continue anyway
     }
 
-    if (currentStep >= 5) {
+    if (currentStep >= 6) {
       setVisible(false)
       onComplete()
       return
@@ -139,8 +141,9 @@ export function OnboardingWizard({ onComplete }: { onComplete: () => void }) {
           {currentStep === 1 && <SchoolProfileStep profile={status.schoolProfile} />}
           {currentStep === 2 && <AcademicStructureStep />}
           {currentStep === 3 && <FeeStructureStep />}
-          {currentStep === 4 && <InviteTeamStep />}
-          {currentStep === 5 && <WebsiteSetupStep />}
+          {currentStep === 4 && <PoliciesSetupStep onNext={handleNext} onBack={handleBack} />}
+          {currentStep === 5 && <InviteTeamStep />}
+          {currentStep === 6 && <WebsiteSetupStep />}
         </div>
 
         {/* Footer */}

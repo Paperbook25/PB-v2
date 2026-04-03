@@ -8,6 +8,8 @@ import {
   getSetupChecklist,
   quickSetupAcademics,
   quickSetupFees,
+  quickSetupSubjects,
+  quickSetupPolicies,
 } from '../controllers/onboarding.controller.js'
 
 const router = Router()
@@ -24,5 +26,7 @@ router.get('/checklist', getSetupChecklist)
 // Quick-setup batch endpoints (used by onboarding wizard)
 router.post('/quick-setup-academics', quickSetupAcademics)
 router.post('/quick-setup-fees', quickSetupFees)
+router.post('/quick-setup-subjects', quickSetupSubjects)
+router.post('/quick-setup-policies', quickSetupPolicies)
 
 export default router

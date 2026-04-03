@@ -115,6 +115,15 @@ export async function listStudents(schoolId: string, query: ListStudentsInput) {
   }
 }
 
+export async function getStudentByEmail(schoolId: string, email: string) {
+  const student = await prisma.student.findFirst({
+    where: { email, organizationId: schoolId },
+    include: studentInclude,
+  })
+  if (!student) return null
+  return formatStudent(student)
+}
+
 export async function getStudentById(schoolId: string, id: string) {
   const student = await prisma.student.findFirst({
     where: { id, organizationId: schoolId },

@@ -24,6 +24,12 @@ router.post('/promote', writeRoles, validate(promoteStudentsSchema), audit, stud
 router.post('/bulk-import', writeRoles, audit, studentController.bulkImport)
 router.get('/export', readRoles, studentController.exportStudents)
 
+// ==================== Self-service (student viewing own profile) ====================
+
+const studentSelf = rbacMiddleware('student', 'admin', 'principal')
+router.get('/me', studentSelf, studentController.getMyProfile)
+router.patch('/me', studentSelf, studentController.updateMyProfile)
+
 // ==================== CRUD ====================
 
 router.get('/', readRoles, studentController.listStudents)

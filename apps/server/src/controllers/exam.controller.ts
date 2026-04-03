@@ -85,7 +85,21 @@ export async function getMarks(req: Request, res: Response, next: NextFunction) 
 export async function submitMarks(req: Request, res: Response, next: NextFunction) {
   try {
     const input = submitMarksSchema.parse(req.body)
-    const result = await examService.submitMarks(getSchoolId(req), String(req.params.examId), input)
+    const schoolId = getSchoolId(req)
+    const examId = String(req.params.examId)
+
+    // Verify teacher is a staff member of this school before allowing grade entry
+    if (req.user?.role === 'teacher' && req.user?.userId) {
+      const { prisma } = await import('../config/db.js')
+      const staffRecord = await prisma.staff.findFirst({
+        where: { userId: req.user.userId, organizationId: schoolId, status: 'active' },
+      })
+      if (!staffRecord) {
+        throw AppError.forbidden('You are not an active staff member of this school')
+      }
+    }
+
+    const result = await examService.submitMarks(schoolId, examId, input)
     res.json(result)
   } catch (err) { next(err) }
 }

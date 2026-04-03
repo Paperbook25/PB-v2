@@ -16,6 +16,21 @@ function getParentEmail(req: Request): string {
   return req.user.email
 }
 
+// Verify the parent has access to the specified student
+async function verifyParentOwnership(req: Request, studentId: string): Promise<void> {
+  // Admins/principals bypass ownership check
+  if (req.user?.role === 'admin' || req.user?.role === 'principal') return
+
+  const student = await parentPortalService.verifyParentStudent(
+    getSchoolId(req),
+    getParentEmail(req),
+    studentId
+  )
+  if (!student) {
+    throw AppError.forbidden('You do not have access to this student\'s data')
+  }
+}
+
 // ==================== Child Overview ====================
 
 export async function getChildOverview(req: Request, res: Response, next: NextFunction) {
@@ -32,10 +47,12 @@ export async function getChildOverview(req: Request, res: Response, next: NextFu
 
 export async function getChildAttendance(req: Request, res: Response, next: NextFunction) {
   try {
+    const studentId = String(req.params.studentId)
+    await verifyParentOwnership(req, studentId)
     const { month, year } = req.query
     const data = await parentPortalService.getChildAttendance(
       getSchoolId(req),
-      String(req.params.studentId),
+      studentId,
       {
         month: month ? Number(month) : undefined,
         year: year ? Number(year) : undefined,
@@ -49,9 +66,11 @@ export async function getChildAttendance(req: Request, res: Response, next: Next
 
 export async function getChildFees(req: Request, res: Response, next: NextFunction) {
   try {
+    const studentId = String(req.params.studentId)
+    await verifyParentOwnership(req, studentId)
     const data = await parentPortalService.getChildFees(
       getSchoolId(req),
-      String(req.params.studentId)
+      studentId
     )
     res.json({ data })
   } catch (err) { next(err) }
@@ -61,9 +80,11 @@ export async function getChildFees(req: Request, res: Response, next: NextFuncti
 
 export async function getChildMarks(req: Request, res: Response, next: NextFunction) {
   try {
+    const studentId = String(req.params.studentId)
+    await verifyParentOwnership(req, studentId)
     const data = await parentPortalService.getChildMarks(
       getSchoolId(req),
-      String(req.params.studentId)
+      studentId
     )
     res.json({ data })
   } catch (err) { next(err) }

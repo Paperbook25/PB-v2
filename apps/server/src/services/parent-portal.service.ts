@@ -1,6 +1,19 @@
 import { prisma } from '../config/db.js'
 import { AppError } from '../utils/errors.js'
 
+// ==================== Verify Parent→Student Ownership ====================
+
+export async function verifyParentStudent(schoolId: string, parentEmail: string, studentId: string) {
+  const student = await prisma.student.findFirst({
+    where: {
+      id: studentId,
+      organizationId: schoolId,
+      parent: { guardianEmail: parentEmail },
+    },
+  })
+  return student
+}
+
 // ==================== Get Children for Parent User ====================
 
 async function getStudentsByParentEmail(schoolId: string, parentEmail: string) {

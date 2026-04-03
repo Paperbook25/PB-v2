@@ -1,11 +1,12 @@
 import { Router } from 'express'
 import * as parentPortalController from '../controllers/parent-portal.controller.js'
-import { authMiddleware } from '../middleware/index.js'
+import { authMiddleware, rbacMiddleware } from '../middleware/index.js'
 
 const router = Router()
 
-// All parent portal routes require auth
+// All parent portal routes require auth + parent role
 router.use(authMiddleware)
+router.use(rbacMiddleware('parent', 'admin', 'principal'))
 
 // ==================== Overview ====================
 router.get('/overview', parentPortalController.getChildOverview)

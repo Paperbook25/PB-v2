@@ -17,6 +17,31 @@ function getSchoolId(req: Request): string {
   return req.schoolId
 }
 
+// ==================== Self-Service ====================
+
+export async function getMyProfile(req: Request, res: Response, next: NextFunction) {
+  try {
+    const schoolId = getSchoolId(req)
+    if (!req.user?.email) throw AppError.unauthorized('Authentication required')
+    const student = await studentService.getStudentByEmail(schoolId, req.user.email)
+    if (!student) throw AppError.notFound('No student profile found for your account')
+    res.json({ data: student })
+  } catch (err) { next(err) }
+}
+
+export async function updateMyProfile(req: Request, res: Response, next: NextFunction) {
+  try {
+    const schoolId = getSchoolId(req)
+    if (!req.user?.email) throw AppError.unauthorized('Authentication required')
+    const student = await studentService.getStudentByEmail(schoolId, req.user.email)
+    if (!student) throw AppError.notFound('No student profile found for your account')
+    // Students can only update limited fields
+    const { phone, address } = req.body
+    const result = await studentService.updateStudent(schoolId, student.id, { phone, address } as UpdateStudentInput)
+    res.json({ data: result })
+  } catch (err) { next(err) }
+}
+
 // ==================== CRUD ====================
 
 export async function listStudents(req: Request, res: Response, next: NextFunction) {

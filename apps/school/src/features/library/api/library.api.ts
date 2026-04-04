@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api-client'
 import type { PaginatedResponse } from '@/types/common.types'
 import type {
   Book,
@@ -166,27 +166,32 @@ export async function returnBook(
   return apiPost<{ data: IssuedBook; fine: Fine | null }>(`${API_BASE}/return/${issuedBookId}`)
 }
 
-// TODO: Backend not implemented — returns placeholder
 export async function renewBook(
-  _issuedBookId: string,
-  _newDueDate?: string
+  issuedBookId: string,
+  newDueDate?: string
 ): Promise<RenewBookResponse> {
-  return { success: false, message: 'Feature coming soon' } as unknown as RenewBookResponse
+  return apiPatch<RenewBookResponse>(`${API_BASE}/issues/${issuedBookId}/renew`, { newDueDate })
 }
 
 // ==================== FINES ====================
-// TODO: Backend not implemented — fines management returns placeholders
 
-export async function fetchFines(_filters: FineFilters = {}): Promise<PaginatedResponse<Fine>> {
-  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Fine>
+export async function fetchFines(filters: FineFilters = {}): Promise<PaginatedResponse<Fine>> {
+  const params = new URLSearchParams()
+
+  if (filters.page) params.set('page', String(filters.page))
+  if (filters.limit) params.set('limit', String(filters.limit))
+  if (filters.search) params.set('search', filters.search)
+  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
+
+  return apiGet<PaginatedResponse<Fine>>(`${API_BASE}/fines?${params.toString()}`)
 }
 
-export async function updateFine(_id: string, _data: UpdateFineRequest): Promise<{ data: Fine }> {
-  return { data: {} as Fine }
+export async function updateFine(id: string, data: UpdateFineRequest): Promise<{ data: Fine }> {
+  return apiPatch<{ data: Fine }>(`${API_BASE}/fines/${id}`, data)
 }
 
-export async function deleteFine(_id: string): Promise<{ success: boolean }> {
-  return { success: false }
+export async function deleteFine(id: string): Promise<{ success: boolean }> {
+  return apiDelete<{ success: boolean }>(`${API_BASE}/fines/${id}`)
 }
 
 // ==================== STATS & UTILITY ====================
@@ -195,28 +200,37 @@ export async function fetchLibraryStats(): Promise<{ data: LibraryStats }> {
   return apiGet<{ data: LibraryStats }>(`${API_BASE}/stats`)
 }
 
-// TODO: Backend not implemented — returns placeholder
 export async function fetchAvailableStudents(
-  _search?: string
+  search?: string
 ): Promise<{ data: StudentForLibrary[] }> {
-  return { data: [] }
+  const params = new URLSearchParams()
+
+  if (search) params.set('search', search)
+
+  return apiGet<{ data: StudentForLibrary[] }>(`${API_BASE}/available-students?${params.toString()}`)
 }
 
 // ==================== RESERVATIONS ====================
-// TODO: Backend not implemented — reservations returns placeholders
 
 export async function fetchReservations(
-  _filters: { search?: string; status?: string; page?: number; limit?: number } = {}
+  filters: { search?: string; status?: string; page?: number; limit?: number } = {}
 ): Promise<PaginatedResponse<BookReservation>> {
-  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<BookReservation>
+  const params = new URLSearchParams()
+
+  if (filters.page) params.set('page', String(filters.page))
+  if (filters.limit) params.set('limit', String(filters.limit))
+  if (filters.search) params.set('search', filters.search)
+  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
+
+  return apiGet<PaginatedResponse<BookReservation>>(`${API_BASE}/reservations?${params.toString()}`)
 }
 
-export async function createReservation(_data: CreateReservationRequest): Promise<{ data: BookReservation }> {
-  return { data: {} as BookReservation }
+export async function createReservation(data: CreateReservationRequest): Promise<{ data: BookReservation }> {
+  return apiPost<{ data: BookReservation }>(`${API_BASE}/reservations`, data)
 }
 
-export async function cancelReservation(_id: string): Promise<{ data: BookReservation }> {
-  return { data: {} as BookReservation }
+export async function cancelReservation(id: string): Promise<{ data: BookReservation }> {
+  return apiDelete<{ data: BookReservation }>(`${API_BASE}/reservations/${id}`)
 }
 
 // ==================== READING HISTORY & RECOMMENDATIONS ====================

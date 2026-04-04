@@ -195,6 +195,346 @@ export async function reorderStops(
   return { success: true }
 }
 
+// ==================== Vehicles: List ====================
+
+export async function listVehicles(
+  schoolId: string,
+  query: { page?: number; limit?: number; search?: string; isActive?: boolean }
+) {
+  const page = query.page ?? 1
+  const limit = query.limit ?? 20
+  const skip = (page - 1) * limit
+
+  const where: Record<string, unknown> = { organizationId: schoolId }
+
+  if (query.isActive !== undefined) where.isActive = query.isActive
+  if (query.search) {
+    where.OR = [
+      { vehicleNumber: { contains: query.search, mode: 'insensitive' } },
+      { make: { contains: query.search, mode: 'insensitive' } },
+      { model: { contains: query.search, mode: 'insensitive' } },
+    ]
+  }
+
+  const [data, total] = await prisma.$transaction([
+    prisma.transportVehicle.findMany({
+      where,
+      orderBy: { vehicleNumber: 'asc' },
+      skip,
+      take: limit,
+    }),
+    prisma.transportVehicle.count({ where }),
+  ])
+
+  return {
+    data,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  }
+}
+
+// ==================== Vehicles: Get by ID ====================
+
+export async function getVehicle(schoolId: string, id: string) {
+  const vehicle = await prisma.transportVehicle.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!vehicle) throw new Error('Vehicle not found')
+  return vehicle
+}
+
+// ==================== Vehicles: Create ====================
+
+export async function createVehicle(
+  schoolId: string,
+  input: {
+    vehicleNumber: string
+    type?: string
+    capacity?: number
+    make?: string
+    model?: string
+    year?: number
+    registrationNumber?: string
+    insuranceNumber?: string
+    insuranceExpiry?: string
+    fitnessExpiry?: string
+  }
+) {
+  return prisma.transportVehicle.create({
+    data: {
+      organizationId: schoolId,
+      vehicleNumber: input.vehicleNumber,
+      type: input.type ?? 'bus',
+      capacity: input.capacity ?? 40,
+      make: input.make ?? null,
+      model: input.model ?? null,
+      year: input.year ?? null,
+      registrationNumber: input.registrationNumber ?? null,
+      insuranceNumber: input.insuranceNumber ?? null,
+      insuranceExpiry: input.insuranceExpiry ? new Date(input.insuranceExpiry) : null,
+      fitnessExpiry: input.fitnessExpiry ? new Date(input.fitnessExpiry) : null,
+    },
+  })
+}
+
+// ==================== Vehicles: Update ====================
+
+export async function updateVehicle(
+  schoolId: string,
+  id: string,
+  input: Record<string, unknown>
+) {
+  const existing = await prisma.transportVehicle.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!existing) throw new Error('Vehicle not found')
+
+  // Convert date strings to Date objects if present
+  const data = { ...input }
+  if (typeof data.insuranceExpiry === 'string') data.insuranceExpiry = new Date(data.insuranceExpiry as string)
+  if (typeof data.fitnessExpiry === 'string') data.fitnessExpiry = new Date(data.fitnessExpiry as string)
+
+  return prisma.transportVehicle.update({ where: { id }, data })
+}
+
+// ==================== Vehicles: Delete ====================
+
+export async function deleteVehicle(schoolId: string, id: string) {
+  const existing = await prisma.transportVehicle.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!existing) throw new Error('Vehicle not found')
+
+  await prisma.transportVehicle.delete({ where: { id } })
+  return { success: true }
+}
+
+// ==================== Drivers: List ====================
+
+export async function listDrivers(
+  schoolId: string,
+  query: { page?: number; limit?: number; search?: string; isActive?: boolean }
+) {
+  const page = query.page ?? 1
+  const limit = query.limit ?? 20
+  const skip = (page - 1) * limit
+
+  const where: Record<string, unknown> = { organizationId: schoolId }
+
+  if (query.isActive !== undefined) where.isActive = query.isActive
+  if (query.search) {
+    where.OR = [
+      { name: { contains: query.search, mode: 'insensitive' } },
+      { phone: { contains: query.search, mode: 'insensitive' } },
+      { licenseNumber: { contains: query.search, mode: 'insensitive' } },
+    ]
+  }
+
+  const [data, total] = await prisma.$transaction([
+    prisma.transportDriver.findMany({
+      where,
+      orderBy: { name: 'asc' },
+      skip,
+      take: limit,
+    }),
+    prisma.transportDriver.count({ where }),
+  ])
+
+  return {
+    data,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  }
+}
+
+// ==================== Drivers: Get by ID ====================
+
+export async function getDriver(schoolId: string, id: string) {
+  const driver = await prisma.transportDriver.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!driver) throw new Error('Driver not found')
+  return driver
+}
+
+// ==================== Drivers: Create ====================
+
+export async function createDriver(
+  schoolId: string,
+  input: {
+    name: string
+    phone?: string
+    licenseNumber?: string
+    licenseExpiry?: string
+    address?: string
+    experience?: number
+    photoUrl?: string
+  }
+) {
+  return prisma.transportDriver.create({
+    data: {
+      organizationId: schoolId,
+      name: input.name,
+      phone: input.phone ?? null,
+      licenseNumber: input.licenseNumber ?? null,
+      licenseExpiry: input.licenseExpiry ? new Date(input.licenseExpiry) : null,
+      address: input.address ?? null,
+      experience: input.experience ?? null,
+      photoUrl: input.photoUrl ?? null,
+    },
+  })
+}
+
+// ==================== Drivers: Update ====================
+
+export async function updateDriver(
+  schoolId: string,
+  id: string,
+  input: Record<string, unknown>
+) {
+  const existing = await prisma.transportDriver.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!existing) throw new Error('Driver not found')
+
+  const data = { ...input }
+  if (typeof data.licenseExpiry === 'string') data.licenseExpiry = new Date(data.licenseExpiry as string)
+
+  return prisma.transportDriver.update({ where: { id }, data })
+}
+
+// ==================== Drivers: Delete ====================
+
+export async function deleteDriver(schoolId: string, id: string) {
+  const existing = await prisma.transportDriver.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!existing) throw new Error('Driver not found')
+
+  await prisma.transportDriver.delete({ where: { id } })
+  return { success: true }
+}
+
+// ==================== Assignments: List ====================
+
+export async function listAssignments(
+  schoolId: string,
+  query: { page?: number; limit?: number; routeId?: string; stopId?: string; search?: string }
+) {
+  const page = query.page ?? 1
+  const limit = query.limit ?? 50
+  const skip = (page - 1) * limit
+
+  const where: Record<string, unknown> = { organizationId: schoolId }
+
+  if (query.routeId) where.routeId = query.routeId
+  if (query.stopId) where.stopId = query.stopId
+  if (query.search) {
+    where.student = {
+      OR: [
+        { firstName: { contains: query.search, mode: 'insensitive' } },
+        { lastName: { contains: query.search, mode: 'insensitive' } },
+        { admissionNumber: { contains: query.search, mode: 'insensitive' } },
+      ],
+    }
+  }
+
+  const [data, total] = await prisma.$transaction([
+    prisma.transportAssignment.findMany({
+      where,
+      include: {
+        student: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            admissionNumber: true,
+            classId: true,
+            sectionId: true,
+            photoUrl: true,
+          },
+        },
+        route: { select: { id: true, name: true } },
+        stop: { select: { id: true, name: true, area: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.transportAssignment.count({ where }),
+  ])
+
+  return {
+    data,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  }
+}
+
+// ==================== Assignments: Assign Student ====================
+
+export async function assignStudent(
+  schoolId: string,
+  input: {
+    studentId: string
+    routeId: string
+    stopId?: string
+    pickupType?: string
+  }
+) {
+  // Verify route belongs to school
+  const route = await prisma.transportRoute.findFirst({
+    where: { id: input.routeId, organizationId: schoolId },
+  })
+  if (!route) throw new Error('Route not found')
+
+  // Verify stop belongs to route if provided
+  if (input.stopId) {
+    const stop = await prisma.transportStop.findFirst({
+      where: { id: input.stopId, routeId: input.routeId },
+    })
+    if (!stop) throw new Error('Stop not found on this route')
+  }
+
+  // Upsert: if student already assigned, update; otherwise create
+  return prisma.transportAssignment.upsert({
+    where: {
+      organizationId_studentId: {
+        organizationId: schoolId,
+        studentId: input.studentId,
+      },
+    },
+    update: {
+      routeId: input.routeId,
+      stopId: input.stopId ?? null,
+      pickupType: input.pickupType ?? 'both',
+    },
+    create: {
+      organizationId: schoolId,
+      studentId: input.studentId,
+      routeId: input.routeId,
+      stopId: input.stopId ?? null,
+      pickupType: input.pickupType ?? 'both',
+    },
+    include: {
+      student: {
+        select: { id: true, firstName: true, lastName: true, admissionNumber: true },
+      },
+      route: { select: { id: true, name: true } },
+      stop: { select: { id: true, name: true } },
+    },
+  })
+}
+
+// ==================== Assignments: Remove ====================
+
+export async function removeAssignment(schoolId: string, id: string) {
+  const existing = await prisma.transportAssignment.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!existing) throw new Error('Assignment not found')
+
+  await prisma.transportAssignment.delete({ where: { id } })
+  return { success: true }
+}
+
 // ==================== Transport Stats ====================
 
 export async function getTransportStats(schoolId: string) {

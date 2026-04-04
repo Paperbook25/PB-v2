@@ -18,6 +18,22 @@ router.get('/issues/overdue', adminRoles, libraryController.getOverdueBooks)
 router.post('/issues', adminRoles, libraryController.issueBook)
 router.patch('/issues/:id/return', adminRoles, libraryController.returnBook)
 
+// ==================== Fines ====================
+router.get('/fines', adminRoles, libraryController.listFines)
+router.patch('/fines/:id', adminRoles, libraryController.updateFine)
+router.delete('/fines/:id', adminRoles, libraryController.deleteFine)
+
+// ==================== Reservations ====================
+router.get('/reservations', adminRoles, libraryController.listReservations)
+router.post('/reservations', adminRoles, libraryController.createReservation)
+router.delete('/reservations/:id', adminRoles, libraryController.cancelReservation)
+
+// ==================== Renewal ====================
+router.patch('/issues/:id/renew', adminRoles, libraryController.renewBook)
+
+// ==================== Available Students ====================
+router.get('/available-students', adminRoles, libraryController.getAvailableStudents)
+
 // ==================== Books ====================
 router.get('/books', adminRoles, libraryController.listBooks)
 router.get('/books/:id', adminRoles, libraryController.getBook)

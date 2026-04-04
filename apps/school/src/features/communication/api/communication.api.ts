@@ -111,9 +111,9 @@ export async function deleteAnnouncement(id: string): Promise<{ success: boolean
   return apiDelete<{ success: boolean }>(`${API_BASE}/announcements/${id}`)
 }
 
-// TODO: Backend not implemented — announcement acknowledgement returns placeholder
-export async function acknowledgeAnnouncement(_id: string): Promise<{ success: boolean }> {
-  return { success: false }
+// TODO: Backend endpoint may not exist yet — wired optimistically
+export async function acknowledgeAnnouncement(id: string): Promise<{ success: boolean }> {
+  return apiPost<{ success: boolean }>(`${API_BASE}/announcements/${id}/acknowledge`, {})
 }
 
 // ===== Conversations & Messages =====
@@ -175,46 +175,59 @@ export async function deleteCircular(id: string): Promise<{ success: boolean }> 
 }
 
 // ===== Surveys =====
-// TODO: Backend not implemented — survey system returns placeholders
 
 export async function fetchSurveys(
-  _filters: SurveyFilters = {}
+  filters: SurveyFilters = {}
 ): Promise<PaginatedResponse<Survey>> {
-  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Survey>
+  const params = new URLSearchParams()
+  if (filters.search) params.set('search', filters.search)
+  if (filters.status) params.set('status', filters.status)
+  if (filters.page) params.set('page', filters.page.toString())
+  if (filters.limit) params.set('limit', filters.limit.toString())
+
+  return apiGet<PaginatedResponse<Survey>>(
+    `${API_BASE}/surveys?${params.toString()}`
+  )
 }
 
-export async function fetchSurvey(_id: string): Promise<{ data: Survey }> {
-  return { data: {} as Survey }
+export async function fetchSurvey(id: string): Promise<{ data: Survey }> {
+  return apiGet<{ data: Survey }>(`${API_BASE}/surveys/${id}`)
 }
 
-export async function createSurvey(_data: CreateSurveyRequest): Promise<{ data: Survey }> {
-  return { data: {} as Survey }
+export async function createSurvey(data: CreateSurveyRequest): Promise<{ data: Survey }> {
+  return apiPost<{ data: Survey }>(`${API_BASE}/surveys`, data)
 }
 
 export async function updateSurvey(
-  _id: string,
-  _data: UpdateSurveyRequest
+  id: string,
+  data: UpdateSurveyRequest
 ): Promise<{ data: Survey }> {
-  return { data: {} as Survey }
+  return apiPut<{ data: Survey }>(`${API_BASE}/surveys/${id}`, data)
 }
 
-export async function deleteSurvey(_id: string): Promise<{ success: boolean }> {
-  return { success: false }
+export async function deleteSurvey(id: string): Promise<{ success: boolean }> {
+  return apiDelete<{ success: boolean }>(`${API_BASE}/surveys/${id}`)
 }
 
 export async function submitSurveyResponse(
-  _surveyId: string,
-  _data: SubmitSurveyResponseRequest
+  surveyId: string,
+  data: SubmitSurveyResponseRequest
 ): Promise<{ data: SurveyResponse }> {
-  return { data: {} as SurveyResponse }
+  return apiPost<{ data: SurveyResponse }>(`${API_BASE}/surveys/${surveyId}/respond`, data)
 }
 
 export async function fetchSurveyResponses(
-  _surveyId: string,
-  _page = 1,
-  _limit = 20
+  surveyId: string,
+  page = 1,
+  limit = 20
 ): Promise<PaginatedResponse<SurveyResponse>> {
-  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<SurveyResponse>
+  const params = new URLSearchParams()
+  params.set('page', page.toString())
+  params.set('limit', limit.toString())
+
+  return apiGet<PaginatedResponse<SurveyResponse>>(
+    `${API_BASE}/surveys/${surveyId}/responses?${params.toString()}`
+  )
 }
 
 // ===== Emergency Alerts =====
@@ -251,45 +264,52 @@ export async function acknowledgeEmergencyAlert(
 }
 
 // ===== Events =====
-// TODO: Backend not implemented — events system returns placeholders
 
 export async function fetchEvents(
-  _filters: EventFilters = {}
+  filters: EventFilters = {}
 ): Promise<PaginatedResponse<Event>> {
-  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Event>
+  const params = new URLSearchParams()
+  if (filters.search) params.set('search', filters.search)
+  if (filters.type) params.set('type', filters.type)
+  if (filters.status) params.set('status', filters.status)
+  if (filters.page) params.set('page', filters.page.toString())
+  if (filters.limit) params.set('limit', filters.limit.toString())
+
+  return apiGet<PaginatedResponse<Event>>(
+    `${API_BASE}/events?${params.toString()}`
+  )
 }
 
-export async function fetchEvent(_id: string): Promise<{ data: Event }> {
-  return { data: {} as Event }
+export async function fetchEvent(id: string): Promise<{ data: Event }> {
+  return apiGet<{ data: Event }>(`${API_BASE}/events/${id}`)
 }
 
-export async function createEvent(_data: CreateEventRequest): Promise<{ data: Event }> {
-  return { data: {} as Event }
+export async function createEvent(data: CreateEventRequest): Promise<{ data: Event }> {
+  return apiPost<{ data: Event }>(`${API_BASE}/events`, data)
 }
 
 export async function updateEvent(
-  _id: string,
-  _data: UpdateEventRequest
+  id: string,
+  data: UpdateEventRequest
 ): Promise<{ data: Event }> {
-  return { data: {} as Event }
+  return apiPut<{ data: Event }>(`${API_BASE}/events/${id}`, data)
 }
 
-export async function deleteEvent(_id: string): Promise<{ success: boolean }> {
-  return { success: false }
+export async function deleteEvent(id: string): Promise<{ success: boolean }> {
+  return apiDelete<{ success: boolean }>(`${API_BASE}/events/${id}`)
 }
 
-export async function registerForEvent(_id: string): Promise<{ success: boolean }> {
-  return { success: false }
+export async function registerForEvent(id: string): Promise<{ success: boolean }> {
+  return apiPost<{ success: boolean }>(`${API_BASE}/events/${id}/register`, {})
 }
 
-export async function cancelEventRegistration(_id: string): Promise<{ success: boolean }> {
-  return { success: false }
+export async function cancelEventRegistration(id: string): Promise<{ success: boolean }> {
+  return apiDelete<{ success: boolean }>(`${API_BASE}/events/${id}/register`)
 }
 
 // ===== Stats =====
-// TODO: Backend not implemented — communication stats returns placeholder
 export async function fetchCommunicationStats(): Promise<{ data: CommunicationStats }> {
-  return { data: {} as CommunicationStats }
+  return apiGet<{ data: CommunicationStats }>(`${API_BASE}/stats`)
 }
 
 // ===== WhatsApp Business API =====

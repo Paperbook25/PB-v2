@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api-client'
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api-client'
 import type {
   TransportRoute,
   CreateRouteRequest,
@@ -76,64 +76,71 @@ export async function deleteRoute(id: string) {
 }
 
 // ==================== VEHICLES ====================
-// TODO: Backend not implemented — vehicle management returns placeholders
 
-export async function fetchVehicles(_params?: { status?: string; type?: string }) {
-  return { data: [] as Vehicle[] }
+export async function fetchVehicles(params?: { status?: string; type?: string }) {
+  const qs = new URLSearchParams()
+  if (params?.status) qs.set('status', params.status)
+  if (params?.type) qs.set('type', params.type)
+  return apiGet<{ data: Vehicle[] }>(`${BASE}/vehicles?${qs}`)
 }
 
-export async function fetchVehicle(_id: string) {
-  return { data: {} as Vehicle }
+export async function fetchVehicle(id: string) {
+  return apiGet<{ data: Vehicle }>(`${BASE}/vehicles/${id}`)
 }
 
-export async function createVehicle(_data: CreateVehicleRequest) {
-  return { data: {} as Vehicle }
+export async function createVehicle(data: CreateVehicleRequest) {
+  return apiPost<{ data: Vehicle }>(`${BASE}/vehicles`, data)
 }
 
-export async function updateVehicle(_id: string, _data: Partial<Vehicle>) {
-  return { data: {} as Vehicle }
+export async function updateVehicle(id: string, data: Partial<Vehicle>) {
+  return apiPatch<{ data: Vehicle }>(`${BASE}/vehicles/${id}`, data)
 }
 
-export async function deleteVehicle(_id: string) {
-  return { success: false }
+export async function deleteVehicle(id: string) {
+  return apiDelete<{ success: boolean }>(`${BASE}/vehicles/${id}`)
 }
 
 // ==================== DRIVERS ====================
-// TODO: Backend not implemented — driver management returns placeholders
 
-export async function fetchDrivers(_params?: { status?: string; search?: string }) {
-  return { data: [] as Driver[] }
+export async function fetchDrivers(params?: { status?: string; search?: string }) {
+  const qs = new URLSearchParams()
+  if (params?.status) qs.set('status', params.status)
+  if (params?.search) qs.set('search', params.search)
+  return apiGet<{ data: Driver[] }>(`${BASE}/drivers?${qs}`)
 }
 
-export async function fetchDriver(_id: string) {
-  return { data: {} as Driver }
+export async function fetchDriver(id: string) {
+  return apiGet<{ data: Driver }>(`${BASE}/drivers/${id}`)
 }
 
-export async function createDriver(_data: CreateDriverRequest) {
-  return { data: {} as Driver }
+export async function createDriver(data: CreateDriverRequest) {
+  return apiPost<{ data: Driver }>(`${BASE}/drivers`, data)
 }
 
-export async function updateDriver(_id: string, _data: Partial<Driver>) {
-  return { data: {} as Driver }
+export async function updateDriver(id: string, data: Partial<Driver>) {
+  return apiPatch<{ data: Driver }>(`${BASE}/drivers/${id}`, data)
 }
 
-export async function deleteDriver(_id: string) {
-  return { success: false }
+export async function deleteDriver(id: string) {
+  return apiDelete<{ success: boolean }>(`${BASE}/drivers/${id}`)
 }
 
 // ==================== STUDENT ASSIGNMENTS ====================
-// TODO: Backend not implemented — student assignment management returns placeholders
 
-export async function fetchAssignments(_params?: { routeId?: string; stopId?: string; search?: string }) {
-  return { data: [] as StopStudentAssignment[] }
+export async function fetchAssignments(params?: { routeId?: string; stopId?: string; search?: string }) {
+  const qs = new URLSearchParams()
+  if (params?.routeId) qs.set('routeId', params.routeId)
+  if (params?.stopId) qs.set('stopId', params.stopId)
+  if (params?.search) qs.set('search', params.search)
+  return apiGet<{ data: StopStudentAssignment[] }>(`${BASE}/assignments?${qs}`)
 }
 
-export async function assignStudent(_data: AssignStudentRequest & Record<string, unknown>) {
-  return { data: {} as StopStudentAssignment }
+export async function assignStudent(data: AssignStudentRequest & Record<string, unknown>) {
+  return apiPost<{ data: StopStudentAssignment }>(`${BASE}/assignments`, data)
 }
 
-export async function removeAssignment(_id: string) {
-  return { success: false }
+export async function removeAssignment(id: string) {
+  return apiDelete<{ success: boolean }>(`${BASE}/assignments/${id}`)
 }
 
 // ==================== GPS TRACKING ====================

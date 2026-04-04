@@ -27,4 +27,28 @@ router.get('/circulars/:id', readRoles, ctrl.getCircular)
 router.put('/circulars/:id', adminRoles, ctrl.updateCircular)
 router.delete('/circulars/:id', adminRoles, ctrl.deleteCircular)
 
+// ==================== Surveys ====================
+
+router.get('/surveys', readRoles, ctrl.listSurveys)
+router.post('/surveys', adminRoles, ctrl.createSurvey)
+router.get('/surveys/:id', readRoles, ctrl.getSurvey)
+router.put('/surveys/:id', adminRoles, ctrl.updateSurvey)
+router.delete('/surveys/:id', adminRoles, ctrl.deleteSurvey)
+router.post('/surveys/:id/respond', ctrl.submitSurveyResponse)
+router.get('/surveys/:id/responses', adminRoles, ctrl.getSurveyResponses)
+
+// ==================== Events ====================
+
+router.get('/events', readRoles, ctrl.listEvents)
+router.post('/events', adminRoles, ctrl.createEvent)
+router.get('/events/:id', readRoles, ctrl.getEvent)
+router.put('/events/:id', adminRoles, ctrl.updateEvent)
+router.delete('/events/:id', adminRoles, ctrl.deleteEvent)
+router.post('/events/:id/register', ctrl.registerForEvent)
+router.delete('/events/:id/register', ctrl.cancelEventRegistration)
+
+// ==================== Stats ====================
+
+router.get('/stats', readRoles, ctrl.getCommunicationStats)
+
 export default router

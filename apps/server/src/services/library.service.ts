@@ -298,3 +298,286 @@ export async function getLibraryStats(schoolId: string) {
     totalMembers: memberCount.length,
   }
 }
+
+// ==================== Fines: List ====================
+
+export async function listFines(
+  schoolId: string,
+  query: {
+    page?: number
+    limit?: number
+    status?: string
+    borrowerId?: string
+  }
+) {
+  const page = query.page ?? 1
+  const limit = query.limit ?? 20
+  const skip = (page - 1) * limit
+
+  const where: Record<string, unknown> = { organizationId: schoolId }
+
+  if (query.status) where.status = query.status
+  if (query.borrowerId) where.borrowerId = query.borrowerId
+
+  const [data, total] = await prisma.$transaction([
+    prisma.libraryFine.findMany({
+      where,
+      include: {
+        issue: {
+          select: {
+            bookId: true,
+            borrowerName: true,
+            issueDate: true,
+            dueDate: true,
+            returnDate: true,
+            book: { select: { title: true, author: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.libraryFine.count({ where }),
+  ])
+
+  return {
+    data,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  }
+}
+
+// ==================== Fines: Update ====================
+
+export async function updateFine(
+  schoolId: string,
+  id: string,
+  input: {
+    status?: string
+    amount?: number
+    notes?: string
+  }
+) {
+  const existing = await prisma.libraryFine.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!existing) throw new Error('Fine not found')
+
+  const updateData: Record<string, unknown> = {}
+  if (input.amount !== undefined) updateData.amount = input.amount
+  if (input.notes !== undefined) updateData.notes = input.notes
+  if (input.status) {
+    updateData.status = input.status
+    if (input.status === 'paid') {
+      updateData.paidAt = new Date()
+    }
+  }
+
+  return prisma.libraryFine.update({ where: { id }, data: updateData })
+}
+
+// ==================== Fines: Delete ====================
+
+export async function deleteFine(schoolId: string, id: string) {
+  const existing = await prisma.libraryFine.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!existing) throw new Error('Fine not found')
+
+  await prisma.libraryFine.delete({ where: { id } })
+  return { success: true }
+}
+
+// ==================== Reservations: List ====================
+
+export async function listReservations(
+  schoolId: string,
+  query: {
+    page?: number
+    limit?: number
+    status?: string
+    studentId?: string
+    bookId?: string
+  }
+) {
+  const page = query.page ?? 1
+  const limit = query.limit ?? 20
+  const skip = (page - 1) * limit
+
+  const where: Record<string, unknown> = { organizationId: schoolId }
+
+  if (query.status) where.status = query.status
+  if (query.studentId) where.studentId = query.studentId
+  if (query.bookId) where.bookId = query.bookId
+
+  const [data, total] = await prisma.$transaction([
+    prisma.libraryReservation.findMany({
+      where,
+      include: {
+        book: { select: { title: true, author: true, isbn: true, availableCopies: true } },
+      },
+      orderBy: { reservedAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.libraryReservation.count({ where }),
+  ])
+
+  return {
+    data,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  }
+}
+
+// ==================== Reservations: Create ====================
+
+export async function createReservation(
+  schoolId: string,
+  input: {
+    bookId: string
+    studentId: string
+    studentName: string
+  }
+) {
+  // Verify the book exists
+  const book = await prisma.libraryBook.findFirst({
+    where: { id: input.bookId, organizationId: schoolId },
+  })
+  if (!book) throw new Error('Book not found')
+
+  // Check if the student already has an active reservation for this book
+  const existingReservation = await prisma.libraryReservation.findFirst({
+    where: {
+      organizationId: schoolId,
+      bookId: input.bookId,
+      studentId: input.studentId,
+      status: 'active',
+    },
+  })
+  if (existingReservation) throw new Error('Student already has an active reservation for this book')
+
+  // Reservation expires in 3 days
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + 3)
+
+  return prisma.libraryReservation.create({
+    data: {
+      organizationId: schoolId,
+      bookId: input.bookId,
+      studentId: input.studentId,
+      studentName: input.studentName,
+      expiresAt,
+    },
+    include: {
+      book: { select: { title: true, author: true } },
+    },
+  })
+}
+
+// ==================== Reservations: Cancel ====================
+
+export async function cancelReservation(schoolId: string, id: string) {
+  const existing = await prisma.libraryReservation.findFirst({
+    where: { id, organizationId: schoolId },
+  })
+  if (!existing) throw new Error('Reservation not found')
+  if (existing.status !== 'active') throw new Error('Reservation is not active')
+
+  return prisma.libraryReservation.update({
+    where: { id },
+    data: { status: 'cancelled', cancelledAt: new Date() },
+  })
+}
+
+// ==================== Renew Book ====================
+
+export async function renewBook(
+  schoolId: string,
+  issueId: string,
+  input: { additionalDays?: number }
+) {
+  const issue = await prisma.libraryIssue.findFirst({
+    where: { id: issueId, organizationId: schoolId },
+  })
+  if (!issue) throw new Error('Issue record not found')
+  if (issue.status === 'returned') throw new Error('Cannot renew a returned book')
+  if (issue.status === 'lost') throw new Error('Cannot renew a lost book')
+
+  // Default renewal: extend by 14 days from current due date
+  const days = input.additionalDays ?? 14
+  const newDueDate = new Date(issue.dueDate)
+  newDueDate.setDate(newDueDate.getDate() + days)
+
+  return prisma.libraryIssue.update({
+    where: { id: issueId },
+    data: {
+      dueDate: newDueDate,
+      status: 'issued', // Reset to issued if it was overdue
+    },
+    include: {
+      book: { select: { title: true, author: true } },
+    },
+  })
+}
+
+// ==================== Available Students ====================
+
+const DEFAULT_BORROW_LIMIT = 3
+
+export async function getAvailableStudents(
+  schoolId: string,
+  query: { search?: string; limit?: number }
+) {
+  const limit = query.limit ?? 50
+
+  // Get all active students
+  const studentWhere: Record<string, unknown> = {
+    organizationId: schoolId,
+    status: 'active',
+  }
+  if (query.search) {
+    studentWhere.OR = [
+      { firstName: { contains: query.search, mode: 'insensitive' } },
+      { lastName: { contains: query.search, mode: 'insensitive' } },
+      { admissionNumber: { contains: query.search, mode: 'insensitive' } },
+    ]
+  }
+
+  const students = await prisma.student.findMany({
+    where: studentWhere,
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      admissionNumber: true,
+      classId: true,
+      sectionId: true,
+      class: { select: { name: true } },
+      section: { select: { name: true } },
+    },
+    orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
+    take: limit,
+  })
+
+  // Get count of currently issued books per student
+  const issuedCounts = await prisma.libraryIssue.groupBy({
+    by: ['borrowerId'],
+    where: {
+      organizationId: schoolId,
+      status: { in: ['issued', 'overdue'] },
+      borrowerId: { in: students.map((s) => s.id) },
+    },
+    _count: { id: true },
+  })
+
+  const issuedMap = new Map(issuedCounts.map((c) => [c.borrowerId, c._count.id]))
+
+  return students
+    .map((s) => ({
+      ...s,
+      currentlyIssued: issuedMap.get(s.id) ?? 0,
+      borrowLimit: DEFAULT_BORROW_LIMIT,
+      canBorrow: (issuedMap.get(s.id) ?? 0) < DEFAULT_BORROW_LIMIT,
+    }))
+    .filter((s) => s.canBorrow)
+}

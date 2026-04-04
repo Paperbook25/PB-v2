@@ -230,6 +230,26 @@ function BlogTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
     mutationFn: () => adminApi.extractKeywords(form.title, form.content),
     onSuccess: (data: any) => { const kw = data?.keywords || data?.data?.keywords || []; setForm((f) => ({ ...f, keywords: kw.join(', ') })) },
   })
+  const generateMut = useMutation({
+    mutationFn: () => adminApi.generateBlogContent(form.title, form.keywords.split(',').map((k: string) => k.trim()).filter(Boolean)),
+    onSuccess: (data: any) => {
+      setForm((f) => ({
+        ...f,
+        slug: data.slug || f.slug,
+        excerpt: data.excerpt || f.excerpt,
+        content: data.content || f.content,
+        keywords: (data.keywords || []).join(', '),
+        tags: (data.tags || []).join(', '),
+        metaTitle: data.metaTitle || f.metaTitle,
+        metaDescription: data.metaDescription || f.metaDescription,
+        category: data.category || f.category,
+      }))
+    },
+  })
+  const linkMut = useMutation({
+    mutationFn: (id: string) => adminApi.injectInternalLinks(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['website', 'blog'] }),
+  })
   const ideasMut = useMutation({
     mutationFn: () => adminApi.getBlogIdeas(),
     onSuccess: (data: any) => { setIdeas(data?.ideas || data?.data || data || []); setShowIdeas(true) },
@@ -302,6 +322,11 @@ function BlogTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
                 <td className="px-4 py-3 text-muted-foreground">{p.publishedAt ? format(new Date(p.publishedAt), 'MMM d, yyyy') : '—'}</td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end gap-1">
+                    {p.status === 'published' && (
+                      <button onClick={() => linkMut.mutate(p.id)} disabled={linkMut.isPending} className="rounded p-1 hover:bg-muted" title="Auto-inject internal links">
+                        <Link2 className="h-4 w-4 text-blue-500" />
+                      </button>
+                    )}
                     <button onClick={() => openEdit(p)} className="rounded p-1 hover:bg-muted"><Edit2 className="h-4 w-4 text-muted-foreground" /></button>
                     <button onClick={() => deleteMut.mutate(p.id)} className="rounded p-1 hover:bg-muted"><Trash2 className="h-4 w-4 text-red-500" /></button>
                   </div>
@@ -325,7 +350,19 @@ function BlogTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
               <Field label="Title" value={form.title} onChange={(v) => setForm((f) => ({ ...f, title: v, slug: slugEdited ? f.slug : toSlug(v) }))} />
               <Field label="Slug" value={form.slug} onChange={(v) => { setSlugEdited(true); setForm((f) => ({ ...f, slug: v })) }} />
               <div className="sm:col-span-2"><Field label="Excerpt" value={form.excerpt} onChange={(v) => setForm((f) => ({ ...f, excerpt: v }))} textarea /></div>
-              <div className="sm:col-span-2"><Field label="Content" value={form.content} onChange={(v) => setForm((f) => ({ ...f, content: v }))} textarea rows={8} /></div>
+              <div className="sm:col-span-2">
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="text-xs font-medium text-muted-foreground">Content</label>
+                  <button
+                    onClick={() => generateMut.mutate()}
+                    disabled={generateMut.isPending || !form.title}
+                    className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-50"
+                  >
+                    <Sparkles className="h-3 w-3" /> {generateMut.isPending ? 'Generating...' : 'AI Generate Content'}
+                  </button>
+                </div>
+                <textarea value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} rows={8} className="w-full rounded-lg border bg-card px-3 py-2 text-sm text-foreground" />
+              </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-muted-foreground">Category</label>
                 <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="w-full rounded-lg border bg-card px-3 py-2 text-sm text-foreground">

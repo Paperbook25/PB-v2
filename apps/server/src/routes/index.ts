@@ -87,6 +87,28 @@ router.get('/public/branding', async (_req, res, next) => {
   } catch (err) { next(err) }
 })
 
+// Public website data (pricing, contact, blog, team — for marketing site)
+router.get('/public/website', async (_req, res, next) => {
+  try {
+    const { getPublicWebsiteData } = await import('../services/admin-website.service.js')
+    res.json(await getPublicWebsiteData())
+  } catch (err) { next(err) }
+})
+
+router.get('/public/blog', async (req, res, next) => {
+  try {
+    const { getPublicBlogList } = await import('../services/admin-website.service.js')
+    res.json(await getPublicBlogList(req.query as any))
+  } catch (err) { next(err) }
+})
+
+router.get('/public/blog/:slug', async (req, res, next) => {
+  try {
+    const { getPublicBlogPost } = await import('../services/admin-website.service.js')
+    res.json(await getPublicBlogPost(String(req.params.slug)))
+  } catch (err) { next(err) }
+})
+
 // --- Public login (for landing page → redirect to school subdomain) ---
 // This lives under /public/* because /auth/* is intercepted by better-auth handler
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many login attempts. Try again later.' } })

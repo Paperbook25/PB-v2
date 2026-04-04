@@ -17,10 +17,12 @@ import {
   Shield,
   TicketCheck,
   MessageSquare,
+  Globe,
 } from 'lucide-react'
 
 const navItems = [
   { label: 'Dashboard', to: '/', icon: LayoutDashboard, end: true },
+  { label: 'Website', to: '/website', icon: Globe },
   { label: 'Schools', to: '/schools', icon: School },
   { label: 'CRM', to: '/crm', icon: Target },
   { label: 'Subscriptions', to: '/subscriptions', icon: CreditCard },

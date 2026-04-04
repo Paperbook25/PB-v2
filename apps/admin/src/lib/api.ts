@@ -207,6 +207,45 @@ export const adminApi = {
   getPlatformSettings: () => adminFetch<any>('/platform-settings').then((r: any) => r.data),
   updatePlatformSettings: (data: Record<string, string>) => adminFetch<any>('/platform-settings', { method: 'PUT', body: JSON.stringify(data) }),
 
+  // Website CMS
+  getWebsitePricing: () => adminFetch<any>('/website/pricing').then((r: any) => r.data),
+  createPricingPlan: (data: any) => adminFetch<any>('/website/pricing', { method: 'POST', body: JSON.stringify(data) }),
+  updatePricingPlan: (id: string, data: any) => adminFetch<any>(`/website/pricing/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deletePricingPlan: (id: string) => adminFetch<any>(`/website/pricing/${id}`, { method: 'DELETE' }),
+  getAvailableFeatures: () => adminFetch<any>('/website/features').then((r: any) => r.data),
+
+  listBlogPosts: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/website/blog${qs}`)
+  },
+  getBlogPost: (id: string) => adminFetch<any>(`/website/blog/${id}`),
+  createBlogPost: (data: any) => adminFetch<any>('/website/blog', { method: 'POST', body: JSON.stringify(data) }),
+  updateBlogPost: (id: string, data: any) => adminFetch<any>(`/website/blog/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteBlogPost: (id: string) => adminFetch<any>(`/website/blog/${id}`, { method: 'DELETE' }),
+  getBlogIdeas: () => adminFetch<any>('/website/blog-ideas'),
+  extractKeywords: (title: string, content: string) => adminFetch<any>('/website/extract-keywords', { method: 'POST', body: JSON.stringify({ title, content }) }),
+
+  getTeamMembers: () => adminFetch<any>('/website/team').then((r: any) => r.data),
+  createTeamMember: (data: any) => adminFetch<any>('/website/team', { method: 'POST', body: JSON.stringify(data) }),
+  updateTeamMember: (id: string, data: any) => adminFetch<any>(`/website/team/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteTeamMember: (id: string) => adminFetch<any>(`/website/team/${id}`, { method: 'DELETE' }),
+
+  getWebsiteConfig: () => adminFetch<any>('/website/config').then((r: any) => r.data),
+  updateWebsiteConfig: (data: Record<string, string>) => adminFetch<any>('/website/config', { method: 'PUT', body: JSON.stringify(data) }),
+
+  getWebsiteAbout: () => adminFetch<any>('/website/about').then((r: any) => r.data),
+  updateWebsiteAbout: (data: any) => adminFetch<any>('/website/about', { method: 'PUT', body: JSON.stringify(data) }),
+
+  getWebsiteSeoSettings: () => adminFetch<any>('/website/seo/settings').then((r: any) => r.data),
+  updateWebsiteSeoSettings: (data: any) => adminFetch<any>('/website/seo/settings', { method: 'PUT', body: JSON.stringify(data) }),
+
+  getSeoKeywords: () => adminFetch<any>('/website/seo/keywords').then((r: any) => r.data),
+  createSeoKeyword: (data: any) => adminFetch<any>('/website/seo/keywords', { method: 'POST', body: JSON.stringify(data) }),
+  updateSeoKeyword: (id: string, data: any) => adminFetch<any>(`/website/seo/keywords/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteSeoKeyword: (id: string) => adminFetch<any>(`/website/seo/keywords/${id}`, { method: 'DELETE' }),
+  analyzeSeo: () => adminFetch<any>('/website/seo/analyze'),
+  buildInternalLinks: () => adminFetch<any>('/website/seo/build-links', { method: 'POST' }),
+
   // Dashboard Widgets
   listWidgets: () => adminFetch<any>('/dashboard-widgets').then((r: any) => Array.isArray(r) ? r : r.data || []),
   createWidget: (data: any) => adminFetch<any>('/dashboard-widgets', { method: 'POST', body: JSON.stringify(data) }),

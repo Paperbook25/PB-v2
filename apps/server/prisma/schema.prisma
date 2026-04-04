@@ -4161,3 +4161,84 @@ model EventRegistration {
   @@unique([eventId, userId])
   @@map("event_registrations")
 }
+
+// ============================================================================
+// Gravity Portal — Website CMS
+// ============================================================================
+
+model PricingPlan {
+  id            String   @id @default(uuid())
+  name          String   // Starter, Professional, Enterprise
+  slug          String   @unique
+  description   String?
+  monthlyPrice  Int      @default(0) @map("monthly_price") // in INR, 0 = custom
+  yearlyPrice   Int      @default(0) @map("yearly_price")
+  isCustom      Boolean  @default(false) @map("is_custom") // for Enterprise
+  maxStudents   Int?     @map("max_students") // null = unlimited
+  features      Json     @default("[]") // array of feature strings
+  badge         String?  // "Most Popular", "Best Value", etc.
+  ctaText       String   @default("Start 14-Day Trial") @map("cta_text")
+  ctaLink       String   @default("/signup.html") @map("cta_link")
+  sortOrder     Int      @default(0) @map("sort_order")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("pricing_plans")
+}
+
+model PlatformBlogPost {
+  id            String    @id @default(uuid())
+  title         String
+  slug          String    @unique
+  excerpt       String?   @db.Text
+  content       String    @db.Text
+  coverImage    String?   @map("cover_image")
+  author        String?
+  category      String    @default("general")
+  tags          String[]  @default([])
+  keywords      String[]  @default([]) // SEO keywords
+  metaTitle     String?   @map("meta_title")
+  metaDescription String? @map("meta_description") @db.Text
+  status        String    @default("draft") // draft, published, archived
+  publishedAt   DateTime? @map("published_at")
+  views         Int       @default(0)
+  isAiGenerated Boolean   @default(false) @map("is_ai_generated")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@index([status, publishedAt])
+  @@index([slug])
+  @@map("platform_blog_posts")
+}
+
+model TeamMember {
+  id         String   @id @default(uuid())
+  name       String
+  role       String
+  bio        String?  @db.Text
+  photoUrl   String?  @map("photo_url")
+  linkedin   String?
+  twitter    String?
+  email      String?
+  sortOrder  Int      @default(0) @map("sort_order")
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("team_members")
+}
+
+model SeoKeyword {
+  id          String   @id @default(uuid())
+  keyword     String   @unique
+  volume      Int      @default(0) // estimated search volume
+  difficulty  Int      @default(0) // 0-100
+  linkedPages String[] @default([]) @map("linked_pages") // pages where this keyword appears
+  blogPostIds String[] @default([]) @map("blog_post_ids") // blog posts targeting this keyword
+  autoLinked  Boolean  @default(false) @map("auto_linked")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("seo_keywords")
+}

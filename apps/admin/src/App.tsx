@@ -31,6 +31,7 @@ const LeadDetailPage = lazy(() => import('./features/crm/pages/LeadDetailPage').
 const TicketsPage = lazy(() => import('./features/tickets/pages/TicketsPage').then(m => ({ default: m.TicketsPage })))
 const TicketDetailPage = lazy(() => import('./features/tickets/pages/TicketDetailPage').then(m => ({ default: m.TicketDetailPage })))
 const CommunicationLogPage = lazy(() => import('./features/communication/pages/CommunicationLogPage').then(m => ({ default: m.CommunicationLogPage })))
+const WebsiteManagementPage = lazy(() => import('./features/website/pages/WebsiteManagementPage').then(m => ({ default: m.WebsiteManagementPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,6 +70,7 @@ export default function App() {
                 <Route path="/usage" element={<UsagePage />} />
                 <Route path="/health" element={<HealthPage />} />
                 <Route path="/security" element={<SecurityPage />} />
+                <Route path="/website" element={<WebsiteManagementPage />} />
                 <Route path="/addons" element={<AddonsPage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/audit" element={<AuditLogPage />} />

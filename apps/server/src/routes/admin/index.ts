@@ -20,6 +20,7 @@ import communicationLogRouter from './communication-log.routes.js'
 import dashboardWidgetRouter from './dashboard-widget.routes.js'
 import notificationRouter from './notification.routes.js'
 import platformSettingsRouter from './platform-settings.routes.js'
+import websiteRouter from './website.routes.js'
 
 const router = Router()
 
@@ -53,5 +54,6 @@ router.use('/security', adminRbac('admin'), securityRouter)
 router.use('/feature-usage', adminRbac('admin'), featureUsageRouter)
 router.use('/communication-logs', adminRbac('admin', 'support'), communicationLogRouter)
 router.use('/platform-settings', adminRbac('admin'), platformSettingsRouter)
+router.use('/website', adminRbac('admin'), websiteRouter)
 
 export default router

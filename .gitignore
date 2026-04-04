@@ -52,3 +52,6 @@ apps/server/public/uploads/media/*
 
 # Prisma
 apps/server/prisma/migrations/**/migration_lock.toml
+
+# Database backups
+deploy/backups/*.sql.gz

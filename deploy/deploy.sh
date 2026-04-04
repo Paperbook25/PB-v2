@@ -13,6 +13,14 @@ echo "========================================="
 
 cd /opt/paperbook
 
+# Pre-deployment backup
+echo "[0/4] Creating pre-deploy backup..."
+if docker ps --format '{{.Names}}' | grep -q paperbook-db; then
+  ./deploy/backup-db.sh || echo "Backup failed, continuing deploy..."
+else
+  echo "Database container not running, skipping backup"
+fi
+
 # Pull latest code
 echo "[1/4] Pulling latest code..."
 git pull origin main

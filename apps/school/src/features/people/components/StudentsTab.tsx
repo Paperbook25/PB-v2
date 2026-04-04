@@ -78,6 +78,9 @@ function StudentsDashboardContent() {
   const navigate = useNavigate()
   const { hasRole } = useAuthStore()
   const canManageStudents = hasRole(['admin', 'principal'])
+  const [importOpen, setImportOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
+  const [promotionOpen, setPromotionOpen] = useState(false)
 
   // Mock stats - in real app would come from API
   const stats = {
@@ -149,15 +152,15 @@ function StudentsDashboardContent() {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Student
               </Button>
-              <Button size="sm" variant="outline" disabled title="Coming soon">
+              <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>
                 <Upload className="h-4 w-4 mr-2" />
                 Bulk Import
               </Button>
-              <Button size="sm" variant="outline" disabled title="Coming soon">
+              <Button size="sm" variant="outline" onClick={() => setExportOpen(true)}>
                 <Download className="h-4 w-4 mr-2" />
                 Export Data
               </Button>
-              <Button size="sm" variant="outline" disabled title="Coming soon">
+              <Button size="sm" variant="outline" onClick={() => setPromotionOpen(true)}>
                 <ArrowUpCircle className="h-4 w-4 mr-2" />
                 Promote Students
               </Button>
@@ -210,6 +213,11 @@ function StudentsDashboardContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialogs */}
+      <BulkImportDialog open={importOpen} onOpenChange={setImportOpen} />
+      <ExportDialog open={exportOpen} onOpenChange={setExportOpen} />
+      <PromotionDialog open={promotionOpen} onOpenChange={setPromotionOpen} />
     </div>
   )
 }

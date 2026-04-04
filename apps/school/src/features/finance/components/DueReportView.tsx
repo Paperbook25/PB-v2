@@ -26,6 +26,7 @@ import {
 } from 'recharts'
 import { useDueReport } from '../hooks/useFinance'
 import { formatCurrency } from '@/lib/utils'
+import { exportToCSV, csvFormatters } from '@/lib/csv-export'
 
 const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#991b1b']
 
@@ -52,9 +53,28 @@ export function DueReportView() {
             Analysis of pending fee payments
           </p>
         </div>
-        <Button variant="outline" size="sm" disabled title="Export coming soon">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            if (!report?.topDefaulters) return
+            exportToCSV(
+              report.topDefaulters as unknown as Record<string, unknown>[],
+              [
+                { key: 'studentName', header: 'Student' },
+                { key: 'admissionNumber', header: 'Admission No' },
+                { key: 'studentClass', header: 'Class' },
+                { key: 'studentSection', header: 'Section' },
+                { key: 'daysOverdue', header: 'Days Overdue' },
+                { key: 'totalDue', header: 'Amount Due', formatter: csvFormatters.currency },
+              ],
+              `due-report-${new Date().toISOString().split('T')[0]}.csv`
+            )
+          }}
+          disabled={!report?.topDefaulters?.length}
+        >
           <Download className="h-4 w-4 mr-2" />
-          Export
+          Export CSV
         </Button>
       </div>
 

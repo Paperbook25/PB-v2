@@ -32,6 +32,7 @@ import {
 } from 'recharts'
 import { useCollectionReport } from '../hooks/useFinance'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { exportToCSV, csvFormatters } from '@/lib/csv-export'
 import { PAYMENT_MODE_LABELS, type PaymentMode } from '../types/finance.types'
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
@@ -111,9 +112,25 @@ export function CollectionReportView() {
           </Popover>
         </div>
 
-        <Button variant="outline" size="sm" disabled title="Export coming soon">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            if (!report?.dailyCollections) return
+            exportToCSV(
+              report.dailyCollections as unknown as Record<string, unknown>[],
+              [
+                { key: 'date', header: 'Date', formatter: csvFormatters.date },
+                { key: 'amount', header: 'Amount', formatter: csvFormatters.currency },
+                { key: 'count', header: 'Transactions' },
+              ],
+              `collection-report-${dateFrom.toISOString().split('T')[0]}-to-${dateTo.toISOString().split('T')[0]}.csv`
+            )
+          }}
+          disabled={!report?.dailyCollections?.length}
+        >
           <Download className="h-4 w-4 mr-2" />
-          Export
+          Export CSV
         </Button>
       </div>
 

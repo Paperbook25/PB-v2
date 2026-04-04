@@ -101,6 +101,7 @@ router.get('/public/sitemap.xml', async (_req, res, next) => {
 router.get('/public/website', async (_req, res, next) => {
   try {
     const { getPublicWebsiteData } = await import('../services/admin-website.service.js')
+    res.setHeader('Cache-Control', 'public, max-age=300') // 5 minute cache
     res.json(await getPublicWebsiteData())
   } catch (err) { next(err) }
 })
@@ -108,6 +109,7 @@ router.get('/public/website', async (_req, res, next) => {
 router.get('/public/blog', async (req, res, next) => {
   try {
     const { getPublicBlogList } = await import('../services/admin-website.service.js')
+    res.setHeader('Cache-Control', 'public, max-age=300') // 5 minute cache
     res.json(await getPublicBlogList(req.query as any))
   } catch (err) { next(err) }
 })
@@ -115,6 +117,7 @@ router.get('/public/blog', async (req, res, next) => {
 router.get('/public/blog/:slug', async (req, res, next) => {
   try {
     const { getPublicBlogPost } = await import('../services/admin-website.service.js')
+    res.setHeader('Cache-Control', 'public, max-age=300') // 5 minute cache
     res.json(await getPublicBlogPost(String(req.params.slug)))
   } catch (err) { next(err) }
 })

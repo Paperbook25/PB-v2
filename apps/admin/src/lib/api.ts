@@ -254,6 +254,25 @@ export const adminApi = {
   runSeoBot: (action?: string) => adminFetch<any>('/website/seo/run-bot', { method: 'POST', body: JSON.stringify({ action: action || 'all' }) }),
   getSeoBotStatus: () => adminFetch<any>('/website/seo/bot-status'),
 
+  // File Upload
+  uploadFile: (file: File) => {
+    return new Promise<{ url: string }>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = async () => {
+        try {
+          const base64 = (reader.result as string).split(',')[1]
+          const result = await adminFetch<{ url: string }>('/upload', {
+            method: 'POST',
+            body: JSON.stringify({ filename: file.name, data: base64 }),
+          })
+          resolve(result)
+        } catch (err) { reject(err) }
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  },
+
   // Dashboard Widgets
   listWidgets: () => adminFetch<any>('/dashboard-widgets').then((r: any) => Array.isArray(r) ? r : r.data || []),
   createWidget: (data: any) => adminFetch<any>('/dashboard-widgets', { method: 'POST', body: JSON.stringify(data) }),

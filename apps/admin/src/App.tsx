@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { ErrorBoundary } from './components/shared/ErrorBoundary'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AdminProtectedRoute } from './components/auth/AdminProtectedRoute'
 import { AdminShell } from './components/layout/AdminShell'
@@ -15,6 +16,7 @@ const SchoolsPage = lazy(() => import('./features/schools/pages/SchoolsPage').th
 const SchoolDetailPage = lazy(() => import('./features/schools/pages/SchoolDetailPage').then(m => ({ default: m.SchoolDetailPage })))
 const AddonsPage = lazy(() => import('./features/addons/pages/AddonsPage').then(m => ({ default: m.AddonsPage })))
 const UsersPage = lazy(() => import('./features/users/pages/UsersPage').then(m => ({ default: m.UsersPage })))
+const UserDetailPage = lazy(() => import('./features/users/pages/UserDetailPage').then(m => ({ default: m.UserDetailPage })))
 const AuditLogPage = lazy(() => import('./features/audit/pages/AuditLogPage').then(m => ({ default: m.AuditLogPage })))
 const SettingsPage = lazy(() => import('./features/settings/pages/SettingsPage').then(m => ({ default: m.SettingsPage })))
 const SubscriptionsPage = lazy(() => import('./features/subscriptions/pages/SubscriptionsPage').then(m => ({ default: m.SubscriptionsPage })))
@@ -49,6 +51,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
+          <ErrorBoundary>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route element={<AdminProtectedRoute />}>
@@ -73,12 +76,14 @@ export default function App() {
                 <Route path="/website" element={<WebsiteManagementPage />} />
                 <Route path="/addons" element={<AddonsPage />} />
                 <Route path="/users" element={<UsersPage />} />
+                <Route path="/users/:id" element={<UserDetailPage />} />
                 <Route path="/audit" element={<AuditLogPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </ErrorBoundary>
         </Suspense>
       </BrowserRouter>
       <Toaster />

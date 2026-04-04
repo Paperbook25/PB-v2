@@ -56,4 +56,22 @@ router.use('/communication-logs', adminRbac('admin', 'support'), communicationLo
 router.use('/platform-settings', adminRbac('admin'), platformSettingsRouter)
 router.use('/website', adminRbac('admin'), websiteRouter)
 
+// File upload (for blog images, team photos, logos)
+router.post('/upload', adminRbac('admin'), async (req, res, next) => {
+  try {
+    const { writeFileSync, mkdirSync, existsSync } = await import('fs')
+    const { resolve } = await import('path')
+
+    const { filename, data } = req.body
+    if (!filename || !data) return res.status(400).json({ error: 'filename and data (base64) required' })
+
+    const safeName = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9._-]/g, '')}`
+    const uploadDir = resolve(process.cwd(), 'public/uploads')
+    if (!existsSync(uploadDir)) mkdirSync(uploadDir, { recursive: true })
+
+    writeFileSync(resolve(uploadDir, safeName), Buffer.from(data, 'base64'))
+    res.json({ url: `/uploads/${safeName}`, filename: safeName })
+  } catch (err) { next(err) }
+})
+
 export default router

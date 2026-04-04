@@ -3,6 +3,7 @@ import { prisma } from '../config/db.js'
 import { AppError } from '../utils/errors.js'
 import { evictTenantCache } from '../middleware/tenant.middleware.js'
 import { provisionAddonsForPlan } from './addon.service.js'
+import { sendWelcomeEmail } from './admin-email.service.js'
 import type { PlanTier } from '../config/plan-tiers.js'
 
 // ============================================================================
@@ -370,6 +371,9 @@ export async function createSchool(data: CreateSchoolData) {
 
     return { school, org, adminUser }
   })
+
+  // Send welcome email (non-blocking)
+  sendWelcomeEmail(result.school.id).catch(() => {})
 
   return {
     school: {

@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { adminApi } from '@/lib/api'
 import { useAdminAuthStore } from '../../../stores/useAdminAuthStore'
 import {
   User,
@@ -41,8 +43,22 @@ const DEFAULT_SECURITY: SecuritySettings = {
 
 export function SettingsPage() {
   const user = useAdminAuthStore((s) => s.user)
+  const queryClient = useQueryClient()
 
   const [settingsTab, setSettingsTab] = useState<'account' | 'platform' | 'security'>('account')
+
+  // --- Fetch platform settings from backend ---
+  const { data: platformSettings } = useQuery({
+    queryKey: ['admin', 'platform-settings'],
+    queryFn: adminApi.getPlatformSettings,
+  })
+
+  const updateSettingsMutation = useMutation({
+    mutationFn: (data: Record<string, string>) => adminApi.updatePlatformSettings(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'platform-settings'] })
+    },
+  })
 
   // --- Account state ---
   const [accountForm, setAccountForm] = useState({
@@ -65,28 +81,32 @@ export function SettingsPage() {
   const [passwordError, setPasswordError] = useState('')
 
   // --- Platform state ---
-  const [platformForm, setPlatformForm] = useState<PlatformSettings>(() => {
-    try {
-      const saved = localStorage.getItem('pb_platform_settings')
-      return saved ? { ...DEFAULT_PLATFORM, ...JSON.parse(saved) } : DEFAULT_PLATFORM
-    } catch {
-      return DEFAULT_PLATFORM
-    }
-  })
+  const [platformForm, setPlatformForm] = useState<PlatformSettings>(DEFAULT_PLATFORM)
   const [platformSaving, setPlatformSaving] = useState(false)
   const [platformSuccess, setPlatformSuccess] = useState(false)
 
   // --- Security state ---
-  const [securityForm, setSecurityForm] = useState<SecuritySettings>(() => {
-    try {
-      const saved = localStorage.getItem('pb_security_settings')
-      return saved ? { ...DEFAULT_SECURITY, ...JSON.parse(saved) } : DEFAULT_SECURITY
-    } catch {
-      return DEFAULT_SECURITY
-    }
-  })
+  const [securityForm, setSecurityForm] = useState<SecuritySettings>(DEFAULT_SECURITY)
   const [securitySaving, setSecuritySaving] = useState(false)
   const [securitySuccess, setSecuritySuccess] = useState(false)
+
+  // Sync form state when backend settings load
+  useEffect(() => {
+    if (platformSettings) {
+      setPlatformForm({
+        platformName: platformSettings['platform.name'] || DEFAULT_PLATFORM.platformName,
+        defaultTrialDuration: Number(platformSettings['trial.defaultDuration']) || DEFAULT_PLATFORM.defaultTrialDuration,
+        defaultPlan: (platformSettings['trial.defaultPlan'] as PlatformSettings['defaultPlan']) || DEFAULT_PLATFORM.defaultPlan,
+        primaryColor: platformSettings['platform.primaryColor'] || DEFAULT_PLATFORM.primaryColor,
+      })
+      setSecurityForm({
+        minPasswordLength: Number(platformSettings['security.minPasswordLength']) || DEFAULT_SECURITY.minPasswordLength,
+        sessionTimeoutHours: Number(platformSettings['security.sessionTimeoutHours']) || DEFAULT_SECURITY.sessionTimeoutHours,
+        require2FA: platformSettings['security.require2FA'] === 'true',
+        maxLoginAttempts: Number(platformSettings['security.maxLoginAttempts']) || DEFAULT_SECURITY.maxLoginAttempts,
+      })
+    }
+  }, [platformSettings])
 
   // --- Account handlers ---
   const handleAccountSave = async (e: React.FormEvent) => {
@@ -155,27 +175,43 @@ export function SettingsPage() {
   }
 
   // --- Platform handler ---
-  const handlePlatformSave = (e: React.FormEvent) => {
+  const handlePlatformSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setPlatformSaving(true)
-    setTimeout(() => {
-      localStorage.setItem('pb_platform_settings', JSON.stringify(platformForm))
-      setPlatformSaving(false)
+    try {
+      await updateSettingsMutation.mutateAsync({
+        'platform.name': platformForm.platformName,
+        'trial.defaultDuration': String(platformForm.defaultTrialDuration),
+        'trial.defaultPlan': platformForm.defaultPlan,
+        'platform.primaryColor': platformForm.primaryColor,
+      })
       setPlatformSuccess(true)
       setTimeout(() => setPlatformSuccess(false), 3000)
-    }, 400)
+    } catch {
+      // Error handled by mutation
+    } finally {
+      setPlatformSaving(false)
+    }
   }
 
   // --- Security handler ---
-  const handleSecuritySave = (e: React.FormEvent) => {
+  const handleSecuritySave = async (e: React.FormEvent) => {
     e.preventDefault()
     setSecuritySaving(true)
-    setTimeout(() => {
-      localStorage.setItem('pb_security_settings', JSON.stringify(securityForm))
-      setSecuritySaving(false)
+    try {
+      await updateSettingsMutation.mutateAsync({
+        'security.minPasswordLength': String(securityForm.minPasswordLength),
+        'security.sessionTimeoutHours': String(securityForm.sessionTimeoutHours),
+        'security.require2FA': String(securityForm.require2FA),
+        'security.maxLoginAttempts': String(securityForm.maxLoginAttempts),
+      })
       setSecuritySuccess(true)
       setTimeout(() => setSecuritySuccess(false), 3000)
-    }, 400)
+    } catch {
+      // Error handled by mutation
+    } finally {
+      setSecuritySaving(false)
+    }
   }
 
   return (

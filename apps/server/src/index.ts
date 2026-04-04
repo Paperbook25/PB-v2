@@ -15,6 +15,7 @@ import tenantRoutes from './routes/tenant.routes.js'
 import { subdomainTenantMiddleware } from './middleware/tenant.middleware.js'
 import { errorMiddleware } from './middleware/error.middleware.js'
 import { scheduleDailyAggregation } from './jobs/feature-usage-aggregation.js'
+import { scheduleEmailNotifications } from './jobs/email-notifications.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -245,6 +246,9 @@ async function main() {
         scheduleInvoiceGeneration()
         console.log('[InvoiceGeneration] Daily invoice generation scheduled')
       }, 5000)
+
+      // Schedule email notifications (overdue reminders + trial expiry warnings at 9 AM daily)
+      scheduleEmailNotifications()
     })
   } catch (error) {
     console.error('[Server] Failed to start:', error)

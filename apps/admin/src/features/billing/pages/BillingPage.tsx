@@ -52,6 +52,13 @@ export function BillingPage() {
     },
   })
 
+  const reminderMutation = useMutation({
+    mutationFn: () => adminApi.sendOverdueReminders(),
+    onSuccess: (data: any) => {
+      alert(`Sent ${data.sent} overdue reminders`)
+    },
+  })
+
   const { data: revenue, isLoading: revenueLoading } = useQuery({
     queryKey: ['admin', 'billing', 'revenue'],
     queryFn: adminApi.getRevenueSummary,
@@ -96,6 +103,13 @@ export function BillingPage() {
         </div>
         <div className="flex items-center gap-2">
           <ExportButton endpoint="/billing/invoices/export" filename="invoices.csv" />
+          <button
+            onClick={() => reminderMutation.mutate()}
+            disabled={reminderMutation.isPending}
+            className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
+          >
+            {reminderMutation.isPending ? 'Sending...' : 'Send Reminders'}
+          </button>
           <button
             onClick={() => generateMutation.mutate()}
             disabled={generateMutation.isPending}

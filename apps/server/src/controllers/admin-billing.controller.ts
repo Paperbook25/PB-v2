@@ -87,6 +87,14 @@ export async function generateInvoices(req: Request, res: Response, next: NextFu
   } catch (err) { next(err) }
 }
 
+export async function sendOverdueReminders(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { sendOverdueReminders: sendReminders } = await import('../services/admin-email.service.js')
+    const result = await sendReminders()
+    res.json(result)
+  } catch (err) { next(err) }
+}
+
 export async function exportInvoices(req: Request, res: Response, next: NextFunction) {
   try {
     const { generateCsv, setCsvHeaders } = await import('../utils/csv-export.js')

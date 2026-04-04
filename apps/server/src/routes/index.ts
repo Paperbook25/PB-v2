@@ -79,6 +79,14 @@ router.post('/public/register-school', registerSchool)
 router.post('/public/accept-invite', acceptInvitation)
 router.get('/public/invite-details/:id', getInviteDetails)
 
+// Public branding config (for school app to customize appearance)
+router.get('/public/branding', async (_req, res, next) => {
+  try {
+    const { getBrandingConfig } = await import('../services/admin-platform-settings.service.js')
+    res.json(await getBrandingConfig())
+  } catch (err) { next(err) }
+})
+
 // --- Public login (for landing page → redirect to school subdomain) ---
 // This lives under /public/* because /auth/* is intercepted by better-auth handler
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many login attempts. Try again later.' } })

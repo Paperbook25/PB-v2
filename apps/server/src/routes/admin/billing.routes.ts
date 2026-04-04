@@ -14,5 +14,6 @@ router.post('/invoices/:id/payment', ctrl.recordPayment)
 router.get('/revenue', ctrl.getRevenueSummary)
 router.get('/payments', ctrl.listPayments)
 router.post('/generate-invoices', ctrl.generateInvoices)
+router.post('/send-reminders', ctrl.sendOverdueReminders)
 
 export default router

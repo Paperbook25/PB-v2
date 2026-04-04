@@ -108,6 +108,7 @@ export const adminApi = {
     return adminFetch<any>(`/billing/payments${qs}`)
   },
   generateInvoices: () => adminFetch<any>('/billing/generate-invoices', { method: 'POST' }),
+  sendOverdueReminders: () => adminFetch<any>('/billing/send-reminders', { method: 'POST' }),
 
   // Leads (CRM)
   listLeads: (params?: Record<string, string>) => {
@@ -196,6 +197,15 @@ export const adminApi = {
   // Addons - Create & Delete
   createAddon: (data: any) => adminFetch<any>('/addons', { method: 'POST', body: JSON.stringify(data) }),
   deleteAddon: (id: string) => adminFetch<any>(`/addons/${id}`, { method: 'DELETE' }),
+
+  // Notifications
+  getNotifications: () => adminFetch<any>('/notifications'),
+  markNotificationRead: (id: string) => adminFetch<any>(`/notifications/${id}/read`, { method: 'PATCH' }),
+  markAllNotificationsRead: () => adminFetch<any>('/notifications/mark-all-read', { method: 'POST' }),
+
+  // Platform Settings
+  getPlatformSettings: () => adminFetch<any>('/platform-settings').then((r: any) => r.data),
+  updatePlatformSettings: (data: Record<string, string>) => adminFetch<any>('/platform-settings', { method: 'PUT', body: JSON.stringify(data) }),
 
   // Dashboard Widgets
   listWidgets: () => adminFetch<any>('/dashboard-widgets').then((r: any) => Array.isArray(r) ? r : r.data || []),

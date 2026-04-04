@@ -3954,3 +3954,29 @@ model GravityAdmin {
 
   @@map("gravity_admins")
 }
+
+model AdminNotification {
+  id        String   @id @default(uuid())
+  adminId   String?  @map("admin_id") // null = broadcast to all admins
+  type      String   // ticket_new, payment_received, trial_expiring, school_created, alert
+  title     String
+  message   String
+  link      String?  // URL to navigate to
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([adminId, isRead])
+  @@index([createdAt])
+  @@map("admin_notifications")
+}
+
+model PlatformSettings {
+  id           String   @id @default(uuid())
+  key          String   @unique
+  value        String   @db.Text
+  description  String?
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  updatedBy    String?  @map("updated_by")
+
+  @@map("platform_settings")
+}

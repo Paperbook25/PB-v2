@@ -413,6 +413,171 @@ export async function getPublicBlogPost(slug: string) {
   return post
 }
 
+// ==================== Sitemap Generation ====================
+
+export async function generateSitemap() {
+  const posts = await prisma.platformBlogPost.findMany({
+    where: { status: 'published' },
+    select: { slug: true, updatedAt: true },
+    orderBy: { publishedAt: 'desc' },
+  })
+
+  const baseUrl = 'https://paperbook.in'
+  const staticPages = [
+    { url: '/', priority: '1.0', changefreq: 'weekly' },
+    { url: '/about.html', priority: '0.7', changefreq: 'monthly' },
+    { url: '/faq.html', priority: '0.6', changefreq: 'monthly' },
+    { url: '/signup.html', priority: '0.8', changefreq: 'monthly' },
+    { url: '/blog.html', priority: '0.8', changefreq: 'daily' },
+  ]
+
+  const modulePages = ['dashboard', 'people', 'admissions', 'finance', 'exam', 'library', 'lms', 'management', 'operations', 'parent', 'communication', 'reports', 'settings']
+    .map(m => ({ url: `/modules/${m}.html`, priority: '0.6', changefreq: 'monthly' }))
+
+  const blogUrls = posts.map(p => ({
+    url: `/blog-post.html?slug=${p.slug}`,
+    priority: '0.7',
+    changefreq: 'weekly' as string,
+    lastmod: p.updatedAt.toISOString().split('T')[0],
+  }))
+
+  const allUrls = [...staticPages, ...modulePages, ...blogUrls]
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${allUrls.map(u => `  <url>
+    <loc>${baseUrl}${u.url}</loc>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>${(u as any).lastmod ? `\n    <lastmod>${(u as any).lastmod}</lastmod>` : ''}
+  </url>`).join('\n')}
+</urlset>`
+}
+
+// ==================== AI Blog Content Writer ====================
+
+export async function generateBlogContent(topic: string, targetKeywords: string[]) {
+  const slug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const cap = (s: string) => s.replace(/\b\w/g, c => c.toUpperCase())
+
+  const sections = [
+    { heading: 'Introduction', body: `In today's rapidly evolving education landscape, ${topic.toLowerCase()} has become a critical aspect of school management. Institutions across India are adopting digital solutions to streamline their operations and improve outcomes. This comprehensive guide explores the key aspects and how schools can leverage technology to stay ahead.` },
+    ...targetKeywords.slice(0, 4).map(kw => ({
+      heading: `Understanding ${cap(kw)}`,
+      body: `${cap(kw)} plays a vital role in modern education management. Schools that effectively implement ${kw} solutions see significant improvements in efficiency, accuracy, and parent satisfaction. Whether you're running a small tuition center or a large CBSE/ICSE institution, having robust ${kw} capabilities is essential.`,
+    })),
+    { heading: `Key Benefits`, body: `Implementing a comprehensive solution brings numerous advantages: reduced administrative burden, improved accuracy in record-keeping, better communication with parents, real-time insights through analytics dashboards, and significant time savings for staff. Studies show that schools using integrated management platforms save an average of 15-20 hours per week on administrative tasks.` },
+    { heading: 'How to Choose the Right Solution', body: `When evaluating solutions, consider these factors: ease of use for non-technical staff, mobile accessibility for parents and teachers, integration with existing systems, data security and compliance, customer support quality, and total cost of ownership. Look for platforms that offer free trials so you can test before committing.` },
+    { heading: 'Conclusion', body: `${cap(topic.split(' ').slice(0, 3).join(' '))} is no longer optional for schools that want to thrive in the digital age. By adopting the right tools and practices, institutions can dramatically improve their operational efficiency while providing a better experience for students, parents, and staff.` },
+  ]
+
+  const content = sections.map(s => `<h2>${s.heading}</h2>\n<p>${s.body}</p>`).join('\n\n')
+  const excerpt = `Learn about ${topic.toLowerCase()} and how modern school management systems can help. Covering ${targetKeywords.slice(0, 3).join(', ')} and more.`
+  const extracted = await extractKeywordsFromContent(content, topic)
+  const allKeywords = [...new Set([...targetKeywords, ...extracted])].slice(0, 10)
+
+  // Auto-detect category
+  const text = `${topic} ${targetKeywords.join(' ')}`.toLowerCase()
+  let category = 'technology'
+  if (text.match(/fee|payment|finance/)) category = 'finance'
+  else if (text.match(/exam|grade|lms|curriculum/)) category = 'academics'
+  else if (text.match(/transport|hostel|library|attendance/)) category = 'operations'
+  else if (text.match(/parent|communication|notification/)) category = 'communication'
+  else if (text.match(/admission|enrollment/)) category = 'admissions'
+  else if (text.match(/trend|future|india/)) category = 'industry'
+
+  return { title: topic, slug, excerpt, content, keywords: allKeywords, tags: allKeywords.slice(0, 5), metaTitle: topic.substring(0, 60), metaDescription: excerpt.substring(0, 155), category, isAiGenerated: true }
+}
+
+// ==================== Keyword Density Checker ====================
+
+export function checkKeywordDensity(content: string, keywords: string[]) {
+  const text = content.toLowerCase().replace(/<[^>]*>/g, '')
+  const wordCount = text.split(/\s+/).length
+
+  return keywords.map(kw => {
+    const regex = new RegExp(kw.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+    const count = (text.match(regex) || []).length
+    const density = wordCount > 0 ? Math.round((count / wordCount) * 1000) / 10 : 0
+    return { keyword: kw, count, density, status: density === 0 ? 'missing' : density < 0.5 ? 'low' : density > 3 ? 'over-optimized' : 'good' }
+  })
+}
+
+// ==================== Auto Internal Link Injection ====================
+
+export async function injectInternalLinks(postId: string) {
+  const post = await prisma.platformBlogPost.findUnique({ where: { id: postId } })
+  if (!post) throw AppError.notFound('Post not found')
+
+  const otherPosts = await prisma.platformBlogPost.findMany({
+    where: { status: 'published', id: { not: postId } },
+    select: { slug: true, title: true, keywords: true },
+  })
+
+  let updatedContent = post.content
+  let linksInjected = 0
+
+  for (const other of otherPosts) {
+    for (const kw of other.keywords) {
+      const regex = new RegExp(`(?<!<a[^>]*>)\\b(${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b(?![^<]*<\\/a>)`, 'i')
+      if (regex.test(updatedContent) && linksInjected < 5) {
+        updatedContent = updatedContent.replace(regex, `<a href="/blog-post.html?slug=${other.slug}" title="${other.title}">$1</a>`)
+        linksInjected++
+      }
+    }
+  }
+
+  if (linksInjected > 0) {
+    await prisma.platformBlogPost.update({ where: { id: postId }, data: { content: updatedContent } })
+  }
+  return { linksInjected, postId }
+}
+
+// ==================== Full SEO Audit ====================
+
+export async function fullSeoAudit() {
+  const [posts, plans, config, keywords] = await Promise.all([
+    prisma.platformBlogPost.findMany(),
+    prisma.pricingPlan.findMany({ where: { isActive: true } }),
+    getWebsiteConfig(),
+    prisma.seoKeyword.findMany(),
+  ])
+
+  const published = posts.filter(p => p.status === 'published')
+  const issues: { type: string; severity: string; message: string; fix: string }[] = []
+
+  if (!config['seo.homeTitle']) issues.push({ type: 'meta', severity: 'critical', message: 'Homepage missing meta title', fix: 'Set in SEO tab' })
+  if (!config['seo.homeDescription']) issues.push({ type: 'meta', severity: 'critical', message: 'Homepage missing meta description', fix: 'Set in SEO tab (150-160 chars)' })
+  if (!config['seo.ogImage']) issues.push({ type: 'meta', severity: 'high', message: 'Missing OG image', fix: 'Upload 1200x630px image' })
+
+  for (const post of published) {
+    const wc = post.content.replace(/<[^>]*>/g, '').split(/\s+/).length
+    if (!post.metaTitle) issues.push({ type: 'blog', severity: 'high', message: `"${post.title}" — no meta title`, fix: 'Add 50-60 char title' })
+    if (!post.metaDescription) issues.push({ type: 'blog', severity: 'high', message: `"${post.title}" — no meta description`, fix: 'Add 150-160 char description' })
+    if (post.keywords.length === 0) issues.push({ type: 'blog', severity: 'high', message: `"${post.title}" — no keywords`, fix: 'Add 3-5 keywords' })
+    if (wc < 300) issues.push({ type: 'blog', severity: 'high', message: `"${post.title}" — too short (${wc} words)`, fix: 'Aim for 1,500+ words' })
+    if (!post.content.includes('<a href="/blog-post.html')) issues.push({ type: 'linking', severity: 'medium', message: `"${post.title}" — no internal links`, fix: 'Use auto-link injection' })
+  }
+
+  if (published.length === 0) issues.push({ type: 'content', severity: 'critical', message: 'No published blog posts', fix: 'Publish 5-10 posts for SEO' })
+  if (keywords.length < 10) issues.push({ type: 'keywords', severity: 'medium', message: `Only ${keywords.length} keywords tracked`, fix: 'Add 20+ keywords' })
+  if (!config['social.facebook']) issues.push({ type: 'social', severity: 'low', message: 'Facebook not linked', fix: 'Add in Social tab' })
+  if (!config['social.linkedin']) issues.push({ type: 'social', severity: 'low', message: 'LinkedIn not linked', fix: 'Add in Social tab' })
+
+  const score = Math.max(0, 100 - issues.filter(i => i.severity === 'critical').length * 20 - issues.filter(i => i.severity === 'high').length * 10 - issues.filter(i => i.severity === 'medium').length * 3 - issues.filter(i => i.severity === 'low').length * 1)
+
+  return {
+    score,
+    grade: score >= 80 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : score >= 20 ? 'D' : 'F',
+    issues,
+    stats: { totalPosts: posts.length, publishedPosts: published.length, totalKeywords: keywords.length, pricingPlans: plans.length },
+    recommendations: [
+      published.length < 10 && 'Publish more blog posts (aim for 10+)',
+      !config['seo.homeTitle'] && 'Set a custom homepage meta title',
+      keywords.length < 20 && 'Track more SEO keywords',
+    ].filter(Boolean),
+  }
+}
+
 export async function getPublicBlogList(query?: { category?: string; tag?: string; page?: number }) {
   const page = query?.page || 1
   const where: any = { status: 'published' }

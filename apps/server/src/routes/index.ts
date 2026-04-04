@@ -87,6 +87,16 @@ router.get('/public/branding', async (_req, res, next) => {
   } catch (err) { next(err) }
 })
 
+// Dynamic sitemap.xml
+router.get('/public/sitemap.xml', async (_req, res, next) => {
+  try {
+    const { generateSitemap } = await import('../services/admin-website.service.js')
+    res.setHeader('Content-Type', 'application/xml')
+    res.setHeader('Cache-Control', 'public, max-age=3600')
+    res.send(await generateSitemap())
+  } catch (err) { next(err) }
+})
+
 // Public website data (pricing, contact, blog, team — for marketing site)
 router.get('/public/website', async (_req, res, next) => {
   try {

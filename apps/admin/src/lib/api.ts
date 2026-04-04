@@ -246,6 +246,12 @@ export const adminApi = {
   analyzeSeo: () => adminFetch<any>('/website/seo/analyze'),
   buildInternalLinks: () => adminFetch<any>('/website/seo/build-links', { method: 'POST' }),
 
+  generateBlogContent: (topic: string, keywords: string[]) => adminFetch<any>('/website/blog/generate', { method: 'POST', body: JSON.stringify({ topic, keywords }) }),
+  checkKeywordDensity: (content: string, keywords: string[]) => adminFetch<any>('/website/seo/keyword-density', { method: 'POST', body: JSON.stringify({ content, keywords }) }).then((r: any) => r.data),
+  injectInternalLinks: (postId: string) => adminFetch<any>(`/website/blog/${postId}/inject-links`, { method: 'POST' }),
+  fullSeoAudit: () => adminFetch<any>('/website/seo/full-audit'),
+  sitemapPreview: () => adminFetch<any>('/website/seo/sitemap-preview'),
+
   // Dashboard Widgets
   listWidgets: () => adminFetch<any>('/dashboard-widgets').then((r: any) => Array.isArray(r) ? r : r.data || []),
   createWidget: (data: any) => adminFetch<any>('/dashboard-widgets', { method: 'POST', body: JSON.stringify(data) }),

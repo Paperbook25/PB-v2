@@ -99,4 +99,32 @@ router.post('/seo/build-links', async (_req: Request, res: Response, next: NextF
   try { res.json(await ws.buildInternalLinks()) } catch (err) { next(err) }
 })
 
+// AI Blog Content Generator
+router.post('/blog/generate', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json(await ws.generateBlogContent(req.body.topic, req.body.keywords || [])) } catch (err) { next(err) }
+})
+
+// Keyword Density Checker
+router.post('/seo/keyword-density', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: ws.checkKeywordDensity(req.body.content, req.body.keywords) }) } catch (err) { next(err) }
+})
+
+// Auto Internal Link Injection
+router.post('/blog/:id/inject-links', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json(await ws.injectInternalLinks(String(req.params.id))) } catch (err) { next(err) }
+})
+
+// Full SEO Audit
+router.get('/seo/full-audit', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json(await ws.fullSeoAudit()) } catch (err) { next(err) }
+})
+
+// Sitemap preview
+router.get('/seo/sitemap-preview', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const xml = await ws.generateSitemap()
+    res.json({ xml })
+  } catch (err) { next(err) }
+})
+
 export default router

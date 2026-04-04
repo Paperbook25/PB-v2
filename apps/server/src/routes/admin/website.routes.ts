@@ -127,4 +127,53 @@ router.get('/seo/sitemap-preview', async (_req: Request, res: Response, next: Ne
   } catch (err) { next(err) }
 })
 
+// SEO Bot — Manual Triggers
+router.post('/seo/run-bot', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { autoBlogWriter, weeklySeqAudit, autoLinkAllPosts, autoKeywordDiscovery } = await import('../../jobs/seo-automation.js')
+    const action = req.body.action || 'all'
+
+    const results: Record<string, any> = {}
+
+    if (action === 'blog' || action === 'all') {
+      results.blog = await autoBlogWriter()
+    }
+    if (action === 'audit' || action === 'all') {
+      results.audit = await weeklySeqAudit()
+    }
+    if (action === 'keywords' || action === 'all') {
+      results.keywords = await autoKeywordDiscovery()
+    }
+    if (action === 'links' || action === 'all') {
+      results.links = await autoLinkAllPosts()
+    }
+
+    res.json({ success: true, results })
+  } catch (err) { next(err) }
+})
+
+// SEO Bot Status
+router.get('/seo/bot-status', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const [lastScore, lastAuditDate, totalPosts, totalKeywords] = await Promise.all([
+      ws.getWebsiteConfig().then(c => c['seo.lastAuditScore'] || 'N/A'),
+      ws.getWebsiteConfig().then(c => c['seo.lastAuditDate'] || 'Never'),
+      ws.prismaCount('platformBlogPost'),
+      ws.prismaCount('seoKeyword'),
+    ])
+
+    res.json({
+      lastAuditScore: lastScore,
+      lastAuditDate: lastAuditDate,
+      schedule: {
+        autoBlog: 'Every Monday 10 AM',
+        seoAudit: 'Every Wednesday 8 AM',
+        keywordDiscovery: 'Every Wednesday 8 AM',
+        autoLinking: 'Every Wednesday 8 AM',
+      },
+      stats: { totalPosts, totalKeywords },
+    })
+  } catch (err) { next(err) }
+})
+
 export default router

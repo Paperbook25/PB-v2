@@ -251,6 +251,8 @@ export const adminApi = {
   injectInternalLinks: (postId: string) => adminFetch<any>(`/website/blog/${postId}/inject-links`, { method: 'POST' }),
   fullSeoAudit: () => adminFetch<any>('/website/seo/full-audit'),
   sitemapPreview: () => adminFetch<any>('/website/seo/sitemap-preview'),
+  runSeoBot: (action?: string) => adminFetch<any>('/website/seo/run-bot', { method: 'POST', body: JSON.stringify({ action: action || 'all' }) }),
+  getSeoBotStatus: () => adminFetch<any>('/website/seo/bot-status'),
 
   // Dashboard Widgets
   listWidgets: () => adminFetch<any>('/dashboard-widgets').then((r: any) => Array.isArray(r) ? r : r.data || []),

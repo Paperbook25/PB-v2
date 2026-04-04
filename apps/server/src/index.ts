@@ -16,6 +16,7 @@ import { subdomainTenantMiddleware } from './middleware/tenant.middleware.js'
 import { errorMiddleware } from './middleware/error.middleware.js'
 import { scheduleDailyAggregation } from './jobs/feature-usage-aggregation.js'
 import { scheduleEmailNotifications } from './jobs/email-notifications.js'
+import { scheduleSeoAutomation } from './jobs/seo-automation.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -249,6 +250,9 @@ async function main() {
 
       // Schedule email notifications (overdue reminders + trial expiry warnings at 9 AM daily)
       scheduleEmailNotifications()
+
+      // Schedule SEO automation (auto blog writer + weekly audit + keyword discovery)
+      scheduleSeoAutomation()
     })
   } catch (error) {
     console.error('[Server] Failed to start:', error)

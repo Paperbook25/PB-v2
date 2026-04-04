@@ -1,6 +1,15 @@
 import { prisma } from '../config/db.js'
 import { AppError } from '../utils/errors.js'
 
+// Helper for dynamic model counts
+export async function prismaCount(model: string): Promise<number> {
+  try {
+    return await (prisma as any)[model].count()
+  } catch {
+    return 0
+  }
+}
+
 // ==================== Pricing Plans ====================
 
 export async function listPricingPlans() {

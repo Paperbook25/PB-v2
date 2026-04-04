@@ -677,6 +677,53 @@ function SeoTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
         )}
       </div>
 
+      {/* SEO Bot Automation */}
+      <div className="rounded-lg border bg-card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">SEO Bot</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Automated blog writing, keyword discovery, and link building</p>
+          </div>
+          <span className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" /> Active
+          </span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-lg border p-3">
+            <p className="text-xs text-muted-foreground">Auto Blog</p>
+            <p className="text-sm font-semibold">Every Monday 10 AM</p>
+            <button
+              onClick={() => { if(confirm('Generate and publish a blog post now?')) adminApi.runSeoBot('blog').then(() => qc.invalidateQueries({ queryKey: ['admin', 'website'] })) }}
+              className="mt-2 text-xs text-primary hover:underline"
+            >Run now</button>
+          </div>
+          <div className="rounded-lg border p-3">
+            <p className="text-xs text-muted-foreground">SEO Audit</p>
+            <p className="text-sm font-semibold">Every Wednesday 8 AM</p>
+            <button
+              onClick={() => adminApi.runSeoBot('audit').then((r: any) => alert(`Score: ${r.results?.audit?.score || 'N/A'}`))}
+              className="mt-2 text-xs text-primary hover:underline"
+            >Run now</button>
+          </div>
+          <div className="rounded-lg border p-3">
+            <p className="text-xs text-muted-foreground">Keyword Discovery</p>
+            <p className="text-sm font-semibold">Every Wednesday 8 AM</p>
+            <button
+              onClick={() => adminApi.runSeoBot('keywords').then((r: any) => alert(`Discovered: ${r.results?.keywords?.discovered || 0} keywords`))}
+              className="mt-2 text-xs text-primary hover:underline"
+            >Run now</button>
+          </div>
+          <div className="rounded-lg border p-3">
+            <p className="text-xs text-muted-foreground">Auto-Link Posts</p>
+            <p className="text-sm font-semibold">Every Wednesday 8 AM</p>
+            <button
+              onClick={() => adminApi.runSeoBot('links').then((r: any) => alert(`Injected: ${r.results?.links?.totalLinks || 0} links`))}
+              className="mt-2 text-xs text-primary hover:underline"
+            >Run now</button>
+          </div>
+        </div>
+      </div>
+
       {/* Page SEO Settings */}
       <div className="rounded-lg border bg-card p-6 space-y-4">
         <h3 className="text-base font-semibold text-foreground">Page SEO Settings</h3>

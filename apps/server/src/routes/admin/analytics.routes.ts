@@ -20,4 +20,16 @@ router.get('/trends', async (_req: Request, res: Response, next: NextFunction) =
   try { res.json({ data: await analyticsService.getTrends() }) } catch (err) { next(err) }
 })
 
+router.get('/cohort', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await analyticsService.getCohortAnalysis() }) } catch (err) { next(err) }
+})
+
+router.get('/funnel', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await analyticsService.getFunnelAnalysis() }) } catch (err) { next(err) }
+})
+
+router.get('/ltv', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await analyticsService.getLtvAnalysis() }) } catch (err) { next(err) }
+})
+
 export default router

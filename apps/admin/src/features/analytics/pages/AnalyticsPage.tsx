@@ -30,6 +30,21 @@ export function AnalyticsPage() {
     queryFn: adminApi.getRevenueSummary,
   })
 
+  const { data: cohort } = useQuery({
+    queryKey: ['admin', 'analytics', 'cohort'],
+    queryFn: adminApi.getCohortAnalysis,
+  })
+
+  const { data: funnel } = useQuery({
+    queryKey: ['admin', 'analytics', 'funnel'],
+    queryFn: adminApi.getFunnelAnalysis,
+  })
+
+  const { data: ltv } = useQuery({
+    queryKey: ['admin', 'analytics', 'ltv'],
+    queryFn: adminApi.getLtvAnalysis,
+  })
+
   return (
     <div className="space-y-6">
       <div>
@@ -168,6 +183,115 @@ export function AnalyticsPage() {
           </div>
         </div>
       )}
+
+      {/* Conversion Funnel */}
+      <div className="rounded-lg border bg-card p-6">
+        <h3 className="text-sm font-semibold mb-4">Conversion Funnel</h3>
+        {funnel?.stages?.length ? (
+          <div className="space-y-3">
+            {funnel.stages.map((stage: any, i: number) => (
+              <div key={stage.name} className="flex items-center gap-4">
+                <span className="w-28 text-sm font-medium">{stage.name}</span>
+                <div className="flex-1 h-8 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${stage.percentage}%`,
+                      backgroundColor: ['#6366f1', '#3b82f6', '#22c55e', '#ef4444'][i] || '#94a3b8',
+                    }}
+                  />
+                </div>
+                <span className="w-20 text-sm text-right">{stage.count} ({stage.percentage}%)</span>
+              </div>
+            ))}
+            <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-primary">{funnel.conversionRates?.signupToTrial || 0}%</p>
+                <p className="text-xs text-muted-foreground">Signup → Trial</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-600">{funnel.conversionRates?.trialToActive || 0}%</p>
+                <p className="text-xs text-muted-foreground">Trial → Active</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-600">{funnel.conversionRates?.overallConversion || 0}%</p>
+                <p className="text-xs text-muted-foreground">Overall Conversion</p>
+              </div>
+            </div>
+          </div>
+        ) : <p className="text-sm text-muted-foreground py-8 text-center">No funnel data</p>}
+      </div>
+
+      {/* Cohort Retention */}
+      <div className="rounded-lg border bg-card">
+        <div className="px-6 py-4 border-b">
+          <h3 className="text-sm font-semibold">Cohort Retention</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Schools grouped by signup month</p>
+        </div>
+        <table className="w-full">
+          <thead>
+            <tr className="border-b text-left text-xs font-medium text-muted-foreground">
+              <th className="px-4 py-3">Month</th>
+              <th className="px-4 py-3 text-right">Signups</th>
+              <th className="px-4 py-3 text-right">Active</th>
+              <th className="px-4 py-3 text-right">Trial</th>
+              <th className="px-4 py-3 text-right">Churned</th>
+              <th className="px-4 py-3 text-right">Retention</th>
+            </tr>
+          </thead>
+          <tbody>
+            {!cohort?.length ? (
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">No cohort data</td></tr>
+            ) : cohort.map((c: any) => (
+              <tr key={c.month} className="border-b last:border-0 hover:bg-muted/50">
+                <td className="px-4 py-3 text-sm font-medium">{c.month}</td>
+                <td className="px-4 py-3 text-sm text-right">{c.total}</td>
+                <td className="px-4 py-3 text-sm text-right text-green-600 font-medium">{c.active}</td>
+                <td className="px-4 py-3 text-sm text-right text-blue-600">{c.trial}</td>
+                <td className="px-4 py-3 text-sm text-right text-red-600">{c.churned}</td>
+                <td className="px-4 py-3 text-sm text-right">
+                  <span className={`font-semibold ${c.retentionRate >= 70 ? 'text-green-600' : c.retentionRate >= 40 ? 'text-amber-600' : 'text-red-600'}`}>
+                    {c.retentionRate}%
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* LTV by Plan */}
+      <div className="rounded-lg border bg-card">
+        <div className="px-6 py-4 border-b">
+          <h3 className="text-sm font-semibold">Lifetime Value by Plan</h3>
+        </div>
+        <table className="w-full">
+          <thead>
+            <tr className="border-b text-left text-xs font-medium text-muted-foreground">
+              <th className="px-4 py-3">Plan</th>
+              <th className="px-4 py-3 text-right">Schools</th>
+              <th className="px-4 py-3 text-right">Total Revenue</th>
+              <th className="px-4 py-3 text-right">Avg/School</th>
+              <th className="px-4 py-3 text-right">Avg Monthly</th>
+              <th className="px-4 py-3 text-right">Est. 12m LTV</th>
+            </tr>
+          </thead>
+          <tbody>
+            {!ltv?.length ? (
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">No LTV data</td></tr>
+            ) : ltv.map((l: any) => (
+              <tr key={l.planTier} className="border-b last:border-0 hover:bg-muted/50">
+                <td className="px-4 py-3 text-sm font-medium capitalize">{l.planTier}</td>
+                <td className="px-4 py-3 text-sm text-right">{l.schoolCount}</td>
+                <td className="px-4 py-3 text-sm text-right font-medium">₹{l.totalRevenue.toLocaleString('en-IN')}</td>
+                <td className="px-4 py-3 text-sm text-right">₹{l.avgRevenuePerSchool.toLocaleString('en-IN')}</td>
+                <td className="px-4 py-3 text-sm text-right">₹{l.avgMonthlyRevenue.toLocaleString('en-IN')}</td>
+                <td className="px-4 py-3 text-sm text-right font-semibold text-primary">₹{l.estimatedLtv12m.toLocaleString('en-IN')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

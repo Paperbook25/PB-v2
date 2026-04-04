@@ -113,6 +113,44 @@ export function SecurityPage() {
               </tbody>
             </table>
           </div>
+
+          <div className="mt-6 rounded-lg border bg-card p-6">
+            <h3 className="text-sm font-semibold mb-3">Role Permissions</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b text-left text-muted-foreground">
+                    <th className="pb-2 pr-4">Module</th>
+                    <th className="pb-2 px-2 text-center">Super Admin</th>
+                    <th className="pb-2 px-2 text-center">Admin</th>
+                    <th className="pb-2 px-2 text-center">Billing</th>
+                    <th className="pb-2 px-2 text-center">Support</th>
+                    <th className="pb-2 px-2 text-center">Viewer</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {[
+                    { module: 'Dashboard / Analytics', roles: [true, true, true, true, true] },
+                    { module: 'Schools / Users', roles: [true, true, false, true, false] },
+                    { module: 'Billing / Invoices', roles: [true, true, true, false, false] },
+                    { module: 'Subscriptions', roles: [true, true, true, false, false] },
+                    { module: 'Tickets / Support', roles: [true, true, false, true, false] },
+                    { module: 'CRM / Leads', roles: [true, true, false, true, false] },
+                    { module: 'Addons', roles: [true, true, false, false, false] },
+                    { module: 'Announcements', roles: [true, true, false, false, false] },
+                    { module: 'Security / RBAC', roles: [true, true, false, false, false] },
+                  ].map((row) => (
+                    <tr key={row.module}>
+                      <td className="py-2 pr-4 font-medium">{row.module}</td>
+                      {row.roles.map((allowed, i) => (
+                        <td key={i} className="py-2 px-2 text-center">{allowed ? '\u2713' : '\u2014'}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </>
       )}
 

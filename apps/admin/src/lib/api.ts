@@ -138,6 +138,9 @@ export const adminApi = {
   getFeatureAdoption: () => adminFetch<any>('/analytics/feature-adoption').then((r: any) => r.data),
   getBenchmarks: () => adminFetch<any>('/analytics/benchmarks').then((r: any) => r.data),
   getAnalyticsTrends: () => adminFetch<any>('/analytics/trends').then((r: any) => r.data),
+  getCohortAnalysis: () => adminFetch<any>('/analytics/cohort').then((r: any) => r.data),
+  getFunnelAnalysis: () => adminFetch<any>('/analytics/funnel').then((r: any) => r.data),
+  getLtvAnalysis: () => adminFetch<any>('/analytics/ltv').then((r: any) => r.data),
 
   // Usage Tracking
   getUsageOverview: () => adminFetch<any>('/usage/overview').then((r: any) => r.data),
@@ -193,4 +196,11 @@ export const adminApi = {
   // Addons - Create & Delete
   createAddon: (data: any) => adminFetch<any>('/addons', { method: 'POST', body: JSON.stringify(data) }),
   deleteAddon: (id: string) => adminFetch<any>(`/addons/${id}`, { method: 'DELETE' }),
+
+  // Dashboard Widgets
+  listWidgets: () => adminFetch<any>('/dashboard-widgets').then((r: any) => Array.isArray(r) ? r : r.data || []),
+  createWidget: (data: any) => adminFetch<any>('/dashboard-widgets', { method: 'POST', body: JSON.stringify(data) }),
+  updateWidget: (id: string, data: any) => adminFetch<any>(`/dashboard-widgets/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteWidget: (id: string) => adminFetch<any>(`/dashboard-widgets/${id}`, { method: 'DELETE' }),
+  reorderWidgets: (widgetIds: string[]) => adminFetch<any>('/dashboard-widgets/reorder', { method: 'POST', body: JSON.stringify({ widgetIds }) }),
 }

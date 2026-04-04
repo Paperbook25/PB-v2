@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { adminAuthMiddleware } from '../../middleware/admin-auth.middleware.js'
+import { adminAuthMiddleware, adminRbac } from '../../middleware/admin-auth.middleware.js'
 import schoolsRouter from './schools.routes.js'
 import addonsRouter from './addons.routes.js'
 import usersRouter from './users.routes.js'
@@ -24,24 +24,30 @@ const router = Router()
 // All admin routes require super-admin authentication
 router.use(adminAuthMiddleware)
 
-// Mount sub-routers
-router.use('/schools', schoolsRouter)
-router.use('/addons', addonsRouter)
-router.use('/users', usersRouter)
+// Read-only routes: all roles can access
 router.use('/dashboard', dashboardRouter)
-router.use('/audit', auditRouter)
-router.use('/subscriptions', subscriptionsRouter)
-router.use('/billing', billingRouter)
-router.use('/leads', leadsRouter)
-router.use('/announcements', announcementsRouter)
 router.use('/analytics', analyticsRouter)
 router.use('/usage', usageRouter)
 router.use('/health', healthRouter)
-router.use('/security', securityRouter)
-router.use('/feature-usage', featureUsageRouter)
-router.use('/tickets', ticketRouter)
-router.use('/credit-notes', creditNoteRouter)
-router.use('/communication-logs', communicationLogRouter)
+router.use('/audit', auditRouter)
 router.use('/dashboard-widgets', dashboardWidgetRouter)
+
+// Admin + billing_admin can access billing and subscriptions
+router.use('/subscriptions', adminRbac('admin', 'billing_admin'), subscriptionsRouter)
+router.use('/billing', adminRbac('admin', 'billing_admin'), billingRouter)
+router.use('/credit-notes', adminRbac('admin', 'billing_admin'), creditNoteRouter)
+
+// Admin + support can access schools, users, tickets, leads
+router.use('/schools', adminRbac('admin', 'support'), schoolsRouter)
+router.use('/users', adminRbac('admin', 'support'), usersRouter)
+router.use('/tickets', adminRbac('admin', 'support'), ticketRouter)
+router.use('/leads', adminRbac('admin', 'support'), leadsRouter)
+
+// Admin only: addons, announcements, security, feature-usage
+router.use('/addons', adminRbac('admin'), addonsRouter)
+router.use('/announcements', adminRbac('admin'), announcementsRouter)
+router.use('/security', adminRbac('admin'), securityRouter)
+router.use('/feature-usage', adminRbac('admin'), featureUsageRouter)
+router.use('/communication-logs', adminRbac('admin', 'support'), communicationLogRouter)
 
 export default router

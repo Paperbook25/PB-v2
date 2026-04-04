@@ -155,3 +155,122 @@ export async function getTrends() {
 
   return months
 }
+
+/**
+ * Cohort analysis: group schools by signup month, track retention.
+ */
+export async function getCohortAnalysis() {
+  const schools = await prisma.schoolProfile.findMany({
+    select: { id: true, status: true, createdAt: true },
+  })
+
+  // Group by signup month
+  const cohorts: Record<string, { total: number; active: number; churned: number; trial: number }> = {}
+
+  for (const school of schools) {
+    const monthKey = `${school.createdAt.getFullYear()}-${String(school.createdAt.getMonth() + 1).padStart(2, '0')}`
+    if (!cohorts[monthKey]) cohorts[monthKey] = { total: 0, active: 0, churned: 0, trial: 0 }
+    cohorts[monthKey].total++
+    if (school.status === 'active') cohorts[monthKey].active++
+    else if (school.status === 'churned') cohorts[monthKey].churned++
+    else if (school.status === 'trial') cohorts[monthKey].trial++
+  }
+
+  return Object.entries(cohorts)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, data]) => ({
+      month,
+      ...data,
+      retentionRate: data.total > 0 ? Math.round((data.active / data.total) * 100) : 0,
+    }))
+}
+
+/**
+ * Funnel analysis: trial → active → churned conversion.
+ */
+export async function getFunnelAnalysis() {
+  const [totalSignups, trialStarted, activatedFromTrial, churned] = await Promise.all([
+    prisma.schoolProfile.count(),
+    prisma.platformSubscription.count({ where: { trialStartedAt: { not: null } } }),
+    prisma.platformSubscription.count({ where: { status: 'sub_active', trialStartedAt: { not: null } } }),
+    prisma.platformSubscription.count({ where: { status: 'sub_cancelled' } }),
+  ])
+
+  // Direct activations (no trial)
+  const directActivations = await prisma.platformSubscription.count({
+    where: { status: 'sub_active', trialStartedAt: null },
+  })
+
+  const totalActive = activatedFromTrial + directActivations
+
+  return {
+    stages: [
+      { name: 'Signed Up', count: totalSignups, percentage: 100 },
+      { name: 'Started Trial', count: trialStarted, percentage: totalSignups > 0 ? Math.round((trialStarted / totalSignups) * 100) : 0 },
+      { name: 'Activated', count: totalActive, percentage: totalSignups > 0 ? Math.round((totalActive / totalSignups) * 100) : 0 },
+      { name: 'Churned', count: churned, percentage: totalSignups > 0 ? Math.round((churned / totalSignups) * 100) : 0 },
+    ],
+    conversionRates: {
+      signupToTrial: totalSignups > 0 ? Math.round((trialStarted / totalSignups) * 100) : 0,
+      trialToActive: trialStarted > 0 ? Math.round((activatedFromTrial / trialStarted) * 100) : 0,
+      overallConversion: totalSignups > 0 ? Math.round((totalActive / totalSignups) * 100) : 0,
+    },
+  }
+}
+
+/**
+ * LTV (Lifetime Value) calculation per plan tier.
+ */
+export async function getLtvAnalysis() {
+  // Get total payments grouped by school
+  const schoolPayments = await prisma.platformPayment.groupBy({
+    by: ['invoiceId'],
+    _sum: { amount: true },
+  })
+
+  // Map invoices to schools
+  const invoiceIds = schoolPayments.map(p => p.invoiceId)
+  const invoices = await prisma.platformInvoice.findMany({
+    where: { id: { in: invoiceIds } },
+    select: { id: true, schoolId: true },
+  })
+  const invoiceSchoolMap = new Map(invoices.map(i => [i.id, i.schoolId]))
+
+  // Aggregate by school
+  const schoolRevenue: Record<string, number> = {}
+  for (const p of schoolPayments) {
+    const schoolId = invoiceSchoolMap.get(p.invoiceId)
+    if (schoolId) {
+      schoolRevenue[schoolId] = (schoolRevenue[schoolId] || 0) + Number(p._sum.amount || 0)
+    }
+  }
+
+  // Get school plan tiers
+  const schoolIds = Object.keys(schoolRevenue)
+  const schoolProfiles = await prisma.schoolProfile.findMany({
+    where: { id: { in: schoolIds } },
+    select: { id: true, planTier: true, createdAt: true },
+  })
+
+  // Group by plan tier
+  const tierData: Record<string, { totalRevenue: number; count: number; totalMonths: number }> = {}
+  const now = new Date()
+
+  for (const school of schoolProfiles) {
+    const tier = school.planTier
+    if (!tierData[tier]) tierData[tier] = { totalRevenue: 0, count: 0, totalMonths: 0 }
+    tierData[tier].totalRevenue += schoolRevenue[school.id] || 0
+    tierData[tier].count++
+    const months = Math.max(1, Math.round((now.getTime() - school.createdAt.getTime()) / (30 * 86400000)))
+    tierData[tier].totalMonths += months
+  }
+
+  return Object.entries(tierData).map(([tier, data]) => ({
+    planTier: tier,
+    schoolCount: data.count,
+    totalRevenue: Math.round(data.totalRevenue),
+    avgRevenuePerSchool: data.count > 0 ? Math.round(data.totalRevenue / data.count) : 0,
+    avgMonthlyRevenue: data.totalMonths > 0 ? Math.round(data.totalRevenue / data.totalMonths) : 0,
+    estimatedLtv12m: data.totalMonths > 0 ? Math.round((data.totalRevenue / data.totalMonths) * 12) : 0,
+  }))
+}

@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   School,
   Users,
@@ -7,6 +8,10 @@ import {
   Loader2,
   AlertCircle,
   IndianRupee,
+  Plus,
+  Trash2,
+  GripVertical,
+  Settings2,
 } from 'lucide-react'
 import {
   LineChart,
@@ -49,19 +54,51 @@ export function DashboardPage() {
     queryFn: adminApi.getSubscriptionAnalytics,
   })
 
+  const queryClient = useQueryClient()
+  const [showCustomize, setShowCustomize] = useState(false)
+  const [showAddWidget, setShowAddWidget] = useState(false)
+  const [widgetForm, setWidgetForm] = useState({ title: '', type: 'stat_card', dataSource: 'schools', width: 1 })
+
+  const widgetsQuery = useQuery({
+    queryKey: ['admin', 'dashboard', 'widgets'],
+    queryFn: adminApi.listWidgets,
+  })
+
+  const createWidgetMutation = useMutation({
+    mutationFn: (data: any) => adminApi.createWidget(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard', 'widgets'] })
+      setShowAddWidget(false)
+      setWidgetForm({ title: '', type: 'stat_card', dataSource: 'schools', width: 1 })
+    },
+  })
+
+  const deleteWidgetMutation = useMutation({
+    mutationFn: (id: string) => adminApi.deleteWidget(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard', 'widgets'] }),
+  })
+
   const stats = statsQuery.data
   const growth = growthQuery.data || []
   const addons = addonQuery.data || []
   const activities = activityQuery.data || []
+  const widgets = widgetsQuery.data || []
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Platform overview and key metrics
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Platform overview and key metrics</p>
+        </div>
+        <button
+          onClick={() => setShowCustomize(!showCustomize)}
+          className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <Settings2 className="h-3.5 w-3.5" />
+          {showCustomize ? 'Done' : 'Customize'}
+        </button>
       </div>
 
       {/* Stats Grid */}
@@ -110,6 +147,36 @@ export function DashboardPage() {
             trend={subAnalyticsQuery.data?.trialCount ? { value: subAnalyticsQuery.data.activeCount + subAnalyticsQuery.data.trialCount, label: 'total subs' } : undefined}
           />
         </div>
+      )}
+
+      {/* Custom Widgets */}
+      {widgets.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {widgets.map((widget: any) => (
+            <div key={widget.id} className="rounded-lg border bg-card p-4 relative">
+              {showCustomize && (
+                <button
+                  onClick={() => deleteWidgetMutation.mutate(widget.id)}
+                  className="absolute top-2 right-2 rounded-md p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              )}
+              <p className="text-xs text-muted-foreground">{widget.title}</p>
+              <p className="text-lg font-bold mt-1">{widget.dataSource}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">{widget.type.replace(/_/g, ' ')}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showCustomize && (
+        <button
+          onClick={() => setShowAddWidget(true)}
+          className="w-full rounded-lg border-2 border-dashed border-muted-foreground/30 p-4 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2"
+        >
+          <Plus className="h-4 w-4" /> Add Widget
+        </button>
       )}
 
       {/* Charts Row */}
@@ -277,6 +344,49 @@ export function DashboardPage() {
           </div>
         )}
       </div>
+      {showAddWidget && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowAddWidget(false)}>
+          <div className="bg-card rounded-xl shadow-lg w-full max-w-md p-6 border" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold mb-4">Add Widget</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Title</label>
+                <input value={widgetForm.title} onChange={e => setWidgetForm({...widgetForm, title: e.target.value})} placeholder="Widget title" className="h-9 w-full rounded-lg border bg-background px-3 text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Type</label>
+                <select value={widgetForm.type} onChange={e => setWidgetForm({...widgetForm, type: e.target.value})} className="h-9 w-full rounded-lg border bg-background px-3 text-sm">
+                  <option value="stat_card">Stat Card</option>
+                  <option value="line_chart">Line Chart</option>
+                  <option value="bar_chart">Bar Chart</option>
+                  <option value="table">Table</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Data Source</label>
+                <select value={widgetForm.dataSource} onChange={e => setWidgetForm({...widgetForm, dataSource: e.target.value})} className="h-9 w-full rounded-lg border bg-background px-3 text-sm">
+                  <option value="schools">Schools Count</option>
+                  <option value="users">Users Count</option>
+                  <option value="revenue">Revenue</option>
+                  <option value="tickets">Open Tickets</option>
+                  <option value="leads">Active Leads</option>
+                  <option value="subscriptions">Active Subscriptions</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-4">
+              <button onClick={() => setShowAddWidget(false)} className="px-4 py-2 text-sm text-muted-foreground">Cancel</button>
+              <button
+                onClick={() => createWidgetMutation.mutate({ title: widgetForm.title, type: widgetForm.type, dataSource: widgetForm.dataSource, config: '{}', width: widgetForm.width })}
+                disabled={!widgetForm.title || createWidgetMutation.isPending}
+                className="px-4 py-2 bg-primary text-primary-foreground text-sm font-semibold rounded-lg disabled:opacity-50"
+              >
+                {createWidgetMutation.isPending ? 'Adding...' : 'Add Widget'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

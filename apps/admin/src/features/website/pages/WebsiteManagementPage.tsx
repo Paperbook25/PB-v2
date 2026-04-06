@@ -221,6 +221,7 @@ function BlogTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   const saveMut = useMutation({
     mutationFn: (data: any) => editing ? adminApi.updateBlogPost(editing.id, data) : adminApi.createBlogPost(data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['website', 'blog'] }); closeDialog() },
+    onError: (err: any) => { alert(err?.message || 'Failed to save blog post') },
   })
   const deleteMut = useMutation({
     mutationFn: (id: string) => adminApi.deleteBlogPost(id),
@@ -256,12 +257,12 @@ function BlogTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   })
 
   function emptyBlogForm() {
-    return { title: '', slug: '', excerpt: '', content: '', category: 'general', tags: '', status: 'draft' as string, keywords: '', metaTitle: '', metaDescription: '', coverImageUrl: '' }
+    return { title: '', slug: '', excerpt: '', content: '', category: 'general', tags: '', status: 'draft' as string, keywords: '', metaTitle: '', metaDescription: '', coverImage: '' }
   }
   function openCreate() { setEditing(null); setForm(emptyBlogForm()); setSlugEdited(false); setDialog(true) }
   function openEdit(p: any) {
     setEditing(p); setSlugEdited(true)
-    setForm({ title: p.title, slug: p.slug, excerpt: p.excerpt || '', content: p.content || '', category: p.category || 'general', tags: (p.tags || []).join(', '), status: p.status || 'draft', keywords: (p.keywords || []).join(', '), metaTitle: p.metaTitle || '', metaDescription: p.metaDescription || '', coverImageUrl: p.coverImageUrl || '' })
+    setForm({ title: p.title, slug: p.slug, excerpt: p.excerpt || '', content: p.content || '', category: p.category || 'general', tags: (p.tags || []).join(', '), status: p.status || 'draft', keywords: (p.keywords || []).join(', '), metaTitle: p.metaTitle || '', metaDescription: p.metaDescription || '', coverImage: p.coverImage || '' })
     setDialog(true)
   }
   function closeDialog() { setDialog(false); setEditing(null); setShowIdeas(false) }
@@ -387,7 +388,7 @@ function BlogTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
               </div>
               <Field label="Meta Title" value={form.metaTitle} onChange={(v) => setForm((f) => ({ ...f, metaTitle: v }))} />
               <Field label="Meta Description" value={form.metaDescription} onChange={(v) => setForm((f) => ({ ...f, metaDescription: v }))} />
-              <div className="sm:col-span-2"><Field label="Cover Image URL" value={form.coverImageUrl} onChange={(v) => setForm((f) => ({ ...f, coverImageUrl: v }))} /></div>
+              <div className="sm:col-span-2"><Field label="Cover Image URL" value={form.coverImage} onChange={(v) => setForm((f) => ({ ...f, coverImage: v }))} /></div>
             </div>
             <div className="mt-6 flex justify-end gap-2">
               <button onClick={closeDialog} className="rounded-lg border px-4 py-2 text-sm text-muted-foreground hover:bg-muted">Cancel</button>

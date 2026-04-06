@@ -1,5 +1,6 @@
 import { prisma } from '../config/db.js'
 import { AppError } from '../utils/errors.js'
+import { env } from '../config/env.js'
 
 // Helper for dynamic model counts
 export async function prismaCount(model: string): Promise<number> {
@@ -408,6 +409,7 @@ export async function getPublicWebsiteData() {
       homeDescription: config['seo.homeDescription'] || '',
       ogImage: config['seo.ogImage'] || '',
       keywords: config['seo.keywords'] || '',
+      gaTrackingId: config['seo.gaTrackingId'] || '',
     },
     team,
     recentPosts,
@@ -462,24 +464,89 @@ ${allUrls.map(u => `  <url>
 </urlset>`
 }
 
+// ==================== Ollama LLM Helper ====================
+
+async function callOllama(prompt: string): Promise<string | null> {
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 120000) // 2 min timeout
+
+    const res = await fetch(`${env.OLLAMA_BASE_URL}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: env.OLLAMA_MODEL,
+        prompt,
+        stream: false,
+        options: { temperature: 0.7, num_predict: 4096 },
+      }),
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeout)
+
+    if (!res.ok) {
+      console.error(`[Ollama] HTTP ${res.status}: ${await res.text()}`)
+      return null
+    }
+
+    const data: any = await res.json()
+    return data.response || null
+  } catch (err) {
+    console.error('[Ollama] Call failed:', err)
+    return null
+  }
+}
+
 // ==================== AI Blog Content Writer ====================
 
 export async function generateBlogContent(topic: string, targetKeywords: string[]) {
   const slug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   const cap = (s: string) => s.replace(/\b\w/g, c => c.toUpperCase())
 
-  const sections = [
-    { heading: 'Introduction', body: `In today's rapidly evolving education landscape, ${topic.toLowerCase()} has become a critical aspect of school management. Institutions across India are adopting digital solutions to streamline their operations and improve outcomes. This comprehensive guide explores the key aspects and how schools can leverage technology to stay ahead.` },
-    ...targetKeywords.slice(0, 4).map(kw => ({
-      heading: `Understanding ${cap(kw)}`,
-      body: `${cap(kw)} plays a vital role in modern education management. Schools that effectively implement ${kw} solutions see significant improvements in efficiency, accuracy, and parent satisfaction. Whether you're running a small tuition center or a large CBSE/ICSE institution, having robust ${kw} capabilities is essential.`,
-    })),
-    { heading: `Key Benefits`, body: `Implementing a comprehensive solution brings numerous advantages: reduced administrative burden, improved accuracy in record-keeping, better communication with parents, real-time insights through analytics dashboards, and significant time savings for staff. Studies show that schools using integrated management platforms save an average of 15-20 hours per week on administrative tasks.` },
-    { heading: 'How to Choose the Right Solution', body: `When evaluating solutions, consider these factors: ease of use for non-technical staff, mobile accessibility for parents and teachers, integration with existing systems, data security and compliance, customer support quality, and total cost of ownership. Look for platforms that offer free trials so you can test before committing.` },
-    { heading: 'Conclusion', body: `${cap(topic.split(' ').slice(0, 3).join(' '))} is no longer optional for schools that want to thrive in the digital age. By adopting the right tools and practices, institutions can dramatically improve their operational efficiency while providing a better experience for students, parents, and staff.` },
-  ]
+  // Try Ollama first for real AI-generated content
+  const ollamaPrompt = `Write a comprehensive, SEO-optimized blog post about "${topic}" for an education management platform called PaperBook.
 
-  const content = sections.map(s => `<h2>${s.heading}</h2>\n<p>${s.body}</p>`).join('\n\n')
+Target keywords to naturally include: ${targetKeywords.join(', ')}
+
+Requirements:
+- Write 1500+ words
+- Format with HTML tags: use <h2> for main sections, <h3> for subsections, <p> for paragraphs, <ul>/<li> for lists
+- Include 5-7 sections with clear headings
+- Write for school administrators and education professionals in India
+- Mention CBSE, ICSE, and Indian school context where relevant
+- Include practical tips and actionable advice
+- End with a clear conclusion
+- Do NOT include <html>, <head>, <body>, or <title> tags — only content HTML
+- Do NOT include any markdown formatting — use only HTML tags
+
+Write the blog post now:`
+
+  let content: string | null = null
+
+  if (env.LLM_PROVIDER === 'ollama' || !env.OPENAI_API_KEY) {
+    content = await callOllama(ollamaPrompt)
+    if (content) {
+      console.log(`[Blog Writer] Generated ${content.length} chars via Ollama (${env.OLLAMA_MODEL})`)
+    }
+  }
+
+  // Fallback to template-based generation if Ollama is unavailable
+  if (!content) {
+    console.log('[Blog Writer] Ollama unavailable, falling back to template generation')
+    const sections = [
+      { heading: 'Introduction', body: `In today's rapidly evolving education landscape, ${topic.toLowerCase()} has become a critical aspect of school management. Institutions across India are adopting digital solutions to streamline their operations and improve outcomes. This comprehensive guide explores the key aspects and how schools can leverage technology to stay ahead.` },
+      ...targetKeywords.slice(0, 4).map(kw => ({
+        heading: `Understanding ${cap(kw)}`,
+        body: `${cap(kw)} plays a vital role in modern education management. Schools that effectively implement ${kw} solutions see significant improvements in efficiency, accuracy, and parent satisfaction. Whether you're running a small tuition center or a large CBSE/ICSE institution, having robust ${kw} capabilities is essential.\n\nModern platforms like PaperBook provide integrated ${kw} features that work seamlessly with other school management modules. This means administrators can manage everything from a single dashboard, reducing the complexity that comes with using multiple disconnected tools.\n\nKey considerations for implementing ${kw} include: ease of use for non-technical staff, mobile accessibility, data security, and integration with existing workflows. Schools that take the time to evaluate these factors before choosing a solution see much better adoption rates and long-term satisfaction.`,
+      })),
+      { heading: 'Key Benefits', body: `Implementing a comprehensive solution brings numerous advantages: reduced administrative burden, improved accuracy in record-keeping, better communication with parents, real-time insights through analytics dashboards, and significant time savings for staff. Studies show that schools using integrated management platforms save an average of 15-20 hours per week on administrative tasks.\n\nFor Indian schools specifically, the benefits extend to compliance with CBSE and ICSE requirements, automated report generation for board submissions, and streamlined fee collection that reduces defaulter rates by up to 40%.` },
+      { heading: 'How to Choose the Right Solution', body: `When evaluating solutions, consider these factors: ease of use for non-technical staff, mobile accessibility for parents and teachers, integration with existing systems, data security and compliance, customer support quality, and total cost of ownership. Look for platforms that offer free trials so you can test before committing.\n\nAlso consider whether the platform is designed for the Indian education system — global solutions often lack support for Indian board structures, fee patterns (term-wise, month-wise), and communication preferences (WhatsApp, SMS in regional languages).` },
+      { heading: 'Conclusion', body: `${cap(topic.split(' ').slice(0, 3).join(' '))} is no longer optional for schools that want to thrive in the digital age. By adopting the right tools and practices, institutions can dramatically improve their operational efficiency while providing a better experience for students, parents, and staff. Start with a free trial of PaperBook to see how these features can transform your institution's operations.` },
+    ]
+    content = sections.map(s => `<h2>${s.heading}</h2>\n<p>${s.body}</p>`).join('\n\n')
+  }
+
   const excerpt = `Learn about ${topic.toLowerCase()} and how modern school management systems can help. Covering ${targetKeywords.slice(0, 3).join(', ')} and more.`
   const extracted = await extractKeywordsFromContent(content, topic)
   const allKeywords = [...new Set([...targetKeywords, ...extracted])].slice(0, 10)

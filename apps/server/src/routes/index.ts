@@ -55,6 +55,8 @@ import adminRoutes from './admin/index.js'
 import onboardingRoutes from './onboarding.routes.js'
 import invitationRoutes from './invitation.routes.js'
 import profileRoutes from './profile.routes.js'
+import integrationRoutes from './integration.routes.js'
+import paymentRoutes from './payment.routes.js'
 import { registerSchool } from '../controllers/onboarding.controller.js'
 import { acceptInvitation, getInviteDetails } from '../controllers/invitation.controller.js'
 
@@ -425,6 +427,22 @@ router.use('/onboarding', requireTenant, onboardingRoutes)
 
 // Staff Invitations
 router.use('/invitations', requireTenant, invitationRoutes)
+
+// Integrations (Razorpay, WhatsApp, SMS, Email)
+router.use('/integrations', requireTenant, integrationRoutes)
+
+// Online Payments (Razorpay checkout)
+router.use('/payments', requireTenant, paymentRoutes)
+
+// Razorpay webhook (public — no tenant enforcement, org ID in URL)
+router.post('/public/payments/webhook/:organizationId', async (req, res, next) => {
+  try {
+    const { handleRazorpayWebhook } = await import('../services/razorpay.service.js')
+    const signature = req.headers['x-razorpay-signature'] as string || ''
+    const result = await handleRazorpayWebhook(req.params.organizationId, req.body, signature)
+    res.json(result)
+  } catch (err) { next(err) }
+})
 
 // Super Admin Panel (better-auth protected — has its own auth)
 router.use('/admin', adminRoutes)

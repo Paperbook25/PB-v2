@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { IndianRupee, Users, AlertCircle, Receipt, Download, GraduationCap } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +10,7 @@ import { useParentFeeDashboard } from '../hooks/useFinance'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { PAYMENT_STATUS_LABELS, PAYMENT_MODE_LABELS, type PaymentStatus, type PaymentMode } from '../types/finance.types'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { RazorpayCheckout } from './RazorpayCheckout'
 
 export function ParentFeeDashboardView() {
   const { data: result, isLoading } = useParentFeeDashboard()
@@ -114,22 +116,37 @@ export function ParentFeeDashboardView() {
                     <TableHead className="text-right">Paid</TableHead>
                     <TableHead className="text-right">Pending</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {child.fees.slice(0, 5).map(fee => (
+                  {child.fees.slice(0, 5).map(fee => {
+                    const pending = (fee.totalAmount || 0) - (fee.paidAmount || 0) - (fee.discountAmount || 0)
+                    return (
                     <TableRow key={fee.id}>
                       <TableCell>{fee.feeTypeName}</TableCell>
                       <TableCell className="text-right">{formatCurrency(fee.totalAmount)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(fee.paidAmount)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency((fee.totalAmount || 0) - (fee.paidAmount || 0) - (fee.discountAmount || 0))}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(pending)}</TableCell>
                       <TableCell>
                         <Badge variant={fee.status === 'paid' ? 'default' : fee.status === 'overdue' ? 'destructive' : 'secondary'}>
                           {PAYMENT_STATUS_LABELS[fee.status] || fee.status || 'Unknown'}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-right">
+                        {pending > 0 && (
+                          <RazorpayCheckout
+                            studentFeeId={fee.id}
+                            studentId={child.studentId}
+                            studentName={child.studentName}
+                            feeTypeName={fee.feeTypeName}
+                            amount={pending}
+                          />
+                        )}
+                      </TableCell>
                     </TableRow>
-                  ))}
+                    )
+                  })}
                 </TableBody>
               </Table>
             )}

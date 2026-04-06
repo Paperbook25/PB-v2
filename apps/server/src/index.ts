@@ -217,6 +217,11 @@ async function main() {
     await prisma.$connect()
     console.log('[DB] Connected to PostgreSQL')
 
+    // Seed addon definitions (idempotent upsert — safe to run on every boot)
+    const { seedAddons } = await import('./services/addon.service.js')
+    await seedAddons()
+    console.log('[Addons] Addon definitions seeded')
+
     app.listen(env.PORT, () => {
       console.log(`[Server] Running on http://localhost:${env.PORT}`)
       console.log(`[Server] Environment: ${env.NODE_ENV}`)

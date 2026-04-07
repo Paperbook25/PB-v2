@@ -12,6 +12,7 @@ interface UpdateAddonData {
   category?: string
   isCore?: boolean
   sortOrder?: number
+  monthlyPrice?: number | null
 }
 
 // ============================================================================
@@ -46,6 +47,7 @@ export async function listAddons() {
     category: addon.category,
     isCore: addon.isCore,
     sortOrder: addon.sortOrder,
+    monthlyPrice: addon.monthlyPrice ? Number(addon.monthlyPrice) : null,
     totalSchools: addon._count.schoolAddons,
     enabledSchools: addon.schoolAddons.length,
     createdAt: addon.createdAt.toISOString(),
@@ -69,6 +71,7 @@ export async function updateAddon(id: string, data: UpdateAddonData) {
   if (data.category !== undefined) updateData.category = data.category
   if (data.isCore !== undefined) updateData.isCore = data.isCore
   if (data.sortOrder !== undefined) updateData.sortOrder = data.sortOrder
+  if (data.monthlyPrice !== undefined) updateData.monthlyPrice = data.monthlyPrice
 
   const addon = await prisma.addon.update({
     where: { id },
@@ -105,6 +108,7 @@ export async function updateAddon(id: string, data: UpdateAddonData) {
     category: addon.category,
     isCore: addon.isCore,
     sortOrder: addon.sortOrder,
+    monthlyPrice: addon.monthlyPrice ? Number(addon.monthlyPrice) : null,
     createdAt: addon.createdAt.toISOString(),
     updatedAt: addon.updatedAt.toISOString(),
   }
@@ -123,6 +127,7 @@ export async function createAddon(data: {
   isDefault?: boolean
   availableTiers?: string[]
   sortOrder?: number
+  monthlyPrice?: number | null
 }) {
   // Check slug uniqueness
   const existing = await prisma.addon.findUnique({ where: { slug: data.slug } })
@@ -139,6 +144,7 @@ export async function createAddon(data: {
       isDefault: data.isDefault ?? false,
       availableTiers: data.availableTiers || ['free', 'starter', 'professional', 'enterprise'],
       sortOrder: data.sortOrder ?? 99,
+      monthlyPrice: data.monthlyPrice ?? null,
     },
   })
 

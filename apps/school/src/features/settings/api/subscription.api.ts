@@ -15,6 +15,15 @@ export interface PlanConfig {
   price: { monthly: number; annual: number }
 }
 
+export interface AddonCharge {
+  slug: string
+  name: string
+  monthlyPrice: number
+  billingStatus: 'free' | 'trial' | 'active' | 'inactive'
+  trialEndsAt: string | null
+  billingStartedAt: string | null
+}
+
 export interface SubscriptionInfo {
   plan: PlanConfig
   usage: {
@@ -25,6 +34,9 @@ export interface SubscriptionInfo {
   includedModules: string[]
   enabledModules: string[]
   availableFeatures: string[]
+  canEnablePaidAddons: boolean
+  addonCharges: AddonCharge[]
+  totalAddonCharges: number
 }
 
 export interface UpgradeResult {

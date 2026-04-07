@@ -273,6 +273,18 @@ export const adminApi = {
     })
   },
 
+  // Platform Integrations (Razorpay, SMS, Email, WhatsApp — PaperBook's own keys)
+  listPlatformIntegrations: (type?: string) =>
+    adminFetch<any>(`/integrations${type ? `?type=${type}` : ''}`).then((r: any) => r.data || []),
+  createPlatformIntegration: (data: any) =>
+    adminFetch<any>('/integrations', { method: 'POST', body: JSON.stringify(data) }).then((r: any) => r.data),
+  updatePlatformIntegration: (id: string, data: any) =>
+    adminFetch<any>(`/integrations/${id}`, { method: 'PUT', body: JSON.stringify(data) }).then((r: any) => r.data),
+  deletePlatformIntegration: (id: string) =>
+    adminFetch<any>(`/integrations/${id}`, { method: 'DELETE' }),
+  testPlatformIntegration: (id: string) =>
+    adminFetch<any>(`/integrations/${id}/test`, { method: 'POST' }),
+
   // Dashboard Widgets
   listWidgets: () => adminFetch<any>('/dashboard-widgets').then((r: any) => Array.isArray(r) ? r : r.data || []),
   createWidget: (data: any) => adminFetch<any>('/dashboard-widgets', { method: 'POST', body: JSON.stringify(data) }),

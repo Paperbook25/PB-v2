@@ -91,17 +91,17 @@ function PricingTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
   })
 
   function emptyPricingForm() {
-    return { name: '', slug: '', description: '', monthlyPrice: '', yearlyPrice: '', isCustom: false, maxStudents: '', badge: '', ctaText: 'Get Started', ctaLink: '/signup' }
+    return { name: '', slug: '', description: '', monthlyPrice: '', yearlyPrice: '', isCustom: false, maxStudents: '', badge: '', ctaText: 'Get Started', ctaLink: '/signup', planTier: '' }
   }
   function openCreate() { setEditing(null); setForm(emptyPricingForm()); setSelectedFeatures([]); setSlugEdited(false); setDialog(true) }
   function openEdit(p: any) {
     setEditing(p); setSlugEdited(true); setSelectedFeatures(p.features || [])
-    setForm({ name: p.name, slug: p.slug, description: p.description || '', monthlyPrice: String(p.monthlyPrice ?? ''), yearlyPrice: String(p.yearlyPrice ?? ''), isCustom: p.isCustom || false, maxStudents: String(p.maxStudents ?? ''), badge: p.badge || '', ctaText: p.ctaText || 'Get Started', ctaLink: p.ctaLink || '/signup' })
+    setForm({ name: p.name, slug: p.slug, description: p.description || '', monthlyPrice: String(p.monthlyPrice ?? ''), yearlyPrice: String(p.yearlyPrice ?? ''), isCustom: p.isCustom || false, maxStudents: String(p.maxStudents ?? ''), badge: p.badge || '', ctaText: p.ctaText || 'Get Started', ctaLink: p.ctaLink || '/signup', planTier: p.planTier || '' })
     setDialog(true)
   }
   function closeDialog() { setDialog(false); setEditing(null) }
   function handleSave() {
-    saveMut.mutate({ ...form, monthlyPrice: form.monthlyPrice ? Number(form.monthlyPrice) : null, yearlyPrice: form.yearlyPrice ? Number(form.yearlyPrice) : null, maxStudents: form.maxStudents ? Number(form.maxStudents) : null, features: selectedFeatures })
+    saveMut.mutate({ ...form, monthlyPrice: form.monthlyPrice ? Number(form.monthlyPrice) : null, yearlyPrice: form.yearlyPrice ? Number(form.yearlyPrice) : null, maxStudents: form.maxStudents ? Number(form.maxStudents) : null, features: selectedFeatures, planTier: form.planTier || null })
   }
 
   const plans: any[] = plansQ.data?.data || plansQ.data || []
@@ -136,7 +136,14 @@ function PricingTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
             <div className="text-2xl font-bold text-foreground">
               {p.isCustom ? 'Custom' : `₹${p.monthlyPrice ?? 0}`}<span className="text-sm font-normal text-muted-foreground">/mo</span>
             </div>
-            <p className="text-xs text-muted-foreground">Max students: {p.maxStudents || 'Unlimited'}</p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>Max students: {p.maxStudents || 'Unlimited'}</span>
+              {p.planTier && (
+                <span className="rounded bg-blue-50 border border-blue-200 px-1.5 py-0.5 text-blue-700 font-medium capitalize">
+                  Tier: {p.planTier}
+                </span>
+              )}
+            </div>
             {p.features?.length > 0 && (
               <ul className="space-y-1 text-xs text-muted-foreground">
                 {p.features.slice(0, 5).map((f: string) => <li key={f} className="flex items-center gap-1"><Check className="h-3 w-3 text-green-500" />{f}</li>)}
@@ -166,6 +173,23 @@ function PricingTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
               <Field label="Badge" value={form.badge} onChange={(v) => setForm((f) => ({ ...f, badge: v }))} placeholder="e.g. Most Popular" />
               <Field label="CTA Text" value={form.ctaText} onChange={(v) => setForm((f) => ({ ...f, ctaText: v }))} />
               <Field label="CTA Link" value={form.ctaLink} onChange={(v) => setForm((f) => ({ ...f, ctaLink: v }))} />
+              <div>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Maps to Plan Tier
+                  <span className="ml-1 font-normal opacity-70">— syncs prices to school portal</span>
+                </label>
+                <select
+                  value={form.planTier}
+                  onChange={(e) => setForm((f) => ({ ...f, planTier: e.target.value }))}
+                  className="h-9 w-full rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="">— None (marketing only) —</option>
+                  <option value="free">Free</option>
+                  <option value="starter">Starter</option>
+                  <option value="professional">Professional</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </div>
               <label className="flex items-center gap-2 text-sm text-foreground sm:col-span-2">
                 <input type="checkbox" checked={form.isCustom} onChange={(e) => setForm((f) => ({ ...f, isCustom: e.target.checked }))} className="rounded" /> Custom pricing (hide price)
               </label>

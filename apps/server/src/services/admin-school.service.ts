@@ -637,34 +637,62 @@ export async function getSchoolAddons(schoolId: string) {
     throw AppError.notFound('School not found')
   }
 
+  const { isModuleInPlan } = await import('../config/plan-tiers.js')
+  const tier = (school.planTier || 'free') as any
+
   const addons = await prisma.addon.findMany({
     orderBy: { sortOrder: 'asc' },
     include: {
       schoolAddons: {
         where: { schoolId },
-        select: { enabled: true, enabledAt: true, enabledBy: true },
+        select: {
+          enabled: true,
+          enabledAt: true,
+          enabledBy: true,
+          billingStatus: true,
+          trialStartedAt: true,
+          trialEndsAt: true,
+          billingStartedAt: true,
+          monthlyPrice: true,
+        },
       },
     },
   })
 
-  return addons.map((addon) => ({
-    id: addon.id,
-    slug: addon.slug,
-    name: addon.name,
-    description: addon.description,
-    icon: addon.icon,
-    category: addon.category,
-    isCore: addon.isCore,
-    enabled: addon.schoolAddons.length > 0 ? addon.schoolAddons[0].enabled : false,
-    enabledAt: addon.schoolAddons.length > 0 ? addon.schoolAddons[0].enabledAt : null,
-    enabledBy: addon.schoolAddons.length > 0 ? addon.schoolAddons[0].enabledBy : null,
-  }))
+  return addons.map((addon) => {
+    const sa = addon.schoolAddons[0]
+    const includedInPlan = isModuleInPlan(tier, addon.slug)
+    return {
+      id: addon.id,
+      slug: addon.slug,
+      name: addon.name,
+      description: addon.description,
+      icon: addon.icon,
+      category: addon.category,
+      isCore: addon.isCore,
+      monthlyPrice: addon.monthlyPrice ? Number(addon.monthlyPrice) : null,
+      includedInPlan,
+      enabled: sa ? sa.enabled : false,
+      enabledAt: sa ? sa.enabledAt : null,
+      enabledBy: sa ? sa.enabledBy : null,
+      billingStatus: sa ? sa.billingStatus : 'inactive',
+      trialStartedAt: sa ? sa.trialStartedAt : null,
+      trialEndsAt: sa ? sa.trialEndsAt : null,
+      billingStartedAt: sa ? sa.billingStartedAt : null,
+      effectiveMonthlyPrice: sa?.monthlyPrice
+        ? Number(sa.monthlyPrice)
+        : addon.monthlyPrice
+          ? Number(addon.monthlyPrice)
+          : null,
+    }
+  })
 }
 
 /**
  * Toggle an addon for a specific school.
+ * Admin version: no billing cycle restriction; paid addons go straight to active (no trial).
  */
-export async function toggleSchoolAddon(schoolId: string, addonSlug: string) {
+export async function toggleSchoolAddon(schoolId: string, addonSlug: string, forcedEnabled?: boolean) {
   const school = await prisma.schoolProfile.findUnique({ where: { id: schoolId } })
   if (!school) {
     throw AppError.notFound('School not found')
@@ -679,22 +707,48 @@ export async function toggleSchoolAddon(schoolId: string, addonSlug: string) {
     throw AppError.badRequest(`Cannot toggle core addon "${addonSlug}"`)
   }
 
+  const { isModuleInPlan } = await import('../config/plan-tiers.js')
+  const tier = (school.planTier || 'free') as any
+
   // Check current state
   const existing = await prisma.schoolAddon.findUnique({
     where: { schoolId_addonId: { schoolId, addonId: addon.id } },
   })
 
-  const newEnabled = existing ? !existing.enabled : true
+  const newEnabled = forcedEnabled !== undefined ? forcedEnabled : (existing ? !existing.enabled : true)
+
+  let billingData: Record<string, unknown> = {}
+  if (newEnabled) {
+    const includedInPlan = isModuleInPlan(tier, addonSlug)
+    if (!includedInPlan && addon.monthlyPrice) {
+      // Admin enables paid addon → immediately active (no trial)
+      billingData = { billingStatus: 'active', billingStartedAt: new Date() }
+    } else {
+      billingData = { billingStatus: 'free' }
+    }
+  } else {
+    billingData = {
+      billingStatus: 'inactive',
+      trialStartedAt: null,
+      trialEndsAt: null,
+      billingStartedAt: null,
+    }
+  }
 
   await prisma.schoolAddon.upsert({
     where: { schoolId_addonId: { schoolId, addonId: addon.id } },
-    update: { enabled: newEnabled },
+    update: { enabled: newEnabled, ...billingData },
     create: {
       schoolId,
       addonId: addon.id,
       enabled: newEnabled,
+      ...billingData,
     },
   })
+
+  // Clear addon cache
+  const { clearAddonCache } = await import('../middleware/addon.middleware.js')
+  clearAddonCache(schoolId)
 
   // Audit log
   await prisma.auditLog.create({
@@ -715,6 +769,7 @@ export async function toggleSchoolAddon(schoolId: string, addonSlug: string) {
     addonSlug,
     addonName: addon.name,
     enabled: newEnabled,
+    billingStatus: billingData.billingStatus as string,
   }
 }
 

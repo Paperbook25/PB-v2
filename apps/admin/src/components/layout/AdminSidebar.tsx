@@ -18,6 +18,7 @@ import {
   TicketCheck,
   MessageSquare,
   Globe,
+  Plug,
 } from 'lucide-react'
 
 const navItems = [
@@ -35,6 +36,7 @@ const navItems = [
   { label: 'Health', to: '/health', icon: HeartPulse },
   { label: 'Security', to: '/security', icon: Shield },
   { label: 'Addons', to: '/addons', icon: Puzzle },
+  { label: 'Integrations', to: '/integrations', icon: Plug },
   { label: 'Users', to: '/users', icon: Users },
   { label: 'Audit Log', to: '/audit', icon: ScrollText },
   { label: 'Settings', to: '/settings', icon: Settings },

@@ -55,6 +55,7 @@ interface Addon {
   usageCount?: number
   availableTiers?: string[]
   isActive?: boolean
+  monthlyPrice?: number | null
 }
 
 const tierColors: Record<string, string> = {
@@ -84,6 +85,7 @@ interface AddonFormData {
   icon: string
   category: string
   isCore: boolean
+  monthlyPrice: string // string for input, parsed to number on submit
 }
 
 const emptyForm: AddonFormData = {
@@ -93,6 +95,7 @@ const emptyForm: AddonFormData = {
   icon: '',
   category: 'general',
   isCore: false,
+  monthlyPrice: '',
 }
 
 export function AddonsPage() {
@@ -158,6 +161,7 @@ export function AddonsPage() {
       icon: addon.icon || '',
       category: addon.category || 'general',
       isCore: addon.isCore,
+      monthlyPrice: addon.monthlyPrice != null ? String(addon.monthlyPrice) : '',
     })
     setSlugManuallyEdited(true)
     setFormError(null)
@@ -195,10 +199,15 @@ export function AddonsPage() {
     }
     setFormError(null)
 
+    const submitData = {
+      ...form,
+      monthlyPrice: form.monthlyPrice ? parseFloat(form.monthlyPrice) : null,
+    }
+
     if (editingAddon) {
-      editMutation.mutate({ id: editingAddon.id, data: form })
+      editMutation.mutate({ id: editingAddon.id, data: submitData as any })
     } else {
-      createMutation.mutate(form)
+      createMutation.mutate(submitData as any)
     }
   }
 
@@ -318,6 +327,15 @@ export function AddonsPage() {
                     {addon.category}
                   </span>
                 )}
+                {addon.monthlyPrice != null ? (
+                  <span className="rounded-md bg-green-50 border border-green-200 px-1.5 py-0.5 text-[10px] font-medium text-green-700">
+                    ₹{addon.monthlyPrice.toLocaleString('en-IN')}/mo
+                  </span>
+                ) : (
+                  <span className="rounded-md bg-gray-50 border border-gray-200 px-1.5 py-0.5 text-[10px] font-medium text-gray-500">
+                    Bundled
+                  </span>
+                )}
               </div>
 
               {/* Tier Toggles */}
@@ -421,6 +439,22 @@ export function AddonsPage() {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  Monthly Add-on Price (₹)
+                  <span className="ml-1 font-normal text-muted-foreground/70">— leave blank if bundled in plan only</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={form.monthlyPrice}
+                  onChange={(e) => setForm((prev) => ({ ...prev, monthlyPrice: e.target.value }))}
+                  placeholder="e.g. 499"
+                  className="h-9 w-full rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
               </div>
 
               <label className="flex items-center gap-2 pt-1">

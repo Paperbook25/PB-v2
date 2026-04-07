@@ -218,9 +218,29 @@ async function main() {
     console.log('[DB] Connected to PostgreSQL')
 
     // Seed addon definitions (idempotent upsert — safe to run on every boot)
-    const { seedAddons } = await import('./services/addon.service.js')
+    const { seedAddons, provisionAddonsForPlan, activateTrialEndedAddons } =
+      await import('./services/addon.service.js')
+
     await seedAddons()
-    console.log('[Addons] Addon definitions seeded')
+    console.log('[Addons] Definitions seeded')
+
+    // Provision addon records for any schools created before seeding ran
+    const unprovisioned = await prisma.schoolProfile.findMany({
+      where: { schoolAddons: { none: {} } },
+      select: { id: true, planTier: true },
+    })
+    if (unprovisioned.length > 0) {
+      for (const s of unprovisioned) {
+        await provisionAddonsForPlan(s.id, (s.planTier || 'free') as any)
+      }
+      console.log(`[Addons] Provisioned ${unprovisioned.length} school(s)`)
+    }
+
+    // Move trial addons that have expired to active billing
+    const { activated } = await activateTrialEndedAddons()
+    if (activated > 0) {
+      console.log(`[Addons] Activated ${activated} trial-ended addon(s)`)
+    }
 
     app.listen(env.PORT, () => {
       console.log(`[Server] Running on http://localhost:${env.PORT}`)

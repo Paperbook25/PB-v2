@@ -11,6 +11,14 @@ export interface AddonInfo {
   isCore: boolean
   sortOrder: number
   enabled: boolean
+  // Billing fields (optional for backward compatibility)
+  monthlyPrice?: number | null
+  includedInPlan?: boolean
+  billingStatus?: 'free' | 'trial' | 'active' | 'inactive'
+  trialStartedAt?: string | null
+  trialEndsAt?: string | null
+  billingStartedAt?: string | null
+  effectiveMonthlyPrice?: number | null
 }
 
 interface AddonState {

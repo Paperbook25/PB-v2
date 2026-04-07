@@ -6,7 +6,8 @@ export async function listAddons(req: Request, res: Response, next: NextFunction
   try {
     const schoolId = req.schoolId
     if (!schoolId) return res.status(404).json({ error: 'School not configured' })
-    const addons = await addonService.listAddons(schoolId)
+    const planTier = req.tenantOrg?.planTier || undefined
+    const addons = await addonService.listAddons(schoolId, planTier)
     res.json({ addons })
   } catch (error) {
     next(error)
@@ -28,10 +29,7 @@ export async function toggleAddon(req: Request, res: Response, next: NextFunctio
 
     const result = await addonService.toggleAddon(schoolId, slug as string, enabled, userId || '')
     res.json(result)
-  } catch (error: any) {
-    if (error.message?.includes('not found') || error.message?.includes('core module')) {
-      return res.status(400).json({ error: error.message })
-    }
+  } catch (error) {
     next(error)
   }
 }

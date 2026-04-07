@@ -11,6 +11,17 @@ import {
 import { clearPlanCache, clearAddonCache } from '../middleware/addon.middleware.js'
 import { evictTenantCache } from '../middleware/tenant.middleware.js'
 
+const LONG_TERM_CYCLES = ['semi_annual', 'annual', 'multi_year']
+
+export interface AddonCharge {
+  slug: string
+  name: string
+  monthlyPrice: number
+  billingStatus: string
+  trialEndsAt: Date | null
+  billingStartedAt: Date | null
+}
+
 export interface SubscriptionInfo {
   plan: PlanConfig
   usage: {
@@ -21,6 +32,9 @@ export interface SubscriptionInfo {
   includedModules: string[]
   enabledModules: string[]
   availableFeatures: string[]
+  canEnablePaidAddons: boolean
+  addonCharges: AddonCharge[]
+  totalAddonCharges: number
 }
 
 /**
@@ -36,18 +50,42 @@ export async function getCurrentPlan(schoolId: string): Promise<SubscriptionInfo
   const plan = getPlanConfig(tier)
 
   // Count current usage
-  const [studentCount, staffCount, userCount, enabledAddons] = await Promise.all([
+  const [studentCount, staffCount, userCount, enabledAddons, sub] = await Promise.all([
     prisma.student.count({ where: { organizationId: schoolId } }),
     prisma.staff.count({ where: { organizationId: schoolId } }),
     prisma.orgMember.count({ where: { organizationId: schoolId } }),
     prisma.schoolAddon.findMany({
       where: { schoolId, enabled: true },
-      include: { addon: { select: { slug: true } } },
+      include: {
+        addon: {
+          select: { slug: true, name: true, monthlyPrice: true },
+        },
+      },
+    }),
+    prisma.platformSubscription.findFirst({
+      where: { schoolId },
+      select: { billingCycle: true },
     }),
   ])
 
   const includedModules = getModulesForPlan(tier)
   const enabledModules = enabledAddons.map(a => a.addon.slug)
+  const canEnablePaidAddons = LONG_TERM_CYCLES.includes(sub?.billingCycle || '')
+
+  const addonCharges: AddonCharge[] = enabledAddons
+    .filter(sa => ['active', 'trial'].includes(sa.billingStatus))
+    .map(sa => ({
+      slug: sa.addon.slug,
+      name: sa.addon.name,
+      monthlyPrice: Number(sa.monthlyPrice ?? sa.addon.monthlyPrice ?? 0),
+      billingStatus: sa.billingStatus,
+      trialEndsAt: sa.trialEndsAt,
+      billingStartedAt: sa.billingStartedAt,
+    }))
+
+  const totalAddonCharges = addonCharges
+    .filter(a => a.billingStatus === 'active')
+    .reduce((sum, a) => sum + a.monthlyPrice, 0)
 
   return {
     plan,
@@ -63,14 +101,40 @@ export async function getCurrentPlan(schoolId: string): Promise<SubscriptionInfo
           .flatMap(p => p.features)
           .filter((f, i, arr) => f !== '*' && arr.indexOf(f) === i)
       : plan.features,
+    canEnablePaidAddons,
+    addonCharges,
+    totalAddonCharges,
   }
 }
 
 /**
  * Returns all plan configs for display in a comparison table.
+ * Prices and badge are overridden from DB if a matching planTier is set in PricingPlan.
+ * Modules, features, and limits always come from plan-tiers.ts (code is authoritative).
  */
-export function getAvailablePlans(): PlanConfig[] {
-  return Object.values(PLAN_CONFIGS)
+export async function getAvailablePlans() {
+  const plans = Object.values(PLAN_CONFIGS)
+
+  // Overlay DB prices where planTier matches — safe fallback to hardcoded if no DB plans set
+  const dbPricing = await prisma.pricingPlan.findMany({
+    where: { isActive: true, planTier: { not: null } },
+    select: { planTier: true, monthlyPrice: true, yearlyPrice: true, badge: true },
+  })
+
+  const dbByTier = Object.fromEntries(
+    dbPricing.map(p => [p.planTier as string, p])
+  )
+
+  return plans.map(plan => {
+    const dbPlan = dbByTier[plan.id]
+    return {
+      ...plan,
+      price: dbPlan
+        ? { monthly: dbPlan.monthlyPrice, annual: dbPlan.yearlyPrice }
+        : plan.price,
+      badge: dbPlan?.badge || undefined,
+    }
+  })
 }
 
 /**

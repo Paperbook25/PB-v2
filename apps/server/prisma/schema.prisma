@@ -2625,6 +2625,7 @@ model Addon {
   isDefault      Boolean  @default(false) @map("is_default") // auto-enabled for new schools
   availableTiers String[] @default(["free", "starter", "professional", "enterprise"]) @map("available_tiers")
   sortOrder      Int      @default(0) @map("sort_order")
+  monthlyPrice   Decimal? @db.Decimal(12, 2) @map("monthly_price") // INR/mo; null = bundled in plan only
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
@@ -2636,18 +2637,24 @@ model Addon {
 }
 
 model SchoolAddon {
-  id        String   @id @default(uuid())
-  schoolId  String   @map("school_id")
-  addonId   String   @map("addon_id")
-  enabled   Boolean  @default(true)
-  enabledAt DateTime @default(now()) @map("enabled_at")
-  enabledBy String?  @map("enabled_by")
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  addonId          String    @map("addon_id")
+  enabled          Boolean   @default(true)
+  enabledAt        DateTime  @default(now()) @map("enabled_at")
+  enabledBy        String?   @map("enabled_by")
+  billingStatus    String    @default("free") @map("billing_status") // free | trial | active | inactive
+  trialStartedAt   DateTime? @map("trial_started_at")
+  trialEndsAt      DateTime? @map("trial_ends_at")
+  billingStartedAt DateTime? @map("billing_started_at")
+  monthlyPrice     Decimal?  @db.Decimal(12, 2) @map("monthly_price") // school-specific override; null = use addon.monthlyPrice
 
   school SchoolProfile @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   addon  Addon         @relation(fields: [addonId], references: [id], onDelete: Cascade)
 
   @@unique([schoolId, addonId])
   @@index([schoolId])
+  @@index([billingStatus])
   @@map("school_addons")
 }
 
@@ -3633,6 +3640,7 @@ enum BillingCycle {
   quarterly
   semi_annual
   annual
+  multi_year
 }
 
 enum SubscriptionStatus {
@@ -4200,10 +4208,33 @@ model PricingPlan {
   ctaLink       String   @default("/signup.html") @map("cta_link")
   sortOrder     Int      @default(0) @map("sort_order")
   isActive      Boolean  @default(true) @map("is_active")
+  planTier      String?  @map("plan_tier") // 'free' | 'starter' | 'professional' | 'enterprise' — maps to plan-tiers.ts
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   @@map("pricing_plans")
+}
+
+// ============================================================================
+// Platform Integrations (PaperBook's own API keys — not school-level)
+// ============================================================================
+
+model PlatformIntegration {
+  id           String    @id @default(uuid())
+  type         String    // payment_gateway | sms_gateway | email_service | whatsapp_api
+  name         String    // e.g. "Razorpay Production"
+  provider     String    // razorpay | twilio | msg91 | sendgrid | gupshup
+  credentials  Json      // AES-256-GCM encrypted { keyId, keySecret, webhookSecret, ... }
+  settings     Json?     // { currency: "INR", captureMode: "automatic", ... }
+  status       String    @default("inactive") // active | inactive | error
+  isDefault    Boolean   @default(false) @map("is_default")
+  lastTestedAt DateTime? @map("last_tested_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([type])
+  @@index([provider])
+  @@map("platform_integrations")
 }
 
 model PlatformBlogPost {

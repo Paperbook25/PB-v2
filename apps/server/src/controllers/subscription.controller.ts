@@ -16,7 +16,7 @@ export async function getCurrentPlan(req: Request, res: Response, next: NextFunc
 
 export async function getAvailablePlans(_req: Request, res: Response, next: NextFunction) {
   try {
-    const plans = subscriptionService.getAvailablePlans()
+    const plans = await subscriptionService.getAvailablePlans()
     res.json({ data: plans })
   } catch (error) {
     next(error)

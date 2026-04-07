@@ -37,6 +37,46 @@ export async function generateRecurringInvoices() {
       const periodStart = sub.currentPeriodStart || now
       const periodEnd = calculateNextDate(now, sub.billingCycle)
 
+      // Fetch active addon charges for this school
+      const activeAddons = await prisma.schoolAddon.findMany({
+        where: {
+          schoolId: sub.schoolId,
+          billingStatus: 'active',
+          billingStartedAt: { not: null },
+        },
+        include: {
+          addon: { select: { name: true, monthlyPrice: true } },
+        },
+      })
+
+      const totalDays = Math.ceil((periodEnd.getTime() - periodStart.getTime()) / 86400000) || 30
+
+      const addonLineItems = activeAddons.flatMap(sa => {
+        const price = Number(sa.monthlyPrice ?? sa.addon.monthlyPrice ?? 0)
+        if (!price) return []
+        const startFrom = sa.billingStartedAt! > periodStart ? sa.billingStartedAt! : periodStart
+        const billedDays = Math.ceil((periodEnd.getTime() - startFrom.getTime()) / 86400000)
+        const amount = billedDays < totalDays ? Math.round((price / 30) * billedDays) : price
+        return [{
+          description: `${sa.addon.name} Add-on${billedDays < totalDays ? ' (prorated)' : ''}`,
+          quantity: 1,
+          unitPrice: price,
+          amount,
+        }]
+      })
+
+      const addonTotal = addonLineItems.reduce((sum, i) => sum + i.amount, 0)
+      const subtotal = Number(sub.amount) + addonTotal
+      const lineItems = [
+        {
+          description: `${capitalize(sub.planTier)} Plan - ${capitalize(sub.billingCycle)} Subscription`,
+          quantity: 1,
+          unitPrice: Number(sub.amount),
+          amount: Number(sub.amount),
+        },
+        ...addonLineItems,
+      ]
+
       // Create invoice
       await prisma.platformInvoice.create({
         data: {
@@ -44,20 +84,15 @@ export async function generateRecurringInvoices() {
           schoolId: sub.schoolId,
           subscriptionId: sub.id,
           status: 'inv_draft',
-          subtotal: sub.amount,
+          subtotal,
           taxAmount: 0,
           taxRate: 0,
           discount: 0,
-          totalAmount: sub.amount,
+          totalAmount: subtotal,
           dueDate: new Date(now.getTime() + 15 * 86400000), // 15 days from now
           billingPeriodStart: periodStart,
           billingPeriodEnd: periodEnd,
-          lineItems: JSON.stringify([{
-            description: `${capitalize(sub.planTier)} Plan - ${capitalize(sub.billingCycle)} Subscription`,
-            quantity: 1,
-            unitPrice: Number(sub.amount),
-            amount: Number(sub.amount),
-          }]),
+          lineItems: JSON.stringify(lineItems),
         },
       })
 
@@ -103,6 +138,7 @@ function calculateNextDate(from: Date, cycle: string): Date {
     case 'quarterly': next.setMonth(next.getMonth() + 3); break
     case 'semi_annual': next.setMonth(next.getMonth() + 6); break
     case 'annual': next.setFullYear(next.getFullYear() + 1); break
+    case 'multi_year': next.setFullYear(next.getFullYear() + 3); break
     default: next.setMonth(next.getMonth() + 1); break
   }
   return next

@@ -21,6 +21,7 @@ import dashboardWidgetRouter from './dashboard-widget.routes.js'
 import notificationRouter from './notification.routes.js'
 import platformSettingsRouter from './platform-settings.routes.js'
 import websiteRouter from './website.routes.js'
+import platformIntegrationsRouter from './platform-integrations.routes.js'
 
 const router = Router()
 
@@ -55,6 +56,7 @@ router.use('/feature-usage', adminRbac('admin'), featureUsageRouter)
 router.use('/communication-logs', adminRbac('admin', 'support'), communicationLogRouter)
 router.use('/platform-settings', adminRbac('admin'), platformSettingsRouter)
 router.use('/website', adminRbac('admin'), websiteRouter)
+router.use('/integrations', adminRbac('admin'), platformIntegrationsRouter)
 
 // File upload (for blog images, team photos, logos)
 router.post('/upload', adminRbac('admin'), async (req, res, next) => {

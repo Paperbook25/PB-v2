@@ -103,7 +103,7 @@ router.get('/public/sitemap.xml', async (_req, res, next) => {
 router.get('/public/website', async (_req, res, next) => {
   try {
     const { getPublicWebsiteData } = await import('../services/admin-website.service.js')
-    res.setHeader('Cache-Control', 'public, max-age=300') // 5 minute cache
+    res.setHeader('Cache-Control', 'public, max-age=60') // 1 minute cache (pricing updates reflect within 60s)
     res.json(await getPublicWebsiteData())
   } catch (err) { next(err) }
 })

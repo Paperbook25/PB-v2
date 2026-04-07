@@ -1,17 +1,27 @@
 import { useState } from 'react'
-import { Check, X, Crown, Zap, Building2, Rocket, Users, GraduationCap, UserCheck, Lock, Unlock, Loader2 } from 'lucide-react'
+import { Check, X, Crown, Zap, Building2, Rocket, Users, GraduationCap, UserCheck, Lock, Unlock, Loader2, AlertTriangle, IndianRupee } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiPatch } from '@/lib/api-client'
 import { useAddonStore } from '@/stores/useAddonStore'
 import { toast } from '@/hooks/use-toast'
 import { useCurrentPlan, useAvailablePlans, useUpgradePlan } from '../hooks/useSubscription'
-import type { PlanConfig } from '../api/subscription.api'
+import type { PlanConfig, SubscriptionInfo } from '../api/subscription.api'
 
 const PLAN_COLORS: Record<string, string> = {
   free: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -259,30 +269,80 @@ function PlanComparisonTable({ plans, currentPlanId, onUpgrade, isUpgrading }: {
   )
 }
 
-function ModuleAccessSection({ subscription }: { subscription: { plan: PlanConfig; includedModules: string[]; enabledModules: string[] } }) {
+function formatTrialDays(trialEndsAt: string | null | undefined): string {
+  if (!trialEndsAt) return ''
+  const days = Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000)
+  if (days <= 0) return 'Trial ended'
+  return `Trial: ${days}d left`
+}
+
+function AddonBillingBadge({ addon }: { addon: import('@/stores/useAddonStore').AddonInfo }) {
+  if (addon.includedInPlan) {
+    return <span className="text-xs text-green-600 font-medium">Included</span>
+  }
+  if (addon.billingStatus === 'trial') {
+    return (
+      <span className="text-xs text-blue-600 font-medium">
+        {formatTrialDays(addon.trialEndsAt)}
+      </span>
+    )
+  }
+  if (addon.billingStatus === 'active') {
+    return (
+      <span className="text-xs text-purple-600 font-medium flex items-center gap-0.5">
+        <IndianRupee className="h-3 w-3" />
+        {addon.effectiveMonthlyPrice?.toLocaleString('en-IN')}/mo
+      </span>
+    )
+  }
+  if (addon.effectiveMonthlyPrice) {
+    return (
+      <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+        <IndianRupee className="h-3 w-3" />
+        {addon.effectiveMonthlyPrice.toLocaleString('en-IN')}/mo
+      </span>
+    )
+  }
+  return null
+}
+
+function ModuleAccessSection({ subscription, canEnablePaidAddons }: {
+  subscription: SubscriptionInfo
+  canEnablePaidAddons: boolean
+}) {
   const queryClient = useQueryClient()
+  const addonStore = useAddonStore()
   const [togglingSlug, setTogglingSlug] = useState<string | null>(null)
+  const [confirmAddon, setConfirmAddon] = useState<import('@/stores/useAddonStore').AddonInfo | null>(null)
 
   const toggleMutation = useMutation({
     mutationFn: ({ slug, enabled }: { slug: string; enabled: boolean }) =>
-      apiPatch<{ slug: string; enabled: boolean }>(`/api/addons/${slug}`, { enabled }),
-    onSuccess: (_data, { slug, enabled }) => {
+      apiPatch<{ slug: string; enabled: boolean; billingStatus?: string; trialEndsAt?: string }>(`/api/addons/${slug}`, { enabled }),
+    onSuccess: (data, { slug, enabled }) => {
       const { addons, setAddons } = useAddonStore.getState()
-      setAddons(addons.map((a) => (a.slug === slug ? { ...a, enabled } : a)))
+      setAddons(addons.map((a) => a.slug === slug ? {
+        ...a,
+        enabled,
+        billingStatus: (data as any).billingStatus || a.billingStatus,
+        trialEndsAt: (data as any).trialEndsAt || a.trialEndsAt,
+      } : a))
       queryClient.invalidateQueries({ queryKey: ['subscription'] })
       queryClient.invalidateQueries({ queryKey: ['addons'] })
-      const mod = ALL_MODULES_DISPLAY.find(m => m.slug === slug)
+      const addonInfo = addonStore.addons.find(a => a.slug === slug)
+      const label = addonInfo?.name || slug
       toast({
-        title: enabled ? `${mod?.label || slug} enabled` : `${mod?.label || slug} disabled`,
-        description: enabled
-          ? `${mod?.label || slug} is now available in your school modules.`
-          : `${mod?.label || slug} has been removed from active modules.`,
+        title: enabled ? `${label} enabled` : `${label} disabled`,
+        description: enabled && (data as any).billingStatus === 'trial'
+          ? `${label} is now active. 30-day free trial started.`
+          : enabled
+            ? `${label} is now available.`
+            : `${label} has been disabled.`,
       })
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: 'Failed to update module',
-        description: 'Something went wrong. Please try again.',
+        description: error?.message || 'Something went wrong. Please try again.',
         variant: 'destructive',
       })
     },
@@ -291,69 +351,114 @@ function ModuleAccessSection({ subscription }: { subscription: { plan: PlanConfi
     },
   })
 
+  const handleToggle = (addon: import('@/stores/useAddonStore').AddonInfo, checked: boolean) => {
+    // If enabling a paid addon (not in plan, has price), show confirmation dialog
+    if (checked && !addon.includedInPlan && addon.effectiveMonthlyPrice) {
+      setConfirmAddon(addon)
+      return
+    }
+    setTogglingSlug(addon.slug)
+    toggleMutation.mutate({ slug: addon.slug, enabled: checked })
+  }
+
+  // Get addons from the store — these have billing info from the API
+  const addons: import('@/stores/useAddonStore').AddonInfo[] = addonStore.addons.length > 0
+    ? addonStore.addons
+    : ALL_MODULES_DISPLAY.map(m => ({
+        id: m.slug, slug: m.slug, name: m.label, description: null, icon: null,
+        category: 'general', isCore: false, sortOrder: 0, enabled: false,
+        includedInPlan: false,
+      }))
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Module Access</CardTitle>
-        <CardDescription>
-          Modules included in your {subscription.plan.name} plan — toggle to enable or disable
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {ALL_MODULES_DISPLAY.map(mod => {
-            const included = subscription.includedModules.includes(mod.slug)
-            const enabled = subscription.enabledModules.includes(mod.slug)
-            const isPending = togglingSlug === mod.slug
-            return (
-              <div
-                key={mod.slug}
-                className={`flex items-center gap-2 rounded-lg border p-3 text-sm ${
-                  included
-                    ? enabled
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Module Access</CardTitle>
+          <CardDescription>
+            Toggle modules on or off. Modules included in your plan are free.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {!canEnablePaidAddons && (
+            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-200">
+              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>
+                Switch to a semi-annual or annual plan to unlock individual paid add-ons.
+              </span>
+            </div>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {addons.map(addon => {
+              const enabled = addon.enabled
+              const isPending = togglingSlug === addon.slug
+              const isToggleable = addon.includedInPlan || canEnablePaidAddons || enabled
+
+              return (
+                <div
+                  key={addon.slug}
+                  className={`flex flex-col gap-1.5 rounded-lg border p-3 text-sm transition-colors ${
+                    enabled
                       ? 'border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800'
                       : 'border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700'
-                    : 'border-gray-200 bg-gray-50 dark:bg-gray-900 dark:border-gray-700 opacity-60'
-                }`}
-              >
-                {included ? (
-                  enabled ? (
-                    <Unlock className="h-4 w-4 text-green-600 shrink-0" />
-                  ) : (
-                    <Lock className="h-4 w-4 text-gray-400 shrink-0" />
-                  )
-                ) : (
-                  <Lock className="h-4 w-4 text-gray-400 shrink-0" />
-                )}
-                <span className={`flex-1 ${included && enabled ? 'font-medium' : 'text-muted-foreground'}`}>
-                  {mod.label}
-                </span>
-                {included ? (
-                  <div className="flex items-center gap-1 shrink-0">
-                    {isPending && <Loader2 className="h-3 w-3 animate-spin text-gray-400" />}
-                    <Switch
-                      checked={enabled}
-                      disabled={isPending}
-                      onCheckedChange={(checked) => {
-                        setTogglingSlug(mod.slug)
-                        toggleMutation.mutate({ slug: mod.slug, enabled: checked })
-                      }}
-                    />
+                  } ${!isToggleable ? 'opacity-60' : ''}`}
+                >
+                  <div className="flex items-center gap-2">
+                    {enabled ? (
+                      <Unlock className="h-4 w-4 text-green-600 shrink-0" />
+                    ) : (
+                      <Lock className="h-4 w-4 text-gray-400 shrink-0" />
+                    )}
+                    <span className={`flex-1 font-medium ${enabled ? '' : 'text-muted-foreground'}`}>
+                      {addon.name}
+                    </span>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {isPending && <Loader2 className="h-3 w-3 animate-spin text-gray-400" />}
+                      <Switch
+                        checked={enabled}
+                        disabled={isPending || !isToggleable}
+                        onCheckedChange={(checked) => handleToggle(addon, checked)}
+                      />
+                    </div>
                   </div>
-                ) : (
-                  <Lock className="h-3 w-3 text-gray-300 shrink-0" />
-                )}
-              </div>
-            )
-          })}
-        </div>
-        {subscription.includedModules.length < ALL_MODULES_DISPLAY.length && (
-          <p className="mt-3 text-xs text-muted-foreground">
-            Upgrade your plan to unlock more modules.
-          </p>
-        )}
-      </CardContent>
-    </Card>
+                  <AddonBillingBadge addon={addon} />
+                </div>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Confirmation dialog for paid addons */}
+      <AlertDialog open={!!confirmAddon} onOpenChange={(open) => !open && setConfirmAddon(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Enable {confirmAddon?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This add-on costs{' '}
+              <strong>
+                ₹{confirmAddon?.effectiveMonthlyPrice?.toLocaleString('en-IN')}/month
+              </strong>{' '}
+              after a <strong>30-day free trial</strong>. You can disable it anytime.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmAddon) {
+                  setTogglingSlug(confirmAddon.slug)
+                  toggleMutation.mutate({ slug: confirmAddon.slug, enabled: true })
+                  setConfirmAddon(null)
+                }
+              }}
+            >
+              Start 30-Day Free Trial
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 
@@ -441,7 +546,44 @@ export function SubscriptionSection() {
       </Card>
 
       {/* Module Status with Toggles */}
-      <ModuleAccessSection subscription={subscription} />
+      <ModuleAccessSection
+        subscription={subscription}
+        canEnablePaidAddons={subscription.canEnablePaidAddons ?? true}
+      />
+
+      {/* Addon Charges Summary */}
+      {subscription.addonCharges?.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Estimated Monthly Charges</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex justify-between text-muted-foreground">
+              <span>{subscription.plan.name} Plan</span>
+              <span>{formatINR(subscription.plan.price.monthly)}</span>
+            </div>
+            {subscription.addonCharges.map((charge) => (
+              <div key={charge.slug} className="flex justify-between">
+                <span className="flex items-center gap-1.5">
+                  {charge.name} Add-on
+                  {charge.billingStatus === 'trial' && (
+                    <Badge variant="secondary" className="text-xs">Trial</Badge>
+                  )}
+                </span>
+                <span className={charge.billingStatus === 'trial' ? 'text-muted-foreground line-through' : ''}>
+                  {formatINR(charge.monthlyPrice)}
+                </span>
+              </div>
+            ))}
+            <Separator />
+            <div className="flex justify-between font-semibold">
+              <span>Estimated Total</span>
+              <span>{formatINR(subscription.plan.price.monthly + (subscription.totalAddonCharges || 0))}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">* Trial add-ons are free for 30 days. Amounts shown are after trial ends.</p>
+          </CardContent>
+        </Card>
+      )}
 
       <Separator />
 

@@ -400,45 +400,103 @@ export function SchoolDetailPage() {
       )}
 
       {activeTab === 'addons' && (
-        <div className="rounded-lg border bg-card">
-          {addonsQuery.isLoading ? (
-            <div className="flex h-32 items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : addonsQuery.isError ? (
-            <div className="p-6 text-sm text-muted-foreground">Failed to load addons</div>
-          ) : addons.length === 0 ? (
-            <div className="p-6 text-sm text-muted-foreground">No addons configured</div>
-          ) : (
-            <div className="divide-y divide-border">
-              {addons.map((addon: any) => (
-                <div key={addon.id || addon.slug} className="flex items-center justify-between px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <Puzzle className="h-5 w-5 text-primary" />
+        <div className="space-y-4">
+          <div className="rounded-lg border bg-card">
+            {addonsQuery.isLoading ? (
+              <div className="flex h-32 items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : addonsQuery.isError ? (
+              <div className="p-6 text-sm text-muted-foreground">Failed to load addons</div>
+            ) : addons.length === 0 ? (
+              <div className="p-6 text-sm text-muted-foreground">No addons configured</div>
+            ) : (
+              <div className="divide-y divide-border">
+                {addons.map((addon: any) => {
+                  const billingStatus = addon.billingStatus as string
+                  const trialDaysLeft = addon.trialEndsAt
+                    ? Math.max(0, Math.ceil((new Date(addon.trialEndsAt).getTime() - Date.now()) / 86400000))
+                    : null
+                  return (
+                    <div key={addon.id || addon.slug} className="flex items-center justify-between px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                          <Puzzle className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-foreground">{addon.name}</p>
+                            {addon.includedInPlan ? (
+                              <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700">Included</span>
+                            ) : addon.effectiveMonthlyPrice ? (
+                              <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-medium text-violet-700">
+                                ₹{addon.effectiveMonthlyPrice.toLocaleString('en-IN')}/mo
+                              </span>
+                            ) : null}
+                            {billingStatus === 'trial' && trialDaysLeft !== null && (
+                              <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+                                Trial · {trialDaysLeft}d left
+                              </span>
+                            )}
+                            {billingStatus === 'active' && !addon.includedInPlan && (
+                              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-medium text-purple-700">Billing active</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{addon.description || addon.slug}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggleAddonMutation.mutate(addon.slug)}
+                        disabled={toggleAddonMutation.isPending}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
+                          addon.enabled ? 'bg-primary' : 'bg-muted'
+                        } disabled:opacity-60`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                            addon.enabled ? 'translate-x-5' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{addon.name}</p>
-                      <p className="text-xs text-muted-foreground">{addon.description || addon.slug}</p>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Billing summary for active paid addons */}
+          {(() => {
+            const paidActive = addons.filter((a: any) => a.enabled && !a.includedInPlan && a.effectiveMonthlyPrice && ['active', 'trial'].includes(a.billingStatus))
+            if (paidActive.length === 0) return null
+            const activeCharges = paidActive.filter((a: any) => a.billingStatus === 'active')
+            const total = activeCharges.reduce((sum: number, a: any) => sum + (a.effectiveMonthlyPrice || 0), 0)
+            return (
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm font-semibold mb-3">Add-on Billing Summary</p>
+                <div className="space-y-2">
+                  {paidActive.map((a: any) => (
+                    <div key={a.slug} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{a.name}</span>
+                      <span>
+                        {a.billingStatus === 'trial' ? (
+                          <span className="text-blue-600">₹{a.effectiveMonthlyPrice?.toLocaleString('en-IN')}/mo · Trial</span>
+                        ) : (
+                          <span className="font-medium">₹{a.effectiveMonthlyPrice?.toLocaleString('en-IN')}/mo</span>
+                        )}
+                      </span>
                     </div>
-                  </div>
-                  <button
-                    onClick={() => toggleAddonMutation.mutate(addon.slug)}
-                    disabled={toggleAddonMutation.isPending}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
-                      addon.enabled ? 'bg-primary' : 'bg-muted'
-                    } disabled:opacity-60`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                        addon.enabled ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
+                  ))}
+                  {total > 0 && (
+                    <div className="flex items-center justify-between border-t pt-2 text-sm font-semibold">
+                      <span>Active Add-on Total</span>
+                      <span>₹{total.toLocaleString('en-IN')}/mo</span>
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            )
+          })()}
         </div>
       )}
 

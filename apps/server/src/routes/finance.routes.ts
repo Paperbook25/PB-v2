@@ -2,6 +2,7 @@ import { Router } from 'express'
 import * as financeController from '../controllers/finance.controller.js'
 import { authMiddleware, rbacMiddleware, validate, auditMiddleware } from '../middleware/index.js'
 import * as studentFeeService from '../services/student-fee.service.js'
+import * as financeExtrasService from '../services/finance-extras.service.js'
 import {
   createFeeTypeSchema, updateFeeTypeSchema,
   createFeeStructureSchema, updateFeeStructureSchema, assignFeeStructureSchema,
@@ -151,6 +152,120 @@ router.get('/ledger/balance', adminRoles, financeController.getLedgerBalance)
 router.get('/ledger', adminRoles, financeController.listLedgerEntries)
 router.get('/ledger/:id', adminRoles, financeController.getLedgerEntry)
 router.delete('/ledger/:id', adminRoles, financeController.deleteLedgerEntry)
+
+// ==================== Concessions ====================
+
+router.get('/concessions', adminRoles, async (req, res, next) => {
+  try {
+    const { status, studentId, page, limit } = req.query
+    const result = await financeExtrasService.listConcessions(req.schoolId!, {
+      status: status as string | undefined,
+      studentId: studentId as string | undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    })
+    res.json(result)
+  } catch (err) { next(err) }
+})
+router.post('/concessions', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.createConcession(req.schoolId!, req.body)
+    res.status(201).json({ data })
+  } catch (err) { next(err) }
+})
+router.patch('/concessions/:id/approve', adminRoles, async (req, res, next) => {
+  try {
+    const user = (req as any).user
+    const data = await financeExtrasService.approveConcession(
+      req.schoolId!, req.params.id,
+      user?.userId ?? 'unknown', user?.name ?? 'Unknown',
+      req.body.remarks
+    )
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.patch('/concessions/:id/reject', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.rejectConcession(req.schoolId!, req.params.id, req.body.remarks)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+
+// ==================== Discount Rules ====================
+
+router.get('/discount-rules', adminRoles, async (req, res, next) => {
+  try {
+    const isActive = req.query.isActive !== undefined ? req.query.isActive === 'true' : undefined
+    const data = await financeExtrasService.listDiscountRules(req.schoolId!, { isActive })
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.post('/discount-rules', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.createDiscountRule(req.schoolId!, req.body)
+    res.status(201).json({ data })
+  } catch (err) { next(err) }
+})
+router.put('/discount-rules/:id', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.updateDiscountRule(req.schoolId!, req.params.id, req.body)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.patch('/discount-rules/:id/toggle', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.toggleDiscountRule(req.schoolId!, req.params.id)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.delete('/discount-rules/:id', adminRoles, async (req, res, next) => {
+  try {
+    const result = await financeExtrasService.deleteDiscountRule(req.schoolId!, req.params.id)
+    res.json(result)
+  } catch (err) { next(err) }
+})
+router.get('/applied-discounts', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.listAppliedDiscounts(req.schoolId!, {
+      studentId: req.query.studentId as string | undefined,
+    })
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+
+// ==================== Installment Plans ====================
+
+router.get('/installment-plans', adminRoles, async (req, res, next) => {
+  try {
+    const isActive = req.query.isActive !== undefined ? req.query.isActive === 'true' : undefined
+    const data = await financeExtrasService.listInstallmentPlans(req.schoolId!, { isActive })
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.get('/installment-plans/:id', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.getInstallmentPlan(req.schoolId!, req.params.id)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.post('/installment-plans', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.createInstallmentPlan(req.schoolId!, req.body)
+    res.status(201).json({ data })
+  } catch (err) { next(err) }
+})
+router.patch('/installment-plans/:id/toggle', adminRoles, async (req, res, next) => {
+  try {
+    const data = await financeExtrasService.toggleInstallmentPlan(req.schoolId!, req.params.id)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.delete('/installment-plans/:id', adminRoles, async (req, res, next) => {
+  try {
+    const result = await financeExtrasService.deleteInstallmentPlan(req.schoolId!, req.params.id)
+    res.json(result)
+  } catch (err) { next(err) }
+})
 
 // ==================== Reports & Stats ====================
 

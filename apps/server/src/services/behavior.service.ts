@@ -218,3 +218,201 @@ export async function getBehaviorStats(schoolId: string) {
     })),
   }
 }
+
+// ==================== Detentions ====================
+
+export async function listDetentions(
+  schoolId: string,
+  query: { studentId?: string; status?: string; date?: string; page?: number; limit?: number }
+) {
+  const page = query.page ?? 1
+  const limit = query.limit ?? 20
+  const skip = (page - 1) * limit
+
+  const where: Record<string, unknown> = { organizationId: schoolId }
+  if (query.studentId) where.studentId = query.studentId
+  if (query.status) where.status = query.status
+  if (query.date) where.date = new Date(query.date)
+
+  const [data, total] = await prisma.$transaction([
+    prisma.detention.findMany({ where, orderBy: { date: 'desc' }, skip, take: limit }),
+    prisma.detention.count({ where }),
+  ])
+
+  return { data, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } }
+}
+
+export async function createDetention(schoolId: string, input: Record<string, unknown>) {
+  return prisma.detention.create({
+    data: {
+      organizationId: schoolId,
+      studentId: input.studentId as string,
+      studentName: input.studentName as string,
+      className: (input.className as string) ?? null,
+      reason: input.reason as string,
+      date: new Date(input.date as string),
+      startTime: (input.startTime as string) ?? null,
+      endTime: (input.endTime as string) ?? null,
+      supervisorName: (input.supervisorName as string) ?? null,
+      notes: (input.notes as string) ?? null,
+    },
+  })
+}
+
+export async function updateDetention(schoolId: string, id: string, input: Record<string, unknown>) {
+  const existing = await prisma.detention.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw AppError.notFound('Detention not found')
+  const { organizationId: _o, ...safe } = input as any
+  if (safe.date) safe.date = new Date(safe.date)
+  return prisma.detention.update({ where: { id }, data: safe })
+}
+
+export async function deleteDetention(schoolId: string, id: string) {
+  const existing = await prisma.detention.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw AppError.notFound('Detention not found')
+  await prisma.detention.delete({ where: { id } })
+  return { success: true }
+}
+
+// ==================== Disciplinary Actions ====================
+
+export async function listDisciplinaryActions(
+  schoolId: string,
+  query: { studentId?: string; actionType?: string; page?: number; limit?: number }
+) {
+  const page = query.page ?? 1
+  const limit = query.limit ?? 20
+  const skip = (page - 1) * limit
+
+  const where: Record<string, unknown> = { organizationId: schoolId }
+  if (query.studentId) where.studentId = query.studentId
+  if (query.actionType) where.actionType = query.actionType
+
+  const [data, total] = await prisma.$transaction([
+    prisma.disciplinaryAction.findMany({ where, orderBy: { issuedDate: 'desc' }, skip, take: limit }),
+    prisma.disciplinaryAction.count({ where }),
+  ])
+
+  return { data, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } }
+}
+
+export async function getDisciplinaryActionById(schoolId: string, id: string) {
+  const action = await prisma.disciplinaryAction.findFirst({ where: { id, organizationId: schoolId } })
+  if (!action) throw AppError.notFound('Disciplinary action not found')
+  return action
+}
+
+export async function createDisciplinaryAction(schoolId: string, input: Record<string, unknown>) {
+  return prisma.disciplinaryAction.create({
+    data: {
+      organizationId: schoolId,
+      studentId: input.studentId as string,
+      studentName: input.studentName as string,
+      incidentId: (input.incidentId as string) ?? null,
+      actionType: input.actionType as string,
+      description: input.description as string,
+      issuedByName: (input.issuedByName as string) ?? null,
+    },
+  })
+}
+
+export async function updateDisciplinaryAction(schoolId: string, id: string, input: Record<string, unknown>) {
+  const existing = await prisma.disciplinaryAction.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw AppError.notFound('Disciplinary action not found')
+  const { organizationId: _o, ...safe } = input as any
+  return prisma.disciplinaryAction.update({ where: { id }, data: safe })
+}
+
+export async function submitAppeal(schoolId: string, id: string, appealText: string) {
+  const existing = await prisma.disciplinaryAction.findFirst({ where: { id, organizationId: schoolId } })
+  if (!existing) throw AppError.notFound('Disciplinary action not found')
+
+  return prisma.disciplinaryAction.update({
+    where: { id },
+    data: { appealText, appealStatus: 'pending' },
+  })
+}
+
+// ==================== Behavior Points ====================
+
+export async function listBehaviorPoints(
+  schoolId: string,
+  query: { studentId?: string; type?: string; page?: number; limit?: number }
+) {
+  const page = query.page ?? 1
+  const limit = query.limit ?? 20
+  const skip = (page - 1) * limit
+
+  const where: Record<string, unknown> = { organizationId: schoolId }
+  if (query.studentId) where.studentId = query.studentId
+  if (query.type) where.type = query.type
+
+  const [data, total] = await prisma.$transaction([
+    prisma.behaviorPoint.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take: limit }),
+    prisma.behaviorPoint.count({ where }),
+  ])
+
+  return { data, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } }
+}
+
+export async function createBehaviorPoint(schoolId: string, input: Record<string, unknown>) {
+  return prisma.behaviorPoint.create({
+    data: {
+      organizationId: schoolId,
+      studentId: input.studentId as string,
+      studentName: input.studentName as string,
+      className: (input.className as string) ?? null,
+      type: input.type as string,
+      points: Number(input.points),
+      reason: input.reason as string,
+      awardedByName: (input.awardedByName as string) ?? null,
+    },
+  })
+}
+
+export async function getStudentBehaviorSummary(schoolId: string, studentId: string) {
+  const [positive, negative, recentPoints] = await Promise.all([
+    prisma.behaviorPoint.aggregate({
+      where: { organizationId: schoolId, studentId, type: 'positive' },
+      _sum: { points: true },
+    }),
+    prisma.behaviorPoint.aggregate({
+      where: { organizationId: schoolId, studentId, type: 'negative' },
+      _sum: { points: true },
+    }),
+    prisma.behaviorPoint.findMany({
+      where: { organizationId: schoolId, studentId },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    }),
+  ])
+
+  const positiveTotal = positive._sum.points ?? 0
+  const negativeTotal = negative._sum.points ?? 0
+
+  return {
+    studentId,
+    totalPoints: positiveTotal - negativeTotal,
+    positivePoints: positiveTotal,
+    negativePoints: negativeTotal,
+    recentPoints,
+  }
+}
+
+export async function getBehaviorLeaderboard(schoolId: string, limit = 10) {
+  const rows = await prisma.behaviorPoint.groupBy({
+    by: ['studentId', 'studentName', 'className'],
+    where: { organizationId: schoolId, type: 'positive' },
+    _sum: { points: true },
+    orderBy: { _sum: { points: 'desc' } },
+    take: limit,
+  })
+
+  return rows.map((r, i) => ({
+    rank: i + 1,
+    studentId: r.studentId,
+    studentName: r.studentName,
+    className: r.className,
+    totalPoints: r._sum.points ?? 0,
+  }))
+}

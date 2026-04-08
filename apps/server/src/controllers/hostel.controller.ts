@@ -84,6 +84,28 @@ export async function vacateStudent(req: Request, res: Response, next: NextFunct
   } catch (err) { next(err) }
 }
 
+// ==================== Eligible Students ====================
+
+export async function getEligibleStudents(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { prisma } = await import('../config/db.js')
+    // Get student IDs already allocated
+    const allocated = await prisma.hostelAllocation.findMany({
+      where: { organizationId: getSchoolId(req), status: 'active' },
+      select: { studentId: true },
+    })
+    const allocatedIds = new Set(allocated.map((a) => a.studentId))
+
+    const students = await prisma.student.findMany({
+      where: { organizationId: getSchoolId(req), status: 'active' },
+      select: { id: true, firstName: true, lastName: true, admissionNumber: true, classId: true },
+      orderBy: { firstName: 'asc' },
+    })
+
+    res.json({ data: students.filter((s) => !allocatedIds.has(s.id)) })
+  } catch (err) { next(err) }
+}
+
 // ==================== Stats ====================
 
 export async function getHostelStats(req: Request, res: Response, next: NextFunction) {

@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import * as staffController from '../controllers/staff.controller.js'
+import * as salaryService from '../services/salary.service.js'
 import { authMiddleware, rbacMiddleware, validate, auditMiddleware } from '../middleware/index.js'
 import {
   createStaffSchema, updateStaffSchema, createPDSchema, updatePDSchema,
@@ -18,6 +19,54 @@ router.use(authMiddleware)
 const audit = auditMiddleware({ module: 'staff', entityType: 'staff' })
 const adminPrincipal = rbacMiddleware('admin', 'principal')
 const readRoles = rbacMiddleware('admin', 'principal', 'teacher')
+
+// ==================== Salary (static segment — before /:id) ====================
+
+router.get('/salary-slips', adminPrincipal, async (req, res, next) => {
+  try {
+    const { staffId, month, year, status, page, limit } = req.query
+    const result = await salaryService.getSalarySlips(req.schoolId!, {
+      staffId: staffId as string | undefined,
+      month: month ? Number(month) : undefined,
+      year: year ? Number(year) : undefined,
+      status: status as string | undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    })
+    res.json(result)
+  } catch (err) { next(err) }
+})
+router.post('/salary/process', adminPrincipal, async (req, res, next) => {
+  try {
+    const { month, year } = req.body
+    const result = await salaryService.processMonthlySalary(req.schoolId!, Number(month), Number(year))
+    res.json(result)
+  } catch (err) { next(err) }
+})
+router.patch('/salary-slips/:slipId/pay', adminPrincipal, async (req, res, next) => {
+  try {
+    const data = await salaryService.markSalaryPaid(req.schoolId!, req.params.slipId, req.body.paymentRef)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+
+// Payroll deductions (all staff)
+router.get('/payroll-deductions', adminPrincipal, async (req, res, next) => {
+  try {
+    const { staffId, month, year } = req.query
+    const data = await salaryService.getPayrollDeductions(req.schoolId!, {
+      staffId: staffId as string | undefined,
+      month: month ? Number(month) : undefined,
+      year: year ? Number(year) : undefined,
+    })
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+
+// Stubs for advanced features (benefits, loans, time-off)
+router.get('/benefits', adminPrincipal, (_req, res) => res.json({ data: [] }))
+router.get('/loans', adminPrincipal, (_req, res) => res.json({ data: [] }))
+router.get('/time-off-accrual', adminPrincipal, (_req, res) => res.json({ data: [] }))
 
 // ==================== Static segment routes (before /:id) ====================
 
@@ -80,6 +129,71 @@ router.delete('/:id/certifications/:certId', adminPrincipal, audit, staffControl
 router.get('/:id/onboarding', readRoles, staffController.getStaffOnboarding)
 router.post('/:id/onboarding', adminPrincipal, validate(createOnboardingSchema), audit, staffController.createOnboarding)
 router.patch('/:id/onboarding/tasks/:taskId', adminPrincipal, validate(updateOnboardingTaskSchema), audit, staffController.updateOnboardingTask)
+
+// Salary Structure (per-staff)
+router.get('/:id/salary-structure', adminPrincipal, async (req, res, next) => {
+  try {
+    const data = await salaryService.getSalaryStructure(req.schoolId!, req.params.id)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.put('/:id/salary-structure', adminPrincipal, async (req, res, next) => {
+  try {
+    const data = await salaryService.updateSalaryStructure(req.schoolId!, req.params.id, req.body)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+
+// Salary slips (per-staff)
+router.get('/:id/salary-slips', readRoles, async (req, res, next) => {
+  try {
+    const { month, year, status, page, limit } = req.query
+    const result = await salaryService.getSalarySlips(req.schoolId!, {
+      staffId: req.params.id,
+      month: month ? Number(month) : undefined,
+      year: year ? Number(year) : undefined,
+      status: status as string | undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    })
+    res.json(result)
+  } catch (err) { next(err) }
+})
+
+// Per-staff payroll deductions
+router.get('/:id/payroll-deductions', adminPrincipal, async (req, res, next) => {
+  try {
+    const { month, year } = req.query
+    const data = await salaryService.getPayrollDeductions(req.schoolId!, {
+      staffId: req.params.id,
+      month: month ? Number(month) : undefined,
+      year: year ? Number(year) : undefined,
+    })
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+router.post('/:id/payroll-deductions', adminPrincipal, async (req, res, next) => {
+  try {
+    const data = await salaryService.createPayrollDeduction(req.schoolId!, { ...req.body, staffId: req.params.id })
+    res.status(201).json({ data })
+  } catch (err) { next(err) }
+})
+router.put('/:id/payroll-deductions/:deductionId', adminPrincipal, async (req, res, next) => {
+  try {
+    const data = await salaryService.updatePayrollDeduction(req.schoolId!, req.params.deductionId, req.body)
+    res.json({ data })
+  } catch (err) { next(err) }
+})
+
+// Per-staff stubs (benefits, loans, time-off)
+router.get('/:id/benefits', readRoles, (_req, res) => res.json({ data: [] }))
+router.post('/:id/benefits', adminPrincipal, (_req, res) => res.status(201).json({ data: {} }))
+router.put('/:id/benefits/:benefitId', adminPrincipal, (_req, res) => res.json({ data: {} }))
+router.get('/:id/loans', readRoles, (_req, res) => res.json({ data: [] }))
+router.post('/:id/loans', adminPrincipal, (_req, res) => res.status(201).json({ data: {} }))
+router.put('/:id/loans/:loanId', adminPrincipal, (_req, res) => res.json({ data: {} }))
+router.get('/:id/time-off-accrual', readRoles, (_req, res) => res.json({ data: { accrued: 0, used: 0, balance: 0 } }))
+router.post('/:id/time-off-accrual/adjust', adminPrincipal, (_req, res) => res.json({ data: {} }))
 
 // Exit Interview
 router.get('/:id/exit-interview', readRoles, staffController.getExitInterview)

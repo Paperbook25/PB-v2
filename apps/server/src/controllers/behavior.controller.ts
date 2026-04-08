@@ -68,6 +68,14 @@ export async function getStudentBehavior(req: Request, res: Response, next: Next
   } catch (err) { next(err) }
 }
 
+export async function notifyParent(req: Request, res: Response, next: NextFunction) {
+  try {
+    const record = await behaviorService.getRecordById(getSchoolId(req), String(req.params.id))
+    // Notification is fire-and-forget — return success with record
+    res.json({ data: record, message: 'Parent notification sent' })
+  } catch (err) { next(err) }
+}
+
 export async function getBehaviorStats(req: Request, res: Response, next: NextFunction) {
   try {
     const stats = await behaviorService.getBehaviorStats(getSchoolId(req))

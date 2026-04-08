@@ -41,6 +41,13 @@ export async function addResponse(req: Request, res: Response, next: NextFunctio
   } catch (err) { next(err) }
 }
 
+export async function deleteTicket(req: Request, res: Response, next: NextFunction) {
+  try {
+    await ticketService.deleteTicket(String(req.params.id))
+    res.json({ success: true })
+  } catch (err) { next(err) }
+}
+
 export async function getTicketStats(req: Request, res: Response, next: NextFunction) {
   try {
     const data = await ticketService.getTicketStats()

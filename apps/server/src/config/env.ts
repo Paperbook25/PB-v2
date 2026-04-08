@@ -32,7 +32,11 @@ export const env = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
 
-  // SMTP / Email
+  // Email — Resend (https://resend.com)
+  RESEND_API_KEY: process.env.RESEND_API_KEY || '',
+  EMAIL_FROM: process.env.EMAIL_FROM || 'PaperBook <noreply@paperbook.app>',
+
+  // Legacy SMTP fallback (used if RESEND_API_KEY is not set)
   SMTP_HOST: process.env.SMTP_HOST || '',
   SMTP_PORT: process.env.SMTP_PORT || '587',
   SMTP_USER: process.env.SMTP_USER || '',

@@ -12,6 +12,7 @@ const staffRoles = rbacMiddleware('admin', 'principal', 'teacher')
 
 // ==================== Stats ====================
 router.get('/stats', adminRoles, facilityController.getFacilityStats)
+router.get('/dashboard', adminRoles, facilityController.getFacilityStats)  // alias used by school app
 
 // ==================== Availability ====================
 router.get('/available', staffRoles, facilityController.getAvailableFacilities)

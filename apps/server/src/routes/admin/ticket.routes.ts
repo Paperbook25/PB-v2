@@ -9,5 +9,6 @@ router.get('/:id', controller.getTicket)
 router.post('/', controller.createTicket)
 router.patch('/:id', controller.updateTicket)
 router.post('/:id/responses', controller.addResponse)
+router.delete('/:id', controller.deleteTicket)
 
 export default router

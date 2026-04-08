@@ -57,6 +57,7 @@ import invitationRoutes from './invitation.routes.js'
 import profileRoutes from './profile.routes.js'
 import integrationRoutes from './integration.routes.js'
 import paymentRoutes from './payment.routes.js'
+import supportTicketRoutes from './support-ticket.routes.js'
 import { registerSchool } from '../controllers/onboarding.controller.js'
 import { acceptInvitation, getInviteDetails } from '../controllers/invitation.controller.js'
 
@@ -433,6 +434,9 @@ router.use('/integrations', requireTenant, integrationRoutes)
 
 // Online Payments (Razorpay checkout)
 router.use('/payments', requireTenant, paymentRoutes)
+
+// School-side support ticket submission (schools can open tickets to PaperBook)
+router.use('/support-tickets', requireTenant, supportTicketRoutes)
 
 // Razorpay webhook (public — no tenant enforcement, org ID in URL)
 router.post('/public/payments/webhook/:organizationId', async (req, res, next) => {

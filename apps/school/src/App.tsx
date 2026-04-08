@@ -134,6 +134,12 @@ const DocumentsPage = lazy(() => import('@/features/documents').then(m => ({ def
 
 // School Website
 const SchoolWebsiteBuilderPage = lazy(() => import('@/features/school-website/pages/SchoolWebsiteBuilderPage').then(m => ({ default: m.SchoolWebsiteBuilderPage })))
+const SupportPage = lazy(() => import('@/features/support/pages/SupportPage').then(m => ({ default: m.SupportPage })))
+const SupportDetailPage = lazy(() => import('@/features/support/pages/SupportDetailPage').then(m => ({ default: m.SupportDetailPage })))
+const ClubsPage = lazy(() => import('@/features/clubs/pages/ClubsPage').then(m => ({ default: m.ClubsPage })))
+const ComplaintsPage = lazy(() => import('@/features/complaints/pages/ComplaintsPage').then(m => ({ default: m.ComplaintsPage })))
+const ScholarshipsPage = lazy(() => import('@/features/scholarships/pages/ScholarshipsPage').then(m => ({ default: m.ScholarshipsPage })))
+const FacilitiesPage = lazy(() => import('@/features/facilities/pages/FacilitiesPage').then(m => ({ default: m.FacilitiesPage })))
 const PublicSchoolPage = lazy(() => import('@/features/school-website/pages/PublicSchoolPage').then(m => ({ default: m.PublicSchoolPage })))
 const PublicBlogPage = lazy(() => import('@/features/school-website/pages/PublicBlogPage').then(m => ({ default: m.PublicBlogPage })))
 const PublicBlogPostPage = lazy(() => import('@/features/school-website/pages/PublicBlogPostPage').then(m => ({ default: m.PublicBlogPostPage })))
@@ -518,6 +524,16 @@ export default function App() {
 
             {/* School Website Builder */}
             <Route path="/school-website" element={<AddonGate slug="school-website"><RoleGate allowedRoles={['admin', 'principal']}><SchoolWebsiteBuilderPage /></RoleGate></AddonGate>} />
+
+            {/* Support Tickets */}
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/support/:id" element={<SupportDetailPage />} />
+
+            {/* Clubs, Complaints, Scholarships, Facilities */}
+            <Route path="/clubs" element={<ClubsPage />} />
+            <Route path="/complaints" element={<ComplaintsPage />} />
+            <Route path="/scholarships" element={<ScholarshipsPage />} />
+            <Route path="/facilities" element={<FacilitiesPage />} />
 
             {/* Documents redirects */}
             <Route path="/documents" element={<Navigate to="/management?tab=docs" replace />} />

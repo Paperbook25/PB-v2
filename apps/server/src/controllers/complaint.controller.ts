@@ -9,6 +9,16 @@ function getSchoolId(req: Request): string {
   return req.schoolId
 }
 
+// Frontend-friendly field alias — frontend uses `subject` and `ticketNumber`
+function mapComplaintResponse(c: any) {
+  return {
+    ...c,
+    subject: c.title,
+    ticketNumber: c.complaintNumber,
+    complainantType: c.filedByRole,
+  }
+}
+
 export async function listComplaints(req: Request, res: Response, next: NextFunction) {
   try {
     const { page, limit, status, category, priority, search } = req.query
@@ -20,21 +30,30 @@ export async function listComplaints(req: Request, res: Response, next: NextFunc
       priority: priority as string | undefined,
       search: search as string | undefined,
     })
-    res.json(result)
+    res.json({ ...result, data: result.data.map(mapComplaintResponse) })
   } catch (err) { next(err) }
 }
 
 export async function getComplaint(req: Request, res: Response, next: NextFunction) {
   try {
     const complaint = await complaintService.getComplaintById(getSchoolId(req), String(req.params.id))
-    res.json({ data: complaint })
+    res.json({ data: mapComplaintResponse(complaint) })
   } catch (err) { next(err) }
 }
 
 export async function createComplaint(req: Request, res: Response, next: NextFunction) {
   try {
-    const complaint = await complaintService.createComplaint(getSchoolId(req), req.body)
-    res.status(201).json({ data: complaint })
+    const { subject, title, description, category, priority, complainantType, filedByRole } = req.body
+    const complaint = await complaintService.createComplaint(getSchoolId(req), {
+      title: title || subject,
+      description,
+      category,
+      priority,
+      filedByRole: filedByRole || complainantType || 'staff',
+      filedBy: (req as any).user?.userId || 'unknown',
+      filedByName: (req as any).user?.name || 'Unknown',
+    })
+    res.status(201).json({ data: mapComplaintResponse(complaint) })
   } catch (err) { next(err) }
 }
 
@@ -69,6 +88,15 @@ export async function deleteComplaint(req: Request, res: Response, next: NextFun
 export async function getComplaintStats(req: Request, res: Response, next: NextFunction) {
   try {
     const stats = await complaintService.getComplaintStats(getSchoolId(req))
-    res.json({ data: stats })
+    const byStatus = stats.byStatus as Record<string, number>
+    // Map to frontend-expected shape
+    res.json({
+      data: {
+        ...stats,
+        openTickets: (byStatus.open || 0) + (byStatus.in_progress || 0) + (byStatus.submitted || 0) + (byStatus.acknowledged || 0),
+        resolvedThisMonth: byStatus.resolved || 0,
+        slaComplianceRate: stats.total > 0 ? Math.round(((byStatus.resolved || 0) / stats.total) * 100) : 100,
+      },
+    })
   } catch (err) { next(err) }
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Send, Lock, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Send, Lock, MessageSquare, Trash2 } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 import { format } from 'date-fns'
 
@@ -35,6 +35,7 @@ export function TicketDetailPage() {
   const [replyContent, setReplyContent] = useState('')
   const [isInternal, setIsInternal] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const { data: ticket, isLoading } = useQuery({
     queryKey: ['admin', 'ticket', id],
@@ -69,6 +70,19 @@ export function TicketDetailPage() {
       setSuccessMessage('Reply sent successfully')
       setTimeout(() => setSuccessMessage(''), 3000)
     },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: () => adminApi.deleteTicket(id!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] })
+      navigate('/tickets')
+    },
+  })
+
+  const { data: adminsData } = useQuery({
+    queryKey: ['admin', 'gravity-admins'],
+    queryFn: adminApi.listGravityAdmins,
   })
 
   if (isLoading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Loading...</div>
@@ -244,13 +258,16 @@ export function TicketDetailPage() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground block mb-1">Assignee</label>
-                <input
-                  type="text"
-                  placeholder="Assign to..."
+                <select
                   value={editAssignee}
                   onChange={(e) => setEditAssignee(e.target.value)}
                   className="h-9 w-full rounded-lg border bg-background px-3 text-sm"
-                />
+                >
+                  <option value="">Unassigned</option>
+                  {(adminsData || []).map((a: any) => (
+                    <option key={a.id} value={a.name || a.email}>{a.name || a.email}</option>
+                  ))}
+                </select>
               </div>
               <button
                 onClick={() => updateMutation.mutate({ priority: editPriority, status: editStatus, assignee: editAssignee })}
@@ -282,6 +299,36 @@ export function TicketDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Delete */}
+          {!confirmDelete ? (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete Ticket
+            </button>
+          ) : (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+              <p className="mb-2 text-xs text-red-700">Delete this ticket and all responses? This cannot be undone.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => deleteMutation.mutate()}
+                  disabled={deleteMutation.isPending}
+                  className="flex-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                >
+                  {deleteMutation.isPending ? 'Deleting...' : 'Yes, Delete'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

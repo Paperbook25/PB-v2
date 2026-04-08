@@ -1,4 +1,5 @@
 import {
+  LifeBuoy,
   BookOpen,
   Search,
   BookMarked,
@@ -156,7 +157,12 @@ export const HOME_NAV: ModuleNavConfig = {
     { type: 'item', name: 'Parent Portal', href: '/parent-portal', icon: MessageCircle, roles: ['parent', 'teacher'] },
     { type: 'item', name: 'Attendance', href: '/attendance/leave', icon: CalendarDays, roles: ['student', 'parent'] },
     { type: 'item', name: 'Website', href: '/school-website', icon: Globe, roles: ['admin', 'principal'] },
+    { type: 'item', name: 'Clubs', href: '/clubs', icon: Users2, roles: ['admin', 'principal', 'teacher', 'student'] },
+    { type: 'item', name: 'Complaints', href: '/complaints', icon: MessageSquareWarning, roles: ['admin', 'principal', 'teacher', 'parent'] },
+    { type: 'item', name: 'Scholarships', href: '/scholarships', icon: Award, roles: ['admin', 'principal', 'accountant'] },
+    { type: 'item', name: 'Facilities', href: '/facilities', icon: Building2, roles: ['admin', 'principal', 'teacher'] },
     { type: 'item', name: 'Settings', href: '/settings', icon: Settings, roles: ['admin', 'principal', 'teacher'] },
+    { type: 'item', name: 'Support', href: '/support', icon: LifeBuoy, roles: ['admin', 'principal', 'teacher', 'accountant'] },
   ],
 }
 

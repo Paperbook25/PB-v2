@@ -4,7 +4,7 @@ import { hashPassword as betterAuthHash } from 'better-auth/crypto'
 import { prisma } from '../config/db.js'
 import { env } from '../config/env.js'
 import { AppError } from '../utils/errors.js'
-import { sendEmail } from './email.service.js'
+import { sendEmail, welcomeEmail } from './email.service.js'
 import { provisionAddonsForPlan } from './addon.service.js'
 import type { PlanTier } from '../config/plan-tiers.js'
 
@@ -692,33 +692,10 @@ function generateSlug(name: string): string {
 }
 
 async function sendWelcomeEmail(name: string, email: string, schoolName: string, slug: string) {
-  await sendEmail({
-    to: email,
-    subject: `Welcome to PaperBook — ${schoolName} is ready!`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #4f46e5;">Welcome to PaperBook! 🎉</h2>
-        <p>Hi ${name},</p>
-        <p>Your school <strong>${schoolName}</strong> has been created successfully. Here's what you can do next:</p>
-        <ol style="line-height: 2;">
-          <li>Complete your school profile</li>
-          <li>Set up academic structure (classes, sections)</li>
-          <li>Invite your team (teachers, accountant, principal)</li>
-          <li>Add students</li>
-          <li>Set up fee collection</li>
-        </ol>
-        <p style="text-align: center; margin: 30px 0;">
-          <a href="${env.isProd ? `https://${slug}.paperbook.app` : `http://${slug}.paperbook.local:5173`}/login"
-             style="background-color: #4f46e5; color: white; padding: 12px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-            Log in to your school
-          </a>
-        </p>
-        <p style="color: #6b7280; font-size: 14px;">Your school URL: <strong>${slug}.paperbook.app</strong></p>
-        <p style="color: #6b7280; font-size: 14px;">You have a 14-day free trial. Explore all features!</p>
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-        <p style="color: #9ca3af; font-size: 12px;">PaperBook — School Management Platform</p>
-      </div>
-    `,
-    text: `Welcome ${name}! Your school "${schoolName}" is ready at ${slug}.paperbook.app. Log in to get started.`,
-  })
+  const loginLink = env.isProd
+    ? `https://${slug}.paperbook.app/login`
+    : `http://${slug}.paperbook.local:5173/login`
+
+  const template = welcomeEmail(name, schoolName, loginLink)
+  await sendEmail({ ...template, to: email })
 }

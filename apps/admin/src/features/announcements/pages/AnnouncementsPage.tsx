@@ -61,6 +61,19 @@ export function AnnouncementsPage() {
 
   const announcements = data?.data || []
 
+  // Build params for recipient preview — only include filters that are set
+  const recipientParams: Record<string, string> = { limit: '1' }
+  if (form.targetPlans.length === 1) recipientParams.plan = form.targetPlans[0]
+  if (form.targetStatuses.length === 1) recipientParams.status = form.targetStatuses[0]
+
+  const recipientQ = useQuery({
+    queryKey: ['admin', 'schools', 'recipient-preview', form.targetPlans, form.targetStatuses],
+    queryFn: () => adminApi.listSchools(recipientParams),
+    enabled: showCreate,
+  })
+
+  const recipientCount = recipientQ.data?.meta?.total ?? null
+
   const togglePlan = (plan: string) => {
     setForm((f) => ({
       ...f,
@@ -227,6 +240,18 @@ export function AnnouncementsPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Recipient Preview */}
+              <div className={`rounded-md px-3 py-2 text-xs font-medium ${
+                recipientCount === null ? 'bg-muted text-muted-foreground' :
+                recipientCount === 0 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'
+              }`}>
+                {recipientCount === null
+                  ? 'Calculating recipients...'
+                  : recipientCount === 0
+                    ? 'Warning: No schools match these filters — announcement will not be sent to anyone'
+                    : `This will be sent to ${recipientCount} school${recipientCount !== 1 ? 's' : ''}`}
               </div>
 
               <div>

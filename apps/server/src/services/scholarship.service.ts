@@ -65,24 +65,34 @@ export async function createScholarship(
   schoolId: string,
   input: {
     name: string
+    code?: string
     description?: string
     type?: string
     amount: number
+    amountType?: string
     percentage?: number
     eligibility?: string
+    applicationDeadline?: string
     maxRecipients?: number
     academicYear?: string
   }
 ) {
+  const amountType = input.amountType ?? 'fixed'
+  const amount = amountType === 'percentage' ? 0 : (input.amount ?? 0)
+  const percentage = amountType === 'percentage' ? Math.round(Number(input.amount)) : (input.percentage ?? null)
+
   return prisma.scholarship.create({
     data: {
       organizationId: schoolId,
       name: input.name,
+      code: input.code ?? null,
       description: input.description ?? null,
       type: input.type ?? 'merit',
-      amount: input.amount,
-      percentage: input.percentage ?? null,
+      amount,
+      amountType,
+      percentage,
       eligibility: input.eligibility ?? null,
+      applicationDeadline: input.applicationDeadline ? new Date(input.applicationDeadline) : null,
       maxRecipients: input.maxRecipients ?? null,
       academicYear: input.academicYear ?? null,
     },

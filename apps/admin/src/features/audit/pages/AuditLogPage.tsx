@@ -16,6 +16,7 @@ import {
   Activity,
 } from 'lucide-react'
 import { adminApi } from '../../../lib/api'
+import { ExportButton } from '../../../components/shared/ExportButton'
 
 interface AuditEntry {
   id: string
@@ -71,11 +72,14 @@ export function AuditLogPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Audit Log</h1>
-        <p className="text-sm text-muted-foreground">
-          Track all administrative actions across the platform
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Audit Log</h1>
+          <p className="text-sm text-muted-foreground">
+            Track all administrative actions across the platform
+          </p>
+        </div>
+        <ExportButton endpoint="/audit/export" filename="audit-log.csv" />
       </div>
 
       {/* Filters */}

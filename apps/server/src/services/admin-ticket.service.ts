@@ -156,3 +156,9 @@ export async function getTicketStats() {
 
   return { open, inProgress, waiting, resolved, total, avgResolutionHours: Math.round(avgResolutionHours) }
 }
+
+export async function deleteTicket(id: string) {
+  // Delete responses first (foreign key constraint)
+  await prisma.ticketResponse.deleteMany({ where: { ticketId: id } })
+  return prisma.supportTicket.delete({ where: { id } })
+}

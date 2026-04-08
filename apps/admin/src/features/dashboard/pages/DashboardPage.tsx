@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   School,
@@ -78,11 +78,35 @@ export function DashboardPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard', 'widgets'] }),
   })
 
+  const reorderMutation = useMutation({
+    mutationFn: (ids: string[]) => adminApi.reorderWidgets(ids),
+  })
+
+  const dragItemRef = useRef<string | null>(null)
+  const [localWidgetOrder, setLocalWidgetOrder] = useState<string[] | null>(null)
+
   const stats = statsQuery.data
   const growth = growthQuery.data || []
   const addons = addonQuery.data || []
   const activities = activityQuery.data || []
-  const widgets = widgetsQuery.data || []
+  const rawWidgets: any[] = widgetsQuery.data || []
+  const widgets = localWidgetOrder
+    ? localWidgetOrder.map((id) => rawWidgets.find((w) => w.id === id)).filter(Boolean)
+    : rawWidgets
+
+  // Map dataSource keys to live values from already-loaded queries
+  const LIVE_WIDGET_VALUES: Record<string, string> = {
+    schools: stats?.totalSchools?.toString() ?? '—',
+    active_schools: stats?.activeSchools?.toString() ?? '—',
+    users: stats?.totalUsers?.toString() ?? '—',
+    mrr: subAnalyticsQuery.data?.mrr
+      ? `₹${(subAnalyticsQuery.data.mrr / 1000).toFixed(1)}K`
+      : stats?.monthlyRevenue
+        ? `₹${(stats.monthlyRevenue / 1000).toFixed(1)}K`
+        : '—',
+    trials: subAnalyticsQuery.data?.trialCount?.toString() ?? '—',
+    revenue: stats?.monthlyRevenue ? `₹${(stats.monthlyRevenue / 1000).toFixed(1)}K` : '—',
+  }
 
   return (
     <div className="space-y-6">
@@ -153,17 +177,38 @@ export function DashboardPage() {
       {widgets.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {widgets.map((widget: any) => (
-            <div key={widget.id} className="rounded-lg border bg-card p-4 relative">
+            <div
+              key={widget.id}
+              className="rounded-lg border bg-card p-4 relative"
+              draggable={showCustomize}
+              onDragStart={() => { dragItemRef.current = widget.id }}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => {
+                if (!dragItemRef.current || dragItemRef.current === widget.id) return
+                const currentOrder = localWidgetOrder ?? rawWidgets.map((w) => w.id)
+                const fromIdx = currentOrder.indexOf(dragItemRef.current)
+                const toIdx = currentOrder.indexOf(widget.id)
+                const newOrder = [...currentOrder]
+                newOrder.splice(fromIdx, 1)
+                newOrder.splice(toIdx, 0, dragItemRef.current)
+                setLocalWidgetOrder(newOrder)
+                reorderMutation.mutate(newOrder)
+                dragItemRef.current = null
+              }}
+            >
               {showCustomize && (
-                <button
-                  onClick={() => deleteWidgetMutation.mutate(widget.id)}
-                  className="absolute top-2 right-2 rounded-md p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </button>
+                <>
+                  <GripVertical className="absolute top-2 left-2 h-3.5 w-3.5 text-muted-foreground/50 cursor-grab" />
+                  <button
+                    onClick={() => deleteWidgetMutation.mutate(widget.id)}
+                    className="absolute top-2 right-2 rounded-md p-1 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </>
               )}
               <p className="text-xs text-muted-foreground">{widget.title}</p>
-              <p className="text-lg font-bold mt-1">{widget.dataSource}</p>
+              <p className="text-lg font-bold mt-1">{LIVE_WIDGET_VALUES[widget.dataSource] ?? widget.dataSource}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">{widget.type.replace(/_/g, ' ')}</p>
             </div>
           ))}

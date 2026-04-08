@@ -4,7 +4,7 @@ import { hashPassword as betterAuthHash } from 'better-auth/crypto'
 import { prisma } from '../config/db.js'
 import { env } from '../config/env.js'
 import { AppError } from '../utils/errors.js'
-import { sendEmail } from './email.service.js'
+import { sendEmail, staffInvitationEmail } from './email.service.js'
 
 export interface SendInvitationInput {
   email: string
@@ -383,30 +383,10 @@ async function sendInviteEmail(
   _token: string,
   invitationId: string
 ) {
-  // Use the school's subdomain so tenant context resolves on the accept page
   const acceptUrl = env.isProd
     ? `https://${slug}.paperbook.app/accept-invite?token=${invitationId}`
     : `http://${slug || 'localhost'}.paperbook.local:5173/accept-invite?token=${invitationId}`
 
-  await sendEmail({
-    to: email,
-    subject: `You're invited to join ${schoolName} on PaperBook`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #4f46e5;">You're invited! 🎉</h2>
-        <p>Hi ${name},</p>
-        <p>You've been invited to join <strong>${schoolName}</strong> as <strong>${role}</strong> on PaperBook.</p>
-        <p style="text-align: center; margin: 30px 0;">
-          <a href="${acceptUrl}"
-             style="background-color: #4f46e5; color: white; padding: 12px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-            Accept Invitation
-          </a>
-        </p>
-        <p style="color: #6b7280; font-size: 14px;">This invitation expires in 7 days.</p>
-        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-        <p style="color: #9ca3af; font-size: 12px;">PaperBook — School Management Platform</p>
-      </div>
-    `,
-    text: `You've been invited to join ${schoolName} as ${role}. Accept here: ${acceptUrl}`,
-  })
+  const template = staffInvitationEmail(name, 'PaperBook', schoolName, role, acceptUrl)
+  await sendEmail({ ...template, to: email })
 }

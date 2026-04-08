@@ -17,6 +17,7 @@ import {
 import { adminApi } from '../../../lib/api'
 import { DataTable } from '../../../components/shared/DataTable'
 import { StatusBadge } from '../../../components/shared/StatusBadge'
+import { ExportButton } from '../../../components/shared/ExportButton'
 
 interface User {
   id: string
@@ -245,11 +246,14 @@ export function UsersPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Users</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage all users across all schools on the platform
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Users</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage all users across all schools on the platform
+          </p>
+        </div>
+        <ExportButton endpoint="/users/export" filename="users.csv" />
       </div>
 
       {/* Content */}

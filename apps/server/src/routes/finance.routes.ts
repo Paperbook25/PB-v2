@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import * as financeController from '../controllers/finance.controller.js'
 import { authMiddleware, rbacMiddleware, validate, auditMiddleware } from '../middleware/index.js'
+import * as studentFeeService from '../services/student-fee.service.js'
 import {
   createFeeTypeSchema, updateFeeTypeSchema,
   createFeeStructureSchema, updateFeeStructureSchema, assignFeeStructureSchema,
@@ -70,6 +71,52 @@ router.get('/payments', adminRoles, financeController.listPayments)
 router.get('/payments/:id', adminRoles, financeController.getPayment)
 router.post('/payments/:id/cancel', adminRoles, audit, financeController.cancelPayment)
 router.get('/receipts/:receiptNumber', studentSelfRoles, financeController.getReceipt)
+router.get('/receipts/:receiptNumber/download', studentSelfRoles, async (req, res, next) => {
+  try {
+    const schoolId = req.user!.organizationId!
+    const receipt = await studentFeeService.getReceiptByNumber(schoolId, String(req.params.receiptNumber))
+    const itemRows = receipt.items.map((item: any) => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0">${item.feeType}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;text-align:right">₹${Number(item.amount).toLocaleString('en-IN')}</td>
+      </tr>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Receipt ${receipt.receiptNumber}</title>
+<style>body{font-family:Arial,sans-serif;margin:0;padding:32px;color:#1a1a1a}
+.header{text-align:center;margin-bottom:24px}.logo{font-size:22px;font-weight:700;color:#6366f1}
+.subtitle{font-size:13px;color:#666;margin-top:4px}.divider{border:none;border-top:2px solid #6366f1;margin:16px 0}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.info-item label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.05em}
+.info-item p{font-size:14px;font-weight:500;margin:2px 0}
+table{width:100%;border-collapse:collapse;margin-bottom:20px}
+thead th{background:#f9f9ff;padding:10px 12px;font-size:12px;text-align:left;border-bottom:2px solid #e5e7eb}
+.total-row td{padding:10px 12px;font-weight:700;font-size:15px;border-top:2px solid #6366f1}
+.footer{text-align:center;font-size:12px;color:#999;margin-top:24px}
+@media print{body{padding:16px}}</style></head>
+<body>
+<div class="header"><div class="logo">PaperBook</div><div class="subtitle">Fee Receipt</div></div>
+<hr class="divider">
+<div class="info-grid">
+  <div class="info-item"><label>Receipt No</label><p>${receipt.receiptNumber}</p></div>
+  <div class="info-item"><label>Date</label><p>${receipt.collectedAt ? new Date(receipt.collectedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</p></div>
+  <div class="info-item"><label>Student Name</label><p>${receipt.studentName}</p></div>
+  <div class="info-item"><label>Admission No</label><p>${receipt.admissionNumber || '—'}</p></div>
+  <div class="info-item"><label>Class / Section</label><p>${[receipt.class, receipt.section].filter(Boolean).join(' / ') || '—'}</p></div>
+  <div class="info-item"><label>Payment Mode</label><p>${receipt.paymentMode}</p></div>
+  ${receipt.transactionRef ? `<div class="info-item"><label>Transaction Ref</label><p>${receipt.transactionRef}</p></div>` : ''}
+  ${receipt.collectedBy ? `<div class="info-item"><label>Collected By</label><p>${receipt.collectedBy}</p></div>` : ''}
+</div>
+<table>
+  <thead><tr><th>Fee Type</th><th style="text-align:right">Amount</th></tr></thead>
+  <tbody>${itemRows}</tbody>
+  <tfoot><tr class="total-row"><td>Total Paid</td><td style="text-align:right">₹${Number(receipt.totalAmount).toLocaleString('en-IN')}</td></tr></tfoot>
+</table>
+<div class="footer">This is a computer-generated receipt. Thank you for your payment.</div>
+</body></html>`
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.setHeader('Content-Disposition', `attachment; filename="receipt-${receipt.receiptNumber}.html"`)
+    res.send(html)
+  } catch (err) { next(err) }
+})
 router.delete('/receipts/:receiptNumber', adminRoles, audit, financeController.deleteReceipt)
 
 // ==================== Outstanding Dues ====================

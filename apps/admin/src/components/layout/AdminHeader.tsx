@@ -1,14 +1,45 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { LogOut, User, ChevronDown, Bell } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { useAdminAuthStore } from '../../stores/useAdminAuthStore'
 import { adminApi } from '../../lib/api'
 
+const PAGE_TITLES: Record<string, string> = {
+  '/': 'Dashboard',
+  '/website': 'Website Management',
+  '/schools': 'Schools',
+  '/crm': 'CRM',
+  '/subscriptions': 'Subscriptions',
+  '/billing': 'Billing',
+  '/tickets': 'Support Tickets',
+  '/communications': 'Communications',
+  '/announcements': 'Announcements',
+  '/analytics': 'Analytics',
+  '/usage': 'Usage',
+  '/health': 'Health',
+  '/security': 'Security',
+  '/addons': 'Addons',
+  '/integrations': 'Integrations',
+  '/users': 'Users',
+  '/audit': 'Audit Log',
+  '/settings': 'Settings',
+}
+
+function getPageTitle(pathname: string): string {
+  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname]
+  // Match prefix for nested routes
+  const match = Object.keys(PAGE_TITLES).find(
+    (k) => k !== '/' && pathname.startsWith(k)
+  )
+  return match ? PAGE_TITLES[match] : 'Gravity Portal'
+}
+
 export function AdminHeader() {
   const { user, logout } = useAdminAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -55,7 +86,7 @@ export function AdminHeader() {
   return (
     <header className="flex h-16 items-center justify-between border-b border-border bg-card px-6">
       <div>
-        <h2 className="text-sm font-semibold text-foreground">Gravity Portal</h2>
+        <h2 className="text-sm font-semibold text-foreground">{getPageTitle(location.pathname)}</h2>
       </div>
 
       <div className="flex items-center gap-4">
@@ -65,7 +96,7 @@ export function AdminHeader() {
             onClick={() => setNotifOpen(!notifOpen)}
             className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            <Bell className="h-4.5 w-4.5" />
+            <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
               <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
                 {unreadCount > 9 ? '9+' : unreadCount}

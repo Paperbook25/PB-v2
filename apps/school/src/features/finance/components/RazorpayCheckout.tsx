@@ -50,6 +50,7 @@ export function RazorpayCheckout({ studentFeeId, studentId, studentName, feeType
       // Create order via backend
       const orderRes = await fetch('/api/parent-portal/pay-fee', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentFeeId, amount: Math.round(amount * 100) }),
       })
@@ -76,6 +77,7 @@ export function RazorpayCheckout({ studentFeeId, studentId, studentName, feeType
           try {
             const verifyRes = await fetch('/api/parent-portal/verify-payment', {
               method: 'POST',
+              credentials: 'include',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 razorpayOrderId: response.razorpay_order_id,

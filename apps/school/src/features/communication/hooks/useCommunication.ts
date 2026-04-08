@@ -9,6 +9,7 @@ import {
   fetchConversations,
   fetchMessages,
   sendMessage,
+  createConversation,
   fetchCirculars,
   fetchCircular,
   createCircular,
@@ -199,6 +200,17 @@ export function useSendMessage() {
       }
       queryClient.invalidateQueries({ queryKey: communicationKeys.conversations() })
       queryClient.invalidateQueries({ queryKey: communicationKeys.stats() })
+    },
+  })
+}
+
+export function useCreateConversation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ participantIds, title }: { participantIds: string[]; title?: string }) =>
+      createConversation(participantIds, title),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: communicationKeys.conversations() })
     },
   })
 }

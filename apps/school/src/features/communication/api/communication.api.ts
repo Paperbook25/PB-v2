@@ -117,24 +117,41 @@ export async function acknowledgeAnnouncement(id: string): Promise<{ success: bo
 }
 
 // ===== Conversations & Messages =====
-// TODO: Backend not implemented — messaging system returns placeholders
+
+const MSG_BASE = '/api/messaging'
 
 export async function fetchConversations(
-  _filters: ConversationFilters = {}
+  filters: ConversationFilters = {}
 ): Promise<PaginatedResponse<Conversation>> {
-  return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } } as PaginatedResponse<Conversation>
+  const params = new URLSearchParams()
+  if (filters.search) params.set('search', filters.search)
+  if (filters.page) params.set('page', String(filters.page))
+  if (filters.limit) params.set('limit', String(filters.limit))
+  return apiGet<PaginatedResponse<Conversation>>(`${MSG_BASE}/conversations?${params}`)
 }
 
 export async function fetchMessages(
-  _conversationId: string,
-  _page = 1,
-  _limit = 50
+  conversationId: string,
+  page = 1,
+  limit = 50
 ): Promise<PaginatedResponse<Message>> {
-  return { data: [], meta: { total: 0, page: 1, limit: 50, totalPages: 0 } } as PaginatedResponse<Message>
+  return apiGet<PaginatedResponse<Message>>(
+    `${MSG_BASE}/conversations/${conversationId}/messages?page=${page}&limit=${limit}`
+  )
 }
 
-export async function sendMessage(_data: SendMessageRequest): Promise<{ data: Message }> {
-  return { data: {} as Message }
+export async function sendMessage(data: SendMessageRequest): Promise<{ data: Message }> {
+  return apiPost<{ data: Message }>(
+    `${MSG_BASE}/conversations/${data.conversationId}/messages`,
+    { content: data.content }
+  )
+}
+
+export async function createConversation(
+  participantIds: string[],
+  title?: string
+): Promise<{ data: Conversation }> {
+  return apiPost<{ data: Conversation }>(`${MSG_BASE}/conversations`, { participantIds, title })
 }
 
 // ===== Circulars =====

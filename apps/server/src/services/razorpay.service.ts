@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import { prisma } from '../config/db.js'
 import { AppError } from '../utils/errors.js'
 import { getActiveIntegration, markIntegrationTested } from './integration.service.js'
+import { notifyByPhone } from './notification-dispatch.service.js'
 
 // ============================================================================
 // Razorpay Service — creates orders, verifies payments, handles webhooks
@@ -180,6 +181,22 @@ export async function verifyRazorpayPayment(params: VerifyPaymentParams) {
       })
     }
   }
+
+  // Fire-and-forget: notify parent via WhatsApp or SMS
+  prisma.student.findUnique({
+    where: { id: params.studentId },
+    select: { firstName: true, lastName: true, parent: { select: { guardianPhone: true } } },
+  }).then((student) => {
+    const phone = student?.parent?.guardianPhone
+    if (phone) {
+      const name = student ? `${student.firstName} ${student.lastName}` : 'your child'
+      notifyByPhone(
+        params.organizationId,
+        phone,
+        `Payment of ₹${amountInRupees.toLocaleString('en-IN')} received for ${name}. Receipt: ${receiptNumber}. Thank you!`,
+      )
+    }
+  }).catch(() => { /* non-critical — ignore */ })
 
   return {
     success: true,

@@ -100,4 +100,23 @@ router.get('/', async (req, res, next) => {
   }
 })
 
+// GET /api/admin/audit/export — Export audit log as CSV
+router.get('/export', async (req, res, next) => {
+  try {
+    const entries = await prisma.auditLog.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5000,
+      select: { action: true, module: true, userName: true, entityName: true, description: true, ipAddress: true, createdAt: true },
+    })
+    const header = 'Action,Module,User,Resource,Description,IP,Timestamp'
+    const rows = entries.map((e: any) =>
+      [e.action, e.module, e.userName, e.entityName, e.description, e.ipAddress, e.createdAt?.toISOString()]
+        .map((v: any) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')
+    )
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', 'attachment; filename="audit-log.csv"')
+    res.send('\uFEFF' + header + '\n' + rows.join('\n'))
+  } catch (err) { next(err) }
+})
+
 export default router

@@ -46,13 +46,13 @@ export function AdminSidebar() {
   return (
     <aside className="flex w-64 flex-col border-r border-sidebar-border bg-sidebar">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <Orbit className="h-4.5 w-4.5 text-primary-foreground" />
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-5">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary shadow-sm">
+          <Orbit className="h-5 w-5 text-primary-foreground" />
         </div>
-        <div>
-          <h1 className="text-sm font-bold text-sidebar-foreground">Gravity</h1>
-          <p className="text-[10px] font-medium uppercase tracking-wider text-sidebar-muted">
+        <div className="flex flex-col justify-center">
+          <h1 className="text-sm font-bold leading-tight text-sidebar-foreground">Gravity</h1>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-sidebar-muted leading-tight">
             Portal
           </p>
         </div>
@@ -73,7 +73,7 @@ export function AdminSidebar() {
               }`
             }
           >
-            <item.icon className="h-4.5 w-4.5 shrink-0" />
+            <item.icon className="h-4 w-4 shrink-0" />
             <span>{item.label}</span>
           </NavLink>
         ))}

@@ -3468,8 +3468,12 @@ model Facility {
   id             String   @id @default(uuid())
   organizationId String?  @map("organization_id")
   name           String
+  code           String?  // e.g. "LAB-01"
   type           String   @default("general") // classroom, lab, library, sports, auditorium, cafeteria, medical, other
   description    String?  @db.Text
+  building       String?
+  floor          Int?
+  roomNumber     String?  @map("room_number")
   location       String?
   capacity       Int?
   isBookable     Boolean  @default(false) @map("is_bookable")
@@ -3511,20 +3515,23 @@ model FacilityBooking {
 // ============================================================================
 
 model Scholarship {
-  id                String   @id @default(uuid())
-  organizationId    String?  @map("organization_id")
-  name              String
-  description       String?  @db.Text
-  type              String   @default("merit") // merit, need_based, sports, cultural, minority, sibling
-  amount            Decimal  @db.Decimal(10, 2)
-  percentage        Int?     // discount percentage (alternative to fixed amount)
-  eligibility       String?  @db.Text
-  maxRecipients     Int?     @map("max_recipients")
-  currentRecipients Int      @default(0) @map("current_recipients")
-  academicYear      String?  @map("academic_year")
-  isActive          Boolean  @default(true) @map("is_active")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id                  String    @id @default(uuid())
+  organizationId      String?   @map("organization_id")
+  name                String
+  code                String?   // e.g. "SCH-001"
+  description         String?   @db.Text
+  type                String    @default("merit") // merit, need_based, sports, cultural, minority, sibling
+  amount              Decimal   @db.Decimal(10, 2)
+  amountType          String    @default("fixed") @map("amount_type") // fixed, percentage
+  percentage          Int?      // discount percentage (alternative to fixed amount)
+  eligibility         String?   @db.Text
+  applicationDeadline DateTime? @map("application_deadline") @db.Date
+  maxRecipients       Int?      @map("max_recipients")
+  currentRecipients   Int       @default(0) @map("current_recipients")
+  academicYear        String?   @map("academic_year")
+  isActive            Boolean   @default(true) @map("is_active")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   recipients ScholarshipRecipient[]
 
@@ -4291,4 +4298,18 @@ model SeoKeyword {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("seo_keywords")
+}
+
+model SocialPostLog {
+  id          String   @id @default(uuid())
+  blogPostId  String?  @map("blog_post_id")
+  platform    String   // linkedin | facebook | twitter
+  postId      String?  @map("post_id")
+  message     String   @db.Text
+  imageUrl    String?  @map("image_url")
+  status      String   @default("sent")
+  error       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("social_post_logs")
 }

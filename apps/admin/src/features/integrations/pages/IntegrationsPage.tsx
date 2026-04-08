@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  CreditCard, MessageSquare, Mail, MessageCircle,
+  CreditCard, MessageSquare, Mail, MessageCircle, Share2,
   CheckCircle, XCircle, AlertCircle, Loader2, Plus, Edit2, Trash2, X, Eye, EyeOff, Zap,
 } from 'lucide-react'
 import { adminApi } from '../../../lib/api'
@@ -25,6 +25,7 @@ const INTEGRATION_TYPES = [
   { key: 'sms_gateway', label: 'SMS Gateway', icon: MessageSquare, description: 'Send SMS for OTPs, billing reminders, and alerts' },
   { key: 'email_service', label: 'Email Service', icon: Mail, description: 'Transactional emails for invoices, onboarding, and notifications' },
   { key: 'whatsapp_api', label: 'WhatsApp API', icon: MessageCircle, description: 'WhatsApp notifications for billing and platform updates' },
+  { key: 'social_media', label: 'Social Media', icon: Share2, description: 'Connect LinkedIn, Facebook, and Twitter/X for one-click blog post sharing' },
 ]
 
 const PROVIDERS: Record<string, { label: string; fields: { key: string; label: string; secret?: boolean }[] }> = {
@@ -66,6 +67,29 @@ const PROVIDERS: Record<string, { label: string; fields: { key: string; label: s
       { key: 'appName', label: 'App Name' },
     ],
   },
+  linkedin: {
+    label: 'LinkedIn (Company Page)',
+    fields: [
+      { key: 'accessToken', label: 'Access Token', secret: true },
+      { key: 'organizationUrn', label: 'Organization URN (urn:li:organization:...)' },
+    ],
+  },
+  facebook: {
+    label: 'Facebook (Page)',
+    fields: [
+      { key: 'pageId', label: 'Page ID' },
+      { key: 'pageAccessToken', label: 'Page Access Token', secret: true },
+    ],
+  },
+  twitter: {
+    label: 'Twitter / X',
+    fields: [
+      { key: 'apiKey', label: 'API Key' },
+      { key: 'apiSecret', label: 'API Secret', secret: true },
+      { key: 'accessToken', label: 'Access Token' },
+      { key: 'accessTokenSecret', label: 'Access Token Secret', secret: true },
+    ],
+  },
 }
 
 const TYPE_PROVIDERS: Record<string, string[]> = {
@@ -73,6 +97,7 @@ const TYPE_PROVIDERS: Record<string, string[]> = {
   sms_gateway: ['twilio', 'msg91'],
   email_service: ['sendgrid'],
   whatsapp_api: ['twilio', 'gupshup'],
+  social_media: ['linkedin', 'facebook', 'twitter'],
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -258,7 +283,7 @@ export function IntegrationsPage() {
       <div>
         <h1 className="text-xl font-bold text-foreground">Integrations</h1>
         <p className="text-sm text-muted-foreground">
-          Configure PaperBook's own API keys for payment collection, SMS, email, and WhatsApp
+          Configure PaperBook's own API keys for payments, SMS, email, WhatsApp, and social media
         </p>
       </div>
 

@@ -111,6 +111,16 @@ export async function getAvailableFacilities(req: Request, res: Response, next: 
 export async function getFacilityStats(req: Request, res: Response, next: NextFunction) {
   try {
     const stats = await facilityService.getFacilityStats(getSchoolId(req))
-    res.json({ data: stats })
+    const byStatus = (stats as any).byStatus as Record<string, number> | undefined
+    // Map to frontend-expected shape
+    res.json({
+      data: {
+        ...stats,
+        totalFacilities: (stats as any).totalFacilities ?? 0,
+        availableFacilities: byStatus?.available ?? 0,
+        underMaintenance: byStatus?.maintenance ?? (byStatus as any)?.under_maintenance ?? 0,
+        todayBookings: (stats as any).todayBookings ?? 0,
+      },
+    })
   } catch (err) { next(err) }
 }

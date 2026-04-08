@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Ticket, Clock, Loader2, CheckCircle2, Plus, Search } from 'lucide-react'
+import { Ticket, Clock, Loader2, CheckCircle2, Plus, Search, CheckCheck } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 import { StatCard } from '@/components/shared/StatCard'
 import { format } from 'date-fns'
@@ -70,6 +70,11 @@ export function TicketsPage() {
     queryFn: () => adminApi.listTickets(filterParams),
   })
 
+  const { data: schoolsData } = useQuery({
+    queryKey: ['admin', 'schools', 'all'],
+    queryFn: () => adminApi.listSchools({ limit: '500' }),
+  })
+
   const createMutation = useMutation({
     mutationFn: (data: any) => adminApi.createTicket(data),
     onSuccess: () => {
@@ -81,7 +86,13 @@ export function TicketsPage() {
     onError: (err: any) => setCreateError(err.message || 'Failed to create ticket'),
   })
 
+  const resolveMutation = useMutation({
+    mutationFn: (id: string) => adminApi.updateTicket(id, { status: 'resolved' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] }),
+  })
+
   const tickets = ticketsData?.data || []
+  const schools: any[] = schoolsData?.data || []
 
   const formatLabel = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 
@@ -90,7 +101,7 @@ export function TicketsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Support Tickets</h1>
+          <h1 className="text-xl font-bold text-foreground">Support Tickets</h1>
           <p className="text-sm text-muted-foreground">Manage and resolve support requests from schools</p>
         </div>
         <button
@@ -103,10 +114,10 @@ export function TicketsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <StatCard title="Open" value={stats?.open || 0} icon={Ticket} />
-        <StatCard title="In Progress" value={stats?.inProgress || 0} icon={Loader2} />
-        <StatCard title="Waiting" value={stats?.waiting || 0} icon={Clock} />
-        <StatCard title="Resolved" value={stats?.resolved || 0} icon={CheckCircle2} />
+        <StatCard title="Open" value={statsLoading ? '...' : (stats?.data?.open ?? stats?.open ?? 0)} icon={Ticket} />
+        <StatCard title="In Progress" value={statsLoading ? '...' : (stats?.data?.inProgress ?? stats?.inProgress ?? 0)} icon={Loader2} />
+        <StatCard title="Waiting" value={statsLoading ? '...' : (stats?.data?.waiting ?? stats?.waiting ?? 0)} icon={Clock} />
+        <StatCard title="Resolved" value={statsLoading ? '...' : (stats?.data?.resolved ?? stats?.resolved ?? 0)} icon={CheckCircle2} />
       </div>
 
       {/* Filter Toolbar */}
@@ -163,12 +174,13 @@ export function TicketsPage() {
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Assignee</th>
                 <th className="px-4 py-3">Created</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
               {tickets.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">
                     No tickets found. Adjust your filters or create a new ticket.
                   </td>
                 </tr>
@@ -176,6 +188,7 @@ export function TicketsPage() {
                 tickets.map((ticket: any) => {
                   const pColor = PRIORITY_COLORS[ticket.priority] || PRIORITY_COLORS.medium
                   const sColor = STATUS_COLORS[ticket.status] || STATUS_COLORS.open
+                  const canResolve = ticket.status !== 'resolved' && ticket.status !== 'closed'
                   return (
                     <tr
                       key={ticket.id}
@@ -203,6 +216,19 @@ export function TicketsPage() {
                       <td className="px-4 py-3 text-sm text-muted-foreground">
                         {ticket.createdAt ? format(new Date(ticket.createdAt), 'MMM d, yyyy') : '-'}
                       </td>
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        {canResolve && (
+                          <button
+                            onClick={() => resolveMutation.mutate(ticket.id)}
+                            disabled={resolveMutation.isPending}
+                            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-50 disabled:opacity-50"
+                            title="Mark as resolved"
+                          >
+                            <CheckCheck className="h-3 w-3" />
+                            Resolve
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   )
                 })
@@ -219,12 +245,19 @@ export function TicketsPage() {
             <h2 className="text-lg font-semibold mb-4">Create New Ticket</h2>
             {createError && <div className="p-2.5 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 rounded-md mb-3">{createError}</div>}
             <div className="space-y-3">
-              <input
-                placeholder="School ID *"
-                value={createForm.schoolId}
-                onChange={(e) => setCreateForm({ ...createForm, schoolId: e.target.value })}
-                className="h-9 w-full rounded-lg border bg-background px-3 text-sm"
-              />
+              <div>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">School *</label>
+                <select
+                  value={createForm.schoolId}
+                  onChange={(e) => setCreateForm({ ...createForm, schoolId: e.target.value })}
+                  className="h-9 w-full rounded-lg border bg-background px-3 text-sm"
+                >
+                  <option value="">Select a school...</option>
+                  {schools.map((s: any) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
               <input
                 placeholder="Subject *"
                 value={createForm.subject}
@@ -238,12 +271,18 @@ export function TicketsPage() {
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm min-h-[80px]"
               />
               <div className="grid grid-cols-2 gap-3">
-                <input
-                  placeholder="Category"
+                <select
                   value={createForm.category}
                   onChange={(e) => setCreateForm({ ...createForm, category: e.target.value })}
                   className="h-9 w-full rounded-lg border bg-background px-3 text-sm"
-                />
+                >
+                  <option value="">Category</option>
+                  <option value="billing">Billing</option>
+                  <option value="technical">Technical</option>
+                  <option value="account">Account</option>
+                  <option value="feature">Feature Request</option>
+                  <option value="other">Other</option>
+                </select>
                 <select
                   value={createForm.priority}
                   onChange={(e) => setCreateForm({ ...createForm, priority: e.target.value })}

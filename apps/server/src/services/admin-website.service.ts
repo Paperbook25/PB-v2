@@ -360,14 +360,114 @@ export async function buildInternalLinks() {
   return { totalLinks: links.length, links: links.slice(0, 50) }
 }
 
+// ==================== Seed Data & Marketing Config ====================
+
+const SEED_INTEGRATIONS = [
+  { slug: 'razorpay', name: 'Razorpay', description: 'Accept UPI, cards, and net banking payments seamlessly. Automatic reconciliation and instant receipts.', category: 'payment', iconBg: '#f0f4ff', iconColor: '#2563eb', isActive: true },
+  { slug: 'cashfree', name: 'Cashfree', description: 'Automated payouts, payment links, and subscription billing for recurring fee collection.', category: 'payment', iconBg: '#f0fdf4', iconColor: '#22c55e', isActive: true },
+  { slug: 'whatsapp', name: 'WhatsApp', description: 'Send fee reminders, attendance alerts, and announcements directly to parents via WhatsApp.', category: 'communication', iconBg: '#f0fdf4', iconColor: '#25d366', isActive: true },
+  { slug: 'sms-gateway', name: 'SMS Gateway', description: 'Bulk SMS notifications for urgent updates. Supports multiple providers including MSG91, Twilio.', category: 'communication', iconBg: '#fef3c7', iconColor: '#f59e0b', isActive: true },
+  { slug: 'google-workspace', name: 'Google Workspace', description: 'Sync with Google Calendar, integrate Google Meet for online classes, and import from Google Sheets.', category: 'productivity', iconBg: '#fef2f2', iconColor: '#ea4335', isActive: true },
+  { slug: 'tally-zoho', name: 'Tally & Zoho', description: 'Export financial data to Tally and Zoho Books for seamless accounting and compliance.', category: 'productivity', iconBg: '#f5f3ff', iconColor: '#6d28d9', isActive: true },
+]
+
+const SEED_PRODUCTS = [
+  { slug: 'admissions', name: 'Admissions & Enrollment', description: 'Streamline your entire admissions process from inquiry to enrollment with digital forms, automated workflows, and real-time tracking.', icon: 'ClipboardList', href: '/modules/admissions.html', color: '#6d28d9', isActive: true },
+  { slug: 'finance', name: 'Finance & Fee Management', description: 'Complete fee collection, expense tracking, ledger, and financial reporting with online payment collection via Razorpay and Cashfree.', icon: 'IndianRupee', href: '/modules/finance.html', color: '#059669', isActive: true },
+  { slug: 'operations', name: 'Operations Management', description: 'Transport routing, hostel management, library, inventory, and visitor management in one unified platform.', icon: 'Settings', href: '/modules/operations.html', color: '#0ea5e9', isActive: true },
+  { slug: 'lms', name: 'Learning Management System', description: 'Create and deliver courses, quizzes, and video lessons. Gamified learning with progress tracking and certificates.', icon: 'GraduationCap', href: '/modules/lms.html', color: '#8b5cf6', isActive: true },
+  { slug: 'exam', name: 'Exams & Report Cards', description: 'Conduct online and offline exams, auto-grade papers, and generate comprehensive report cards with custom grading schemes.', icon: 'BookOpen', href: '/modules/exam.html', color: '#f59e0b', isActive: true },
+  { slug: 'communication', name: 'Communication', description: 'School-wide announcements, circulars, parent-teacher messaging, event calendar, and automated notifications.', icon: 'MessageSquare', href: '/modules/communication.html', color: '#ec4899', isActive: true },
+]
+
+const SEED_ADDONS = [
+  // Communication
+  { id: 'sms-basic', name: 'SMS Pack - Basic (5,000)', category: 'communication', price: 1499, priceNote: '', description: 'Bulk SMS, DLT compliant', badge: '', isPopular: false, isActive: true },
+  { id: 'sms-standard', name: 'SMS Pack - Standard (15,000)', category: 'communication', price: 3999, priceNote: '', description: '₹0.27/SMS', badge: '', isPopular: false, isActive: true },
+  { id: 'sms-premium', name: 'SMS Pack - Premium (50,000)', category: 'communication', price: 9999, priceNote: '', description: '₹0.20/SMS, best value', badge: 'Best Value', isPopular: true, isActive: true },
+  { id: 'sms-unlimited', name: 'SMS Unlimited', category: 'communication', price: 4999, priceNote: '/mo', description: 'Unlimited transactional SMS', badge: '', isPopular: false, isActive: true },
+  { id: 'whatsapp-business', name: 'WhatsApp Business API', category: 'communication', price: 2999, priceNote: '/mo', description: 'Official WhatsApp Business API integration', badge: 'Popular', isPopular: true, isActive: true },
+  { id: 'whatsapp-bulk', name: 'WhatsApp Bulk Messages', category: 'communication', price: 2499, priceNote: '', description: '10,000 messages/month', badge: '', isPopular: false, isActive: true },
+  { id: 'push-notifications', name: 'Push Notifications', category: 'communication', price: 999, priceNote: '/mo', description: 'Mobile app push notifications', badge: '', isPopular: false, isActive: true },
+  { id: 'email-marketing', name: 'Email Marketing', category: 'communication', price: 1499, priceNote: '/mo', description: 'Bulk email campaigns, templates', badge: '', isPopular: false, isActive: true },
+  { id: 'voice-call', name: 'Voice Call / IVR', category: 'communication', price: 2499, priceNote: '/mo', description: 'Automated voice calls for alerts', badge: '', isPopular: false, isActive: true },
+  { id: 'video-conferencing', name: 'Video Conferencing', category: 'communication', price: 1999, priceNote: '/mo', description: 'Integrated video classes and meetings', badge: '', isPopular: false, isActive: true },
+  // Biometric / Hardware
+  { id: 'biometric-fingerprint', name: 'Biometric - Fingerprint', category: 'hardware', price: 4999, priceNote: ' + ₹999/mo', description: 'Fingerprint attendance device setup', badge: '', isPopular: false, isActive: true },
+  { id: 'biometric-face', name: 'Biometric - Face Recognition', category: 'hardware', price: 7999, priceNote: ' + ₹1,499/mo', description: 'AI face recognition attendance', badge: '', isPopular: false, isActive: true },
+  { id: 'biometric-multimodal', name: 'Biometric - Multi-modal', category: 'hardware', price: 9999, priceNote: ' + ₹1,999/mo', description: 'Fingerprint + face + RFID combo', badge: 'Best Value', isPopular: true, isActive: true },
+  { id: 'biometric-extra-device', name: 'Additional Biometric Device', category: 'hardware', price: 2999, priceNote: ' + ₹499/mo', description: 'Per additional device', badge: '', isPopular: false, isActive: true },
+  // Academic
+  { id: 'lms-addon', name: 'Learning Management System', category: 'academic', price: 2999, priceNote: '/mo', description: 'Full LMS with video hosting, quizzes, gamification', badge: 'Popular', isPopular: true, isActive: true },
+  { id: 'online-exams', name: 'Online Exam Engine', category: 'academic', price: 1999, priceNote: '/mo', description: 'MCQ, subjective, proctoring', badge: '', isPopular: false, isActive: true },
+  { id: 'digital-library', name: 'Digital Library', category: 'academic', price: 1499, priceNote: '/mo', description: 'E-books, digital resources', badge: '', isPopular: false, isActive: true },
+  // Operational
+  { id: 'transport', name: 'Transport Management', category: 'operational', price: 1999, priceNote: '/mo', description: 'Route planning, GPS tracking, parent alerts', badge: '', isPopular: false, isActive: true },
+  { id: 'hostel', name: 'Hostel Management', category: 'operational', price: 1999, priceNote: '/mo', description: 'Room allocation, mess, attendance', badge: '', isPopular: false, isActive: true },
+  { id: 'inventory', name: 'Inventory & Store', category: 'operational', price: 999, priceNote: '/mo', description: 'Stationery, books, uniform tracking', badge: '', isPopular: false, isActive: true },
+  // HR & Finance
+  { id: 'payroll', name: 'Payroll & HR', category: 'hr-finance', price: 2499, priceNote: '/mo', description: 'Salary processing, payslips, PF/ESI', badge: '', isPopular: false, isActive: true },
+  { id: 'tally-integration', name: 'Tally Integration', category: 'hr-finance', price: 1999, priceNote: '/mo', description: 'Direct sync with Tally ERP', badge: '', isPopular: false, isActive: true },
+  // Customization
+  { id: 'custom-domain', name: 'Custom Domain', category: 'customization', price: 999, priceNote: '/mo', description: 'your-school.com branding', badge: '', isPopular: false, isActive: true },
+  { id: 'white-label', name: 'White Label App', category: 'customization', price: 9999, priceNote: '/mo', description: 'Branded mobile app on Play Store / App Store', badge: 'Enterprise', isPopular: false, isActive: true },
+  // Support
+  { id: 'priority-support', name: 'Priority Support', category: 'support', price: 1999, priceNote: '/mo', description: '4hr SLA, dedicated account manager', badge: '', isPopular: false, isActive: true },
+  { id: 'onsite-training', name: 'On-site Training', category: 'support', price: 4999, priceNote: ' one-time', description: 'Trainer visits your school', badge: '', isPopular: false, isActive: true },
+  // Scaling
+  { id: 'extra-students-500', name: 'Extra 500 Students', category: 'scaling', price: 999, priceNote: '/mo', description: 'Scale beyond your plan limit', badge: '', isPopular: false, isActive: true },
+  { id: 'extra-students-1000', name: 'Extra 1,000 Students', category: 'scaling', price: 1799, priceNote: '/mo', description: 'Better value per student', badge: 'Better Value', isPopular: true, isActive: true },
+]
+
+async function getOrSeedJsonConfig(key: string, fallback: any[]): Promise<any[]> {
+  const cfg = await getWebsiteConfig()
+  const raw = (cfg as any)[key]
+  if (raw) {
+    try { return JSON.parse(raw) } catch { return fallback }
+  }
+  // Seed with defaults on first access
+  await updateWebsiteConfig({ [key]: JSON.stringify(fallback) })
+  return fallback
+}
+
+export async function getMarketingIntegrations(): Promise<any[]> {
+  return getOrSeedJsonConfig('integrations', SEED_INTEGRATIONS)
+}
+
+export async function updateMarketingIntegrations(items: any[]): Promise<any[]> {
+  await updateWebsiteConfig({ integrations: JSON.stringify(items) })
+  return items
+}
+
+export async function getMarketingProducts(): Promise<any[]> {
+  return getOrSeedJsonConfig('products', SEED_PRODUCTS)
+}
+
+export async function updateMarketingProducts(items: any[]): Promise<any[]> {
+  await updateWebsiteConfig({ products: JSON.stringify(items) })
+  return items
+}
+
+export async function getMarketingAddons(): Promise<any[]> {
+  return getOrSeedJsonConfig('addons', SEED_ADDONS)
+}
+
+export async function updateMarketingAddons(items: any[]): Promise<any[]> {
+  await updateWebsiteConfig({ addons: JSON.stringify(items) })
+  return items
+}
+
 // ==================== Public API (for marketing website) ====================
 
 export async function getPublicWebsiteData() {
-  const [plans, config, team, recentPosts] = await Promise.all([
+  const [plans, config, team, recentPosts, integrations, products, addons] = await Promise.all([
     prisma.pricingPlan.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }),
     getWebsiteConfig(),
     prisma.teamMember.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }),
     prisma.platformBlogPost.findMany({ where: { status: 'published' }, orderBy: { publishedAt: 'desc' }, take: 6, select: { id: true, title: true, slug: true, excerpt: true, coverImage: true, author: true, category: true, tags: true, publishedAt: true } }),
+    getMarketingIntegrations(),
+    getMarketingProducts(),
+    getMarketingAddons(),
   ])
 
   return {
@@ -390,6 +490,8 @@ export async function getPublicWebsiteData() {
       phone: config['contact.phone'] || '',
       address: config['contact.address'] || 'Bengaluru, Karnataka, India',
       hours: config['contact.hours'] || 'Mon-Sat, 9:00 AM - 6:00 PM IST',
+      mapLat: config['contact.mapLat'] || '',
+      mapLng: config['contact.mapLng'] || '',
     },
     social: {
       facebook: config['social.facebook'] || '',
@@ -413,6 +515,9 @@ export async function getPublicWebsiteData() {
     },
     team,
     recentPosts,
+    integrations,
+    products,
+    addons,
   }
 }
 
@@ -641,11 +746,26 @@ export async function fullSeoAudit() {
 
   const score = Math.max(0, 100 - issues.filter(i => i.severity === 'critical').length * 20 - issues.filter(i => i.severity === 'high').length * 10 - issues.filter(i => i.severity === 'medium').length * 3 - issues.filter(i => i.severity === 'low').length * 1)
 
+  // Content gap analysis
+  const contentGapAnalysis = keywords.slice(0, 20).map((kw: any) => {
+    const hasBlogPost = published.some((p: any) =>
+      p.keywords?.includes(kw.keyword) ||
+      p.title?.toLowerCase().includes(kw.keyword.toLowerCase()) ||
+      p.content?.toLowerCase().includes(kw.keyword.toLowerCase())
+    )
+    return {
+      keyword: kw.keyword,
+      hasBlogPost,
+      suggestedTitle: `How to ${kw.keyword} — A Complete Guide for Indian Schools`,
+    }
+  })
+
   return {
     score,
     grade: score >= 80 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : score >= 20 ? 'D' : 'F',
     issues,
     stats: { totalPosts: posts.length, publishedPosts: published.length, totalKeywords: keywords.length, pricingPlans: plans.length },
+    contentGapAnalysis,
     recommendations: [
       published.length < 10 && 'Publish more blog posts (aim for 10+)',
       !config['seo.homeTitle'] && 'Set a custom homepage meta title',
@@ -672,4 +792,51 @@ export async function getPublicBlogList(query?: { category?: string; tag?: strin
   ])
 
   return { data: posts, meta: { total, page, totalPages: Math.ceil(total / 12) } }
+}
+
+// ==================== Keyword Planner ====================
+
+export async function generateKeywordSuggestions(seedTopic?: string): Promise<Array<{ keyword: string; estimatedVolume: number; difficulty: number; intent: string; rationale: string }>> {
+  const topic = seedTopic || 'school management software India'
+  const prompt = `Generate 20 SEO keyword suggestions for a school management software product targeting Indian schools (K-12, colleges, coaching institutes).
+Seed topic: "${topic}"
+
+Return ONLY a JSON array (no markdown, no explanation):
+[{"keyword":"...","estimatedVolume":1000,"difficulty":45,"intent":"informational|commercial|transactional","rationale":"brief reason"}]
+
+Rules:
+- Mix short-tail (1-2 words) and long-tail (3-5 words) keywords
+- Include question keywords ("how to...", "best...")
+- Estimate volume realistically (0-100000)
+- Difficulty 0-100 (lower = easier to rank)
+- Focus on Indian education market`
+
+  try {
+    const res = await fetch('http://localhost:11434/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'llama3.2', prompt, stream: false }),
+    })
+    if (!res.ok) throw new Error('Ollama unavailable')
+    const data = await res.json() as any
+    const text = data.response || ''
+    const match = text.match(/\[[\s\S]*\]/)
+    if (match) return JSON.parse(match[0])
+  } catch {
+    // Fall through to hardcoded fallback
+  }
+
+  // Fallback: return hardcoded seed keywords
+  return [
+    { keyword: `${topic} software`, estimatedVolume: 2400, difficulty: 42, intent: 'commercial', rationale: 'High commercial intent' },
+    { keyword: `best ${topic}`, estimatedVolume: 1900, difficulty: 55, intent: 'commercial', rationale: 'Comparison searches' },
+    { keyword: `${topic} free`, estimatedVolume: 3200, difficulty: 38, intent: 'transactional', rationale: 'Price-conscious buyers' },
+    { keyword: `${topic} app`, estimatedVolume: 1600, difficulty: 44, intent: 'commercial', rationale: 'Mobile-first users' },
+    { keyword: 'how to manage school online', estimatedVolume: 880, difficulty: 28, intent: 'informational', rationale: 'Informational intent, low competition' },
+    { keyword: 'school ERP India', estimatedVolume: 5400, difficulty: 60, intent: 'commercial', rationale: 'High volume, established category' },
+    { keyword: 'student attendance management system', estimatedVolume: 2900, difficulty: 35, intent: 'commercial', rationale: 'Specific feature search' },
+    { keyword: 'fee management software for schools', estimatedVolume: 1800, difficulty: 32, intent: 'commercial', rationale: 'High-value feature' },
+    { keyword: 'online school management system India', estimatedVolume: 3100, difficulty: 48, intent: 'commercial', rationale: 'Geo-targeted high intent' },
+    { keyword: 'school management system CBSE', estimatedVolume: 1200, difficulty: 29, intent: 'commercial', rationale: 'Board-specific, low competition' },
+  ]
 }

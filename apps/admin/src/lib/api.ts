@@ -173,6 +173,7 @@ export const adminApi = {
   createTicket: (data: any) => adminFetch<any>('/tickets', { method: 'POST', body: JSON.stringify(data) }),
   updateTicket: (id: string, data: any) => adminFetch<any>(`/tickets/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   addTicketResponse: (id: string, data: any) => adminFetch<any>(`/tickets/${id}/responses`, { method: 'POST', body: JSON.stringify(data) }),
+  deleteTicket: (id: string) => adminFetch<any>(`/tickets/${id}`, { method: 'DELETE' }),
 
   // Credit Notes
   listCreditNotes: (params?: Record<string, string>) => {
@@ -193,6 +194,9 @@ export const adminApi = {
 
   // Feature Usage
   backfillFeatureUsage: () => adminFetch<any>('/feature-usage/backfill', { method: 'POST' }),
+  getFeatureUsageSummary: (days = 30) => adminFetch<any>(`/feature-usage/summary?days=${days}`).then((r: any) => r.data || r),
+  getFeatureUsageTrends: (days = 30, module?: string) => adminFetch<any>(`/feature-usage/trends?days=${days}${module ? `&module=${module}` : ''}`).then((r: any) => r.data || r),
+  getChurnRiskSchools: () => adminFetch<any>('/feature-usage/churn-risk').then((r: any) => r.data || r),
 
   // Addons - Create & Delete
   createAddon: (data: any) => adminFetch<any>('/addons', { method: 'POST', body: JSON.stringify(data) }),
@@ -253,6 +257,42 @@ export const adminApi = {
   sitemapPreview: () => adminFetch<any>('/website/seo/sitemap-preview'),
   runSeoBot: (action?: string) => adminFetch<any>('/website/seo/run-bot', { method: 'POST', body: JSON.stringify({ action: action || 'all' }) }),
   getSeoBotStatus: () => adminFetch<any>('/website/seo/bot-status'),
+
+  // Image & social
+  generateBlogCover: (postId: string, type = 'blog') =>
+    adminFetch<any>(`/website/blog/${postId}/generate-cover`, { method: 'POST', body: JSON.stringify({ type }) }),
+  generateSocialImage: (platform: string, title: string, excerpt: string) =>
+    adminFetch<any>('/website/blog/generate-social-image', { method: 'POST', body: JSON.stringify({ platform, title, excerpt }) }),
+
+  // Keyword planner
+  generateKeywords: (seedTopic?: string) =>
+    adminFetch<any>('/website/seo/keyword-planner', { method: 'POST', body: JSON.stringify({ seedTopic }) }),
+
+  // Social connections & posting
+  getSocialConnections: () => adminFetch<any>('/website/social/connections'),
+  postBlogToSocial: (blogId: string) =>
+    adminFetch<any>(`/website/social/post-blog/${blogId}`, { method: 'POST' }),
+  getSocialHistory: () => adminFetch<any>('/website/social/history'),
+
+  // Contact (dedicated endpoint with key-name mapping)
+  getWebsiteContact: () => adminFetch<any>('/website/contact').then((r: any) => r.data),
+  updateWebsiteContact: (data: any) => adminFetch<any>('/website/contact', { method: 'PUT', body: JSON.stringify(data) }),
+
+  // Social (dedicated endpoint)
+  getWebsiteSocial: () => adminFetch<any>('/website/social').then((r: any) => r.data),
+  updateWebsiteSocial: (data: any) => adminFetch<any>('/website/social', { method: 'PUT', body: JSON.stringify(data) }),
+
+  // Marketing integrations showcase
+  getMarketingIntegrations: () => adminFetch<any>('/website/integrations').then((r: any) => r.data),
+  updateMarketingIntegrations: (items: any[]) => adminFetch<any>('/website/integrations', { method: 'PUT', body: JSON.stringify({ items }) }),
+
+  // Marketing products showcase
+  getMarketingProducts: () => adminFetch<any>('/website/products').then((r: any) => r.data),
+  updateMarketingProducts: (items: any[]) => adminFetch<any>('/website/products', { method: 'PUT', body: JSON.stringify({ items }) }),
+
+  // Marketing addons pricing
+  getMarketingAddons: () => adminFetch<any>('/website/addons-config').then((r: any) => r.data),
+  updateMarketingAddons: (items: any[]) => adminFetch<any>('/website/addons-config', { method: 'PUT', body: JSON.stringify({ items }) }),
 
   // File Upload
   uploadFile: (file: File) => {

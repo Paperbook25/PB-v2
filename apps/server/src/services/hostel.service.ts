@@ -339,41 +339,6 @@ export async function getMessMenu(schoolId: string, hostelId?: string) {
   })
 }
 
-export async function updateMessMenu(
-  schoolId: string,
-  items: Array<{ weekDay: string; mealType: string; items: string; hostelId?: string }>
-) {
-  // Upsert each meal slot
-  const results = await prisma.$transaction(
-    items.map((item) =>
-      prisma.messMenu.upsert({
-        where: {
-          id: 'nonexistent', // force create path — we use updateMany+create pattern below
-        },
-        update: {},
-        create: {
-          organizationId: schoolId,
-          hostelId: item.hostelId ?? null,
-          weekDay: item.weekDay,
-          mealType: item.mealType,
-          items: item.items,
-        },
-      }).catch(() =>
-        prisma.messMenu.updateMany({
-          where: {
-            organizationId: schoolId,
-            weekDay: item.weekDay,
-            mealType: item.mealType,
-            hostelId: item.hostelId ?? null,
-          },
-          data: { items: item.items },
-        })
-      )
-    )
-  )
-  return results
-}
-
 export async function upsertMessMenuItems(
   schoolId: string,
   items: Array<{ weekDay: string; mealType: string; items: string; hostelId?: string }>

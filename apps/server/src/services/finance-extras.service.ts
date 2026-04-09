@@ -128,10 +128,9 @@ export async function listAppliedDiscounts(schoolId: string, query: { studentId?
     select: {
       id: true,
       studentId: true,
-      studentName: true,
       discountAmount: true,
-      discountReason: true,
       createdAt: true,
+      student: { select: { firstName: true, lastName: true } },
     },
     orderBy: { createdAt: 'desc' },
     take: 100,

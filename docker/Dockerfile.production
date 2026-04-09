@@ -11,6 +11,10 @@
 
 # ---------- Base ----------
 FROM node:20-alpine AS base
+# canvas native dependencies (Cairo, Pango, etc.)
+RUN apk add --no-cache \
+    cairo-dev pango-dev jpeg-dev giflib-dev librsvg-dev pixman-dev \
+    pkgconfig python3 make g++
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
@@ -43,6 +47,8 @@ RUN pnpm build
 
 # ---------- Production runtime ----------
 FROM node:20-alpine AS production
+# canvas runtime libraries (shared objects needed at runtime)
+RUN apk add --no-cache cairo pango jpeg giflib librsvg pixman
 
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app

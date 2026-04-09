@@ -14,10 +14,10 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5174,
     // Admin portal is accessed at admin.paperbook.local or localhost:5174
-    allowedHosts: ['.paperbook.local', 'localhost'],
+    allowedHosts: ['.paperbook.local', '.paperbook.app', 'localhost'],
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: process.env.VITE_API_URL || 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
       },

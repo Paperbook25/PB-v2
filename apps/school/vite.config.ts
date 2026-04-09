@@ -14,11 +14,11 @@ export default defineConfig({
     host: '0.0.0.0', // Bind to all interfaces (needed for subdomain access)
     port: 5173,
     // Allow *.paperbook.local subdomains + localhost
-    allowedHosts: ['.paperbook.local', 'localhost'],
+    allowedHosts: ['.paperbook.local', '.paperbook.app', 'localhost'],
     proxy: {
       // Proxy /api requests to Express server
       '/api': {
-        target: 'http://localhost:3001',
+        target: process.env.VITE_API_URL || 'http://localhost:3001',
         changeOrigin: false, // Preserve original Host header (e.g. school1.paperbook.local) for tenant resolution
         secure: false,
       },

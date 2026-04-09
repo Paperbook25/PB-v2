@@ -127,8 +127,8 @@ export async function createBlogPost(data: any) {
 export async function updateBlogPost(id: string, data: any) {
   const post = await prisma.platformBlogPost.findUnique({ where: { id } })
   if (!post) throw AppError.notFound('Blog post not found')
-  if (data.status === 'published' && !post.publishedAt) {
-    data.publishedAt = new Date()
+  if (data.status === 'published') {
+    data.publishedAt = data.publishedAt || post.publishedAt || new Date()
   }
   return prisma.platformBlogPost.update({ where: { id }, data })
 }

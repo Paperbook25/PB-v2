@@ -536,8 +536,11 @@ function ContactTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
       mapLat: c.mapLat || '', mapLng: c.mapLng || '',
     })
     setSocial({
-      facebookUrl: s.facebookUrl || '', linkedinUrl: s.linkedinUrl || '',
-      instagramUrl: s.instagramUrl || '', twitterUrl: s.twitterUrl || '', youtubeUrl: s.youtubeUrl || '',
+      facebookUrl: s.facebook || s.facebookUrl || '',
+      linkedinUrl: s.linkedin || s.linkedinUrl || '',
+      instagramUrl: s.instagram || s.instagramUrl || '',
+      twitterUrl: s.twitter || s.twitterUrl || '',
+      youtubeUrl: s.youtube || s.youtubeUrl || '',
     })
     setLoaded(true)
   }
@@ -556,7 +559,13 @@ function ContactTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
 
   function handleSave() {
     contactMut.mutate(contact)
-    socialMut.mutate(social)
+    socialMut.mutate({
+      facebook: social.facebookUrl,
+      linkedin: social.linkedinUrl,
+      instagram: social.instagramUrl,
+      twitter: social.twitterUrl,
+      youtube: social.youtubeUrl,
+    })
   }
 
   const saving = contactMut.isPending || socialMut.isPending

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Plus, MessageSquare, PhoneCall, Video, FileText, ArrowRightLeft } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Plus, MessageSquare, PhoneCall, Video, FileText, ArrowRightLeft, Send, Loader2 } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { useToast } from '@/hooks/use-toast'
 
 const STAGES = [
   { key: 'lead_new', label: 'New', color: '#94a3b8' },
@@ -24,8 +25,18 @@ export function LeadDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { toast } = useToast()
   const [showAddActivity, setShowAddActivity] = useState(false)
   const [activityForm, setActivityForm] = useState({ type: 'note', content: '' })
+
+  const sendActivationMut = useMutation({
+    mutationFn: () => adminApi.sendActivationLink(id!),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ['lead', id] })
+      toast({ title: 'Activation link sent!', description: `Email sent to ${data.sentTo}` })
+    },
+    onError: (err: any) => toast({ title: 'Failed to send', description: err.message, variant: 'destructive' }),
+  })
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ['admin', 'lead', id],
@@ -145,6 +156,19 @@ export function LeadDetailPage() {
             <button onClick={() => { setActivityForm({ type: 'note', content: '' }); setShowAddActivity(true) }} className="w-full flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted">
               <FileText className="h-4 w-4 text-gray-500" /> Add Note
             </button>
+            {lead?.status !== 'lead_won' && (
+              <button
+                onClick={() => sendActivationMut.mutate()}
+                disabled={sendActivationMut.isPending}
+                className="w-full flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-primary hover:bg-primary/10 disabled:opacity-60"
+              >
+                {sendActivationMut.isPending
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : <Send className="h-4 w-4" />
+                }
+                Send Activation Link
+              </button>
+            )}
           </div>
         </div>
       </div>

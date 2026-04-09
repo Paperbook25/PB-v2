@@ -4674,3 +4674,20 @@ model BehaviorPoint {
 
   @@map("behavior_points")
 }
+
+model EmailLog {
+  id        String   @id @default(uuid())
+  to        String
+  subject   String
+  template  String
+  status    String   @default("sent")  // sent | failed | skipped
+  messageId String?  @map("message_id")
+  error     String?  @db.Text
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([template])
+  @@index([status])
+  @@index([createdAt])
+  @@map("email_logs")
+}

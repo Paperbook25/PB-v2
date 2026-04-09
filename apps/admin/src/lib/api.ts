@@ -313,6 +313,23 @@ export const adminApi = {
     })
   },
 
+  // Email Management
+  getEmailStats: () => adminFetch<any>('/email/stats'),
+  getEmailLogs: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : ''
+    return adminFetch<any>(`/email/logs${qs}`)
+  },
+  getEmailConfig: () => adminFetch<any>('/email/config'),
+  updateEmailEvents: (events: Record<string, boolean>) =>
+    adminFetch<any>('/email/events', { method: 'PUT', body: JSON.stringify({ events }) }),
+  testEmail: (to: string) =>
+    adminFetch<any>('/email/test', { method: 'POST', body: JSON.stringify({ to }) }),
+  clearOldEmailLogs: () => adminFetch<any>('/email/logs', { method: 'DELETE' }),
+
+  // Lead activation
+  sendActivationLink: (id: string) =>
+    adminFetch<any>(`/leads/${id}/send-activation`, { method: 'POST' }),
+
   // Platform Integrations (Razorpay, SMS, Email, WhatsApp — PaperBook's own keys)
   listPlatformIntegrations: (type?: string) =>
     adminFetch<any>(`/integrations${type ? `?type=${type}` : ''}`).then((r: any) => r.data || []),

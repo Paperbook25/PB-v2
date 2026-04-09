@@ -1,5 +1,7 @@
 import { prisma } from '../config/db.js'
 import { AppError } from '../utils/errors.js'
+import { env } from '../config/env.js'
+import jwt from 'jsonwebtoken'
 import type { LeadStatus, LeadSource, PlanTier } from '@prisma/client'
 
 const PIPELINE_ORDER: LeadStatus[] = [
@@ -150,6 +152,42 @@ export async function addLeadActivity(leadId: string, input: {
   })
 
   return activity
+}
+
+export async function sendActivationLink(leadId: string, sentByName: string) {
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } })
+  if (!lead) throw AppError.notFound('Lead not found')
+  if (lead.status === 'lead_won') throw AppError.badRequest('This lead already has an active school')
+
+  const appDomain = env.APP_DOMAIN || 'paperbook.app'
+  const token = jwt.sign(
+    { leadId: lead.id, contactEmail: lead.contactEmail, contactName: lead.contactName, schoolName: lead.schoolName },
+    env.JWT_SECRET,
+    { expiresIn: '7d' }
+  )
+  const activationUrl = `https://app.${appDomain}/activate?token=${token}`
+
+  // Send email fire-and-forget
+  ;(async () => {
+    const { isEmailEventEnabled, sendEmail, trialActivationEmail } = await import('./email.service.js')
+    if (await isEmailEventEnabled('trial_activation')) {
+      const emailOpts = trialActivationEmail(lead.contactName, lead.schoolName, activationUrl)
+      emailOpts.to = lead.contactEmail
+      sendEmail(emailOpts, 'trial_activation').catch(() => {})
+    }
+  })()
+
+  // Log activity
+  await prisma.leadActivity.create({
+    data: {
+      leadId: lead.id,
+      type: 'email',
+      content: `Trial activation link sent to ${lead.contactEmail} by ${sentByName}`,
+      createdBy: sentByName,
+    },
+  })
+
+  return { sent: true, sentTo: lead.contactEmail }
 }
 
 export async function deleteLead(id: string) {

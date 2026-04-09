@@ -35,6 +35,7 @@ const TicketDetailPage = lazy(() => import('./features/tickets/pages/TicketDetai
 const CommunicationLogPage = lazy(() => import('./features/communication/pages/CommunicationLogPage').then(m => ({ default: m.CommunicationLogPage })))
 const WebsiteManagementPage = lazy(() => import('./features/website/pages/WebsiteManagementPage').then(m => ({ default: m.WebsiteManagementPage })))
 const IntegrationsPage = lazy(() => import('./features/integrations/pages/IntegrationsPage').then(m => ({ default: m.IntegrationsPage })))
+const EmailManagementPage = lazy(() => import('./features/email/pages/EmailManagementPage').then(m => ({ default: m.EmailManagementPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,6 +77,7 @@ export default function App() {
                 <Route path="/security" element={<SecurityPage />} />
                 <Route path="/website" element={<WebsiteManagementPage />} />
                 <Route path="/integrations" element={<IntegrationsPage />} />
+                <Route path="/email" element={<EmailManagementPage />} />
                 <Route path="/addons" element={<AddonsPage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/users/:id" element={<UserDetailPage />} />

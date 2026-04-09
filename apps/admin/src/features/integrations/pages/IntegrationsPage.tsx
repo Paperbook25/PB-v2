@@ -28,7 +28,7 @@ const INTEGRATION_TYPES = [
   { key: 'social_media', label: 'Social Media', icon: Share2, description: 'Connect LinkedIn, Facebook, and Twitter/X for one-click blog post sharing' },
 ]
 
-const PROVIDERS: Record<string, { label: string; fields: { key: string; label: string; secret?: boolean }[] }> = {
+const PROVIDERS: Record<string, { label: string; fields: { key: string; label: string; secret?: boolean; placeholder?: string }[] }> = {
   razorpay: {
     label: 'Razorpay',
     fields: [
@@ -50,6 +50,13 @@ const PROVIDERS: Record<string, { label: string; fields: { key: string; label: s
     fields: [
       { key: 'apiKey', label: 'API Key', secret: true },
       { key: 'senderId', label: 'Sender ID' },
+    ],
+  },
+  resend: {
+    label: 'Resend',
+    fields: [
+      { key: 'apiKey', label: 'API Key', secret: true, placeholder: 're_...' },
+      { key: 'fromAddress', label: 'From Address (e.g. PaperBook <noreply@paperbook.app>)' },
     ],
   },
   sendgrid: {
@@ -95,7 +102,7 @@ const PROVIDERS: Record<string, { label: string; fields: { key: string; label: s
 const TYPE_PROVIDERS: Record<string, string[]> = {
   payment_gateway: ['razorpay'],
   sms_gateway: ['twilio', 'msg91'],
-  email_service: ['sendgrid'],
+  email_service: ['resend', 'sendgrid'],
   whatsapp_api: ['twilio', 'gupshup'],
   social_media: ['linkedin', 'facebook', 'twitter'],
 }
@@ -200,7 +207,7 @@ function IntegrationForm({ type, integration, onClose }: {
                   type={field.secret && !showSecrets[field.key] ? 'password' : 'text'}
                   value={credentials[field.key] || ''}
                   onChange={e => setCredentials(prev => ({ ...prev, [field.key]: e.target.value }))}
-                  placeholder={field.secret ? '••••••••••••••••••••' : ''}
+                  placeholder={field.placeholder || (field.secret ? '••••••••••••••••••••' : '')}
                   className="h-9 w-full rounded-lg border bg-background px-3 pr-9 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
                 {field.secret && (

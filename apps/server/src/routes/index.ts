@@ -257,10 +257,44 @@ router.post('/public/lead-signup', leadSignupLimiter, async (req, res, next) => 
       },
     })
 
+    // Send lead confirmation email (fire-and-forget)
+    ;(async () => {
+      const { isEmailEventEnabled, sendEmail, leadConfirmationEmail } = await import('../services/email.service.js')
+      if (await isEmailEventEnabled('lead_confirmation')) {
+        const emailOpts = leadConfirmationEmail(contactName, schoolName)
+        emailOpts.to = contactEmail
+        sendEmail(emailOpts, 'lead_confirmation').catch(() => {})
+      }
+    })()
+
     res.status(201).json({ success: true, leadId: lead.id })
   } catch (err) {
     next(err)
   }
+})
+
+// --- Validate activation token (for school SPA /activate page) ---
+router.get('/public/validate-activation', async (req, res, next) => {
+  try {
+    const { prisma } = await import('../config/db.js')
+    const { default: jwt } = await import('jsonwebtoken')
+    const token = String(req.query.token || '')
+    if (!token) return res.status(400).json({ error: 'token is required' })
+
+    let payload: any
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET!)
+    } catch {
+      return res.status(401).json({ error: 'Invalid or expired activation link' })
+    }
+
+    const { leadId, contactEmail, contactName, schoolName } = payload
+    const lead = await prisma.lead.findUnique({ where: { id: leadId } })
+    if (!lead) return res.status(410).json({ error: 'Lead not found' })
+    if (lead.status === 'lead_won') return res.status(410).json({ error: 'This school has already been set up' })
+
+    res.json({ valid: true, contactEmail, contactName, schoolName })
+  } catch (err) { next(err) }
 })
 
 // --- User profile (authenticated, no tenant required) ---

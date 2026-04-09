@@ -176,6 +176,12 @@ export async function updatePlatformIntegration(id: string, data: {
     data: updateData as any,
   })
 
+  // Invalidate email config cache if this was an email integration
+  if (integration.type === 'email_service') {
+    const { invalidateEmailConfigCache } = await import('./email.service.js')
+    invalidateEmailConfigCache()
+  }
+
   return {
     id: integration.id,
     type: integration.type,
@@ -195,6 +201,11 @@ export async function deletePlatformIntegration(id: string) {
   return { success: true }
 }
 
+/** Exposed for email.service.ts to call without going through full service */
+export function decryptPlatformCredentials(credentials: any): Record<string, string> {
+  return decryptCredentials(JSON.stringify(credentials))
+}
+
 export async function testPlatformIntegration(id: string): Promise<{ success: boolean; message: string }> {
   const integration = await prisma.platformIntegration.findUnique({ where: { id } })
   if (!integration) throw AppError.notFound('Platform integration not found')
@@ -206,6 +217,8 @@ export async function testPlatformIntegration(id: string): Promise<{ success: bo
 
     if (integration.provider === 'razorpay') {
       testResult = await testRazorpayConnection(credentials)
+    } else if (integration.type === 'email_service' && (integration.provider === 'resend' || integration.provider === 'sendgrid')) {
+      testResult = await testResendConnection(credentials)
     } else {
       testResult = { success: false, message: `Test not implemented for provider: ${integration.provider}` }
     }
@@ -226,6 +239,22 @@ export async function testPlatformIntegration(id: string): Promise<{ success: bo
       data: { status: 'error', lastTestedAt: new Date() },
     })
     return { success: false, message: err.message || 'Connection test failed' }
+  }
+}
+
+async function testResendConnection(credentials: Record<string, string>) {
+  const { apiKey } = credentials
+  if (!apiKey) return { success: false, message: 'API Key is required' }
+
+  try {
+    const { Resend } = await import('resend')
+    const resend = new Resend(apiKey)
+    // Validate by listing domains — lightweight, doesn't send email
+    const { data, error } = await resend.domains.list()
+    if (error) return { success: false, message: `Resend API error: ${error.message}` }
+    return { success: true, message: `Connected to Resend successfully (${(data?.data?.length || 0)} domain(s) configured)` }
+  } catch (err: any) {
+    return { success: false, message: err.message || 'Failed to connect to Resend' }
   }
 }
 

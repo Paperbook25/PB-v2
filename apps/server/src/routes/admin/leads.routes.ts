@@ -59,6 +59,14 @@ router.post('/:id/activities', async (req: Request, res: Response, next: NextFun
   } catch (err) { next(err) }
 })
 
+router.post('/:id/send-activation', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const sentByName = (req.user as any)?.name || (req.user as any)?.email || 'Gravity Admin'
+    const result = await leadService.sendActivationLink(String(req.params.id), sentByName)
+    res.json(result)
+  } catch (err) { next(err) }
+})
+
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await leadService.deleteLead(String(req.params.id))

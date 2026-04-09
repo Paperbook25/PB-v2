@@ -7,6 +7,10 @@
 
 # ---------- Base ----------
 FROM node:20-alpine AS base
+# canvas native build dependencies
+RUN apk add --no-cache \
+    cairo-dev pango-dev jpeg-dev giflib-dev librsvg-dev pixman-dev \
+    pkgconfig python3 make g++
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 

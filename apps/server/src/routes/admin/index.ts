@@ -22,6 +22,7 @@ import notificationRouter from './notification.routes.js'
 import platformSettingsRouter from './platform-settings.routes.js'
 import websiteRouter from './website.routes.js'
 import platformIntegrationsRouter from './platform-integrations.routes.js'
+import emailRouter from './email.routes.js'
 
 const router = Router()
 
@@ -57,6 +58,7 @@ router.use('/communication-logs', adminRbac('admin', 'support'), communicationLo
 router.use('/platform-settings', adminRbac('admin'), platformSettingsRouter)
 router.use('/website', adminRbac('admin'), websiteRouter)
 router.use('/integrations', adminRbac('admin'), platformIntegrationsRouter)
+router.use('/email', adminRbac('admin'), emailRouter)
 
 // File upload (for blog images, team photos, logos)
 router.post('/upload', adminRbac('admin'), async (req, res, next) => {

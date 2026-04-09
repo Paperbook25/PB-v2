@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communication Hub — PaperBook</title>
+  <meta name="description" content="School-wide announcements, circulars, parent-teacher messaging, and event calendar for seamless communication.">
+  <meta name="keywords" content="school communication system, announcement management, emergency alerts, school surveys, internal messaging, parent communication, school circular management">
+  <meta name="author" content="PaperBook">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0ea5e9">
+  <link rel="canonical" href="https://paperbook.app/modules/communication.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://paperbook.app/modules/communication.html">
+  <meta property="og:title" content="Communication Hub — PaperBook">
+  <meta property="og:description" content="School-wide announcements, circulars, parent-teacher messaging, and event calendar for seamless communication.">
+  <meta property="og:image" content="https://paperbook.app/og-image.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Communication Hub — PaperBook">
+  <meta name="twitter:description" content="School-wide announcements, circulars, parent-teacher messaging, and event calendar for seamless communication.">
+  <meta name="twitter:image" content="https://paperbook.app/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/module-pages.css">
+  <script src="../js/analytics.js" defer></script>
+</head>
+<body class="page-communication">
+<style>
+.page-communication {
+  --module-primary: #0ea5e9;
+  --module-light: #e0f2fe;
+  --module-gradient: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
+}
+
+/* Centered Tab Navigation */
+.module-tabs-nav {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 4rem;
+  z-index: 100;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+
+.module-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.25s ease;
+}
+
+.module-tab:hover {
+  background: var(--module-light);
+  color: var(--module-primary);
+}
+
+.module-tab.active {
+  background: var(--module-gradient);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(14,165,233,0.3);
+}
+
+.module-tab svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+</style>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<!-- Navbar -->
+<nav id="navbar" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" role="img"><title>PaperBook Logo</title><defs><linearGradient id="navBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#navBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#navBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+      PaperBook
+    </a>
+    <div class="nav-links">
+      <div class="nav-dropdown">
+        <a href="../index.html#features" class="nav-dropdown-trigger">
+          Products
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu products-mega-menu">
+          <div class="mega-menu-grid">
+            <!-- Column 1: Core -->
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Core</div>
+              <a href="dashboard.html">
+                <span class="dropdown-icon" style="background: #f5f3ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>
+                <div><strong>Dashboard</strong><span>Overview & analytics</span></div>
+              </a>
+              <a href="people.html">
+                <span class="dropdown-icon" style="background: #e0e7ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+                <div><strong>People</strong><span>Students, staff, attendance</span></div>
+              </a>
+              <a href="admissions.html">
+                <span class="dropdown-icon" style="background: #fce7f3;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M10 13h4M10 17h4M8 13h.01M8 17h.01"/></svg></span>
+                <div><strong>Admissions</strong><span>Applications, enrollment</span></div>
+              </a>
+            </div>
+            <!-- Column 2: Academic -->
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Academic</div>
+              <a href="library.html">
+                <span class="dropdown-icon" style="background: #fef3c7;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z"/></svg></span>
+                <div><strong>Library</strong><span>Books, digital resources</span></div>
+              </a>
+              <a href="lms.html">
+                <span class="dropdown-icon" style="background: #d1fae5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+                <div><strong>LMS</strong><span>Online courses, lectures</span></div>
+              </a>
+              <a href="exam.html">
+                <span class="dropdown-icon" style="background: #ffe4e6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+                <div><strong>Exams</strong><span>Scheduling, report cards</span></div>
+              </a>
+            </div>
+            <!-- Column 3: Operations -->
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Operations</div>
+              <a href="finance.html">
+                <span class="dropdown-icon" style="background: #dcfce7;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+                <div><strong>Finance</strong><span>Fees, payroll, accounts</span></div>
+              </a>
+              <a href="operations.html">
+                <span class="dropdown-icon" style="background: #ccfbf1;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+                <div><strong>Operations</strong><span>Transport, hostel, assets</span></div>
+              </a>
+              <a href="management.html">
+                <span class="dropdown-icon" style="background: #e0f7fa;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                <div><strong>Management</strong><span>Schedule, docs, alumni</span></div>
+              </a>
+            </div>
+            <!-- Column 4: Communication -->
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Communication</div>
+              <a href="communication.html">
+                <span class="dropdown-icon" style="background: #e0f2fe;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+                <div><strong>Communication</strong><span>Messages, announcements</span></div>
+              </a>
+              <a href="reports.html">
+                <span class="dropdown-icon" style="background: #f3e8ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M21 21H3V3"/><path d="M18 9l-5 5-4-4-3 3"/></svg></span>
+                <div><strong>Reports</strong><span>Analytics & insights</span></div>
+              </a>
+              <a href="settings.html">
+                <span class="dropdown-icon" style="background: #f1f5f9;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+                <div><strong>Settings</strong><span>Configuration, integrations</span></div>
+              </a>
+              <a href="parent.html">
+                <span class="dropdown-icon" style="background: #fff7ed;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <div><strong>Parent Portal</strong><span>PTM, reports, messaging</span></div>
+              </a>
+            </div>
+          </div>
+          <div class="dropdown-footer">
+            <a href="../index.html#features">View all features →</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="../index.html#integrations" class="nav-dropdown-trigger">
+          Integrations
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0f4ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg></span>
+            <div><strong>Razorpay</strong><span>UPI, cards, net banking</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0fdf4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+            <div><strong>Cashfree</strong><span>Payouts, subscriptions</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0fdf4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></span>
+            <div><strong>WhatsApp</strong><span>Alerts & notifications</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #fef2f2;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea4335" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg></span>
+            <div><strong>Google Workspace</strong><span>Calendar, Meet, Sheets</span></div>
+          </a>
+          <div class="dropdown-footer">
+            <a href="../index.html#integrations">View all integrations →</a>
+          </div>
+        </div>
+      </div>
+      <a href="../index.html#testimonials">Testimonials</a>
+      <a href="../index.html#pricing">Pricing</a>
+      <div class="nav-dropdown">
+        <a href="../about.html" class="nav-dropdown-trigger">
+          About
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="../about.html">
+            <span class="dropdown-icon" style="background: #f5f3ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+            <div><strong>About Us</strong><span>Our story, mission & team</span></div>
+          </a>
+          <a href="../index.html#contact">
+            <span class="dropdown-icon" style="background: #e0f2fe;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></span>
+            <div><strong>Contact Us</strong><span>Get in touch with us</span></div>
+          </a>
+        </div>
+      </div>
+      <a href="../faq.html">FAQ</a>
+    </div>
+    <div class="nav-actions">
+      <a href="#" class="btn btn-outline">Sign In</a>
+      <a href="#" class="btn btn-primary">Get Started Free</a>
+    </div>
+    <button id="menu-btn" aria-label="Toggle menu">
+      <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+  <div id="mobile-menu">
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        Products
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Core</div>
+          <div class="mobile-category-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="people.html">People</a>
+            <a href="admissions.html">Admissions</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Academic</div>
+          <div class="mobile-category-links">
+            <a href="library.html">Library</a>
+            <a href="lms.html">LMS</a>
+            <a href="exam.html">Exams</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Operations</div>
+          <div class="mobile-category-links">
+            <a href="finance.html">Finance</a>
+            <a href="operations.html">Operations</a>
+            <a href="management.html">Management</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Communication</div>
+          <div class="mobile-category-links">
+            <a href="communication.html">Communication</a>
+            <a href="reports.html">Reports</a>
+            <a href="settings.html">Settings</a>
+            <a href="parent.html">Parent Portal</a>
+          </div>
+        </div>
+        <a href="../index.html#features" class="view-all">View all features →</a>
+      </div>
+    </div>
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        Integrations
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <a href="../index.html#integrations">Razorpay</a>
+        <a href="../index.html#integrations">Cashfree</a>
+        <a href="../index.html#integrations">WhatsApp</a>
+        <a href="../index.html#integrations">Google Workspace</a>
+        <a href="../index.html#integrations" class="view-all">View all integrations →</a>
+      </div>
+    </div>
+    <a href="../index.html#testimonials">Testimonials</a>
+    <a href="../index.html#pricing">Pricing</a>
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        About
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <a href="../about.html">About Us</a>
+        <a href="../index.html#contact">Contact Us</a>
+      </div>
+    </div>
+    <a href="../faq.html">FAQ</a>
+    <a href="#" class="btn btn-outline">Sign In</a>
+    <a href="#" class="btn btn-primary">Get Started Free</a>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<!-- Module Hero -->
+<section class="module-page-hero">
+  <div class="container">
+    <a href="../index.html#features" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Features
+    </a>
+    <div class="module-hero-grid">
+      <div class="module-hero-text">
+        <h1><span>Communication Hub</span> — Connect Everyone Seamlessly</h1>
+        <p class="tagline">Announcements, circulars, emergency alerts, surveys, and internal messaging — all in one unified platform for seamless school-wide communication.</p>
+        <div class="module-hero-actions">
+          <a href="#" class="btn btn-module btn-lg">Start Free Trial</a>
+          <a href="#" class="btn btn-outline btn-lg">Schedule Demo</a>
+        </div>
+      </div>
+      <div class="module-hero-illustration">
+        <svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main Dashboard Frame -->
+          <rect x="10" y="10" width="480" height="360" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+          <rect x="10" y="10" width="480" height="44" rx="16" fill="#e0f2fe"/>
+          <rect x="10" y="42" width="480" height="12" fill="#e0f2fe"/>
+          <circle cx="34" cy="32" r="6" fill="#fca5a5"/><circle cx="54" cy="32" r="6" fill="#fde68a"/><circle cx="74" cy="32" r="6" fill="#86efac"/>
+
+          <!-- Sidebar -->
+          <rect x="10" y="54" width="100" height="316" fill="#e0f2fe"/>
+          <rect x="22" y="70" width="76" height="8" rx="4" fill="#0ea5e9" opacity="0.3"/>
+          <rect x="22" y="90" width="64" height="6" rx="3" fill="#0ea5e9"/><rect x="22" y="108" width="56" height="6" rx="3" fill="#38bdf8"/><rect x="22" y="126" width="68" height="6" rx="3" fill="#38bdf8"/><rect x="22" y="144" width="52" height="6" rx="3" fill="#38bdf8"/>
+
+          <!-- Message Stats Card -->
+          <rect x="126" y="70" width="168" height="100" rx="8" fill="#fff" stroke="#e2e8f0"/>
+          <text x="140" y="92" font-size="11" fill="#64748b" font-family="system-ui">Messages This Week</text>
+          <text x="140" y="125" font-size="28" fill="#0ea5e9" font-weight="700" font-family="Plus Jakarta Sans,system-ui">2,847</text>
+          <text x="220" y="125" font-size="12" fill="#22c55e" font-family="system-ui">+18% vs last week</text>
+          <rect x="140" y="140" width="140" height="6" rx="3" fill="#e0f2fe"/>
+          <rect x="140" y="140" width="115" height="6" rx="3" fill="#0ea5e9"/>
+          <text x="140" y="160" font-size="9" fill="#64748b" font-family="system-ui">94% delivery rate</text>
+
+          <!-- Quick Actions -->
+          <rect x="308" y="70" width="168" height="100" rx="8" fill="#fff" stroke="#e2e8f0"/>
+          <text x="322" y="92" font-size="11" fill="#64748b" font-family="system-ui">Quick Actions</text>
+          <rect x="322" y="105" width="140" height="26" rx="4" fill="#0ea5e9"/>
+          <text x="350" y="122" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">+ New Announcement</text>
+          <rect x="322" y="137" width="140" height="26" rx="4" fill="#e0f2fe"/>
+          <text x="358" y="154" font-size="10" fill="#0ea5e9" font-family="system-ui">Send Alert</text>
+
+          <!-- Recent Messages -->
+          <rect x="126" y="185" width="350" height="170" rx="8" fill="#fff" stroke="#e2e8f0"/>
+          <text x="140" y="207" font-size="11" fill="#0f172a" font-weight="600" font-family="system-ui">Recent Communications</text>
+
+          <!-- Message Row 1 -->
+          <rect x="140" y="220" width="320" height="40" rx="4" fill="#e0f2fe"/>
+          <circle cx="160" cy="240" r="12" fill="#0ea5e9"/>
+          <path d="M155 240 L159 244 L166 236" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="180" y="236" font-size="10" fill="#0f172a" font-family="system-ui">Annual Day Announcement</text>
+          <text x="180" y="250" font-size="9" fill="#64748b" font-family="system-ui">Sent to: All Parents • 2 hours ago</text>
+          <rect x="400" y="232" width="50" height="16" rx="4" fill="#0ea5e9"/>
+          <text x="410" y="243" font-size="8" fill="#fff" font-family="system-ui">Circular</text>
+
+          <!-- Message Row 2 -->
+          <rect x="140" y="268" width="320" height="40" rx="4" fill="#fef3c7"/>
+          <circle cx="160" cy="288" r="12" fill="#f59e0b"/>
+          <path d="M160 283 L160 289 M160 293 L160 293.01" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <text x="180" y="284" font-size="10" fill="#0f172a" font-family="system-ui">PTM Schedule Change</text>
+          <text x="180" y="298" font-size="9" fill="#64748b" font-family="system-ui">Sent to: Class 10 Parents • 5 hours ago</text>
+          <rect x="400" y="280" width="50" height="16" rx="4" fill="#f59e0b"/>
+          <text x="413" y="291" font-size="8" fill="#fff" font-family="system-ui">Alert</text>
+
+          <!-- Message Row 3 -->
+          <rect x="140" y="316" width="320" height="40" rx="4" fill="#dcfce7"/>
+          <circle cx="160" cy="336" r="12" fill="#22c55e"/>
+          <path d="M155 336 L159 340 L166 332" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="180" y="332" font-size="10" fill="#0f172a" font-family="system-ui">Fee Payment Reminder</text>
+          <text x="180" y="346" font-size="9" fill="#64748b" font-family="system-ui">Sent to: Pending Payments • Yesterday</text>
+          <rect x="400" y="328" width="50" height="16" rx="4" fill="#22c55e"/>
+          <text x="406" y="339" font-size="8" fill="#fff" font-family="system-ui">Reminder</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Centered Tab Navigation -->
+<nav class="module-tabs-nav">
+  <div class="container">
+    <div class="tabs-container" role="tablist" aria-label="Communication module sections">
+      <button class="module-tab active" data-tab="announcements" role="tab" aria-selected="true" aria-controls="panel-announcements">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Announcements
+      </button>
+      <button class="module-tab" data-tab="alerts" role="tab" aria-selected="false" aria-controls="panel-alerts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Alerts
+      </button>
+      <button class="module-tab" data-tab="surveys" role="tab" aria-selected="false" aria-controls="panel-surveys">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Surveys
+      </button>
+      <button class="module-tab" data-tab="messaging" role="tab" aria-selected="false" aria-controls="panel-messaging">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messaging
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== ANNOUNCEMENTS TAB ==================== -->
+<div class="tab-content active" data-panel="announcements" id="panel-announcements" role="tabpanel" aria-hidden="false">
+
+<!-- Feature 1: Announcements & Circulars -->
+<section class="feature-section reveal">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main Window Frame -->
+          <rect x="10" y="10" width="480" height="380" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Header Bar -->
+          <rect x="10" y="10" width="480" height="50" rx="12" fill="#0ea5e9"/>
+          <rect x="10" y="48" width="480" height="12" fill="#0ea5e9"/>
+          <circle cx="32" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <circle cx="50" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <circle cx="68" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <text x="100" y="40" font-size="14" fill="#fff" font-weight="700" font-family="system-ui">Compose Announcement</text>
+
+          <!-- Close Button -->
+          <rect x="440" y="22" width="36" height="26" rx="4" fill="#fff" opacity="0.2"/>
+          <path d="M452 30 L464 42 M464 30 L452 42" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- Left Panel - Recipient Selection -->
+          <rect x="22" y="72" width="180" height="306" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="34" y="94" font-size="11" fill="#0ea5e9" font-weight="700" font-family="system-ui">SELECT RECIPIENTS</text>
+
+          <!-- Search Recipients -->
+          <rect x="30" y="104" width="164" height="32" rx="6" fill="#fff" stroke="#cbd5e1"/>
+          <circle cx="48" cy="120" r="8" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+          <path d="M54 126 L58 130" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="64" y="124" font-size="9" fill="#94a3b8" font-family="system-ui">Search groups...</text>
+
+          <!-- Recipient Categories -->
+          <rect x="30" y="145" width="164" height="36" rx="6" fill="#0ea5e9"/>
+          <circle cx="50" cy="163" r="10" fill="#fff" opacity="0.3"/>
+          <path d="M46 163 L49 166 L55 159" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="66" y="160" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">All Parents</text>
+          <text x="66" y="172" font-size="8" fill="#e0f2fe" font-family="system-ui">2,450 recipients</text>
+
+          <rect x="30" y="188" width="164" height="36" rx="6" fill="#e0f2fe" stroke="#0ea5e9"/>
+          <circle cx="50" cy="206" r="10" fill="#0ea5e9" opacity="0.2"/>
+          <text x="66" y="203" font-size="10" fill="#0ea5e9" font-weight="600" font-family="system-ui">All Teachers</text>
+          <text x="66" y="215" font-size="8" fill="#64748b" font-family="system-ui">156 recipients</text>
+
+          <rect x="30" y="231" width="164" height="36" rx="6" fill="#fff" stroke="#e2e8f0"/>
+          <circle cx="50" cy="249" r="10" fill="#f1f5f9"/>
+          <text x="66" y="246" font-size="10" fill="#475569" font-weight="500" font-family="system-ui">Grade 10 Parents</text>
+          <text x="66" y="258" font-size="8" fill="#94a3b8" font-family="system-ui">320 recipients</text>
+
+          <rect x="30" y="274" width="164" height="36" rx="6" fill="#fff" stroke="#e2e8f0"/>
+          <circle cx="50" cy="292" r="10" fill="#f1f5f9"/>
+          <text x="66" y="289" font-size="10" fill="#475569" font-weight="500" font-family="system-ui">Grade 9 Parents</text>
+          <text x="66" y="301" font-size="8" fill="#94a3b8" font-family="system-ui">298 recipients</text>
+
+          <rect x="30" y="317" width="164" height="36" rx="6" fill="#fff" stroke="#e2e8f0"/>
+          <circle cx="50" cy="335" r="10" fill="#f1f5f9"/>
+          <text x="66" y="332" font-size="10" fill="#475569" font-weight="500" font-family="system-ui">Admin Staff</text>
+          <text x="66" y="344" font-size="8" fill="#94a3b8" font-family="system-ui">24 recipients</text>
+
+          <!-- Right Panel - Compose Area -->
+          <rect x="214" y="72" width="264" height="306" rx="8" fill="#fff" stroke="#e2e8f0"/>
+
+          <!-- Subject Line -->
+          <text x="226" y="94" font-size="10" fill="#64748b" font-weight="600" font-family="system-ui">SUBJECT</text>
+          <rect x="226" y="102" width="240" height="36" rx="6" fill="#f8fafc" stroke="#cbd5e1"/>
+          <text x="238" y="125" font-size="11" fill="#0f172a" font-family="system-ui">Annual Sports Day - Schedule & Guidelines</text>
+
+          <!-- Rich Text Editor Toolbar -->
+          <text x="226" y="158" font-size="10" fill="#64748b" font-weight="600" font-family="system-ui">MESSAGE</text>
+          <rect x="226" y="166" width="240" height="28" rx="4" fill="#f1f5f9"/>
+          <rect x="232" y="172" width="20" height="16" rx="2" fill="#fff" stroke="#cbd5e1"/>
+          <text x="237" y="184" font-size="9" fill="#475569" font-weight="700" font-family="system-ui">B</text>
+          <rect x="256" y="172" width="20" height="16" rx="2" fill="#fff" stroke="#cbd5e1"/>
+          <text x="262" y="184" font-size="9" fill="#475569" font-style="italic" font-family="system-ui">I</text>
+          <rect x="280" y="172" width="20" height="16" rx="2" fill="#fff" stroke="#cbd5e1"/>
+          <text x="284" y="184" font-size="9" fill="#475569" text-decoration="underline" font-family="system-ui">U</text>
+          <rect x="306" y="174" width="1" height="12" fill="#cbd5e1"/>
+          <rect x="314" y="172" width="20" height="16" rx="2" fill="#fff" stroke="#cbd5e1"/>
+          <path d="M320 177 L320 183 M317 180 L323 180" stroke="#475569" stroke-width="1.5"/>
+          <rect x="338" y="172" width="20" height="16" rx="2" fill="#fff" stroke="#cbd5e1"/>
+          <path d="M344 177 L350 177 M344 180 L350 180 M344 183 L350 183" stroke="#475569" stroke-width="1"/>
+          <rect x="362" y="172" width="20" height="16" rx="2" fill="#fff" stroke="#cbd5e1"/>
+          <circle cx="372" cy="180" r="4" stroke="#475569" stroke-width="1" fill="none"/>
+
+          <!-- Message Content Area -->
+          <rect x="226" y="198" width="240" height="100" rx="6" fill="#fff" stroke="#cbd5e1"/>
+          <text x="238" y="218" font-size="10" fill="#0f172a" font-family="system-ui">Dear Parents,</text>
+          <text x="238" y="236" font-size="10" fill="#0f172a" font-family="system-ui">We are delighted to announce that our Annual</text>
+          <text x="238" y="252" font-size="10" fill="#0f172a" font-family="system-ui">Sports Day will be held on </text>
+          <text x="362" y="252" font-size="10" fill="#0ea5e9" font-weight="600" font-family="system-ui">March 15, 2026</text>
+          <text x="238" y="268" font-size="10" fill="#0f172a" font-family="system-ui">at the school grounds from 8:00 AM.</text>
+          <text x="238" y="286" font-size="10" fill="#94a3b8" font-family="system-ui">Please ensure your child brings...</text>
+
+          <!-- Attachments Section -->
+          <text x="226" y="318" font-size="10" fill="#64748b" font-weight="600" font-family="system-ui">ATTACHMENTS</text>
+          <rect x="226" y="326" width="100" height="32" rx="6" fill="#e0f2fe" stroke="#0ea5e9"/>
+          <rect x="234" y="334" width="16" height="16" rx="2" fill="#0ea5e9"/>
+          <text x="237" y="346" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">P</text>
+          <text x="256" y="342" font-size="8" fill="#0ea5e9" font-family="system-ui">Schedule.pdf</text>
+          <text x="256" y="352" font-size="7" fill="#64748b" font-family="system-ui">245 KB</text>
+
+          <rect x="332" y="326" width="80" height="32" rx="6" fill="#fff" stroke="#cbd5e1" stroke-dasharray="4 2"/>
+          <text x="352" y="346" font-size="9" fill="#94a3b8" font-family="system-ui">+ Add file</text>
+
+          <!-- Action Buttons -->
+          <rect x="226" y="366" width="80" height="32" rx="6" fill="#f1f5f9" stroke="#cbd5e1"/>
+          <text x="242" y="386" font-size="10" fill="#64748b" font-weight="500" font-family="system-ui">Schedule</text>
+
+          <rect x="314" y="366" width="60" height="32" rx="6" fill="#fff" stroke="#0ea5e9"/>
+          <text x="326" y="386" font-size="10" fill="#0ea5e9" font-weight="500" font-family="system-ui">Preview</text>
+
+          <rect x="382" y="366" width="84" height="32" rx="6" fill="#0ea5e9"/>
+          <text x="400" y="386" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">Send Now</text>
+          <path d="M432 378 L440 382 L432 386" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="feature-content">
+        <span class="feature-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Broadcast Messages
+        </span>
+        <h2>Announcements & Circulars</h2>
+        <div class="description">
+          <p>Broadcast important messages to specific classes, staff groups, or the entire institution with just a few clicks. The intuitive compose interface features a powerful rich text editor with formatting options, allowing you to create professional announcements with bold text, bullet points, and embedded links. Select from predefined recipient groups or create custom audience segments to ensure your message reaches exactly who needs to see it.</p>
+          <p>Track delivery status in real-time with comprehensive analytics showing read receipts, engagement metrics, and response rates. Schedule announcements for optimal timing, set expiration dates for time-sensitive circulars, and maintain a searchable archive of all past communications. Parents and staff receive notifications through their preferred channels, whether push notifications, email, or in-app alerts.</p>
+        </div>
+        <ul class="feature-highlights">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Target specific classes, grades, parent groups, or entire school with smart filtering
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Rich text editor with formatting, links, images, and PDF attachments
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Schedule announcements for future delivery with timezone support
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Real-time delivery tracking with read receipts and engagement analytics
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Multilingual support with automatic translation for diverse communities
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ==================== ALERTS TAB ==================== -->
+<div class="tab-content" data-panel="alerts" id="panel-alerts" role="tabpanel" aria-hidden="true">
+
+<!-- Feature 2: Emergency Alerts -->
+<section class="feature-section reveal">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main Window Frame -->
+          <rect x="10" y="10" width="480" height="380" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Header with Warning Style -->
+          <rect x="10" y="10" width="480" height="50" rx="12" fill="url(#alertGradient)"/>
+          <rect x="10" y="48" width="480" height="12" fill="#ef4444"/>
+          <defs>
+            <linearGradient id="alertGradient" x1="10" y1="35" x2="490" y2="35" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#ef4444"/>
+              <stop offset="1" stop-color="#dc2626"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Warning Icon in Header -->
+          <circle cx="40" cy="35" r="14" fill="#fff" opacity="0.2"/>
+          <path d="M40 26 L40 38" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="40" cy="43" r="2" fill="#fff"/>
+          <text x="65" y="40" font-size="14" fill="#fff" font-weight="700" font-family="system-ui">Emergency Alert Center</text>
+
+          <!-- Status Indicator -->
+          <rect x="400" y="22" width="76" height="26" rx="13" fill="#fff" opacity="0.2"/>
+          <circle cx="416" cy="35" r="5" fill="#22c55e"/>
+          <text x="426" y="39" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">ACTIVE</text>
+
+          <!-- Priority Level Selection -->
+          <text x="26" y="82" font-size="11" fill="#64748b" font-weight="700" font-family="system-ui">SELECT PRIORITY LEVEL</text>
+
+          <!-- Critical Priority -->
+          <rect x="26" y="94" width="145" height="80" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+          <circle cx="55" cy="124" r="18" fill="#ef4444"/>
+          <path d="M55 114 L55 128" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="55" cy="133" r="2.5" fill="#fff"/>
+          <text x="80" y="120" font-size="11" fill="#dc2626" font-weight="700" font-family="system-ui">CRITICAL</text>
+          <text x="80" y="134" font-size="8" fill="#ef4444" font-family="system-ui">Immediate action</text>
+          <rect x="80" y="142" width="80" height="18" rx="9" fill="#fee2e2"/>
+          <text x="88" y="154" font-size="7" fill="#ef4444" font-family="system-ui">All channels</text>
+
+          <!-- High Priority -->
+          <rect x="180" y="94" width="145" height="80" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+          <circle cx="209" cy="124" r="18" fill="#f59e0b"/>
+          <path d="M209 116 L209 126 M209 130 L209 130.01" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="234" y="120" font-size="11" fill="#d97706" font-weight="700" font-family="system-ui">HIGH</text>
+          <text x="234" y="134" font-size="8" fill="#f59e0b" font-family="system-ui">Urgent notice</text>
+          <rect x="234" y="142" width="80" height="18" rx="9" fill="#fef3c7"/>
+          <text x="242" y="154" font-size="7" fill="#f59e0b" font-family="system-ui">Push + SMS</text>
+
+          <!-- Medium Priority -->
+          <rect x="334" y="94" width="145" height="80" rx="10" fill="#e0f2fe" stroke="#0ea5e9"/>
+          <circle cx="363" cy="124" r="18" fill="#0ea5e9"/>
+          <path d="M358 124 L362 128 L369 120" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="388" y="120" font-size="11" fill="#0284c7" font-weight="700" font-family="system-ui">MEDIUM</text>
+          <text x="388" y="134" font-size="8" fill="#0ea5e9" font-family="system-ui">Important info</text>
+          <rect x="388" y="142" width="80" height="18" rx="9" fill="#e0f2fe"/>
+          <text x="396" y="154" font-size="7" fill="#0ea5e9" font-family="system-ui">Push only</text>
+
+          <!-- Alert Compose Section -->
+          <rect x="26" y="186" width="240" height="190" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <rect x="26" y="186" width="240" height="36" rx="10" fill="#fef2f2"/>
+          <rect x="26" y="210" width="240" height="12" fill="#fef2f2"/>
+          <text x="42" y="210" font-size="11" fill="#dc2626" font-weight="700" font-family="system-ui">COMPOSE ALERT</text>
+
+          <!-- Alert Title -->
+          <text x="38" y="244" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">ALERT TITLE</text>
+          <rect x="38" y="252" width="216" height="32" rx="6" fill="#f8fafc" stroke="#fca5a5"/>
+          <text x="50" y="272" font-size="10" fill="#0f172a" font-family="system-ui">School Closure - Severe Weather</text>
+
+          <!-- Alert Message -->
+          <text x="38" y="300" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">MESSAGE</text>
+          <rect x="38" y="308" width="216" height="56" rx="6" fill="#f8fafc" stroke="#fca5a5"/>
+          <text x="50" y="326" font-size="9" fill="#0f172a" font-family="system-ui">Due to severe weather advisory,</text>
+          <text x="50" y="340" font-size="9" fill="#0f172a" font-family="system-ui">school will remain closed tomorrow.</text>
+          <text x="50" y="354" font-size="9" fill="#0f172a" font-family="system-ui">Students must stay home safely.</text>
+
+          <!-- Delivery Channels -->
+          <rect x="280" y="186" width="198" height="100" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <text x="294" y="210" font-size="11" fill="#64748b" font-weight="700" font-family="system-ui">DELIVERY CHANNELS</text>
+
+          <!-- Push Notification Channel -->
+          <rect x="294" y="222" width="170" height="24" rx="6" fill="#dcfce7" stroke="#22c55e"/>
+          <circle cx="310" cy="234" r="6" fill="#22c55e"/>
+          <path d="M307 234 L309 236 L314 231" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="324" y="238" font-size="9" fill="#166534" font-weight="600" font-family="system-ui">Push Notification</text>
+          <text x="410" y="238" font-size="8" fill="#22c55e" font-family="system-ui">Active</text>
+
+          <!-- SMS Channel -->
+          <rect x="294" y="252" width="170" height="24" rx="6" fill="#dcfce7" stroke="#22c55e"/>
+          <circle cx="310" cy="264" r="6" fill="#22c55e"/>
+          <path d="M307 264 L309 266 L314 261" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="324" y="268" font-size="9" fill="#166534" font-weight="600" font-family="system-ui">SMS Message</text>
+          <text x="410" y="268" font-size="8" fill="#22c55e" font-family="system-ui">Active</text>
+
+          <!-- Email Channel -->
+          <rect x="280" y="296" width="198" height="80" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <text x="294" y="318" font-size="11" fill="#64748b" font-weight="700" font-family="system-ui">RECIPIENTS</text>
+          <text x="294" y="340" font-size="24" fill="#0ea5e9" font-weight="700" font-family="system-ui">2,847</text>
+          <text x="362" y="340" font-size="10" fill="#64748b" font-family="system-ui">will receive</text>
+          <rect x="294" y="352" width="170" height="6" rx="3" fill="#e0f2fe"/>
+          <rect x="294" y="352" width="140" height="6" rx="3" fill="#0ea5e9"/>
+          <text x="294" y="370" font-size="8" fill="#64748b" font-family="system-ui">Parents: 2,450 | Staff: 156 | Admin: 241</text>
+
+          <!-- Action Buttons -->
+          <rect x="26" y="384" width="100" height="36" rx="8" fill="#f1f5f9" stroke="#cbd5e1"/>
+          <text x="48" y="406" font-size="10" fill="#64748b" font-weight="600" font-family="system-ui">Use Template</text>
+
+          <rect x="136" y="384" width="80" height="36" rx="8" fill="#fff" stroke="#ef4444"/>
+          <text x="156" y="406" font-size="10" fill="#ef4444" font-weight="600" font-family="system-ui">Preview</text>
+
+          <rect x="340" y="384" width="138" height="36" rx="8" fill="#ef4444"/>
+          <text x="364" y="406" font-size="11" fill="#fff" font-weight="700" font-family="system-ui">SEND ALERT</text>
+          <path d="M440 398 L450 404 L440 410" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="feature-content">
+        <span class="feature-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Instant Notifications
+        </span>
+        <h2>Emergency Alerts</h2>
+        <div class="description">
+          <p>When every second counts, PaperBook's Emergency Alert System delivers critical information instantly across multiple channels simultaneously. Choose from three priority levels - Critical, High, and Medium - each automatically configured with appropriate delivery channels. Critical alerts bypass all notification preferences and reach parents through push notifications, SMS, email, and even automated voice calls within seconds of sending.</p>
+          <p>The system includes pre-built templates for common emergency scenarios such as weather closures, lockdown drills, medical emergencies, and transportation delays. Track acknowledgment status in real-time to ensure every parent has received and read the alert. Schools can also set up geo-fenced alerts that automatically notify parents based on student location, and maintain detailed audit logs for compliance and emergency preparedness documentation.</p>
+        </div>
+        <ul class="feature-highlights">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Multi-channel simultaneous delivery via Push, SMS, Email, and Voice
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Three priority levels with automatic channel configuration
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Pre-built emergency templates for rapid response deployment
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Real-time acknowledgment tracking with parent read receipts
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Complete audit trail and compliance reporting for emergencies
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ==================== SURVEYS TAB ==================== -->
+<div class="tab-content" data-panel="surveys" id="panel-surveys" role="tabpanel" aria-hidden="true">
+
+<!-- Feature 3: Surveys & Polls -->
+<section class="feature-section reveal">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main Window Frame -->
+          <rect x="10" y="10" width="480" height="380" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Header -->
+          <rect x="10" y="10" width="480" height="50" rx="12" fill="#0ea5e9"/>
+          <rect x="10" y="48" width="480" height="12" fill="#0ea5e9"/>
+          <circle cx="32" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <circle cx="50" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <circle cx="68" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <text x="95" y="40" font-size="14" fill="#fff" font-weight="700" font-family="system-ui">Survey Builder</text>
+
+          <!-- Tabs -->
+          <rect x="380" y="22" width="50" height="26" rx="4" fill="#fff" opacity="0.2"/>
+          <text x="392" y="39" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">Build</text>
+          <rect x="435" y="22" width="50" height="26" rx="4" fill="#fff" opacity="0.1"/>
+          <text x="444" y="39" font-size="9" fill="#fff" opacity="0.8" font-family="system-ui">Results</text>
+
+          <!-- Left Panel - Question Builder -->
+          <rect x="22" y="72" width="220" height="306" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="34" y="94" font-size="11" fill="#0ea5e9" font-weight="700" font-family="system-ui">QUESTION TYPES</text>
+
+          <!-- Question Type Cards -->
+          <rect x="30" y="106" width="94" height="56" rx="8" fill="#0ea5e9"/>
+          <circle cx="58" cy="126" r="10" fill="#fff" opacity="0.3"/>
+          <rect x="52" y="122" width="12" height="2" rx="1" fill="#fff"/>
+          <rect x="52" y="126" width="12" height="2" rx="1" fill="#fff"/>
+          <rect x="52" y="130" width="8" height="2" rx="1" fill="#fff"/>
+          <text x="40" y="152" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">Multiple Choice</text>
+
+          <rect x="132" y="106" width="94" height="56" rx="8" fill="#e0f2fe" stroke="#0ea5e9"/>
+          <rect x="154" y="120" width="50" height="6" rx="3" fill="#0ea5e9" opacity="0.3"/>
+          <circle cx="166" cy="123" r="6" fill="#0ea5e9"/>
+          <text x="156" y="152" font-size="8" fill="#0ea5e9" font-weight="600" font-family="system-ui">Rating</text>
+
+          <rect x="30" y="170" width="94" height="56" rx="8" fill="#e0f2fe" stroke="#0ea5e9"/>
+          <rect x="44" y="188" width="66" height="4" rx="2" fill="#0ea5e9" opacity="0.4"/>
+          <rect x="44" y="196" width="50" height="4" rx="2" fill="#0ea5e9" opacity="0.4"/>
+          <rect x="44" y="204" width="60" height="4" rx="2" fill="#0ea5e9" opacity="0.4"/>
+          <text x="44" y="220" font-size="8" fill="#0ea5e9" font-weight="600" font-family="system-ui">Text Response</text>
+
+          <rect x="132" y="170" width="94" height="56" rx="8" fill="#e0f2fe" stroke="#0ea5e9"/>
+          <rect x="154" y="186" width="12" height="12" rx="2" stroke="#0ea5e9" fill="none" stroke-width="1.5"/>
+          <path d="M157 192 L160 195 L166 188" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="170" y="188" width="40" height="4" rx="2" fill="#0ea5e9" opacity="0.4"/>
+          <rect x="154" y="202" width="12" height="12" rx="2" stroke="#0ea5e9" fill="none" stroke-width="1.5"/>
+          <rect x="170" y="204" width="35" height="4" rx="2" fill="#0ea5e9" opacity="0.4"/>
+          <text x="152" y="220" font-size="8" fill="#0ea5e9" font-weight="600" font-family="system-ui">Checkbox</text>
+
+          <!-- Current Question Preview -->
+          <text x="34" y="250" font-size="10" fill="#64748b" font-weight="600" font-family="system-ui">CURRENT QUESTION</text>
+          <rect x="30" y="260" width="204" height="108" rx="8" fill="#fff" stroke="#0ea5e9"/>
+          <text x="42" y="280" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Q1: Rate your satisfaction with</text>
+          <text x="42" y="294" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">the academic curriculum</text>
+
+          <!-- Rating Stars -->
+          <text x="42" y="320" font-size="8" fill="#64748b" font-family="system-ui">Response Type: Rating Scale</text>
+          <circle cx="54" cy="340" r="10" fill="#0ea5e9"/>
+          <text x="50" y="344" font-size="10" fill="#fff" font-family="system-ui">1</text>
+          <circle cx="80" cy="340" r="10" fill="#0ea5e9"/>
+          <text x="76" y="344" font-size="10" fill="#fff" font-family="system-ui">2</text>
+          <circle cx="106" cy="340" r="10" fill="#0ea5e9"/>
+          <text x="102" y="344" font-size="10" fill="#fff" font-family="system-ui">3</text>
+          <circle cx="132" cy="340" r="10" fill="#0ea5e9"/>
+          <text x="128" y="344" font-size="10" fill="#fff" font-family="system-ui">4</text>
+          <circle cx="158" cy="340" r="10" fill="#38bdf8"/>
+          <text x="154" y="344" font-size="10" fill="#fff" font-family="system-ui">5</text>
+          <text x="180" y="344" font-size="8" fill="#64748b" font-family="system-ui">Excellent</text>
+
+          <!-- Right Panel - Analytics Dashboard -->
+          <rect x="254" y="72" width="224" height="180" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <text x="266" y="94" font-size="11" fill="#0ea5e9" font-weight="700" font-family="system-ui">RESPONSE ANALYTICS</text>
+
+          <!-- Response Count -->
+          <rect x="266" y="106" width="90" height="60" rx="8" fill="#e0f2fe"/>
+          <text x="278" y="124" font-size="8" fill="#64748b" font-family="system-ui">Total Responses</text>
+          <text x="278" y="152" font-size="22" fill="#0ea5e9" font-weight="700" font-family="system-ui">847</text>
+
+          <!-- Response Rate -->
+          <rect x="366" y="106" width="100" height="60" rx="8" fill="#dcfce7"/>
+          <text x="378" y="124" font-size="8" fill="#64748b" font-family="system-ui">Response Rate</text>
+          <text x="378" y="152" font-size="22" fill="#22c55e" font-weight="700" font-family="system-ui">78%</text>
+
+          <!-- Bar Chart -->
+          <text x="266" y="184" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">Satisfaction Distribution</text>
+
+          <!-- Chart Bars -->
+          <rect x="266" y="195" width="30" height="45" rx="4" fill="#e0f2fe"/>
+          <rect x="266" y="220" width="30" height="20" rx="4" fill="#0ea5e9"/>
+          <text x="275" y="254" font-size="7" fill="#64748b" font-family="system-ui">1</text>
+
+          <rect x="302" y="195" width="30" height="45" rx="4" fill="#e0f2fe"/>
+          <rect x="302" y="210" width="30" height="30" rx="4" fill="#0ea5e9"/>
+          <text x="311" y="254" font-size="7" fill="#64748b" font-family="system-ui">2</text>
+
+          <rect x="338" y="195" width="30" height="45" rx="4" fill="#e0f2fe"/>
+          <rect x="338" y="200" width="30" height="40" rx="4" fill="#0ea5e9"/>
+          <text x="347" y="254" font-size="7" fill="#64748b" font-family="system-ui">3</text>
+
+          <rect x="374" y="195" width="30" height="45" rx="4" fill="#e0f2fe"/>
+          <rect x="374" y="198" width="30" height="42" rx="4" fill="#38bdf8"/>
+          <text x="383" y="254" font-size="7" fill="#64748b" font-family="system-ui">4</text>
+
+          <rect x="410" y="195" width="30" height="45" rx="4" fill="#e0f2fe"/>
+          <rect x="410" y="192" width="30" height="48" rx="4" fill="#0284c7"/>
+          <text x="419" y="254" font-size="7" fill="#64748b" font-family="system-ui">5</text>
+
+          <!-- Pie Chart Section -->
+          <rect x="254" y="262" width="224" height="116" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <text x="266" y="284" font-size="11" fill="#0ea5e9" font-weight="700" font-family="system-ui">RESPONSE BREAKDOWN</text>
+
+          <!-- Pie Chart -->
+          <circle cx="320" cy="334" r="35" fill="#e0f2fe"/>
+          <path d="M320 299 A35 35 0 0 1 353 347 L320 334 Z" fill="#0ea5e9"/>
+          <path d="M353 347 A35 35 0 0 1 310 367 L320 334 Z" fill="#38bdf8"/>
+          <path d="M310 367 A35 35 0 0 1 288 320 L320 334 Z" fill="#7dd3fc"/>
+          <path d="M288 320 A35 35 0 0 1 320 299 L320 334 Z" fill="#0284c7"/>
+
+          <!-- Legend -->
+          <rect x="380" y="300" width="8" height="8" rx="2" fill="#0ea5e9"/>
+          <text x="392" y="308" font-size="8" fill="#64748b" font-family="system-ui">Very Satisfied 42%</text>
+          <rect x="380" y="316" width="8" height="8" rx="2" fill="#38bdf8"/>
+          <text x="392" y="324" font-size="8" fill="#64748b" font-family="system-ui">Satisfied 28%</text>
+          <rect x="380" y="332" width="8" height="8" rx="2" fill="#7dd3fc"/>
+          <text x="392" y="340" font-size="8" fill="#64748b" font-family="system-ui">Neutral 18%</text>
+          <rect x="380" y="348" width="8" height="8" rx="2" fill="#0284c7"/>
+          <text x="392" y="356" font-size="8" fill="#64748b" font-family="system-ui">Dissatisfied 12%</text>
+
+          <!-- Export Button -->
+          <rect x="380" y="365" width="90" height="26" rx="6" fill="#0ea5e9"/>
+          <text x="396" y="382" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">Export PDF</text>
+        </svg>
+      </div>
+      <div class="feature-content">
+        <span class="feature-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Gather Feedback
+        </span>
+        <h2>Surveys & Polls</h2>
+        <div class="description">
+          <p>Create professional surveys with an intuitive drag-and-drop builder that supports multiple question types including multiple choice, rating scales, checkbox selections, matrix questions, and open-ended text responses. Design branching logic to create dynamic surveys that adapt based on previous answers, ensuring respondents only see relevant questions. Set up recurring surveys for periodic feedback collection on topics like parent satisfaction, event planning, and curriculum effectiveness.</p>
+          <p>Watch responses flow in through the real-time analytics dashboard featuring interactive charts, response distribution graphs, and trend analysis. Export comprehensive reports in PDF or Excel format for presentations and board meetings. The platform supports anonymous responses for sensitive topics while still providing aggregate insights. Compare results across different time periods, grade levels, or demographic segments to identify patterns and make data-driven decisions that improve school operations.</p>
+        </div>
+        <ul class="feature-highlights">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Drag-and-drop builder with MCQ, ratings, text, matrix, and ranking questions
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Real-time analytics with interactive charts and response visualization
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Anonymous response mode with aggregate insights for sensitive topics
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Export detailed reports in PDF, Excel, and CSV formats
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Conditional branching logic for dynamic, personalized survey flows
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ==================== MESSAGING TAB ==================== -->
+<div class="tab-content" data-panel="messaging" id="panel-messaging" role="tabpanel" aria-hidden="true">
+
+<!-- Feature 4: Internal Messaging -->
+<section class="feature-section reveal">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main Window Frame -->
+          <rect x="10" y="10" width="480" height="380" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Header -->
+          <rect x="10" y="10" width="480" height="50" rx="12" fill="#0ea5e9"/>
+          <rect x="10" y="48" width="480" height="12" fill="#0ea5e9"/>
+          <circle cx="32" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <circle cx="50" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <circle cx="68" cy="35" r="6" fill="#fff" opacity="0.3"/>
+          <text x="95" y="40" font-size="14" fill="#fff" font-weight="700" font-family="system-ui">Messages</text>
+
+          <!-- Search Box in Header -->
+          <rect x="320" y="20" width="160" height="30" rx="15" fill="#fff" opacity="0.2"/>
+          <circle cx="340" cy="35" r="8" stroke="#fff" stroke-width="1.5" fill="none"/>
+          <path d="M346 41 L350 45" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="358" y="39" font-size="9" fill="#fff" opacity="0.8" font-family="system-ui">Search messages...</text>
+
+          <!-- Left Panel - Conversation List -->
+          <rect x="22" y="72" width="170" height="306" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
+
+          <!-- New Message Button -->
+          <rect x="32" y="82" width="150" height="32" rx="6" fill="#0ea5e9"/>
+          <text x="72" y="102" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">+ New Message</text>
+
+          <!-- Conversation Search -->
+          <rect x="32" y="122" width="150" height="28" rx="6" fill="#fff" stroke="#cbd5e1"/>
+          <circle cx="48" cy="136" r="6" stroke="#94a3b8" stroke-width="1.5" fill="none"/>
+          <path d="M52 140 L55 143" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="60" y="140" font-size="8" fill="#94a3b8" font-family="system-ui">Find conversation...</text>
+
+          <!-- Conversation Item 1 (Selected) -->
+          <rect x="32" y="158" width="150" height="56" rx="8" fill="#0ea5e9"/>
+          <circle cx="54" cy="186" r="14" fill="#fff"/>
+          <text x="48" y="191" font-size="11" fill="#0ea5e9" font-weight="700" font-family="system-ui">SC</text>
+          <text x="76" y="178" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">Science Dept.</text>
+          <text x="76" y="192" font-size="8" fill="#e0f2fe" font-family="system-ui">Lab schedule updated for...</text>
+          <circle cx="170" cy="170" r="8" fill="#fff"/>
+          <text x="166" y="174" font-size="8" fill="#0ea5e9" font-weight="600" font-family="system-ui">3</text>
+          <text x="140" y="205" font-size="7" fill="#e0f2fe" font-family="system-ui">2:45 PM</text>
+
+          <!-- Conversation Item 2 -->
+          <rect x="32" y="220" width="150" height="56" rx="8" fill="#fff" stroke="#e2e8f0"/>
+          <circle cx="54" cy="248" r="14" fill="#e0f2fe"/>
+          <text x="47" y="253" font-size="11" fill="#0ea5e9" font-weight="700" font-family="system-ui">PO</text>
+          <text x="76" y="240" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Principal Office</text>
+          <text x="76" y="254" font-size="8" fill="#64748b" font-family="system-ui">Meeting reminder sent</text>
+          <text x="140" y="268" font-size="7" fill="#94a3b8" font-family="system-ui">1:30 PM</text>
+
+          <!-- Conversation Item 3 -->
+          <rect x="32" y="282" width="150" height="56" rx="8" fill="#fff" stroke="#e2e8f0"/>
+          <circle cx="54" cy="310" r="14" fill="#dcfce7"/>
+          <text x="48" y="315" font-size="11" fill="#22c55e" font-weight="700" font-family="system-ui">SP</text>
+          <text x="76" y="302" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Sports Coord.</text>
+          <text x="76" y="316" font-size="8" fill="#64748b" font-family="system-ui">Equipment approved!</text>
+          <path d="M76 326 L79 329 L85 322" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="90" y="328" font-size="7" fill="#22c55e" font-family="system-ui">Read</text>
+
+          <!-- Conversation Item 4 -->
+          <rect x="32" y="344" width="150" height="28" rx="8" fill="#fff" stroke="#e2e8f0"/>
+          <circle cx="48" cy="358" r="10" fill="#fef3c7"/>
+          <text x="44" y="362" font-size="8" fill="#f59e0b" font-weight="700" font-family="system-ui">A</text>
+          <text x="64" y="362" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Admin Team</text>
+
+          <!-- Right Panel - Chat Window -->
+          <rect x="204" y="72" width="274" height="306" rx="10" fill="#fff" stroke="#e2e8f0"/>
+
+          <!-- Chat Header -->
+          <rect x="204" y="72" width="274" height="50" rx="10" fill="#f8fafc"/>
+          <rect x="204" y="110" width="274" height="12" fill="#f8fafc"/>
+          <circle cx="230" cy="97" r="16" fill="#0ea5e9"/>
+          <text x="221" y="102" font-size="12" fill="#fff" font-weight="700" font-family="system-ui">SC</text>
+          <text x="254" y="92" font-size="12" fill="#0f172a" font-weight="600" font-family="system-ui">Science Department</text>
+          <circle cx="254" cy="106" r="4" fill="#22c55e"/>
+          <text x="262" y="110" font-size="8" fill="#64748b" font-family="system-ui">12 members online</text>
+
+          <!-- Options Icons -->
+          <circle cx="430" cy="97" r="12" fill="#e0f2fe"/>
+          <path d="M426 94 L434 94 M426 97 L434 97 M426 100 L434 100" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="458" cy="97" r="12" fill="#e0f2fe"/>
+          <circle cx="455" cy="97" r="1.5" fill="#0ea5e9"/>
+          <circle cx="458" cy="97" r="1.5" fill="#0ea5e9"/>
+          <circle cx="461" cy="97" r="1.5" fill="#0ea5e9"/>
+
+          <!-- Date Divider -->
+          <text x="320" y="140" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="system-ui">Today</text>
+          <line x1="224" y1="137" x2="290" y2="137" stroke="#e2e8f0" stroke-width="1"/>
+          <line x1="350" y1="137" x2="460" y2="137" stroke="#e2e8f0" stroke-width="1"/>
+
+          <!-- Incoming Message 1 -->
+          <circle cx="224" cy="166" r="12" fill="#e0f2fe"/>
+          <text x="220" y="170" font-size="8" fill="#0ea5e9" font-weight="600" font-family="system-ui">R</text>
+          <rect x="244" y="152" width="180" height="44" rx="12" fill="#e0f2fe"/>
+          <text x="256" y="168" font-size="9" fill="#0f172a" font-family="system-ui">Hi team! The new lab schedule is</text>
+          <text x="256" y="182" font-size="9" fill="#0f172a" font-family="system-ui">ready. Please review by tomorrow.</text>
+          <text x="388" y="192" font-size="7" fill="#64748b" font-family="system-ui">2:30 PM</text>
+
+          <!-- Outgoing Message -->
+          <rect x="290" y="205" width="170" height="32" rx="12" fill="#0ea5e9"/>
+          <text x="302" y="225" font-size="9" fill="#fff" font-family="system-ui">Thanks! I'll review it today.</text>
+          <path d="M440 231 L444 235 L452 226" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="432" y="244" font-size="7" fill="#64748b" font-family="system-ui">2:35 PM</text>
+
+          <!-- Incoming Message 2 -->
+          <circle cx="224" cy="268" r="12" fill="#fef3c7"/>
+          <text x="220" y="272" font-size="8" fill="#f59e0b" font-weight="600" font-family="system-ui">M</text>
+          <rect x="244" y="254" width="160" height="32" rx="12" fill="#e0f2fe"/>
+          <text x="256" y="274" font-size="9" fill="#0f172a" font-family="system-ui">I have some suggestions too!</text>
+          <text x="368" y="282" font-size="7" fill="#64748b" font-family="system-ui">2:40 PM</text>
+
+          <!-- Shared File -->
+          <circle cx="224" cy="316" r="12" fill="#e0f2fe"/>
+          <text x="220" y="320" font-size="8" fill="#0ea5e9" font-weight="600" font-family="system-ui">R</text>
+          <rect x="244" y="298" width="180" height="48" rx="12" fill="#e0f2fe"/>
+          <rect x="256" y="308" width="140" height="28" rx="6" fill="#fff" stroke="#cbd5e1"/>
+          <rect x="264" y="314" width="20" height="16" rx="2" fill="#ef4444"/>
+          <text x="268" y="325" font-size="7" fill="#fff" font-weight="600" font-family="system-ui">PDF</text>
+          <text x="290" y="322" font-size="8" fill="#0f172a" font-weight="500" font-family="system-ui">Lab_Schedule_v2.pdf</text>
+          <text x="290" y="332" font-size="7" fill="#64748b" font-family="system-ui">156 KB</text>
+          <text x="388" y="342" font-size="7" fill="#64748b" font-family="system-ui">2:45 PM</text>
+
+          <!-- Message Input Area -->
+          <rect x="214" y="354" width="254" height="40" rx="20" fill="#f8fafc" stroke="#cbd5e1"/>
+
+          <!-- Attachment Icon -->
+          <circle cx="238" cy="374" r="12" fill="#e0f2fe"/>
+          <path d="M234 378 L238 370 L242 378" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M238 370 L238 380" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round"/>
+
+          <!-- Emoji Icon -->
+          <circle cx="266" cy="374" r="12" fill="#e0f2fe"/>
+          <circle cx="266" cy="374" r="7" stroke="#0ea5e9" stroke-width="1.5" fill="none"/>
+          <circle cx="263" cy="372" r="1" fill="#0ea5e9"/>
+          <circle cx="269" cy="372" r="1" fill="#0ea5e9"/>
+          <path d="M263 376 Q266 379 269 376" stroke="#0ea5e9" stroke-width="1" stroke-linecap="round" fill="none"/>
+
+          <text x="290" y="378" font-size="10" fill="#94a3b8" font-family="system-ui">Type your message...</text>
+
+          <!-- Send Button -->
+          <circle cx="448" cy="374" r="16" fill="#0ea5e9"/>
+          <path d="M442 374 L454 374 M448 368 L454 374 L448 380" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="feature-content">
+        <span class="feature-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Secure Collaboration
+        </span>
+        <h2>Internal Messaging</h2>
+        <div class="description">
+          <p>Enable seamless, secure communication across your entire institution with a modern messaging platform designed specifically for educational environments. Create one-on-one conversations with colleagues or form group chats for departments, grade-level teams, committees, and special project groups. The intuitive interface shows online status, typing indicators, and message delivery confirmations so you always know the status of your communications.</p>
+          <p>Share documents, images, PDFs, and spreadsheets directly within conversations with automatic file versioning and preview capabilities. Messages are fully searchable, allowing staff to quickly find past discussions, shared files, and important decisions. All communications are protected with end-to-end encryption and stored securely in compliance with educational data privacy regulations. Administrators can set up role-based access controls to ensure appropriate communication boundaries while maintaining transparency.</p>
+        </div>
+        <ul class="feature-highlights">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Real-time messaging with typing indicators and read receipts
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Group chats for departments, committees, and project teams
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Seamless file sharing with preview and version control
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            End-to-end encryption with compliance-ready data protection
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Full-text search across all conversations and shared files
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- Module CTA -->
+<section class="module-cta">
+  <div class="container">
+    <h2>Ready to Transform Your School Communication?</h2>
+    <p>Join institutions using PaperBook's Communication Hub to keep parents, teachers, and staff connected and informed.</p>
+    <div class="btn-group">
+      <a href="#" class="btn btn-white btn-lg">Start Free Trial</a>
+      <a href="#" class="btn btn-white-outline btn-lg">Schedule a Demo</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer" aria-label="Site footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="../index.html" class="nav-brand">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" role="img"><title>PaperBook Logo</title><defs><linearGradient id="ftBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#ftBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#ftBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+          PaperBook
+        </a>
+        <p>The complete education management platform that simplifies administration, enhances teaching, and connects parents — for educators across India.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../index.html#integrations">Integrations</a>
+        <a href="#">Changelog</a>
+        <a href="#">Mobile App</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#">Documentation</a>
+        <a href="#">Help Center</a>
+        <a href="#">Blog</a>
+        <a href="#">Video Tutorials</a>
+        <a href="#">API Reference</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="../about.html">About Us</a>
+        <a href="#">Careers</a>
+        <a href="../index.html#contact">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 PaperBook. All rights reserved.</span>
+      <span>Made with care for educators across India</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+<script>
+// Tab Navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.module-tab');
+  const panels = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabId = tab.dataset.tab;
+
+      // Update tabs
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+
+      // Update panels
+      panels.forEach(panel => {
+        const isActive = panel.dataset.panel === tabId;
+        panel.classList.toggle('active', isActive);
+        panel.setAttribute('aria-hidden', !isActive);
+      });
+
+      // Update URL
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tabId);
+      window.history.pushState({}, '', url);
+
+      // Scroll to content
+      document.querySelector('.module-tabs-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Handle URL state
+  const params = new URLSearchParams(window.location.search);
+  const tabId = params.get('tab');
+  if (tabId) {
+    const targetTab = document.querySelector(`.module-tab[data-tab="${tabId}"]`);
+    if (targetTab) targetTab.click();
+  }
+
+  // Back/forward navigation
+  window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(window.location.search);
+    const tabId = params.get('tab');
+    if (tabId) {
+      const targetTab = document.querySelector(`.module-tab[data-tab="${tabId}"]`);
+      if (targetTab) targetTab.click();
+    }
+  });
+
+  // Feature section reveal
+  const featureSections = document.querySelectorAll('.feature-section');
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.2 }
+  );
+  featureSections.forEach(section => observer.observe(section));
+});
+</script>
+</body>
+</html>

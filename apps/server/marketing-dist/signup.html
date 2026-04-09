@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up / Sign In — PaperBook</title>
+  <meta name="description" content="Create your PaperBook account or sign in to manage your institution. Free to get started.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ===== Auth Page Styles ===== */
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Left Panel — Branding */
+    .auth-brand {
+      background: var(--primary-gradient);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-brand::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .auth-brand::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 400px;
+      height: 400px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .auth-brand-content {
+      position: relative;
+      z-index: 1;
+    }
+    .auth-brand .logo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 3rem;
+    }
+    .auth-brand h1 {
+      color: #fff;
+      font-size: 2.75rem;
+      line-height: 1.2;
+      margin-bottom: 1.25rem;
+    }
+    .auth-brand p {
+      color: rgba(255,255,255,0.8);
+      font-size: 1.125rem;
+      line-height: 1.7;
+      max-width: 440px;
+      margin-bottom: 2.5rem;
+    }
+    .auth-features {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .auth-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: rgba(255,255,255,0.9);
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .auth-feature-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .auth-feature-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: #fff;
+    }
+
+    /* Right Panel — Form */
+    .auth-form-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 2rem;
+      background: var(--card);
+    }
+    .auth-form-wrapper {
+      width: 100%;
+      max-width: 440px;
+    }
+    .auth-form-header {
+      margin-bottom: 2rem;
+    }
+    .auth-form-header h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .auth-form-header p {
+      font-size: 1rem;
+    }
+
+    /* Tab Switcher */
+    .auth-tabs {
+      display: flex;
+      background: var(--alt-bg);
+      border-radius: var(--radius-btn);
+      padding: 4px;
+      margin-bottom: 2rem;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 0.625rem 1rem;
+      text-align: center;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--muted);
+      border-radius: calc(var(--radius-btn) - 2px);
+      cursor: pointer;
+      transition: all 0.2s;
+      background: none;
+      border: none;
+    }
+    .auth-tab.active {
+      background: var(--card);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Form Panels */
+    .auth-panel {
+      display: none;
+    }
+    .auth-panel.active {
+      display: block;
+      animation: authFadeIn 0.25s ease;
+    }
+    @keyframes authFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Form Elements */
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .auth-form .form-group label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--foreground);
+    }
+    .auth-form .form-group input,
+    .auth-form .form-group select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      font-size: 0.9375rem;
+      font-family: inherit;
+      background: var(--card);
+      color: var(--foreground);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .auth-form .form-group input:focus,
+    .auth-form .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper input {
+      padding-right: 3rem;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 0.25rem;
+      display: flex;
+      align-items: center;
+    }
+    .password-toggle:hover {
+      color: var(--foreground);
+    }
+
+    .form-row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-extras {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.875rem;
+    }
+    .form-extras label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .form-extras label input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 16px;
+      height: 16px;
+    }
+    .form-extras a {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .form-extras a:hover {
+      text-decoration: underline;
+    }
+
+    .auth-submit {
+      width: 100%;
+      padding: 0.875rem;
+      font-size: 1rem;
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.25rem 0;
+      color: var(--muted);
+      font-size: 0.8125rem;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .social-login {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .social-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--foreground);
+      background: var(--card);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .social-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-50);
+    }
+    .social-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .auth-footer-text {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 1.5rem;
+    }
+    .auth-footer-text a {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .auth-footer-text a:hover {
+      text-decoration: underline;
+    }
+
+    .auth-terms {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .auth-terms a {
+      color: var(--primary);
+    }
+    .auth-terms a:hover {
+      text-decoration: underline;
+    }
+
+    .form-status {
+      text-align: center;
+      font-size: 0.875rem;
+      display: none;
+    }
+    .form-status.success { color: var(--green); }
+    .form-status.error { color: #ef4444; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .auth-brand {
+        padding: 2.5rem 3rem;
+      }
+      .auth-brand h1 {
+        font-size: 2.25rem;
+      }
+    }
+    @media (max-width: 768px) {
+      .auth-page {
+        grid-template-columns: 1fr;
+      }
+      .auth-brand {
+        display: none;
+      }
+      .auth-form-panel {
+        padding: 2rem 1.5rem;
+        min-height: 100vh;
+      }
+      .auth-form-wrapper {
+        max-width: 100%;
+      }
+      .mobile-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--foreground);
+        margin-bottom: 2rem;
+      }
+      .form-row-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (min-width: 769px) {
+      .mobile-brand {
+        display: none;
+      }
+    }
+  </style>
+  <script src="js/analytics.js" defer></script>
+</head>
+<body>
+
+<div class="auth-page">
+  <!-- Left Panel: Branding -->
+  <div class="auth-brand">
+    <div class="auth-brand-content">
+      <a href="index.html" class="logo-link">
+        <svg width="46" height="46" viewBox="0 0 32 32" fill="none"><defs><linearGradient id="logoBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect x="1" y="1" width="30" height="30" rx="7" fill="url(#logoBg)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#logoBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+        PaperBook
+      </a>
+      <h1>Simplify Your Institution Management</h1>
+      <p>Join 500+ schools, colleges, and coaching institutes across India that trust PaperBook to run their operations seamlessly.</p>
+      <div class="auth-features">
+        <div class="auth-feature">
+          <span class="auth-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+          </span>
+          Free forever for up to 100 students
+        </div>
+        <div class="auth-feature">
+          <span class="auth-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </span>
+          Go live in under 15 minutes
+        </div>
+        <div class="auth-feature">
+          <span class="auth-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </span>
+          Bank-grade security & data privacy
+        </div>
+        <div class="auth-feature">
+          <span class="auth-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </span>
+          Dedicated onboarding support
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel: Forms -->
+  <div class="auth-form-panel">
+    <div class="auth-form-wrapper">
+      <!-- Mobile logo (hidden on desktop) -->
+      <a href="index.html" class="mobile-brand">
+        <svg width="40" height="40" viewBox="0 0 32 32" fill="none" role="img"><title>PaperBook Logo</title><defs><linearGradient id="mobLogoBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#mobLogoBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#mobLogoBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+        PaperBook
+      </a>
+
+      <!-- Tab Switcher -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="signup">Create Account</button>
+        <button class="auth-tab" data-tab="login">Sign In</button>
+      </div>
+
+      <!-- ===== Sign Up Panel ===== -->
+      <div class="auth-panel active" id="panel-signup">
+        <!-- Sign Up Form -->
+        <div id="signup-form-section">
+          <div class="auth-form-header">
+            <h2>Get Started with PaperBook</h2>
+            <p>Tell us about your institution and our team will get you set up.</p>
+          </div>
+
+          <form class="auth-form" id="signup-form" onsubmit="return false;">
+            <div class="form-row-2col">
+              <div class="form-group">
+                <label for="signup-fname">First Name *</label>
+                <input type="text" id="signup-fname" name="firstName" placeholder="John" required>
+              </div>
+              <div class="form-group">
+                <label for="signup-lname">Last Name *</label>
+                <input type="text" id="signup-lname" name="lastName" placeholder="Doe" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="signup-email">Work Email *</label>
+              <input type="email" id="signup-email" name="email" placeholder="john@school.edu" required>
+            </div>
+            <div class="form-group">
+              <label for="signup-phone">Phone Number *</label>
+              <input type="tel" id="signup-phone" name="phone" placeholder="+91 98765 43210" required>
+            </div>
+            <div class="form-group">
+              <label for="signup-institution">Institution Name *</label>
+              <input type="text" id="signup-institution" name="institution" placeholder="ABC Public School" required>
+            </div>
+            <div class="form-row-2col">
+              <div class="form-group">
+                <label for="signup-city">City</label>
+                <input type="text" id="signup-city" name="city" placeholder="Mumbai">
+              </div>
+              <div class="form-group">
+                <label for="signup-role">Your Role *</label>
+                <select id="signup-role" name="role" required>
+                  <option value="" disabled selected>Select your role</option>
+                  <option value="principal">Principal / Director</option>
+                  <option value="admin">Administrator</option>
+                  <option value="teacher">Teacher / Faculty</option>
+                  <option value="management">Management / Trustee</option>
+                  <option value="it">IT / Tech Lead</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="signup-message">What are you looking for? <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+              <input type="text" id="signup-message" name="message" placeholder="e.g., Fee management, attendance tracking, full ERP...">
+            </div>
+            <button type="submit" class="btn btn-primary auth-submit" id="signup-btn">Request a Demo</button>
+            <p class="form-status" id="signup-status"></p>
+            <p class="auth-terms">By submitting, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+          </form>
+        </div>
+
+        <!-- Success State (hidden by default) -->
+        <div id="signup-success" style="display:none;">
+          <div style="text-align:center;padding:2rem 0;">
+            <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            </div>
+            <h2 style="font-size:1.75rem;margin-bottom:0.75rem;color:var(--foreground);">Thank You!</h2>
+            <p style="font-size:1.0625rem;color:var(--muted);line-height:1.7;max-width:380px;margin:0 auto 1.5rem;">
+              Your request has been received successfully. Our team will review your details and reach out to you within <strong style="color:var(--foreground);">24 hours</strong> to understand your requirements and get you started.
+            </p>
+            <div style="background:var(--alt-bg);border-radius:12px;padding:1.25rem 1.5rem;text-align:left;margin-bottom:1.5rem;">
+              <p style="font-size:0.8125rem;font-weight:600;color:var(--foreground);margin-bottom:0.75rem;">What happens next?</p>
+              <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                <div style="display:flex;align-items:flex-start;gap:0.75rem;font-size:0.875rem;color:var(--muted);">
+                  <span style="background:var(--primary);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">1</span>
+                  Our team will call you to understand your needs
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:0.75rem;font-size:0.875rem;color:var(--muted);">
+                  <span style="background:var(--primary);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">2</span>
+                  We'll set up a personalized demo for your institution
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:0.75rem;font-size:0.875rem;color:var(--muted);">
+                  <span style="background:var(--primary);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">3</span>
+                  Get your dedicated school portal up and running
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;justify-content:center;">
+              <a href="index.html" class="btn btn-outline" style="padding:0.75rem 1.5rem;font-size:0.875rem;">Back to Home</a>
+              <a href="mailto:hello@paperbook.app" class="btn btn-primary" style="padding:0.75rem 1.5rem;font-size:0.875rem;">Contact Us</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Sign In Panel ===== -->
+      <div class="auth-panel" id="panel-login">
+        <div class="auth-form-header">
+          <h2>Welcome Back</h2>
+          <p>Sign in to your PaperBook dashboard.</p>
+        </div>
+
+        <form class="auth-form" id="login-form" onsubmit="return false;">
+          <div class="form-group">
+            <label for="login-email">Email Address *</label>
+            <input type="email" id="login-email" name="email" placeholder="john@school.edu" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+              <button type="button" class="password-toggle" aria-label="Toggle password visibility" aria-pressed="false" data-target="login-password">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-extras">
+            <label><input type="checkbox" name="remember"> Remember me</label>
+            <a href="#">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn btn-primary auth-submit" id="login-btn">Sign In</button>
+          <p class="form-status" id="login-status"></p>
+        </form>
+
+        <div class="auth-divider">or continue with</div>
+
+        <div class="social-login">
+          <button class="social-btn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Google
+          </button>
+          <button class="social-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12S0 5.446 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </button>
+        </div>
+
+        <p class="auth-footer-text">Don't have an account? <a href="#" id="switch-to-signup">Create one free</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Tab switching
+  var tabs = document.querySelectorAll('.auth-tab');
+  var panels = document.querySelectorAll('.auth-panel');
+
+  function switchTab(tabName) {
+    tabs.forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tabName); });
+    panels.forEach(function(p) { p.classList.toggle('active', p.id === 'panel-' + tabName); });
+  }
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() { switchTab(this.dataset.tab); });
+  });
+
+  var switchLink = document.getElementById('switch-to-signup');
+  if (switchLink) {
+    switchLink.addEventListener('click', function(e) { e.preventDefault(); switchTab('signup'); });
+  }
+
+  // Password toggle
+  document.querySelectorAll('.password-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var input = document.getElementById(this.dataset.target);
+      var isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      this.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+    });
+  });
+
+  // API base URL — auto-detects environment
+  var API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3001'
+    : 'https://api.paperbook.app';
+  var APP_DOMAIN = 'paperbook.app';
+
+  // Sign Up form submit — creates a lead in Gravity portal for sales team
+  document.getElementById('signup-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('signup-btn');
+    var status = document.getElementById('signup-status');
+    var form = this;
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    status.style.display = 'none';
+
+    var data = {
+      schoolName: form.institution.value.trim(),
+      contactName: form.firstName.value.trim() + ' ' + form.lastName.value.trim(),
+      contactEmail: form.email.value.trim(),
+      contactPhone: form.phone.value.trim(),
+      city: form.city ? form.city.value.trim() : '',
+      source: 'website',
+      message: (form.role.value ? 'Role: ' + form.role.value : '') + (form.message && form.message.value.trim() ? ' | ' + form.message.value.trim() : '')
+    };
+
+    fetch(API_URL + '/api/public/lead-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+    .then(function(result) {
+      if (result.ok || result.data.success) {
+        // Show full success screen
+        document.getElementById('signup-form-section').style.display = 'none';
+        document.getElementById('signup-success').style.display = 'block';
+        form.reset();
+      } else {
+        status.style.display = 'block';
+        status.className = 'form-status error';
+        status.textContent = result.data.error || result.data.message || 'Something went wrong. Please try again.';
+      }
+    })
+    .catch(function() {
+      status.style.display = 'block';
+      status.className = 'form-status error';
+      status.textContent = 'Unable to connect. Please try again later.';
+    })
+    .finally(function() {
+      btn.disabled = false;
+      btn.textContent = 'Request a Demo';
+    });
+  });
+
+  // Sign In form submit — authenticates and redirects to school subdomain
+  document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('login-btn');
+    var status = document.getElementById('login-status');
+    var form = this;
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+    status.style.display = 'none';
+
+    var data = {
+      email: form.email.value.trim(),
+      password: form.password.value
+    };
+
+    fetch(API_URL + '/api/public/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+    .then(function(result) {
+      status.style.display = 'block';
+      if (result.ok) {
+        if (result.data.organizationSlug && result.data.loginToken) {
+          status.className = 'form-status success';
+          status.textContent = 'Success! Redirecting to your dashboard...';
+          // Auto-login: redirect to school subdomain with one-time token
+          window.location.href = 'https://' + result.data.organizationSlug + '.' + APP_DOMAIN + '/api/public/auto-login?token=' + encodeURIComponent(result.data.loginToken);
+        } else if (result.data.organizationSlug) {
+          status.className = 'form-status success';
+          status.textContent = 'Success! Redirecting to your school...';
+          window.location.href = 'https://' + result.data.organizationSlug + '.' + APP_DOMAIN + '/login';
+        } else {
+          status.className = 'form-status error';
+          status.textContent = 'No school associated with this account. Please contact your administrator.';
+        }
+      } else {
+        status.className = 'form-status error';
+        status.textContent = result.data.error || result.data.message || 'Invalid email or password.';
+      }
+    })
+    .catch(function() {
+      status.style.display = 'block';
+      status.className = 'form-status error';
+      status.textContent = 'Unable to connect. Please try again later.';
+    })
+    .finally(function() {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    });
+  });
+
+  // Allow deep-linking to login tab via ?tab=login
+  if (window.location.search.indexOf('tab=login') > -1) {
+    switchTab('login');
+  }
+</script>
+
+</body>
+</html>

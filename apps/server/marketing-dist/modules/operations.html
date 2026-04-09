@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operations Management — PaperBook</title>
+  <meta name="description" content="Transport routing, hostel management, library, inventory tracking, and visitor management for schools.">
+  <meta name="keywords" content="school transport management, GPS tracking school bus, hostel management software, asset management education, visitor management system">
+  <meta name="author" content="PaperBook">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0d9488">
+  <link rel="canonical" href="https://paperbook.app/modules/operations.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://paperbook.app/modules/operations.html">
+  <meta property="og:title" content="Operations Management — PaperBook">
+  <meta property="og:description" content="Transport routing, hostel management, library, inventory tracking, and visitor management for schools.">
+  <meta property="og:image" content="https://paperbook.app/og-image.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Operations Management — PaperBook">
+  <meta name="twitter:description" content="Transport routing, hostel management, library, inventory tracking, and visitor management for schools.">
+  <meta name="twitter:image" content="https://paperbook.app/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/module-pages.css">
+  <script src="../js/analytics.js" defer></script>
+</head>
+<body class="page-operations">
+<style>
+.page-operations {
+  --module-primary: #0d9488;
+  --module-light: #ccfbf1;
+  --module-gradient: linear-gradient(135deg, #2dd4bf 0%, #0d9488 50%, #0f766e 100%);
+}
+
+/* Centered Tab Navigation */
+.module-tabs-nav {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 4rem;
+  z-index: 100;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+
+.module-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.25s ease;
+}
+
+.module-tab:hover {
+  background: var(--module-light);
+  color: var(--module-primary);
+}
+
+.module-tab.active {
+  background: var(--module-gradient);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(13,148,136,0.3);
+}
+
+.module-tab svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+</style>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<nav id="navbar" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" role="img"><title>PaperBook Logo</title><defs><linearGradient id="navBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#navBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#navBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+      PaperBook
+    </a>
+    <div class="nav-links">
+      <div class="nav-dropdown">
+        <a href="../index.html#features" class="nav-dropdown-trigger">
+          Products
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu products-mega-menu">
+          <div class="mega-menu-grid">
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Core</div>
+              <a href="dashboard.html">
+                <span class="dropdown-icon" style="background: #f5f3ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>
+                <div><strong>Dashboard</strong><span>Overview & analytics</span></div>
+              </a>
+              <a href="people.html">
+                <span class="dropdown-icon" style="background: #e0e7ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+                <div><strong>People</strong><span>Students, staff, attendance</span></div>
+              </a>
+              <a href="admissions.html">
+                <span class="dropdown-icon" style="background: #fce7f3;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M10 13h4M10 17h4M8 13h.01M8 17h.01"/></svg></span>
+                <div><strong>Admissions</strong><span>Applications, enrollment</span></div>
+              </a>
+            </div>
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Academic</div>
+              <a href="library.html">
+                <span class="dropdown-icon" style="background: #fef3c7;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z"/></svg></span>
+                <div><strong>Library</strong><span>Books, digital resources</span></div>
+              </a>
+              <a href="lms.html">
+                <span class="dropdown-icon" style="background: #d1fae5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+                <div><strong>LMS</strong><span>Online courses, lectures</span></div>
+              </a>
+              <a href="exam.html">
+                <span class="dropdown-icon" style="background: #ffe4e6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+                <div><strong>Exams</strong><span>Scheduling, report cards</span></div>
+              </a>
+            </div>
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Operations</div>
+              <a href="finance.html">
+                <span class="dropdown-icon" style="background: #dcfce7;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+                <div><strong>Finance</strong><span>Fees, payroll, accounts</span></div>
+              </a>
+              <a href="operations.html">
+                <span class="dropdown-icon" style="background: #ccfbf1;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+                <div><strong>Operations</strong><span>Transport, hostel, assets</span></div>
+              </a>
+              <a href="management.html">
+                <span class="dropdown-icon" style="background: #e0f7fa;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                <div><strong>Management</strong><span>Schedule, docs, alumni</span></div>
+              </a>
+            </div>
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Communication</div>
+              <a href="communication.html">
+                <span class="dropdown-icon" style="background: #e0f2fe;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+                <div><strong>Communication</strong><span>Messages, announcements</span></div>
+              </a>
+              <a href="reports.html">
+                <span class="dropdown-icon" style="background: #f3e8ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M21 21H3V3"/><path d="M18 9l-5 5-4-4-3 3"/></svg></span>
+                <div><strong>Reports</strong><span>Analytics & insights</span></div>
+              </a>
+              <a href="settings.html">
+                <span class="dropdown-icon" style="background: #f1f5f9;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+                <div><strong>Settings</strong><span>Configuration, integrations</span></div>
+              </a>
+              <a href="parent.html">
+                <span class="dropdown-icon" style="background: #fff7ed;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <div><strong>Parent Portal</strong><span>PTM, reports, messaging</span></div>
+              </a>
+            </div>
+          </div>
+          <div class="dropdown-footer">
+            <a href="../index.html#features">View all features →</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="../index.html#integrations" class="nav-dropdown-trigger">
+          Integrations
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0f4ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg></span>
+            <div><strong>Razorpay</strong><span>UPI, cards, net banking</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0fdf4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+            <div><strong>Cashfree</strong><span>Payouts, subscriptions</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0fdf4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></span>
+            <div><strong>WhatsApp</strong><span>Alerts & notifications</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #fef2f2;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea4335" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg></span>
+            <div><strong>Google Workspace</strong><span>Calendar, Meet, Sheets</span></div>
+          </a>
+          <div class="dropdown-footer">
+            <a href="../index.html#integrations">View all integrations →</a>
+          </div>
+        </div>
+      </div>
+      <a href="../index.html#testimonials">Testimonials</a>
+      <a href="../index.html#pricing">Pricing</a>
+      <div class="nav-dropdown">
+        <a href="../about.html" class="nav-dropdown-trigger">
+          About
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="../about.html">
+            <span class="dropdown-icon" style="background: #f5f3ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+            <div><strong>About Us</strong><span>Our story, mission & team</span></div>
+          </a>
+          <a href="../index.html#contact">
+            <span class="dropdown-icon" style="background: #e0f2fe;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></span>
+            <div><strong>Contact Us</strong><span>Get in touch with us</span></div>
+          </a>
+        </div>
+      </div>
+      <a href="../faq.html">FAQ</a>
+    </div>
+    <div class="nav-actions">
+      <a href="#" class="btn btn-outline">Sign In</a>
+      <a href="#" class="btn btn-primary">Get Started Free</a>
+    </div>
+    <button id="menu-btn" aria-label="Toggle menu">
+      <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+  <div id="mobile-menu">
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        Products
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Core</div>
+          <div class="mobile-category-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="people.html">People</a>
+            <a href="admissions.html">Admissions</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Academic</div>
+          <div class="mobile-category-links">
+            <a href="library.html">Library</a>
+            <a href="lms.html">LMS</a>
+            <a href="exam.html">Exams</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Operations</div>
+          <div class="mobile-category-links">
+            <a href="finance.html">Finance</a>
+            <a href="operations.html">Operations</a>
+            <a href="management.html">Management</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Communication</div>
+          <div class="mobile-category-links">
+            <a href="communication.html">Communication</a>
+            <a href="reports.html">Reports</a>
+            <a href="settings.html">Settings</a>
+            <a href="parent.html">Parent Portal</a>
+          </div>
+        </div>
+        <a href="../index.html#features" class="view-all">View all features →</a>
+      </div>
+    </div>
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        Integrations
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <a href="../index.html#integrations">Razorpay</a>
+        <a href="../index.html#integrations">Cashfree</a>
+        <a href="../index.html#integrations">WhatsApp</a>
+        <a href="../index.html#integrations">Google Workspace</a>
+        <a href="../index.html#integrations" class="view-all">View all integrations →</a>
+      </div>
+    </div>
+    <a href="../index.html#testimonials">Testimonials</a>
+    <a href="../index.html#pricing">Pricing</a>
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        About
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <a href="../about.html">About Us</a>
+        <a href="../index.html#contact">Contact Us</a>
+      </div>
+    </div>
+    <a href="../faq.html">FAQ</a>
+    <a href="#" class="btn btn-outline">Sign In</a>
+    <a href="#" class="btn btn-primary">Get Started Free</a>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<section class="module-page-hero">
+  <div class="container">
+    <a href="../index.html#features" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Features
+    </a>
+    <div class="module-hero-grid">
+      <div class="module-hero-text">
+        <h1><span>Operations</span> — Run Your Campus Smoothly</h1>
+        <p class="tagline">Manage transport with GPS tracking, hostel facilities, campus assets, and visitor management. Everything you need for efficient campus operations.</p>
+        <div class="module-hero-actions">
+          <a href="#" class="btn btn-module btn-lg">Start Free Trial</a>
+          <a href="#" class="btn btn-outline btn-lg">Schedule Demo</a>
+        </div>
+      </div>
+      <div class="module-hero-illustration">
+        <svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="480" height="360" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+          <rect x="10" y="10" width="480" height="44" rx="16" fill="#f8fafc"/>
+          <circle cx="34" cy="32" r="6" fill="#fca5a5"/><circle cx="54" cy="32" r="6" fill="#fde68a"/><circle cx="74" cy="32" r="6" fill="#86efac"/>
+
+          <!-- Map Area -->
+          <rect x="30" y="70" width="280" height="200" rx="10" fill="#ccfbf1" stroke="#99f6e4"/>
+          <text x="48" y="95" font-size="11" fill="#0f172a" font-weight="600" font-family="system-ui">Live Transport Tracking</text>
+
+          <!-- Roads -->
+          <path d="M50 180 Q100 160 150 180 T250 170 T290 190" stroke="#94a3b8" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+          <!-- Bus Icons -->
+          <g transform="translate(120, 155)">
+            <rect x="0" y="0" width="35" height="22" rx="4" fill="#0d9488"/>
+            <circle cx="10" cy="24" r="4" fill="#0f172a"/>
+            <circle cx="25" cy="24" r="4" fill="#0f172a"/>
+            <circle cx="17" cy="-8" r="8" fill="#22c55e" stroke="#fff" stroke-width="2"/>
+            <text x="14" y="-4" font-size="8" fill="#fff" font-weight="700" font-family="system-ui">1</text>
+          </g>
+
+          <!-- Bus Status Panel -->
+          <rect x="330" y="70" width="150" height="200" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <text x="348" y="95" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Operations Hub</text>
+
+          <rect x="345" y="110" width="120" height="35" rx="6" fill="#d1fae5"/>
+          <text x="358" y="130" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Transport</text>
+          <text x="358" y="140" font-size="7" fill="#10b981" font-family="system-ui">5 buses active</text>
+
+          <rect x="345" y="153" width="120" height="35" rx="6" fill="#e0e7ff"/>
+          <text x="358" y="173" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Hostel</text>
+          <text x="358" y="183" font-size="7" fill="#4f46e5" font-family="system-ui">92% occupancy</text>
+
+          <rect x="345" y="196" width="120" height="35" rx="6" fill="#fef3c7"/>
+          <text x="358" y="216" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Assets</text>
+          <text x="358" y="226" font-size="7" fill="#f59e0b" font-family="system-ui">342 items tracked</text>
+
+          <rect x="345" y="239" width="120" height="25" rx="6" fill="#f1f5f9"/>
+          <text x="358" y="256" font-size="9" fill="#64748b" font-weight="500" font-family="system-ui">3 visitors today</text>
+
+          <!-- Bottom Stats -->
+          <rect x="30" y="285" width="450" height="70" rx="10" fill="#ccfbf1" stroke="#99f6e4"/>
+          <text x="48" y="310" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Quick Actions</text>
+          <rect x="48" y="322" width="100" height="24" rx="6" fill="#0d9488"/>
+          <text x="68" y="338" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">View Routes</text>
+          <rect x="158" y="322" width="100" height="24" rx="6" fill="#fff" stroke="#0d9488"/>
+          <text x="175" y="338" font-size="8" fill="#0d9488" font-weight="600" font-family="system-ui">Manage Hostel</text>
+          <rect x="268" y="322" width="100" height="24" rx="6" fill="#fff" stroke="#0d9488"/>
+          <text x="290" y="338" font-size="8" fill="#0d9488" font-weight="600" font-family="system-ui">Asset Log</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Centered Tab Navigation -->
+<nav class="module-tabs-nav">
+  <div class="container">
+    <div class="tabs-container" role="tablist" aria-label="Operations module sections">
+      <button class="module-tab active" data-tab="transport" role="tab" aria-selected="true" aria-controls="panel-transport">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="6" width="22" height="10" rx="2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+        Transport
+      </button>
+      <button class="module-tab" data-tab="hostel" role="tab" aria-selected="false" aria-controls="panel-hostel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3"/><rect x="7" y="14" width="4" height="7"/><rect x="13" y="14" width="4" height="7"/></svg>
+        Hostel
+      </button>
+      <button class="module-tab" data-tab="assets" role="tab" aria-selected="false" aria-controls="panel-assets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        Assets
+      </button>
+      <button class="module-tab" data-tab="visitors" role="tab" aria-selected="false" aria-controls="panel-visitors">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+        Visitors
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== TRANSPORT TAB ==================== -->
+<div class="tab-content active" data-panel="transport" id="panel-transport" role="tabpanel" aria-hidden="false">
+
+  <!-- Feature 1: Route Management -->
+  <section class="feature-section reveal">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-illustration">
+          <svg viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="440" height="320" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+            <rect x="20" y="20" width="440" height="50" rx="16" fill="#0d9488"/>
+            <rect x="20" y="55" width="440" height="15" fill="#0d9488"/>
+            <text x="44" y="52" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Route Management — Bus 01</text>
+
+            <!-- Map Area -->
+            <rect x="36" y="85" width="280" height="200" rx="8" fill="#ccfbf1" stroke="#99f6e4"/>
+
+            <!-- Roads -->
+            <path d="M60 180 Q120 140 180 170 T280 150" stroke="#94a3b8" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M60 220 Q140 200 200 230 T290 210" stroke="#94a3b8" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+            <!-- Stop Points -->
+            <circle cx="80" cy="175" r="10" fill="#fff" stroke="#0d9488" stroke-width="3"/>
+            <text x="76" y="179" font-size="10" fill="#0d9488" font-weight="700" font-family="system-ui">1</text>
+            <circle cx="150" cy="155" r="10" fill="#fff" stroke="#0d9488" stroke-width="3"/>
+            <text x="146" y="159" font-size="10" fill="#0d9488" font-weight="700" font-family="system-ui">2</text>
+            <circle cx="220" cy="165" r="10" fill="#fff" stroke="#0d9488" stroke-width="3"/>
+            <text x="216" y="169" font-size="10" fill="#0d9488" font-weight="700" font-family="system-ui">3</text>
+            <circle cx="270" cy="145" r="12" fill="#0d9488" stroke="#fff" stroke-width="3"/>
+            <text x="266" y="149" font-size="10" fill="#fff" font-weight="700" font-family="system-ui">S</text>
+
+            <!-- Bus Icon -->
+            <g transform="translate(175, 190)">
+              <rect x="0" y="0" width="40" height="24" rx="6" fill="#0d9488"/>
+              <rect x="4" y="4" width="12" height="8" rx="2" fill="#fff" opacity="0.3"/>
+              <rect x="20" y="4" width="12" height="8" rx="2" fill="#fff" opacity="0.3"/>
+              <circle cx="10" cy="28" r="5" fill="#0f172a"/>
+              <circle cx="30" cy="28" r="5" fill="#0f172a"/>
+            </g>
+
+            <!-- Route Info Panel -->
+            <rect x="332" y="85" width="120" height="200" rx="8" fill="#fff" stroke="#e2e8f0"/>
+            <text x="348" y="108" font-size="11" fill="#0f172a" font-weight="600" font-family="system-ui">Route Details</text>
+
+            <rect x="344" y="120" width="96" height="35" rx="6" fill="#ccfbf1"/>
+            <text x="356" y="137" font-size="9" fill="#64748b" font-family="system-ui">Total Stops</text>
+            <text x="356" y="150" font-size="14" fill="#0d9488" font-weight="700" font-family="system-ui">12 stops</text>
+
+            <rect x="344" y="162" width="96" height="35" rx="6" fill="#ccfbf1"/>
+            <text x="356" y="179" font-size="9" fill="#64748b" font-family="system-ui">Students</text>
+            <text x="356" y="192" font-size="14" fill="#0d9488" font-weight="700" font-family="system-ui">45</text>
+
+            <rect x="344" y="204" width="96" height="35" rx="6" fill="#ccfbf1"/>
+            <text x="356" y="221" font-size="9" fill="#64748b" font-family="system-ui">Distance</text>
+            <text x="356" y="234" font-size="14" fill="#0d9488" font-weight="700" font-family="system-ui">18.5 km</text>
+
+            <rect x="344" y="246" width="96" height="28" rx="6" fill="#0d9488"/>
+            <text x="360" y="264" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">Edit Route</text>
+
+            <!-- Bottom Stats -->
+            <rect x="36" y="295" width="416" height="35" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+            <text x="52" y="317" font-size="10" fill="#64748b" font-family="system-ui">Morning: 7:00 AM</text>
+            <text x="180" y="317" font-size="10" fill="#64748b" font-family="system-ui">Evening: 3:30 PM</text>
+            <text x="320" y="317" font-size="10" fill="#22c55e" font-weight="600" font-family="system-ui">● Route Active</text>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <span class="feature-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Route Planning
+          </span>
+          <h2>Route Management</h2>
+          <div class="description">
+            <p>Design efficient bus routes with an interactive map interface. Add stop points, set pickup times, and assign students to specific stops with drag-and-drop simplicity.</p>
+            <p>Our intelligent routing algorithm suggests optimizations to reduce travel time and fuel costs. Parents can view their child's bus route and estimated pickup times through the mobile app.</p>
+          </div>
+          <ul class="feature-highlights">
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Interactive map-based route planning</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Stop-wise student assignment with capacity limits</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>AI-powered route optimization suggestions</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Multiple route variants (morning/evening)</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Export routes to driver mobile app</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature 2: Live GPS Tracking -->
+  <section class="feature-section reverse reveal">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-illustration">
+          <svg viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="440" height="320" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+            <rect x="20" y="20" width="440" height="50" rx="16" fill="#0d9488"/>
+            <rect x="20" y="55" width="440" height="15" fill="#0d9488"/>
+            <text x="44" y="52" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Live Bus Tracking</text>
+
+            <!-- Live Map -->
+            <rect x="36" y="85" width="300" height="230" rx="8" fill="#ccfbf1" stroke="#99f6e4"/>
+
+            <!-- Map Grid Lines -->
+            <path d="M36 150 L336 150" stroke="#99f6e4" stroke-width="1"/>
+            <path d="M36 200 L336 200" stroke="#99f6e4" stroke-width="1"/>
+            <path d="M36 250 L336 250" stroke="#99f6e4" stroke-width="1"/>
+            <path d="M120 85 L120 315" stroke="#99f6e4" stroke-width="1"/>
+            <path d="M200 85 L200 315" stroke="#99f6e4" stroke-width="1"/>
+            <path d="M280 85 L280 315" stroke="#99f6e4" stroke-width="1"/>
+
+            <!-- Roads -->
+            <path d="M50 180 Q130 120 200 160 T320 140" stroke="#64748b" stroke-width="8" fill="none" stroke-linecap="round"/>
+            <path d="M60 260 Q150 220 250 250 T330 220" stroke="#64748b" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+            <!-- School Building -->
+            <rect x="280" y="110" width="40" height="35" rx="4" fill="#0d9488"/>
+            <text x="290" y="132" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">SCH</text>
+
+            <!-- Bus 1 - Moving -->
+            <g transform="translate(140, 140)">
+              <circle cx="15" cy="10" r="20" fill="#22c55e" opacity="0.3"/>
+              <circle cx="15" cy="10" r="12" fill="#22c55e" opacity="0.5"/>
+              <rect x="0" y="0" width="30" height="18" rx="4" fill="#22c55e"/>
+              <circle cx="8" cy="20" r="4" fill="#0f172a"/>
+              <circle cx="22" cy="20" r="4" fill="#0f172a"/>
+              <text x="8" y="13" font-size="8" fill="#fff" font-weight="700" font-family="system-ui">01</text>
+            </g>
+
+            <!-- Bus 2 - Moving -->
+            <g transform="translate(220, 230)">
+              <circle cx="15" cy="10" r="20" fill="#0d9488" opacity="0.3"/>
+              <rect x="0" y="0" width="30" height="18" rx="4" fill="#0d9488"/>
+              <circle cx="8" cy="20" r="4" fill="#0f172a"/>
+              <circle cx="22" cy="20" r="4" fill="#0f172a"/>
+              <text x="8" y="13" font-size="8" fill="#fff" font-weight="700" font-family="system-ui">02</text>
+            </g>
+
+            <!-- Bus Status Panel -->
+            <rect x="350" y="85" width="102" height="230" rx="8" fill="#fff" stroke="#e2e8f0"/>
+            <text x="364" y="108" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Active Buses</text>
+
+            <!-- Bus 1 Status -->
+            <rect x="358" y="118" width="86" height="50" rx="6" fill="#d1fae5" stroke="#22c55e"/>
+            <circle cx="372" cy="133" r="8" fill="#22c55e"/>
+            <text x="369" y="136" font-size="7" fill="#fff" font-weight="700" font-family="system-ui">1</text>
+            <text x="385" y="133" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Bus 01</text>
+            <text x="372" y="148" font-size="8" fill="#22c55e" font-family="system-ui">On Route</text>
+            <text x="372" y="160" font-size="7" fill="#64748b" font-family="system-ui">ETA: 5 mins</text>
+
+            <!-- Bus 2 Status -->
+            <rect x="358" y="175" width="86" height="50" rx="6" fill="#ccfbf1" stroke="#0d9488"/>
+            <circle cx="372" cy="190" r="8" fill="#0d9488"/>
+            <text x="369" y="193" font-size="7" fill="#fff" font-weight="700" font-family="system-ui">2</text>
+            <text x="385" y="190" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Bus 02</text>
+            <text x="372" y="205" font-size="8" fill="#0d9488" font-family="system-ui">On Route</text>
+            <text x="372" y="217" font-size="7" fill="#64748b" font-family="system-ui">ETA: 12 mins</text>
+
+            <!-- Bus 3 Status -->
+            <rect x="358" y="232" width="86" height="50" rx="6" fill="#fef3c7" stroke="#f59e0b"/>
+            <circle cx="372" cy="247" r="8" fill="#f59e0b"/>
+            <text x="369" y="250" font-size="7" fill="#fff" font-weight="700" font-family="system-ui">3</text>
+            <text x="385" y="247" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Bus 03</text>
+            <text x="372" y="262" font-size="8" fill="#f59e0b" font-family="system-ui">Delayed</text>
+            <text x="372" y="274" font-size="7" fill="#64748b" font-family="system-ui">+8 mins delay</text>
+
+            <!-- Notification Bell -->
+            <g transform="translate(390, 290)">
+              <circle cx="20" cy="15" r="15" fill="#fee2e2"/>
+              <path d="M20 8 L20 15 M16 22 L24 22" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="28" cy="8" r="6" fill="#ef4444"/>
+              <text x="25" y="11" font-size="8" fill="#fff" font-weight="700" font-family="system-ui">2</text>
+            </g>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <span class="feature-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+            Real-time Tracking
+          </span>
+          <h2>Live GPS Tracking</h2>
+          <div class="description">
+            <p>Monitor your entire fleet in real-time with GPS tracking. See exactly where each bus is, its speed, and estimated time of arrival at each stop.</p>
+            <p>Parents receive automatic push notifications when the bus is approaching their stop. Delay alerts keep everyone informed of schedule changes instantly.</p>
+          </div>
+          <ul class="feature-highlights">
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Real-time GPS tracking with live map</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Automatic ETA notifications for parents</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Delay and disruption alerts</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Speed monitoring and geofencing</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Historical route playback</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ==================== HOSTEL TAB ==================== -->
+<div class="tab-content" data-panel="hostel" id="panel-hostel" role="tabpanel" aria-hidden="true">
+
+  <!-- Feature 1: Room Management -->
+  <section class="feature-section reveal">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-illustration">
+          <svg viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="440" height="320" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+            <rect x="20" y="20" width="440" height="50" rx="16" fill="#4f46e5"/>
+            <rect x="20" y="55" width="440" height="15" fill="#4f46e5"/>
+            <text x="44" y="52" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Hostel Floor Plan — Block A</text>
+
+            <!-- Floor Plan Grid -->
+            <rect x="36" y="85" width="300" height="230" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+
+            <!-- Corridor -->
+            <rect x="140" y="85" width="50" height="230" fill="#e2e8f0"/>
+            <text x="148" y="200" font-size="8" fill="#64748b" font-family="system-ui" transform="rotate(-90, 165, 200)">CORRIDOR</text>
+
+            <!-- Left Side Rooms -->
+            <rect x="46" y="95" width="84" height="50" rx="4" fill="#d1fae5" stroke="#22c55e" stroke-width="2"/>
+            <text x="56" y="115" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Room 101</text>
+            <text x="56" y="128" font-size="8" fill="#22c55e" font-family="system-ui">4/4 Occupied</text>
+            <circle cx="115" cy="115" r="8" fill="#22c55e"/>
+            <path d="M111 115 L114 118 L120 112" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+
+            <rect x="46" y="155" width="84" height="50" rx="4" fill="#d1fae5" stroke="#22c55e" stroke-width="2"/>
+            <text x="56" y="175" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Room 102</text>
+            <text x="56" y="188" font-size="8" fill="#22c55e" font-family="system-ui">4/4 Occupied</text>
+            <circle cx="115" cy="175" r="8" fill="#22c55e"/>
+            <path d="M111 175 L114 178 L120 172" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+
+            <rect x="46" y="215" width="84" height="50" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+            <text x="56" y="235" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Room 103</text>
+            <text x="56" y="248" font-size="8" fill="#f59e0b" font-family="system-ui">3/4 Occupied</text>
+            <circle cx="115" cy="235" r="8" fill="#f59e0b"/>
+            <text x="112" y="239" font-size="8" fill="#fff" font-weight="700" font-family="system-ui">1</text>
+
+            <!-- Right Side Rooms -->
+            <rect x="200" y="95" width="84" height="50" rx="4" fill="#d1fae5" stroke="#22c55e" stroke-width="2"/>
+            <text x="210" y="115" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Room 104</text>
+            <text x="210" y="128" font-size="8" fill="#22c55e" font-family="system-ui">4/4 Occupied</text>
+
+            <rect x="200" y="155" width="84" height="50" rx="4" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+            <text x="210" y="175" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Room 105</text>
+            <text x="210" y="188" font-size="8" fill="#ef4444" font-family="system-ui">Maintenance</text>
+            <circle cx="269" cy="175" r="8" fill="#ef4444"/>
+            <text x="266" y="179" font-size="10" fill="#fff" font-weight="700" font-family="system-ui">!</text>
+
+            <rect x="200" y="215" width="84" height="50" rx="4" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+            <text x="210" y="235" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Room 106</text>
+            <text x="210" y="248" font-size="8" fill="#4f46e5" font-family="system-ui">2/4 Available</text>
+            <circle cx="269" cy="235" r="8" fill="#4f46e5"/>
+            <text x="266" y="239" font-size="8" fill="#fff" font-weight="700" font-family="system-ui">2</text>
+
+            <!-- Stats Panel -->
+            <rect x="350" y="85" width="102" height="230" rx="8" fill="#fff" stroke="#e2e8f0"/>
+            <text x="364" y="108" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Block Stats</text>
+
+            <rect x="358" y="118" width="86" height="45" rx="6" fill="#e0e7ff"/>
+            <text x="370" y="138" font-size="9" fill="#64748b" font-family="system-ui">Total Rooms</text>
+            <text x="370" y="155" font-size="18" fill="#4f46e5" font-weight="700" font-family="system-ui">24</text>
+
+            <rect x="358" y="170" width="86" height="45" rx="6" fill="#d1fae5"/>
+            <text x="370" y="190" font-size="9" fill="#64748b" font-family="system-ui">Occupancy</text>
+            <text x="370" y="207" font-size="18" fill="#22c55e" font-weight="700" font-family="system-ui">92%</text>
+
+            <rect x="358" y="222" width="86" height="45" rx="6" fill="#fef3c7"/>
+            <text x="370" y="242" font-size="9" fill="#64748b" font-family="system-ui">Available</text>
+            <text x="370" y="259" font-size="18" fill="#f59e0b" font-weight="700" font-family="system-ui">3</text>
+
+            <rect x="358" y="280" width="86" height="28" rx="6" fill="#4f46e5"/>
+            <text x="370" y="298" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">+ Allocate</text>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <span class="feature-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3"/><rect x="7" y="14" width="4" height="7"/><rect x="13" y="14" width="4" height="7"/></svg>
+            Room Planning
+          </span>
+          <h2>Room Management</h2>
+          <div class="description">
+            <p>View room occupancy at a glance with interactive visual floor plans. Color-coded rooms show availability, occupancy status, and maintenance needs instantly.</p>
+            <p>Allocate students to rooms based on class, gender, preferences, and special requirements. Easy transfer and swap functionality lets wardens manage room changes efficiently.</p>
+          </div>
+          <ul class="feature-highlights">
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Interactive visual floor plans</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Real-time occupancy tracking</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Smart student-room matching</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Room transfer and swap requests</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Maintenance status tracking</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature 2: Mess Management -->
+  <section class="feature-section reverse reveal">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-illustration">
+          <svg viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="440" height="320" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+            <rect x="20" y="20" width="440" height="50" rx="16" fill="#f59e0b"/>
+            <rect x="20" y="55" width="440" height="15" fill="#f59e0b"/>
+            <text x="44" y="52" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Mess Management — Weekly Menu</text>
+
+            <!-- Weekly Menu Grid -->
+            <rect x="36" y="85" width="408" height="35" rx="4" fill="#fef3c7"/>
+            <text x="60" y="107" font-size="9" fill="#92400e" font-weight="600" font-family="system-ui">MON</text>
+            <text x="118" y="107" font-size="9" fill="#92400e" font-weight="600" font-family="system-ui">TUE</text>
+            <text x="178" y="107" font-size="9" fill="#92400e" font-weight="600" font-family="system-ui">WED</text>
+            <text x="238" y="107" font-size="9" fill="#f59e0b" font-weight="700" font-family="system-ui">THU</text>
+            <text x="298" y="107" font-size="9" fill="#92400e" font-weight="600" font-family="system-ui">FRI</text>
+            <text x="358" y="107" font-size="9" fill="#92400e" font-weight="600" font-family="system-ui">SAT</text>
+            <text x="410" y="107" font-size="9" fill="#92400e" font-weight="600" font-family="system-ui">SUN</text>
+
+            <!-- Breakfast Row -->
+            <rect x="36" y="125" width="60" height="55" rx="4" fill="#fef3c7"/>
+            <text x="42" y="145" font-size="8" fill="#92400e" font-weight="600" font-family="system-ui">Breakfast</text>
+            <text x="42" y="158" font-size="7" fill="#64748b" font-family="system-ui">7:30 AM</text>
+
+            <rect x="100" y="125" width="55" height="55" rx="4" fill="#fff" stroke="#e2e8f0"/>
+            <text x="108" y="145" font-size="7" fill="#64748b" font-family="system-ui">Idli</text>
+            <text x="108" y="158" font-size="7" fill="#64748b" font-family="system-ui">Sambar</text>
+
+            <rect x="160" y="125" width="55" height="55" rx="4" fill="#fff" stroke="#e2e8f0"/>
+            <text x="168" y="145" font-size="7" fill="#64748b" font-family="system-ui">Poha</text>
+            <text x="168" y="158" font-size="7" fill="#64748b" font-family="system-ui">Jalebi</text>
+
+            <rect x="220" y="125" width="55" height="55" rx="4" fill="#fff" stroke="#e2e8f0"/>
+            <text x="228" y="145" font-size="7" fill="#64748b" font-family="system-ui">Paratha</text>
+            <text x="228" y="158" font-size="7" fill="#64748b" font-family="system-ui">Curd</text>
+
+            <rect x="280" y="125" width="55" height="55" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+            <text x="288" y="145" font-size="7" fill="#0f172a" font-weight="600" font-family="system-ui">Dosa</text>
+            <text x="288" y="158" font-size="7" fill="#0f172a" font-family="system-ui">Chutney</text>
+
+            <!-- Lunch Row -->
+            <rect x="36" y="185" width="60" height="55" rx="4" fill="#d1fae5"/>
+            <text x="42" y="205" font-size="8" fill="#059669" font-weight="600" font-family="system-ui">Lunch</text>
+            <text x="42" y="218" font-size="7" fill="#64748b" font-family="system-ui">12:30 PM</text>
+
+            <rect x="280" y="185" width="55" height="55" rx="4" fill="#d1fae5" stroke="#22c55e" stroke-width="2"/>
+            <text x="288" y="205" font-size="7" fill="#0f172a" font-weight="600" font-family="system-ui">Rice</text>
+            <text x="288" y="218" font-size="7" fill="#0f172a" font-family="system-ui">Dal, Sabzi</text>
+
+            <!-- Dinner Row -->
+            <rect x="36" y="245" width="60" height="55" rx="4" fill="#e0e7ff"/>
+            <text x="42" y="265" font-size="8" fill="#4338ca" font-weight="600" font-family="system-ui">Dinner</text>
+            <text x="42" y="278" font-size="7" fill="#64748b" font-family="system-ui">7:30 PM</text>
+
+            <rect x="280" y="245" width="55" height="55" rx="4" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+            <text x="288" y="265" font-size="7" fill="#0f172a" font-weight="600" font-family="system-ui">Roti</text>
+            <text x="288" y="278" font-size="7" fill="#0f172a" font-family="system-ui">Paneer</text>
+
+            <!-- Stats Section -->
+            <rect x="350" y="125" width="94" height="55" rx="6" fill="#d1fae5"/>
+            <text x="362" y="145" font-size="8" fill="#64748b" font-family="system-ui">Today's Count</text>
+            <text x="362" y="168" font-size="20" fill="#22c55e" font-weight="700" font-family="system-ui">186</text>
+            <text x="395" y="168" font-size="8" fill="#64748b" font-family="system-ui">students</text>
+
+            <rect x="350" y="190" width="94" height="55" rx="6" fill="#fef3c7"/>
+            <text x="362" y="210" font-size="8" fill="#64748b" font-family="system-ui">Special Diet</text>
+            <text x="362" y="233" font-size="20" fill="#f59e0b" font-weight="700" font-family="system-ui">12</text>
+            <text x="388" y="233" font-size="8" fill="#64748b" font-family="system-ui">requests</text>
+
+            <rect x="350" y="255" width="94" height="40" rx="6" fill="#f59e0b"/>
+            <text x="365" y="280" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">Edit Menu</text>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <span class="feature-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+            Meal Planning
+          </span>
+          <h2>Mess Management</h2>
+          <div class="description">
+            <p>Plan weekly menus with ease using our intuitive calendar interface. Track daily meal consumption, manage inventory, and ensure dietary requirements are met for all students.</p>
+            <p>Students can view upcoming menus, submit dietary preference requests, and provide feedback on meals. Automated reports help optimize menu planning and reduce food wastage.</p>
+          </div>
+          <ul class="feature-highlights">
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Weekly menu planning calendar</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Dietary preference management</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Daily attendance and meal count</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Student feedback and ratings</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Mess fee collection integration</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ==================== ASSETS TAB ==================== -->
+<div class="tab-content" data-panel="assets" id="panel-assets" role="tabpanel" aria-hidden="true">
+
+  <!-- Feature 1: Asset Registry -->
+  <section class="feature-section reveal">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-illustration">
+          <svg viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="440" height="320" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+            <rect x="20" y="20" width="440" height="50" rx="16" fill="#64748b"/>
+            <rect x="20" y="55" width="440" height="15" fill="#64748b"/>
+            <text x="44" y="52" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Asset Registry — All Items</text>
+
+            <!-- Search Bar -->
+            <rect x="36" y="85" width="250" height="35" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+            <text x="52" y="107" font-size="10" fill="#94a3b8" font-family="system-ui">🔍 Search assets by name, ID, or barcode...</text>
+
+            <!-- Filter Buttons -->
+            <rect x="296" y="85" width="70" height="35" rx="6" fill="#64748b"/>
+            <text x="314" y="107" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">All (342)</text>
+            <rect x="374" y="85" width="78" height="35" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+            <text x="388" y="107" font-size="9" fill="#64748b" font-family="system-ui">+ Add Asset</text>
+
+            <!-- Asset Table Header -->
+            <rect x="36" y="130" width="416" height="30" rx="4" fill="#f1f5f9"/>
+            <text x="52" y="150" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">Asset Name</text>
+            <text x="170" y="150" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">ID</text>
+            <text x="240" y="150" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">Location</text>
+            <text x="330" y="150" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">Status</text>
+            <text x="410" y="150" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">Value</text>
+
+            <!-- Asset Row 1 -->
+            <rect x="36" y="165" width="416" height="40" rx="4" fill="#fff" stroke="#e2e8f0"/>
+            <rect x="46" y="175" width="20" height="20" rx="4" fill="#e0e7ff"/>
+            <text x="50" y="189" font-size="8" fill="#4f46e5" font-family="system-ui">💻</text>
+            <text x="76" y="185" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Dell Laptop</text>
+            <text x="76" y="197" font-size="7" fill="#64748b" font-family="system-ui">Computer Lab</text>
+            <text x="170" y="190" font-size="8" fill="#64748b" font-family="system-ui">AST-0042</text>
+            <text x="240" y="190" font-size="8" fill="#64748b" font-family="system-ui">Lab 3</text>
+            <rect x="320" y="178" width="55" height="18" rx="9" fill="#d1fae5"/>
+            <text x="332" y="191" font-size="7" fill="#22c55e" font-weight="600" font-family="system-ui">Active</text>
+            <text x="400" y="190" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">₹45,000</text>
+
+            <!-- Asset Row 2 -->
+            <rect x="36" y="210" width="416" height="40" rx="4" fill="#fff" stroke="#e2e8f0"/>
+            <rect x="46" y="220" width="20" height="20" rx="4" fill="#fef3c7"/>
+            <text x="50" y="234" font-size="8" fill="#f59e0b" font-family="system-ui">🪑</text>
+            <text x="76" y="230" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Student Desk</text>
+            <text x="76" y="242" font-size="7" fill="#64748b" font-family="system-ui">Furniture</text>
+            <text x="170" y="235" font-size="8" fill="#64748b" font-family="system-ui">AST-0156</text>
+            <text x="240" y="235" font-size="8" fill="#64748b" font-family="system-ui">Class 8-A</text>
+            <rect x="320" y="223" width="55" height="18" rx="9" fill="#fef3c7"/>
+            <text x="328" y="236" font-size="7" fill="#f59e0b" font-weight="600" font-family="system-ui">Repair</text>
+            <text x="400" y="235" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">₹3,500</text>
+
+            <!-- Asset Row 3 -->
+            <rect x="36" y="255" width="416" height="40" rx="4" fill="#fff" stroke="#e2e8f0"/>
+            <rect x="46" y="265" width="20" height="20" rx="4" fill="#ccfbf1"/>
+            <text x="50" y="279" font-size="8" fill="#0d9488" font-family="system-ui">📽️</text>
+            <text x="76" y="275" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Epson Projector</text>
+            <text x="76" y="287" font-size="7" fill="#64748b" font-family="system-ui">Electronics</text>
+            <text x="170" y="280" font-size="8" fill="#64748b" font-family="system-ui">AST-0089</text>
+            <text x="240" y="280" font-size="8" fill="#64748b" font-family="system-ui">AV Room</text>
+            <rect x="320" y="268" width="55" height="18" rx="9" fill="#d1fae5"/>
+            <text x="332" y="281" font-size="7" fill="#22c55e" font-weight="600" font-family="system-ui">Active</text>
+            <text x="400" y="280" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">₹65,000</text>
+
+            <!-- Summary Stats -->
+            <rect x="36" y="305" width="130" height="28" rx="6" fill="#e0e7ff"/>
+            <text x="52" y="323" font-size="9" fill="#4f46e5" font-weight="600" font-family="system-ui">Total: ₹24.5L</text>
+            <rect x="176" y="305" width="130" height="28" rx="6" fill="#d1fae5"/>
+            <text x="192" y="323" font-size="9" fill="#22c55e" font-weight="600" font-family="system-ui">Active: 318</text>
+            <rect x="316" y="305" width="136" height="28" rx="6" fill="#fef3c7"/>
+            <text x="332" y="323" font-size="9" fill="#f59e0b" font-weight="600" font-family="system-ui">Maintenance: 24</text>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <span class="feature-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            Asset Tracking
+          </span>
+          <h2>Asset Registry</h2>
+          <div class="description">
+            <p>Maintain a comprehensive digital registry of all campus assets — from computers and projectors to furniture and lab equipment. Each asset is tagged with a unique barcode or QR code for easy scanning and tracking.</p>
+            <p>Track asset location, assignment history, maintenance schedules, and warranty status. Monitor depreciation automatically and get alerts when assets need attention or replacement.</p>
+          </div>
+          <ul class="feature-highlights">
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Barcode/QR code scanning for quick lookup</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Location and department-wise tracking</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Automated depreciation calculations</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Maintenance and warranty tracking</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Asset transfer and audit history</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature 2: Stock & Procurement -->
+  <section class="feature-section reverse reveal">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-illustration">
+          <svg viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="440" height="320" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+            <rect x="20" y="20" width="440" height="50" rx="16" fill="#8b5cf6"/>
+            <rect x="20" y="55" width="440" height="15" fill="#8b5cf6"/>
+            <text x="44" y="52" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Stock & Procurement</text>
+
+            <!-- Stock Level Cards -->
+            <rect x="36" y="85" width="135" height="90" rx="8" fill="#d1fae5" stroke="#22c55e"/>
+            <text x="52" y="108" font-size="10" fill="#64748b" font-family="system-ui">Stationery</text>
+            <text x="52" y="135" font-size="24" fill="#22c55e" font-weight="700" font-family="system-ui">85%</text>
+            <rect x="52" y="150" width="100" height="8" rx="4" fill="#fff"/>
+            <rect x="52" y="150" width="85" height="8" rx="4" fill="#22c55e"/>
+            <text x="52" y="170" font-size="8" fill="#64748b" font-family="system-ui">Stock Level: Good</text>
+
+            <rect x="181" y="85" width="135" height="90" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
+            <text x="197" y="108" font-size="10" fill="#64748b" font-family="system-ui">Lab Supplies</text>
+            <text x="197" y="135" font-size="24" fill="#f59e0b" font-weight="700" font-family="system-ui">32%</text>
+            <rect x="197" y="150" width="100" height="8" rx="4" fill="#fff"/>
+            <rect x="197" y="150" width="32" height="8" rx="4" fill="#f59e0b"/>
+            <text x="197" y="170" font-size="8" fill="#f59e0b" font-weight="600" font-family="system-ui">⚠️ Low Stock Alert</text>
+
+            <rect x="326" y="85" width="126" height="90" rx="8" fill="#fee2e2" stroke="#ef4444"/>
+            <text x="342" y="108" font-size="10" fill="#64748b" font-family="system-ui">Cleaning</text>
+            <text x="342" y="135" font-size="24" fill="#ef4444" font-weight="700" font-family="system-ui">12%</text>
+            <rect x="342" y="150" width="100" height="8" rx="4" fill="#fff"/>
+            <rect x="342" y="150" width="12" height="8" rx="4" fill="#ef4444"/>
+            <text x="342" y="170" font-size="8" fill="#ef4444" font-weight="600" font-family="system-ui">🚨 Reorder Now</text>
+
+            <!-- Purchase Orders -->
+            <rect x="36" y="185" width="260" height="130" rx="8" fill="#fff" stroke="#e2e8f0"/>
+            <text x="52" y="208" font-size="11" fill="#0f172a" font-weight="600" font-family="system-ui">Recent Purchase Orders</text>
+
+            <rect x="46" y="220" width="240" height="35" rx="4" fill="#d1fae5"/>
+            <text x="58" y="238" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">PO-2026-0142</text>
+            <text x="58" y="250" font-size="7" fill="#64748b" font-family="system-ui">Office Supplies Ltd</text>
+            <text x="200" y="238" font-size="8" fill="#22c55e" font-weight="600" font-family="system-ui">Delivered</text>
+            <text x="200" y="250" font-size="8" fill="#22c55e" font-family="system-ui">₹12,500</text>
+
+            <rect x="46" y="260" width="240" height="35" rx="4" fill="#fef3c7"/>
+            <text x="58" y="278" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">PO-2026-0143</text>
+            <text x="58" y="290" font-size="7" fill="#64748b" font-family="system-ui">Lab Chem Suppliers</text>
+            <text x="200" y="278" font-size="8" fill="#f59e0b" font-weight="600" font-family="system-ui">Pending</text>
+            <text x="200" y="290" font-size="8" fill="#f59e0b" font-family="system-ui">₹28,000</text>
+
+            <!-- Actions Panel -->
+            <rect x="306" y="185" width="146" height="130" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+            <text x="322" y="208" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Quick Actions</text>
+
+            <rect x="316" y="220" width="126" height="30" rx="6" fill="#8b5cf6"/>
+            <text x="336" y="240" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">+ New Order</text>
+
+            <rect x="316" y="258" width="126" height="30" rx="6" fill="#fff" stroke="#8b5cf6"/>
+            <text x="332" y="278" font-size="9" fill="#8b5cf6" font-weight="600" font-family="system-ui">View Vendors</text>
+
+            <rect x="316" y="296" width="126" height="16" rx="4" fill="#ede9fe"/>
+            <text x="336" y="308" font-size="8" fill="#8b5cf6" font-family="system-ui">3 approvals pending</text>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <span class="feature-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 01-8 0"/></svg>
+            Inventory Control
+          </span>
+          <h2>Stock & Procurement</h2>
+          <div class="description">
+            <p>Track consumables like stationery, lab supplies, cleaning materials, and sports equipment with real-time stock levels. Get automatic alerts when inventory drops below minimum thresholds.</p>
+            <p>Create and manage purchase orders with multi-level approval workflows. Track orders from request to delivery, match received goods against POs, and maintain a comprehensive vendor database.</p>
+          </div>
+          <ul class="feature-highlights">
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Real-time stock level monitoring</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Low stock alerts and reorder suggestions</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Purchase order approval workflows</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Vendor management and comparison</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Goods receipt and invoice matching</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ==================== VISITORS TAB ==================== -->
+<div class="tab-content" data-panel="visitors" id="panel-visitors" role="tabpanel" aria-hidden="true">
+
+  <!-- Feature 1: Visitor Logs -->
+  <section class="feature-section reveal">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-illustration">
+          <svg viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="440" height="320" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+            <rect x="20" y="20" width="440" height="50" rx="16" fill="#ec4899"/>
+            <rect x="20" y="55" width="440" height="15" fill="#ec4899"/>
+            <text x="44" y="52" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Visitor Check-In — Gate Entry</text>
+
+            <!-- Check-in Form -->
+            <rect x="36" y="85" width="200" height="225" rx="8" fill="#fff" stroke="#e2e8f0"/>
+            <text x="52" y="108" font-size="11" fill="#0f172a" font-weight="600" font-family="system-ui">New Visitor</text>
+
+            <!-- Photo Capture Area -->
+            <rect x="76" y="120" width="120" height="90" rx="8" fill="#fce7f3" stroke="#ec4899" stroke-dasharray="4"/>
+            <circle cx="136" cy="155" r="25" fill="#fbcfe8"/>
+            <text x="124" y="162" font-size="16" fill="#ec4899" font-family="system-ui">📷</text>
+            <text x="100" y="195" font-size="8" fill="#ec4899" font-family="system-ui">Click to capture</text>
+
+            <!-- Form Fields -->
+            <text x="52" y="230" font-size="9" fill="#64748b" font-family="system-ui">Visitor Name</text>
+            <rect x="52" y="236" width="168" height="26" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+            <text x="62" y="253" font-size="9" fill="#0f172a" font-family="system-ui">Rajesh Kumar</text>
+
+            <text x="52" y="275" font-size="9" fill="#64748b" font-family="system-ui">Purpose of Visit</text>
+            <rect x="52" y="281" width="168" height="26" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+            <text x="62" y="298" font-size="9" fill="#0f172a" font-family="system-ui">Parent Meeting</text>
+
+            <!-- Today's Visitors List -->
+            <rect x="246" y="85" width="206" height="225" rx="8" fill="#fff" stroke="#e2e8f0"/>
+            <text x="262" y="108" font-size="11" fill="#0f172a" font-weight="600" font-family="system-ui">Today's Visitors (8)</text>
+
+            <!-- Visitor 1 - Checked In -->
+            <rect x="256" y="118" width="186" height="45" rx="6" fill="#d1fae5"/>
+            <circle cx="280" cy="140" r="15" fill="#22c55e"/>
+            <text x="276" y="145" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">R</text>
+            <text x="302" y="133" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Ramesh Sharma</text>
+            <text x="302" y="146" font-size="7" fill="#64748b" font-family="system-ui">Meeting with Principal</text>
+            <text x="302" y="158" font-size="7" fill="#22c55e" font-weight="600" font-family="system-ui">✓ Checked In 9:30 AM</text>
+
+            <!-- Visitor 2 - Checked In -->
+            <rect x="256" y="168" width="186" height="45" rx="6" fill="#d1fae5"/>
+            <circle cx="280" cy="190" r="15" fill="#0d9488"/>
+            <text x="276" y="195" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">P</text>
+            <text x="302" y="183" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Priya Verma</text>
+            <text x="302" y="196" font-size="7" fill="#64748b" font-family="system-ui">Document Submission</text>
+            <text x="302" y="208" font-size="7" fill="#22c55e" font-weight="600" font-family="system-ui">✓ Checked In 10:15 AM</text>
+
+            <!-- Visitor 3 - Checked Out -->
+            <rect x="256" y="218" width="186" height="45" rx="6" fill="#f1f5f9"/>
+            <circle cx="280" cy="240" r="15" fill="#94a3b8"/>
+            <text x="276" y="245" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">A</text>
+            <text x="302" y="233" font-size="9" fill="#64748b" font-weight="500" font-family="system-ui">Amit Patel</text>
+            <text x="302" y="246" font-size="7" fill="#64748b" font-family="system-ui">Vendor Delivery</text>
+            <text x="302" y="258" font-size="7" fill="#64748b" font-family="system-ui">Checked Out 11:00 AM</text>
+
+            <!-- Pre-approved Badge -->
+            <rect x="256" y="270" width="186" height="35" rx="6" fill="#fce7f3" stroke="#ec4899"/>
+            <text x="272" y="292" font-size="9" fill="#ec4899" font-weight="600" font-family="system-ui">⏰ 2 Pre-approved visitors expected</text>
+
+            <!-- Print Badge Button -->
+            <rect x="36" y="320" width="200" height="35" rx="6" fill="#ec4899"/>
+            <text x="90" y="342" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">🎫 Print Badge</text>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <span class="feature-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+            Visitor Tracking
+          </span>
+          <h2>Visitor Check-In System</h2>
+          <div class="description">
+            <p>Digitize your visitor management with our comprehensive check-in system. Capture visitor photos, scan ID documents, and print professional visitor badges — all in seconds.</p>
+            <p>Staff can pre-approve visitors for meetings, events, or recurring visits. Pre-approved visitors enjoy express check-in with their registered mobile number or QR code.</p>
+          </div>
+          <ul class="feature-highlights">
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Digital check-in with photo capture</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Instant visitor badge printing</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>ID document scanning and storage</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Pre-approval for expected visitors</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Host notification on visitor arrival</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature 2: Visitor Analytics -->
+  <section class="feature-section reverse reveal">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-illustration">
+          <svg viewBox="0 0 480 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="20" width="440" height="320" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+            <rect x="20" y="20" width="440" height="50" rx="16" fill="#6366f1"/>
+            <rect x="20" y="55" width="440" height="15" fill="#6366f1"/>
+            <text x="44" y="52" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Visitor Analytics — March 2026</text>
+
+            <!-- Stats Cards -->
+            <rect x="36" y="85" width="100" height="70" rx="8" fill="#e0e7ff"/>
+            <text x="52" y="108" font-size="9" fill="#64748b" font-family="system-ui">This Month</text>
+            <text x="52" y="135" font-size="24" fill="#4f46e5" font-weight="700" font-family="system-ui">847</text>
+            <text x="52" y="150" font-size="8" fill="#22c55e" font-family="system-ui">↑ 12% vs last month</text>
+
+            <rect x="146" y="85" width="100" height="70" rx="8" fill="#d1fae5"/>
+            <text x="162" y="108" font-size="9" fill="#64748b" font-family="system-ui">Today</text>
+            <text x="162" y="135" font-size="24" fill="#22c55e" font-weight="700" font-family="system-ui">24</text>
+            <text x="162" y="150" font-size="8" fill="#64748b" font-family="system-ui">8 currently on campus</text>
+
+            <rect x="256" y="85" width="100" height="70" rx="8" fill="#fef3c7"/>
+            <text x="272" y="108" font-size="9" fill="#64748b" font-family="system-ui">Avg Duration</text>
+            <text x="272" y="135" font-size="24" fill="#f59e0b" font-weight="700" font-family="system-ui">42m</text>
+            <text x="272" y="150" font-size="8" fill="#64748b" font-family="system-ui">per visit</text>
+
+            <rect x="366" y="85" width="86" height="70" rx="8" fill="#fce7f3"/>
+            <text x="382" y="108" font-size="9" fill="#64748b" font-family="system-ui">Peak Hour</text>
+            <text x="382" y="135" font-size="20" fill="#ec4899" font-weight="700" font-family="system-ui">10 AM</text>
+            <text x="382" y="150" font-size="8" fill="#64748b" font-family="system-ui">most visitors</text>
+
+            <!-- Chart Area -->
+            <rect x="36" y="165" width="280" height="145" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+            <text x="52" y="188" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Daily Visitor Trend</text>
+
+            <!-- Bar Chart -->
+            <rect x="60" y="260" width="20" height="40" rx="2" fill="#e0e7ff"/>
+            <rect x="90" y="240" width="20" height="60" rx="2" fill="#e0e7ff"/>
+            <rect x="120" y="220" width="20" height="80" rx="2" fill="#e0e7ff"/>
+            <rect x="150" y="250" width="20" height="50" rx="2" fill="#e0e7ff"/>
+            <rect x="180" y="210" width="20" height="90" rx="2" fill="#6366f1"/>
+            <rect x="210" y="235" width="20" height="65" rx="2" fill="#e0e7ff"/>
+            <rect x="240" y="255" width="20" height="45" rx="2" fill="#e0e7ff"/>
+            <rect x="270" y="270" width="20" height="30" rx="2" fill="#e0e7ff"/>
+
+            <text x="60" y="295" font-size="7" fill="#64748b" font-family="system-ui">Mon</text>
+            <text x="90" y="295" font-size="7" fill="#64748b" font-family="system-ui">Tue</text>
+            <text x="120" y="295" font-size="7" fill="#64748b" font-family="system-ui">Wed</text>
+            <text x="150" y="295" font-size="7" fill="#64748b" font-family="system-ui">Thu</text>
+            <text x="183" y="295" font-size="7" fill="#6366f1" font-weight="600" font-family="system-ui">Fri</text>
+            <text x="210" y="295" font-size="7" fill="#64748b" font-family="system-ui">Sat</text>
+            <text x="240" y="295" font-size="7" fill="#64748b" font-family="system-ui">Sun</text>
+
+            <!-- Visitor Types -->
+            <rect x="326" y="165" width="126" height="145" rx="8" fill="#fff" stroke="#e2e8f0"/>
+            <text x="342" y="188" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Visitor Types</text>
+
+            <rect x="336" y="200" width="106" height="25" rx="4" fill="#fce7f3"/>
+            <text x="348" y="217" font-size="8" fill="#ec4899" font-family="system-ui">Parents: 45%</text>
+
+            <rect x="336" y="230" width="106" height="25" rx="4" fill="#e0e7ff"/>
+            <text x="348" y="247" font-size="8" fill="#4f46e5" font-family="system-ui">Vendors: 28%</text>
+
+            <rect x="336" y="260" width="106" height="25" rx="4" fill="#d1fae5"/>
+            <text x="348" y="277" font-size="8" fill="#22c55e" font-family="system-ui">Officials: 15%</text>
+
+            <rect x="336" y="290" width="106" height="18" rx="4" fill="#f1f5f9"/>
+            <text x="348" y="303" font-size="8" fill="#64748b" font-family="system-ui">Others: 12%</text>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <span class="feature-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+            Analytics
+          </span>
+          <h2>Visitor Analytics & Reports</h2>
+          <div class="description">
+            <p>Gain insights into visitor patterns with comprehensive analytics. Track daily, weekly, and monthly visitor counts, identify peak hours, and analyze visitor categories to optimize staffing at entry points.</p>
+            <p>Generate detailed reports for compliance audits, security reviews, and operational planning. Export data in multiple formats for easy sharing and record-keeping.</p>
+          </div>
+          <ul class="feature-highlights">
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Daily and monthly visitor trends</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Peak hours and visitor type analysis</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Export reports in PDF/Excel format</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Compliance and audit-ready logs</li>
+            <li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Frequent visitor identification</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- CTA Section -->
+<section class="module-cta">
+  <div class="container">
+    <h2>Ready to optimize your campus operations?</h2>
+    <p>Join 500+ institutions using PaperBook to manage transport, facilities, and campus operations efficiently.</p>
+    <div class="btn-group">
+      <a href="#" class="btn btn-white btn-lg">Start Free Trial</a>
+      <a href="#" class="btn btn-white-outline btn-lg">Schedule Demo</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" aria-label="Site footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="../index.html" class="nav-brand">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" role="img"><title>PaperBook Logo</title><defs><linearGradient id="ftBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#ftBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#ftBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+          PaperBook
+        </a>
+        <p>The complete education management platform that simplifies administration, enhances teaching, and connects parents — for educators across India.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../index.html#integrations">Integrations</a>
+        <a href="#">Changelog</a>
+        <a href="#">Mobile App</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#">Documentation</a>
+        <a href="#">Help Center</a>
+        <a href="#">Blog</a>
+        <a href="#">Video Tutorials</a>
+        <a href="#">API Reference</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Careers</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 PaperBook. All rights reserved.</span>
+      <span>Made with care for educators across India</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+<script>
+// Tab Navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.module-tab');
+  const panels = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabId = tab.dataset.tab;
+
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+
+      panels.forEach(panel => {
+        const isActive = panel.dataset.panel === tabId;
+        panel.classList.toggle('active', isActive);
+        panel.setAttribute('aria-hidden', !isActive);
+      });
+
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tabId);
+      window.history.pushState({}, '', url);
+
+      document.querySelector('.module-tabs-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const tabId = params.get('tab');
+  if (tabId) {
+    const targetTab = document.querySelector(`.module-tab[data-tab="${tabId}"]`);
+    if (targetTab) targetTab.click();
+  }
+
+  window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(window.location.search);
+    const tabId = params.get('tab');
+    if (tabId) {
+      const targetTab = document.querySelector(`.module-tab[data-tab="${tabId}"]`);
+      if (targetTab) targetTab.click();
+    }
+  });
+
+  const featureSections = document.querySelectorAll('.feature-section');
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.2 }
+  );
+  featureSections.forEach(section => observer.observe(section));
+});
+</script>
+
+</body>
+</html>

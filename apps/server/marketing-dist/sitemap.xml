@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://paperbook.in/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://paperbook.in/about.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://paperbook.in/faq.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/signup.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://paperbook.in/blog.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://paperbook.in/modules/dashboard.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/people.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/admissions.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/finance.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/exam.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/library.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/lms.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/management.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/operations.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/parent.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/communication.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/reports.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://paperbook.in/modules/settings.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Blog — PaperBook</title>
+  <meta name="description" id="page-description" content="">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" id="og-title" content="">
+  <meta property="og:description" id="og-description" content="">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .post-container { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem; }
+    .post-header { margin-bottom: 2rem; }
+    .post-back { font-size: 0.85rem; color: #7c3aed; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 1.5rem; }
+    .post-back:hover { text-decoration: underline; }
+    .post-category { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #7c3aed; background: #f5f3ff; padding: 3px 10px; border-radius: 4px; display: inline-block; }
+    .post-title { font-size: 2rem; font-weight: 800; color: #111827; margin-top: 0.75rem; line-height: 1.3; }
+    .post-meta { font-size: 0.85rem; color: #9ca3af; margin-top: 0.75rem; display: flex; gap: 1.5rem; }
+    .post-cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin: 1.5rem 0; }
+    .post-content { font-size: 1.05rem; line-height: 1.8; color: #374151; }
+    .post-content h2 { font-size: 1.4rem; font-weight: 700; color: #111827; margin: 2rem 0 0.75rem; }
+    .post-content h3 { font-size: 1.15rem; font-weight: 600; color: #111827; margin: 1.5rem 0 0.5rem; }
+    .post-content p { margin-bottom: 1rem; }
+    .post-content ul, .post-content ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+    .post-content li { margin-bottom: 0.5rem; }
+    .post-content a { color: #7c3aed; text-decoration: underline; }
+    .post-content blockquote { border-left: 3px solid #7c3aed; padding-left: 1rem; margin: 1.5rem 0; color: #6b7280; font-style: italic; }
+    .post-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; }
+    .post-tag { padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; background: #f3f4f6; color: #374151; }
+    .post-keywords { margin-top: 1rem; font-size: 0.8rem; color: #9ca3af; }
+    .post-loading { text-align: center; padding: 6rem 0; color: #7c3aed; font-size: 1rem; }
+    .post-error { text-align: center; padding: 6rem 0; color: #ef4444; }
+  </style>
+  <script src="js/analytics.js" defer></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav id="navbar" style="background:#fff; border-bottom: 1px solid #e5e7eb; position:sticky; top:0; z-index:50;">
+  <div class="container" style="display:flex; align-items:center; justify-content:space-between; height:64px;">
+    <a href="/" style="display:flex; align-items:center; gap:8px; text-decoration:none; font-weight:800; font-size:1.2rem; color:#111827;">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><defs><linearGradient id="bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#bg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#fff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#bg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+      PaperBook
+    </a>
+    <div style="display:flex; gap:1.5rem; align-items:center;">
+      <a href="/" style="font-size:0.9rem; color:#6b7280; text-decoration:none;">Home</a>
+      <a href="/blog.html" style="font-size:0.9rem; color:#7c3aed; font-weight:600; text-decoration:none;">Blog</a>
+      <a href="/#pricing" style="font-size:0.9rem; color:#6b7280; text-decoration:none;">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="post-container">
+  <div id="post-loading" class="post-loading">Loading article...</div>
+  <div id="post-error" class="post-error" style="display:none;">Post not found. <a href="/blog.html">Back to Blog</a></div>
+  <article id="post-content" style="display:none;">
+    <div class="post-header">
+      <a href="/blog.html" class="post-back">&larr; Back to Blog</a>
+      <span class="post-category" id="post-category"></span>
+      <h1 class="post-title" id="post-title"></h1>
+      <div class="post-meta">
+        <span id="post-author"></span>
+        <span id="post-date"></span>
+        <span id="post-views"></span>
+      </div>
+    </div>
+    <img id="post-cover" class="post-cover" style="display:none;" alt="">
+    <div class="post-content" id="post-body"></div>
+    <div class="post-tags" id="post-tags"></div>
+    <div class="post-keywords" id="post-keywords"></div>
+  </article>
+</div>
+
+<footer class="footer" style="margin-top:4rem;">
+  <div class="container">
+    <div class="footer-bottom" style="padding:1.5rem 0;">
+      <span>&copy; 2026 PaperBook. All rights reserved.</span>
+      <span><a href="/" style="color:#9ca3af;">Back to Home</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:3001/api'
+    : 'https://paperbook.app/api';
+
+  var slug = new URLSearchParams(window.location.search).get('slug');
+  if (!slug) {
+    document.getElementById('post-loading').style.display = 'none';
+    document.getElementById('post-error').style.display = 'block';
+    return;
+  }
+
+  fetch(BASE + '/public/blog/' + slug)
+    .then(function(r) {
+      if (!r.ok) throw new Error('Not found');
+      return r.json();
+    })
+    .then(function(post) {
+      document.getElementById('post-loading').style.display = 'none';
+      document.getElementById('post-content').style.display = 'block';
+
+      // Set content
+      document.getElementById('post-title').textContent = post.title;
+      document.getElementById('post-category').textContent = post.category || 'General';
+      document.getElementById('post-author').textContent = post.author || 'PaperBook Team';
+      document.getElementById('post-date').textContent = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+      document.getElementById('post-views').textContent = (post.views || 0) + ' views';
+
+      // Cover image
+      if (post.coverImage) {
+        var img = document.getElementById('post-cover');
+        img.src = post.coverImage;
+        img.alt = post.title;
+        img.style.display = 'block';
+      }
+
+      // Body content (render HTML)
+      document.getElementById('post-body').innerHTML = post.content;
+
+      // Tags
+      var tags = post.tags || [];
+      if (tags.length > 0) {
+        document.getElementById('post-tags').innerHTML = tags.map(function(t) {
+          return '<span class="post-tag">' + t + '</span>';
+        }).join('');
+      }
+
+      // Keywords (for SEO display)
+      var keywords = post.keywords || [];
+      if (keywords.length > 0) {
+        document.getElementById('post-keywords').textContent = 'Keywords: ' + keywords.join(', ');
+      }
+
+      // Update page SEO
+      document.title = (post.metaTitle || post.title) + ' — PaperBook Blog';
+      document.getElementById('page-title').textContent = document.title;
+
+      // Set canonical URL
+      var canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      canonical.href = 'https://paperbook.in/blog-post.html?slug=' + slug;
+      document.head.appendChild(canonical);
+      var desc = post.metaDescription || post.excerpt || '';
+      document.getElementById('page-description').content = desc;
+      document.getElementById('og-title').content = post.metaTitle || post.title;
+      document.getElementById('og-description').content = desc;
+
+      // Add structured data for article
+      var script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        'headline': post.title,
+        'author': { '@type': 'Person', 'name': post.author || 'PaperBook Team' },
+        'datePublished': post.publishedAt,
+        'description': desc,
+        'keywords': keywords.join(', ')
+      });
+      document.head.appendChild(script);
+    })
+    .catch(function() {
+      document.getElementById('post-loading').style.display = 'none';
+      document.getElementById('post-error').style.display = 'block';
+    });
+})();
+</script>
+</body>
+</html>

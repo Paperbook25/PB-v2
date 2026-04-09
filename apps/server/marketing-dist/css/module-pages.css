@@ -1,0 +1,913 @@
+/* ===========================================
+   Module Landing Pages Styles
+   =========================================== */
+
+/* ===========================================
+   1. Module Color Variables
+   =========================================== */
+.page-academic { --module-primary: #6d28d9; --module-light: #f5f3ff; --module-gradient: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%); }
+.page-admissions { --module-primary: #4f46e5; --module-light: #e0e7ff; --module-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%); }
+.page-finance { --module-primary: #f59e0b; --module-light: #fef3c7; --module-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%); }
+.page-operations { --module-primary: #0d9488; --module-light: #ccfbf1; --module-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%); }
+.page-lms { --module-primary: #10b981; --module-light: #d1fae5; --module-gradient: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%); }
+.page-exam { --module-primary: #e11d48; --module-light: #ffe4e6; --module-gradient: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%); }
+.page-behavior { --module-primary: #f97316; --module-light: #fff7ed; --module-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%); }
+.page-communication { --module-primary: #0ea5e9; --module-light: #e0f2fe; --module-gradient: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%); }
+.page-parent { --module-primary: #ec4899; --module-light: #fce7f3; --module-gradient: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%); }
+.page-hostel { --module-primary: #64748b; --module-light: #f1f5f9; --module-gradient: linear-gradient(135deg, #94a3b8 0%, #64748b 50%, #475569 100%); }
+.page-alumni { --module-primary: #06b6d4; --module-light: #e0f7fa; --module-gradient: linear-gradient(135deg, #22d3ee 0%, #06b6d4 50%, #0891b2 100%); }
+.page-documents { --module-primary: #78716c; --module-light: #f5f5f4; --module-gradient: linear-gradient(135deg, #a8a29e 0%, #78716c 50%, #57534e 100%); }
+.page-visitors { --module-primary: #84cc16; --module-light: #f7fee7; --module-gradient: linear-gradient(135deg, #a3e635 0%, #84cc16 50%, #65a30d 100%); }
+.page-integrations { --module-primary: #8b5cf6; --module-light: #f3e8ff; --module-gradient: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%); }
+
+/* ===========================================
+   2. Module Page Hero
+   =========================================== */
+.module-page-hero {
+  padding: 7rem 0 4rem;
+  background: var(--module-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.module-page-hero::before,
+.module-page-hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.module-page-hero::before {
+  width: 500px;
+  height: 500px;
+  background: var(--module-primary);
+  top: -200px;
+  left: -150px;
+  opacity: 0.15;
+}
+
+.module-page-hero::after {
+  width: 400px;
+  height: 400px;
+  background: var(--module-primary);
+  bottom: -150px;
+  right: -100px;
+  opacity: 0.1;
+}
+
+.module-page-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.module-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.module-hero-text h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+  color: var(--foreground);
+}
+
+.module-hero-text h1 span {
+  background: var(--module-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.module-hero-text .tagline {
+  font-size: 1.25rem;
+  color: var(--muted);
+  margin-bottom: 2rem;
+  max-width: 540px;
+}
+
+.module-hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.module-hero-illustration {
+  display: flex;
+  justify-content: center;
+}
+
+.module-hero-illustration svg {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1));
+}
+
+/* Module-colored primary button */
+.btn-module {
+  background: var(--module-gradient);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+.btn-module:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+/* ===========================================
+   3. Feature Sections
+   =========================================== */
+.feature-section {
+  padding: 5rem 0;
+  position: relative;
+}
+
+.feature-section:nth-child(even) {
+  background: var(--alt-bg);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.feature-section.reverse .feature-grid {
+  direction: ltr;
+}
+
+/* Feature Illustration */
+.feature-illustration {
+  display: flex;
+  justify-content: center;
+  order: -1;
+}
+
+.feature-illustration svg {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  border-radius: 1rem;
+}
+
+/* Feature Content */
+.feature-content {
+  text-align: center;
+}
+
+.feature-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  background: var(--module-light);
+  color: var(--module-primary);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.feature-badge svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.feature-content h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--foreground);
+}
+
+.feature-content .description {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.feature-content .description p {
+  margin-bottom: 1rem;
+}
+
+.feature-content .description p:last-child {
+  margin-bottom: 0;
+}
+
+/* Feature Highlights */
+.feature-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.feature-highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem 0;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.feature-highlights li svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+}
+
+.feature-highlights li svg circle {
+  stroke: var(--module-primary);
+}
+
+.feature-highlights li svg path {
+  stroke: var(--module-primary);
+}
+
+/* ===========================================
+   4. Module CTA Section
+   =========================================== */
+.module-cta {
+  padding: 5rem 0;
+  background: var(--module-gradient);
+  color: #fff;
+  text-align: center;
+}
+
+.module-cta h2 {
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.module-cta p {
+  color: rgba(255,255,255,0.9);
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.module-cta .btn-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ===========================================
+   5. Back Navigation
+   =========================================== */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--module-primary);
+}
+
+.back-link svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ===========================================
+   6. Module Explore CTA (for index.html)
+   =========================================== */
+.module-explore-cta {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.module-explore-cta .btn {
+  width: 100%;
+}
+
+/* ===========================================
+   7. Responsive — 768px
+   =========================================== */
+@media (min-width: 768px) {
+  .module-page-hero {
+    padding: 9rem 0 5rem;
+  }
+
+  .module-hero-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  .module-hero-text h1 {
+    font-size: 3rem;
+  }
+
+  .module-hero-illustration {
+    order: 0;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  .feature-section.reverse .feature-grid {
+    direction: rtl;
+  }
+
+  .feature-section.reverse .feature-grid > * {
+    direction: ltr;
+  }
+
+  .feature-illustration {
+    order: 0;
+  }
+
+  .feature-content {
+    text-align: left;
+  }
+
+  .feature-content h2 {
+    font-size: 2rem;
+  }
+
+  .module-cta h2 {
+    font-size: 2.25rem;
+  }
+}
+
+/* ===========================================
+   8. Responsive — 1024px
+   =========================================== */
+@media (min-width: 1024px) {
+  .module-hero-text h1 {
+    font-size: 3.25rem;
+  }
+
+  .module-hero-illustration svg {
+    max-width: 540px;
+  }
+
+  .feature-illustration svg {
+    max-width: 520px;
+  }
+
+  .feature-content h2 {
+    font-size: 2.25rem;
+  }
+}
+
+/* ===========================================
+   9. Animations
+   =========================================== */
+@keyframes floatGentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.module-page-hero .module-hero-illustration {
+  animation: floatGentle 6s ease-in-out infinite;
+}
+
+.feature-section .feature-illustration {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.feature-section.reverse .feature-illustration {
+  transform: translateX(30px);
+}
+
+.feature-section.visible .feature-illustration {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.feature-section .feature-content {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+}
+
+.feature-section.visible .feature-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===========================================
+   10. Print Styles
+   =========================================== */
+@media print {
+  .module-page-hero {
+    padding: 2rem 0;
+  }
+
+  .feature-section {
+    padding: 2rem 0;
+  }
+
+  .module-cta {
+    display: none;
+  }
+}
+
+/* ===========================================
+   11. Reduced Motion
+   =========================================== */
+@media (prefers-reduced-motion: reduce) {
+  .module-page-hero .module-hero-illustration {
+    animation: none;
+  }
+
+  .feature-section .feature-illustration,
+  .feature-section .feature-content {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ===========================================
+   12. Module Tabs Component
+   =========================================== */
+
+/* Tab Section Container */
+.module-tabs-section {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 4rem;
+  z-index: 50;
+}
+
+@media (min-width: 1024px) {
+  .module-tabs-section {
+    top: 4.5rem;
+  }
+}
+
+/* Primary Tabs */
+.module-primary-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.module-primary-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--muted);
+  background: var(--alt-bg);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tab-btn:hover {
+  background: var(--primary-50);
+  color: var(--foreground);
+}
+
+.tab-btn.active {
+  background: var(--module-gradient, var(--primary-gradient));
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.tab-btn svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.tab-btn.active svg {
+  stroke: #fff;
+}
+
+/* Tab Panels */
+.tab-panels {
+  display: block;
+}
+
+.tab-panel {
+  display: none;
+  animation: tabFadeIn 0.3s ease;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtabs */
+.module-subtabs {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.75rem 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-bottom: 1px solid var(--border);
+}
+
+.module-subtabs::-webkit-scrollbar {
+  display: none;
+}
+
+.subtab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 1.5rem;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.subtab-btn:hover {
+  border-color: var(--module-primary, var(--primary));
+  color: var(--module-primary, var(--primary));
+  background: var(--module-light, var(--primary-50));
+}
+
+.subtab-btn.active {
+  background: var(--module-primary, var(--primary));
+  color: #fff;
+  border-color: var(--module-primary, var(--primary));
+}
+
+.subtab-btn svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+/* Subtab Panels */
+.subtab-panels {
+  display: block;
+}
+
+.subtab-panel {
+  display: none;
+  animation: subtabFadeIn 0.25s ease;
+}
+
+.subtab-panel.active {
+  display: block;
+}
+
+@keyframes subtabFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===========================================
+   13. Subtab Content Styling
+   =========================================== */
+
+.subtab-content {
+  padding: 3rem 0;
+}
+
+.subtab-content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.subtab-text h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.subtab-text .tagline {
+  font-size: 1.125rem;
+  color: var(--module-primary, var(--primary));
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.subtab-text .description {
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.subtab-text .description p {
+  margin-bottom: 1rem;
+}
+
+.subtab-text .description p:last-child {
+  margin-bottom: 0;
+}
+
+.subtab-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.subtab-highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.subtab-highlights li svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  color: var(--module-primary, var(--primary));
+}
+
+/* Subtab Illustration */
+.subtab-illustration {
+  display: flex;
+  justify-content: center;
+}
+
+.subtab-illustration svg {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  border-radius: 1rem;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.08));
+}
+
+/* Dashboard Mockup Style */
+.dashboard-mockup {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.mockup-header {
+  background: var(--alt-bg);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.mockup-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.mockup-dot.red { background: #fca5a5; }
+.mockup-dot.yellow { background: #fde68a; }
+.mockup-dot.green { background: #86efac; }
+
+.mockup-body {
+  padding: 1.5rem;
+}
+
+/* ===========================================
+   14. Responsive Tabs — 768px
+   =========================================== */
+@media (min-width: 768px) {
+  .subtab-content-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  .subtab-text h3 {
+    font-size: 2rem;
+  }
+
+  .subtab-illustration {
+    order: 0;
+  }
+}
+
+/* ===========================================
+   15. Responsive Tabs — 1024px
+   =========================================== */
+@media (min-width: 1024px) {
+  .module-primary-tabs {
+    justify-content: center;
+  }
+
+  .module-subtabs {
+    justify-content: center;
+  }
+
+  .subtab-text h3 {
+    font-size: 2.25rem;
+  }
+}
+
+/* ===========================================
+   16. Tab Reduced Motion
+   =========================================== */
+@media (prefers-reduced-motion: reduce) {
+  .tab-panel,
+  .subtab-panel {
+    animation: none;
+  }
+}
+
+/* ===========================================
+   17. Full Page Tab Content (No Subtabs)
+   =========================================== */
+
+/* Alumni Content Styles */
+.alumni-content {
+  padding: 3rem 0;
+}
+
+.alumni-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.alumni-hero h2 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: 1rem;
+}
+
+.alumni-hero .tagline {
+  font-size: 1.125rem;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* Features Grid */
+.alumni-features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.alumni-feature-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.alumni-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.alumni-feature-card .feature-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.alumni-feature-card .feature-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.alumni-feature-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 0.75rem;
+}
+
+.alumni-feature-card p {
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.alumni-feature-card .feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.alumni-feature-card .feature-list li {
+  position: relative;
+  padding-left: 1.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.alumni-feature-card .feature-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  width: 6px;
+  height: 6px;
+  background: var(--module-primary, var(--primary));
+  border-radius: 50%;
+}
+
+/* Alumni Illustration */
+.alumni-illustration {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Responsive — 768px */
+@media (min-width: 768px) {
+  .alumni-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .alumni-hero h2 {
+    font-size: 2.5rem;
+  }
+
+  .alumni-feature-card {
+    padding: 2rem;
+  }
+}
+
+/* Responsive — 1024px */
+@media (min-width: 1024px) {
+  .alumni-content {
+    padding: 4rem 0;
+  }
+
+  .alumni-features-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .alumni-illustration {
+    max-width: 700px;
+  }
+}

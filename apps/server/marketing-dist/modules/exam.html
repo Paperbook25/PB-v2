@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exams &amp; Report Cards — PaperBook</title>
+  <meta name="description" content="Conduct online and offline exams, auto-grade papers, generate report cards with custom grading schemes.">
+  <meta name="keywords" content="exam management system, hall ticket generation, marks entry software, report card generator, school examination software">
+  <meta name="author" content="PaperBook">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#e11d48">
+  <link rel="canonical" href="https://paperbook.app/modules/exam.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://paperbook.app/modules/exam.html">
+  <meta property="og:title" content="Exams &amp; Report Cards — PaperBook">
+  <meta property="og:description" content="Conduct online and offline exams, auto-grade papers, generate report cards with custom grading schemes.">
+  <meta property="og:image" content="https://paperbook.app/og-image.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Exams &amp; Report Cards — PaperBook">
+  <meta name="twitter:description" content="Conduct online and offline exams, auto-grade papers, generate report cards with custom grading schemes.">
+  <meta name="twitter:image" content="https://paperbook.app/og-image.png">
+
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/module-pages.css">
+  <script src="../js/analytics.js" defer></script>
+</head>
+<body class="page-exam">
+<style>
+.page-exam {
+  --module-primary: #e11d48;
+  --module-light: #ffe4e6;
+  --module-gradient: linear-gradient(135deg, #fb7185 0%, #e11d48 50%, #be123c 100%);
+}
+
+/* Centered Tab Navigation */
+.module-tabs-nav {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 4rem;
+  z-index: 100;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+
+.module-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.25s ease;
+}
+
+.module-tab:hover {
+  background: var(--module-light);
+  color: var(--module-primary);
+}
+
+.module-tab.active {
+  background: var(--module-gradient);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(225,29,72,0.3);
+}
+
+.module-tab svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+</style>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<nav id="navbar" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" role="img"><title>PaperBook Logo</title><defs><linearGradient id="navBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#navBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#navBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+      PaperBook
+    </a>
+    <div class="nav-links">
+      <div class="nav-dropdown">
+        <a href="../index.html#features" class="nav-dropdown-trigger">
+          Products
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu products-mega-menu">
+          <div class="mega-menu-grid">
+            <!-- Column 1: Core -->
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Core</div>
+              <a href="dashboard.html">
+                <span class="dropdown-icon" style="background: #f5f3ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>
+                <div><strong>Dashboard</strong><span>Overview & analytics</span></div>
+              </a>
+              <a href="people.html">
+                <span class="dropdown-icon" style="background: #e0e7ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+                <div><strong>People</strong><span>Students, staff, attendance</span></div>
+              </a>
+              <a href="admissions.html">
+                <span class="dropdown-icon" style="background: #fce7f3;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M10 13h4M10 17h4M8 13h.01M8 17h.01"/></svg></span>
+                <div><strong>Admissions</strong><span>Applications, enrollment</span></div>
+              </a>
+            </div>
+            <!-- Column 2: Academic -->
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Academic</div>
+              <a href="library.html">
+                <span class="dropdown-icon" style="background: #fef3c7;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z"/></svg></span>
+                <div><strong>Library</strong><span>Books, digital resources</span></div>
+              </a>
+              <a href="lms.html">
+                <span class="dropdown-icon" style="background: #d1fae5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+                <div><strong>LMS</strong><span>Online courses, lectures</span></div>
+              </a>
+              <a href="exam.html">
+                <span class="dropdown-icon" style="background: #ffe4e6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+                <div><strong>Exams</strong><span>Scheduling, report cards</span></div>
+              </a>
+            </div>
+            <!-- Column 3: Operations -->
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Operations</div>
+              <a href="finance.html">
+                <span class="dropdown-icon" style="background: #dcfce7;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+                <div><strong>Finance</strong><span>Fees, payroll, accounts</span></div>
+              </a>
+              <a href="operations.html">
+                <span class="dropdown-icon" style="background: #ccfbf1;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+                <div><strong>Operations</strong><span>Transport, hostel, assets</span></div>
+              </a>
+              <a href="management.html">
+                <span class="dropdown-icon" style="background: #e0f7fa;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                <div><strong>Management</strong><span>Schedule, docs, alumni</span></div>
+              </a>
+            </div>
+            <!-- Column 4: Communication -->
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Communication</div>
+              <a href="communication.html">
+                <span class="dropdown-icon" style="background: #e0f2fe;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+                <div><strong>Communication</strong><span>Messages, announcements</span></div>
+              </a>
+              <a href="reports.html">
+                <span class="dropdown-icon" style="background: #f3e8ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M21 21H3V3"/><path d="M18 9l-5 5-4-4-3 3"/></svg></span>
+                <div><strong>Reports</strong><span>Analytics & insights</span></div>
+              </a>
+              <a href="settings.html">
+                <span class="dropdown-icon" style="background: #f1f5f9;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+                <div><strong>Settings</strong><span>Configuration, integrations</span></div>
+              </a>
+              <a href="parent.html">
+                <span class="dropdown-icon" style="background: #fff7ed;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <div><strong>Parent Portal</strong><span>PTM, reports, messaging</span></div>
+              </a>
+            </div>
+          </div>
+          <div class="dropdown-footer">
+            <a href="../index.html#features">View all features →</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="../index.html#integrations" class="nav-dropdown-trigger">
+          Integrations
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0f4ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg></span>
+            <div><strong>Razorpay</strong><span>UPI, cards, net banking</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0fdf4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+            <div><strong>Cashfree</strong><span>Payouts, subscriptions</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0fdf4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></span>
+            <div><strong>WhatsApp</strong><span>Alerts & notifications</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #fef2f2;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea4335" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg></span>
+            <div><strong>Google Workspace</strong><span>Calendar, Meet, Sheets</span></div>
+          </a>
+          <div class="dropdown-footer">
+            <a href="../index.html#integrations">View all integrations →</a>
+          </div>
+        </div>
+      </div>
+      <a href="../index.html#testimonials">Testimonials</a>
+      <a href="../index.html#pricing">Pricing</a>
+      <div class="nav-dropdown">
+        <a href="../about.html" class="nav-dropdown-trigger">
+          About
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="../about.html">
+            <span class="dropdown-icon" style="background: #f5f3ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+            <div><strong>About Us</strong><span>Our story, mission & team</span></div>
+          </a>
+          <a href="../index.html#contact">
+            <span class="dropdown-icon" style="background: #e0f2fe;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></span>
+            <div><strong>Contact Us</strong><span>Get in touch with us</span></div>
+          </a>
+        </div>
+      </div>
+      <a href="../faq.html">FAQ</a>
+    </div>
+    <div class="nav-actions">
+      <a href="#" class="btn btn-outline">Sign In</a>
+      <a href="#" class="btn btn-primary">Get Started Free</a>
+    </div>
+    <button id="menu-btn" aria-label="Toggle menu">
+      <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+  <div id="mobile-menu">
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        Products
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Core</div>
+          <div class="mobile-category-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="people.html">People</a>
+            <a href="admissions.html">Admissions</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Academic</div>
+          <div class="mobile-category-links">
+            <a href="library.html">Library</a>
+            <a href="lms.html">LMS</a>
+            <a href="exam.html">Exams</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Operations</div>
+          <div class="mobile-category-links">
+            <a href="finance.html">Finance</a>
+            <a href="operations.html">Operations</a>
+            <a href="management.html">Management</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Communication</div>
+          <div class="mobile-category-links">
+            <a href="communication.html">Communication</a>
+            <a href="reports.html">Reports</a>
+            <a href="settings.html">Settings</a>
+            <a href="parent.html">Parent Portal</a>
+          </div>
+        </div>
+        <a href="../index.html#features" class="view-all">View all features →</a>
+      </div>
+    </div>
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        Integrations
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <a href="../index.html#integrations">Razorpay</a>
+        <a href="../index.html#integrations">Cashfree</a>
+        <a href="../index.html#integrations">WhatsApp</a>
+        <a href="../index.html#integrations">Google Workspace</a>
+        <a href="../index.html#integrations" class="view-all">View all integrations →</a>
+      </div>
+    </div>
+    <a href="../index.html#testimonials">Testimonials</a>
+    <a href="../index.html#pricing">Pricing</a>
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        About
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <a href="../about.html">About Us</a>
+        <a href="../index.html#contact">Contact Us</a>
+      </div>
+    </div>
+    <a href="../faq.html">FAQ</a>
+    <a href="#" class="btn btn-outline">Sign In</a>
+    <a href="#" class="btn btn-primary">Get Started Free</a>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<section class="module-page-hero">
+  <div class="container">
+    <a href="../index.html#features" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Features
+    </a>
+    <div class="module-hero-grid">
+      <div class="module-hero-text">
+        <h1><span>Examination</span> — From Scheduling to Report Cards</h1>
+        <p class="tagline">Complete exam lifecycle management. Schedule exams, generate hall tickets, manage marks entry, and create beautiful report cards with performance analytics.</p>
+        <div class="module-hero-actions">
+          <a href="#" class="btn btn-module btn-lg">Start Free Trial</a>
+          <a href="#" class="btn btn-outline btn-lg">Schedule Demo</a>
+        </div>
+      </div>
+      <div class="module-hero-illustration">
+        <svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="480" height="360" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+          <rect x="10" y="10" width="480" height="44" rx="16" fill="#f8fafc"/>
+          <circle cx="34" cy="32" r="6" fill="#fca5a5"/><circle cx="54" cy="32" r="6" fill="#fde68a"/><circle cx="74" cy="32" r="6" fill="#86efac"/>
+
+          <text x="30" y="75" font-size="12" fill="#0f172a" font-weight="600" font-family="Plus Jakarta Sans,system-ui">Exam Dashboard — Term 2</text>
+
+          <!-- Exam Calendar -->
+          <rect x="30" y="90" width="200" height="140" rx="10" fill="#ffe4e6" stroke="#fecdd3"/>
+          <text x="48" y="115" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Upcoming Exams</text>
+
+          <rect x="45" y="128" width="170" height="30" rx="6" fill="#fff"/>
+          <rect x="55" y="136" width="8" height="14" rx="2" fill="#e11d48"/>
+          <text x="70" y="147" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Mathematics — Feb 15</text>
+          <text x="165" y="147" font-size="7" fill="#e11d48" font-weight="600" font-family="system-ui">3 days</text>
+
+          <rect x="45" y="163" width="170" height="30" rx="6" fill="#fff"/>
+          <rect x="55" y="171" width="8" height="14" rx="2" fill="#f59e0b"/>
+          <text x="70" y="182" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Science — Feb 18</text>
+          <text x="165" y="182" font-size="7" fill="#f59e0b" font-weight="600" font-family="system-ui">6 days</text>
+
+          <rect x="45" y="198" width="170" height="30" rx="6" fill="#fff"/>
+          <rect x="55" y="206" width="8" height="14" rx="2" fill="#22c55e"/>
+          <text x="70" y="217" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">English — Feb 20</text>
+          <text x="165" y="217" font-size="7" fill="#22c55e" font-weight="600" font-family="system-ui">8 days</text>
+
+          <!-- Hall Ticket Preview -->
+          <rect x="245" y="90" width="140" height="140" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <rect x="245" y="90" width="140" height="30" rx="10" fill="#e11d48"/>
+          <rect x="245" y="110" width="140" height="10" fill="#e11d48"/>
+          <text x="275" y="110" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">HALL TICKET</text>
+
+          <rect x="258" y="135" width="40" height="45" rx="4" fill="#ffe4e6" stroke="#e11d48"/>
+          <circle cx="278" cy="150" r="10" fill="#fda4af"/>
+          <rect x="265" y="162" width="26" height="10" rx="2" fill="#fda4af"/>
+
+          <text x="305" y="145" font-size="8" fill="#0f172a" font-weight="600" font-family="system-ui">Aarav Sharma</text>
+          <text x="305" y="158" font-size="7" fill="#64748b" font-family="system-ui">Class 10A</text>
+          <text x="305" y="171" font-size="7" fill="#64748b" font-family="system-ui">Roll: 12</text>
+
+          <!-- QR Code -->
+          <rect x="305" y="180" width="30" height="30" rx="2" fill="#f8fafc" stroke="#e2e8f0"/>
+          <rect x="310" y="185" width="5" height="5" fill="#0f172a"/>
+          <rect x="317" y="185" width="5" height="5" fill="#0f172a"/>
+          <rect x="310" y="192" width="5" height="5" fill="#0f172a"/>
+          <rect x="324" y="185" width="5" height="5" fill="#0f172a"/>
+          <rect x="317" y="199" width="5" height="5" fill="#0f172a"/>
+          <rect x="324" y="192" width="5" height="5" fill="#0f172a"/>
+
+          <!-- Results Chart -->
+          <rect x="400" y="90" width="80" height="140" rx="10" fill="#ffe4e6" stroke="#fecdd3"/>
+          <text x="415" y="115" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Results</text>
+
+          <rect x="415" y="195" width="15" height="20" rx="2" fill="#22c55e"/>
+          <rect x="435" y="175" width="15" height="40" rx="2" fill="#e11d48"/>
+          <rect x="455" y="185" width="15" height="30" rx="2" fill="#f59e0b"/>
+
+          <text x="418" y="220" font-size="6" fill="#64748b" font-family="system-ui">A</text>
+          <text x="438" y="220" font-size="6" fill="#64748b" font-family="system-ui">B</text>
+          <text x="458" y="220" font-size="6" fill="#64748b" font-family="system-ui">C</text>
+
+          <!-- Report Card Preview -->
+          <rect x="30" y="245" width="210" height="115" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <rect x="30" y="245" width="210" height="30" rx="10" fill="#e11d48"/>
+          <rect x="30" y="265" width="210" height="10" fill="#e11d48"/>
+          <text x="90" y="265" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">REPORT CARD</text>
+
+          <text x="45" y="295" font-size="8" fill="#64748b" font-family="system-ui">Subject</text>
+          <text x="130" y="295" font-size="8" fill="#64748b" font-family="system-ui">Marks</text>
+          <text x="175" y="295" font-size="8" fill="#64748b" font-family="system-ui">Grade</text>
+
+          <text x="45" y="315" font-size="8" fill="#0f172a" font-family="system-ui">Mathematics</text>
+          <text x="135" y="315" font-size="8" fill="#0f172a" font-weight="600" font-family="system-ui">92/100</text>
+          <rect x="175" y="305" width="20" height="14" rx="3" fill="#22c55e"/>
+          <text x="180" y="316" font-size="7" fill="#fff" font-weight="600" font-family="system-ui">A+</text>
+
+          <text x="45" y="335" font-size="8" fill="#0f172a" font-family="system-ui">Science</text>
+          <text x="135" y="335" font-size="8" fill="#0f172a" font-weight="600" font-family="system-ui">88/100</text>
+          <rect x="175" y="325" width="20" height="14" rx="3" fill="#22c55e"/>
+          <text x="182" y="336" font-size="7" fill="#fff" font-weight="600" font-family="system-ui">A</text>
+
+          <text x="45" y="355" font-size="8" fill="#0f172a" font-family="system-ui">English</text>
+          <text x="135" y="355" font-size="8" fill="#0f172a" font-weight="600" font-family="system-ui">85/100</text>
+          <rect x="175" y="345" width="20" height="14" rx="3" fill="#22c55e"/>
+          <text x="182" y="356" font-size="7" fill="#fff" font-weight="600" font-family="system-ui">A</text>
+
+          <!-- Actions -->
+          <rect x="255" y="245" width="225" height="115" rx="10" fill="#ffe4e6" stroke="#fecdd3"/>
+          <text x="273" y="270" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Quick Actions</text>
+
+          <rect x="270" y="285" width="95" height="30" rx="6" fill="#e11d48"/>
+          <text x="280" y="304" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">📋 Schedule Exam</text>
+
+          <rect x="375" y="285" width="90" height="30" rx="6" fill="#fff" stroke="#e11d48"/>
+          <text x="385" y="304" font-size="8" fill="#e11d48" font-weight="600" font-family="system-ui">🎫 Hall Tickets</text>
+
+          <rect x="270" y="325" width="95" height="30" rx="6" fill="#fff" stroke="#e11d48"/>
+          <text x="280" y="344" font-size="8" fill="#e11d48" font-weight="600" font-family="system-ui">📝 Enter Marks</text>
+
+          <rect x="375" y="325" width="90" height="30" rx="6" fill="#fff" stroke="#e11d48"/>
+          <text x="385" y="344" font-size="8" fill="#e11d48" font-weight="600" font-family="system-ui">📊 Results</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Centered Tab Navigation -->
+<nav class="module-tabs-nav">
+  <div class="container">
+    <div class="tabs-container" role="tablist" aria-label="Exam module sections">
+      <button class="module-tab active" data-tab="scheduling" role="tab" aria-selected="true" aria-controls="panel-scheduling">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Scheduling
+      </button>
+      <button class="module-tab" data-tab="halltickets" role="tab" aria-selected="false" aria-controls="panel-halltickets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><rect x="6" y="13" width="4" height="3" rx="1"/></svg>
+        Hall Tickets
+      </button>
+      <button class="module-tab" data-tab="marks" role="tab" aria-selected="false" aria-controls="panel-marks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Marks Entry
+      </button>
+      <button class="module-tab" data-tab="reports" role="tab" aria-selected="false" aria-controls="panel-reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
+        Report Cards
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== SCHEDULING TAB ==================== -->
+<div class="tab-content active" data-panel="scheduling" id="panel-scheduling" role="tabpanel" aria-hidden="false">
+
+<!-- Feature 1: Exam Scheduling -->
+<section class="feature-section reveal">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 520 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background container -->
+          <rect x="10" y="10" width="500" height="380" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Header bar -->
+          <rect x="10" y="10" width="500" height="50" rx="16" fill="linear-gradient(135deg, #fb7185 0%, #e11d48 100%)"/>
+          <rect x="10" y="45" width="500" height="15" fill="#e11d48"/>
+          <circle cx="34" cy="35" r="6" fill="#fecdd3"/>
+          <circle cx="54" cy="35" r="6" fill="#fda4af"/>
+          <circle cx="74" cy="35" r="6" fill="#fb7185"/>
+          <text x="100" y="40" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Exam Scheduling Dashboard</text>
+          <rect x="400" y="25" width="90" height="22" rx="11" fill="rgba(255,255,255,0.2)"/>
+          <text x="420" y="40" font-size="9" fill="#fff" font-weight="500" font-family="system-ui">+ New Exam</text>
+
+          <!-- Left Panel: Calendar -->
+          <rect x="25" y="75" width="290" height="300" rx="12" fill="#ffe4e6" stroke="#fecdd3" stroke-width="1"/>
+
+          <!-- Calendar Header -->
+          <rect x="35" y="85" width="270" height="35" rx="8" fill="#e11d48"/>
+          <text x="45" y="108" font-size="16" fill="#fff" font-weight="600" font-family="system-ui">&lt;</text>
+          <text x="130" y="108" font-size="13" fill="#fff" font-weight="700" font-family="system-ui">February 2026</text>
+          <text x="285" y="108" font-size="16" fill="#fff" font-weight="600" font-family="system-ui">&gt;</text>
+
+          <!-- Day headers -->
+          <g font-size="9" fill="#94a3b8" font-weight="600" font-family="system-ui">
+            <text x="48" y="138">Mon</text>
+            <text x="86" y="138">Tue</text>
+            <text x="122" y="138">Wed</text>
+            <text x="160" y="138">Thu</text>
+            <text x="198" y="138">Fri</text>
+            <text x="236" y="138">Sat</text>
+            <text x="272" y="138">Sun</text>
+          </g>
+
+          <!-- Calendar Grid Week 1 -->
+          <g font-size="10" font-family="system-ui">
+            <rect x="40" y="148" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="52" y="170" fill="#64748b">9</text>
+            <rect x="78" y="148" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="88" y="170" fill="#64748b">10</text>
+            <rect x="116" y="148" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="126" y="170" fill="#64748b">11</text>
+            <rect x="154" y="148" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="164" y="170" fill="#64748b">12</text>
+            <rect x="192" y="148" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="202" y="170" fill="#64748b">13</text>
+            <rect x="230" y="148" width="34" height="34" rx="6" fill="#f1f5f9"/>
+            <text x="240" y="170" fill="#94a3b8">14</text>
+            <rect x="268" y="148" width="34" height="34" rx="6" fill="#f1f5f9"/>
+            <text x="278" y="170" fill="#94a3b8">15</text>
+          </g>
+
+          <!-- Calendar Grid Week 2 with Exams -->
+          <g font-size="10" font-family="system-ui">
+            <rect x="40" y="186" width="34" height="34" rx="6" fill="#e11d48"/>
+            <text x="50" y="204" fill="#fff" font-weight="600">16</text>
+            <circle cx="64" cy="212" r="3" fill="#fecdd3"/>
+            <rect x="78" y="186" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="88" y="208" fill="#64748b">17</text>
+            <rect x="116" y="186" width="34" height="34" rx="6" fill="#e11d48"/>
+            <text x="126" y="204" fill="#fff" font-weight="600">18</text>
+            <circle cx="140" cy="212" r="3" fill="#fecdd3"/>
+            <rect x="154" y="186" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="164" y="208" fill="#64748b">19</text>
+            <rect x="192" y="186" width="34" height="34" rx="6" fill="#e11d48"/>
+            <text x="202" y="204" fill="#fff" font-weight="600">20</text>
+            <circle cx="216" cy="212" r="3" fill="#fecdd3"/>
+            <rect x="230" y="186" width="34" height="34" rx="6" fill="#f1f5f9"/>
+            <text x="240" y="208" fill="#94a3b8">21</text>
+            <rect x="268" y="186" width="34" height="34" rx="6" fill="#f1f5f9"/>
+            <text x="278" y="208" fill="#94a3b8">22</text>
+          </g>
+
+          <!-- Calendar Grid Week 3 with Exams -->
+          <g font-size="10" font-family="system-ui">
+            <rect x="40" y="224" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="50" y="246" fill="#64748b">23</text>
+            <rect x="78" y="224" width="34" height="34" rx="6" fill="#e11d48"/>
+            <text x="88" y="242" fill="#fff" font-weight="600">24</text>
+            <circle cx="102" cy="250" r="3" fill="#fecdd3"/>
+            <rect x="116" y="224" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="126" y="246" fill="#64748b">25</text>
+            <rect x="154" y="224" width="34" height="34" rx="6" fill="#e11d48"/>
+            <text x="164" y="242" fill="#fff" font-weight="600">26</text>
+            <circle cx="178" cy="250" r="3" fill="#fecdd3"/>
+            <rect x="192" y="224" width="34" height="34" rx="6" fill="#fff" stroke="#e2e8f0"/>
+            <text x="202" y="246" fill="#64748b">27</text>
+            <rect x="230" y="224" width="34" height="34" rx="6" fill="#f1f5f9"/>
+            <text x="240" y="246" fill="#94a3b8">28</text>
+            <rect x="268" y="224" width="34" height="34" rx="6" fill="#f1f5f9"/>
+            <text x="280" y="246" fill="#94a3b8">1</text>
+          </g>
+
+          <!-- Exam Schedule List -->
+          <rect x="35" y="268" width="270" height="100" rx="8" fill="#fff"/>
+          <text x="48" y="288" font-size="11" fill="#0f172a" font-weight="700" font-family="system-ui">Exam Schedule - Term 2</text>
+
+          <rect x="48" y="298" width="10" height="10" rx="2" fill="#e11d48"/>
+          <text x="64" y="307" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">16 Feb - Mathematics</text>
+          <text x="180" y="307" font-size="8" fill="#64748b" font-family="system-ui">09:00 - 12:00</text>
+
+          <rect x="48" y="318" width="10" height="10" rx="2" fill="#e11d48"/>
+          <text x="64" y="327" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">18 Feb - Science</text>
+          <text x="180" y="327" font-size="8" fill="#64748b" font-family="system-ui">09:00 - 12:00</text>
+
+          <rect x="48" y="338" width="10" height="10" rx="2" fill="#e11d48"/>
+          <text x="64" y="347" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">20 Feb - English</text>
+          <text x="180" y="347" font-size="8" fill="#64748b" font-family="system-ui">09:00 - 11:30</text>
+
+          <rect x="48" y="358" width="10" height="10" rx="2" fill="#fb7185"/>
+          <text x="64" y="367" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">24 Feb - Hindi</text>
+          <text x="180" y="367" font-size="8" fill="#64748b" font-family="system-ui">09:00 - 11:30</text>
+
+          <!-- Right Panel: Room and Invigilator Assignment -->
+          <rect x="325" y="75" width="180" height="145" rx="12" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+          <rect x="325" y="75" width="180" height="32" rx="12" fill="#be123c"/>
+          <rect x="325" y="95" width="180" height="12" fill="#be123c"/>
+          <text x="365" y="97" font-size="11" fill="#fff" font-weight="600" font-family="system-ui">Room Allocation</text>
+
+          <!-- Room Cards -->
+          <rect x="335" y="115" width="160" height="30" rx="6" fill="#ffe4e6"/>
+          <rect x="345" y="122" width="16" height="16" rx="3" fill="#e11d48"/>
+          <text x="350" y="134" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">1</text>
+          <text x="368" y="130" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Room 101</text>
+          <text x="368" y="140" font-size="7" fill="#64748b" font-family="system-ui">30 seats</text>
+          <circle cx="475" cy="130" r="8" fill="#22c55e"/>
+          <path d="M471 130l3 3 5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+
+          <rect x="335" y="150" width="160" height="30" rx="6" fill="#ffe4e6"/>
+          <rect x="345" y="157" width="16" height="16" rx="3" fill="#e11d48"/>
+          <text x="350" y="169" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">2</text>
+          <text x="368" y="165" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Room 102</text>
+          <text x="368" y="175" font-size="7" fill="#64748b" font-family="system-ui">28 seats</text>
+          <circle cx="475" cy="165" r="8" fill="#22c55e"/>
+          <path d="M471 165l3 3 5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+
+          <rect x="335" y="185" width="160" height="30" rx="6" fill="#fff" stroke="#fecdd3"/>
+          <rect x="345" y="192" width="16" height="16" rx="3" fill="#fda4af"/>
+          <text x="350" y="204" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">L</text>
+          <text x="368" y="200" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Science Lab</text>
+          <text x="368" y="210" font-size="7" fill="#64748b" font-family="system-ui">24 seats - Practical</text>
+          <circle cx="475" cy="200" r="8" fill="#f59e0b"/>
+          <text x="472" y="204" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">!</text>
+
+          <!-- Invigilator Assignment Panel -->
+          <rect x="325" y="230" width="180" height="145" rx="12" fill="#ffe4e6" stroke="#fecdd3" stroke-width="1"/>
+          <text x="345" y="255" font-size="11" fill="#0f172a" font-weight="700" font-family="system-ui">Invigilator Duty</text>
+
+          <!-- Invigilator Cards -->
+          <rect x="335" y="265" width="160" height="45" rx="6" fill="#fff"/>
+          <circle cx="358" cy="287" r="15" fill="#fda4af"/>
+          <text x="351" y="291" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">PM</text>
+          <text x="380" y="280" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Priya Menon</text>
+          <text x="380" y="292" font-size="7" fill="#64748b" font-family="system-ui">Mathematics - Room 101</text>
+          <rect x="380" y="298" width="45" height="10" rx="3" fill="#d1fae5"/>
+          <text x="386" y="306" font-size="6" fill="#10b981" font-weight="600" font-family="system-ui">Confirmed</text>
+
+          <rect x="335" y="315" width="160" height="45" rx="6" fill="#fff"/>
+          <circle cx="358" cy="337" r="15" fill="#fda4af"/>
+          <text x="351" y="341" font-size="10" fill="#fff" font-weight="600" font-family="system-ui">RV</text>
+          <text x="380" y="330" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Rajesh Verma</text>
+          <text x="380" y="342" font-size="7" fill="#64748b" font-family="system-ui">Science - Room 102</text>
+          <rect x="380" y="348" width="38" height="10" rx="3" fill="#fef3c7"/>
+          <text x="386" y="356" font-size="6" fill="#f59e0b" font-weight="600" font-family="system-ui">Pending</text>
+        </svg>
+      </div>
+      <div class="feature-content">
+        <span class="feature-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Smart Scheduling
+        </span>
+        <h2>Exam Scheduling</h2>
+        <div class="description">
+          <p>Plan complete exam timetables with an intuitive drag-and-drop calendar interface that makes scheduling effortless. The intelligent system automatically detects scheduling conflicts between classes, subjects, and rooms, alerting administrators before problems arise. Allocate examination rooms based on seating capacity, assign qualified invigilators with workload balancing, and ensure optimal resource utilization across your institution.</p>
+          <p>Keep everyone in the loop with automated multi-channel notifications. Students, parents, and staff receive exam schedules via SMS, email, WhatsApp, and in-app alerts with timely reminders before each examination. Export beautifully formatted timetables for notice board display, share digital copies through parent portals, and integrate seamlessly with Google Calendar for synchronized scheduling across devices.</p>
+        </div>
+        <ul class="feature-highlights">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Visual drag-and-drop calendar scheduling
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Intelligent room allocation with capacity validation
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Automated invigilator assignment with duty roster
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Multi-channel notifications and reminders
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Conflict detection and automatic resolution
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ==================== HALL TICKETS TAB ==================== -->
+<div class="tab-content" data-panel="halltickets" id="panel-halltickets" role="tabpanel" aria-hidden="true">
+
+<!-- Feature 2: Hall Ticket Generation -->
+<section class="feature-section reverse reveal">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 520 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background container -->
+          <rect x="10" y="10" width="500" height="400" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Header bar -->
+          <rect x="10" y="10" width="500" height="50" rx="16" fill="#e11d48"/>
+          <rect x="10" y="45" width="500" height="15" fill="#e11d48"/>
+          <circle cx="34" cy="35" r="6" fill="#fecdd3"/>
+          <circle cx="54" cy="35" r="6" fill="#fda4af"/>
+          <circle cx="74" cy="35" r="6" fill="#fb7185"/>
+          <text x="100" y="40" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Hall Ticket Generator</text>
+
+          <!-- Main Hall Ticket Preview -->
+          <rect x="25" y="75" width="300" height="220" rx="12" fill="#fff" stroke="#e11d48" stroke-width="3"/>
+
+          <!-- Hall Ticket Header -->
+          <rect x="25" y="75" width="300" height="50" rx="12" fill="#e11d48"/>
+          <rect x="25" y="110" width="300" height="15" fill="#e11d48"/>
+
+          <!-- School Logo placeholder -->
+          <circle cx="55" cy="100" r="18" fill="#fecdd3"/>
+          <rect x="45" y="92" width="20" height="16" rx="2" fill="#e11d48"/>
+
+          <text x="85" y="95" font-size="10" fill="#fff" font-weight="700" font-family="system-ui">DELHI PUBLIC SCHOOL</text>
+          <text x="85" y="108" font-size="14" fill="#fff" font-weight="800" font-family="system-ui">ADMIT CARD</text>
+          <text x="85" y="120" font-size="7" fill="rgba(255,255,255,0.9)" font-family="system-ui">Term 2 Final Examination 2025-26</text>
+
+          <!-- Student Photo Section -->
+          <rect x="40" y="140" width="75" height="90" rx="8" fill="#ffe4e6" stroke="#fda4af" stroke-width="2"/>
+          <circle cx="77" cy="168" r="22" fill="#fda4af"/>
+          <ellipse cx="77" cy="162" rx="12" ry="10" fill="#fecdd3"/>
+          <ellipse cx="77" cy="172" rx="8" ry="6" fill="#fecdd3"/>
+          <rect x="55" y="196" width="45" height="26" rx="6" fill="#fda4af"/>
+          <path d="M60 200 Q77 215 95 200" stroke="#fecdd3" stroke-width="2" fill="none"/>
+
+          <!-- Student Details -->
+          <g font-family="system-ui">
+            <text x="130" y="152" font-size="8" fill="#94a3b8">Student Name</text>
+            <text x="130" y="166" font-size="12" fill="#0f172a" font-weight="700">Aarav Sharma</text>
+
+            <text x="130" y="185" font-size="8" fill="#94a3b8">Class / Section</text>
+            <text x="130" y="199" font-size="12" fill="#0f172a" font-weight="600">X - A</text>
+
+            <text x="220" y="185" font-size="8" fill="#94a3b8">Roll Number</text>
+            <text x="220" y="199" font-size="12" fill="#0f172a" font-weight="600">12</text>
+
+            <text x="130" y="218" font-size="8" fill="#94a3b8">Admission Number</text>
+            <text x="130" y="232" font-size="11" fill="#0f172a" font-weight="600">DPS/2021/10245</text>
+          </g>
+
+          <!-- QR Code Section -->
+          <rect x="260" y="140" width="55" height="55" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+          <g transform="translate(268, 148)">
+            <rect x="0" y="0" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="12" y="0" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="24" y="0" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="36" y="0" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="0" y="12" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="24" y="12" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="0" y="24" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="12" y="24" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="36" y="24" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="0" y="36" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="24" y="36" width="8" height="8" rx="1" fill="#0f172a"/>
+            <rect x="36" y="36" width="8" height="8" rx="1" fill="#0f172a"/>
+          </g>
+          <text x="267" y="205" font-size="6" fill="#64748b" font-family="system-ui">Scan to Verify</text>
+
+          <!-- Exam Schedule Table in Hall Ticket -->
+          <rect x="40" y="245" width="275" height="40" rx="6" fill="#ffe4e6"/>
+          <text x="50" y="260" font-size="7" fill="#e11d48" font-weight="700" font-family="system-ui">DATE</text>
+          <text x="100" y="260" font-size="7" fill="#e11d48" font-weight="700" font-family="system-ui">SUBJECT</text>
+          <text x="190" y="260" font-size="7" fill="#e11d48" font-weight="700" font-family="system-ui">TIME</text>
+          <text x="250" y="260" font-size="7" fill="#e11d48" font-weight="700" font-family="system-ui">ROOM</text>
+
+          <text x="50" y="275" font-size="7" fill="#0f172a" font-family="system-ui">16 Feb</text>
+          <text x="100" y="275" font-size="7" fill="#0f172a" font-family="system-ui">Mathematics</text>
+          <text x="190" y="275" font-size="7" fill="#0f172a" font-family="system-ui">09:00-12:00</text>
+          <text x="250" y="275" font-size="7" fill="#0f172a" font-family="system-ui">101</text>
+
+          <!-- Right Panel: Bulk Generation -->
+          <rect x="340" y="75" width="160" height="220" rx="12" fill="#ffe4e6" stroke="#fecdd3"/>
+          <text x="360" y="100" font-size="12" fill="#0f172a" font-weight="700" font-family="system-ui">Bulk Generate</text>
+
+          <!-- Class Selection -->
+          <rect x="352" y="115" width="136" height="32" rx="6" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="370" cy="131" r="10" fill="#22c55e"/>
+          <path d="M366 131l3 3 5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="386" y="128" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Class 10-A</text>
+          <text x="386" y="140" font-size="7" fill="#64748b" font-family="system-ui">45 students</text>
+
+          <rect x="352" y="152" width="136" height="32" rx="6" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+          <circle cx="370" cy="168" r="10" fill="#22c55e"/>
+          <path d="M366 168l3 3 5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="386" y="165" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Class 10-B</text>
+          <text x="386" y="177" font-size="7" fill="#64748b" font-family="system-ui">42 students</text>
+
+          <rect x="352" y="189" width="136" height="32" rx="6" fill="#fff" stroke="#e2e8f0"/>
+          <circle cx="370" cy="205" r="10" fill="#e2e8f0"/>
+          <text x="386" y="202" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Class 9-A</text>
+          <text x="386" y="214" font-size="7" fill="#64748b" font-family="system-ui">48 students</text>
+
+          <rect x="352" y="226" width="136" height="32" rx="6" fill="#fff" stroke="#e2e8f0"/>
+          <circle cx="370" cy="242" r="10" fill="#e2e8f0"/>
+          <text x="386" y="239" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">Class 9-B</text>
+          <text x="386" y="251" font-size="7" fill="#64748b" font-family="system-ui">46 students</text>
+
+          <!-- Generate Button -->
+          <rect x="352" y="268" width="136" height="22" rx="6" fill="#e11d48"/>
+          <text x="378" y="283" font-size="9" fill="#fff" font-weight="700" font-family="system-ui">Generate Selected</text>
+
+          <!-- Bottom Panel: Print Queue Status -->
+          <rect x="25" y="310" width="475" height="90" rx="12" fill="#fff" stroke="#e2e8f0"/>
+          <text x="45" y="335" font-size="12" fill="#0f172a" font-weight="700" font-family="system-ui">Print Queue Status</text>
+
+          <!-- Progress Bar -->
+          <rect x="45" y="350" width="300" height="12" rx="6" fill="#e2e8f0"/>
+          <rect x="45" y="350" width="240" height="12" rx="6" fill="#e11d48"/>
+          <rect x="45" y="350" width="200" height="12" rx="6" fill="#22c55e"/>
+
+          <!-- Status Cards -->
+          <rect x="45" y="372" width="90" height="20" rx="4" fill="#d1fae5"/>
+          <text x="55" y="386" font-size="8" fill="#10b981" font-weight="600" font-family="system-ui">87 Generated</text>
+
+          <rect x="145" y="372" width="90" height="20" rx="4" fill="#fef3c7"/>
+          <text x="155" y="386" font-size="8" fill="#f59e0b" font-weight="600" font-family="system-ui">32 Processing</text>
+
+          <rect x="245" y="372" width="90" height="20" rx="4" fill="#fee2e2"/>
+          <text x="258" y="386" font-size="8" fill="#ef4444" font-weight="600" font-family="system-ui">16 Pending</text>
+
+          <!-- Action Buttons -->
+          <rect x="370" y="345" width="55" height="24" rx="6" fill="#fff" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="380" y="361" font-size="8" fill="#e11d48" font-weight="600" font-family="system-ui">Preview</text>
+
+          <rect x="435" y="345" width="55" height="24" rx="6" fill="#e11d48"/>
+          <text x="445" y="361" font-size="8" fill="#fff" font-weight="600" font-family="system-ui">Print All</text>
+
+          <!-- Download Options -->
+          <rect x="370" y="377" width="120" height="18" rx="4" fill="#f1f5f9"/>
+          <text x="385" y="390" font-size="7" fill="#64748b" font-weight="500" font-family="system-ui">Download as PDF</text>
+        </svg>
+      </div>
+      <div class="feature-content">
+        <span class="feature-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><rect x="6" y="13" width="4" height="3" rx="1"/></svg>
+          Automated Generation
+        </span>
+        <h2>Hall Ticket Generation</h2>
+        <div class="description">
+          <p>Generate professional, print-ready hall tickets that include student photographs, unique QR codes for instant verification, and comprehensive exam schedules with room assignments. The system automatically pulls student data from your database, ensuring accuracy while eliminating manual data entry. Bulk generate hall tickets for entire classes, sections, or the whole school with a single click, saving hours of administrative work during the busy exam season.</p>
+          <p>Each hall ticket features a unique QR code that enables instant verification at exam centers using any smartphone camera, preventing impersonation and ensuring examination integrity. Print directly to any connected printer, download as high-quality PDFs for professional printing, or distribute digitally through the parent portal where guardians can download and print at their convenience. The system maintains a complete audit trail of all generated hall tickets for compliance and record-keeping purposes.</p>
+        </div>
+        <ul class="feature-highlights">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Student photo and unique QR code integration
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            One-click bulk generation for classes
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Real-time print queue management
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Parent portal self-service download
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Customizable templates with school branding
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ==================== MARKS ENTRY TAB ==================== -->
+<div class="tab-content" data-panel="marks" id="panel-marks" role="tabpanel" aria-hidden="true">
+
+<!-- Feature 3: Marks Entry -->
+<section class="feature-section reveal">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 520 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background container -->
+          <rect x="10" y="10" width="500" height="400" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Header bar -->
+          <rect x="10" y="10" width="500" height="50" rx="16" fill="#e11d48"/>
+          <rect x="10" y="45" width="500" height="15" fill="#e11d48"/>
+          <circle cx="34" cy="35" r="6" fill="#fecdd3"/>
+          <circle cx="54" cy="35" r="6" fill="#fda4af"/>
+          <circle cx="74" cy="35" r="6" fill="#fb7185"/>
+          <text x="100" y="40" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Marks Entry Portal</text>
+
+          <!-- Subject/Class Selector -->
+          <rect x="340" y="22" width="80" height="26" rx="6" fill="rgba(255,255,255,0.2)"/>
+          <text x="355" y="40" font-size="9" fill="#fff" font-weight="500" font-family="system-ui">Class 10-A</text>
+          <rect x="430" y="22" width="65" height="26" rx="6" fill="rgba(255,255,255,0.2)"/>
+          <text x="442" y="40" font-size="9" fill="#fff" font-weight="500" font-family="system-ui">Maths</text>
+
+          <!-- Main Spreadsheet -->
+          <rect x="25" y="75" width="475" height="230" rx="12" fill="#fff" stroke="#e2e8f0"/>
+
+          <!-- Header Row -->
+          <rect x="25" y="75" width="475" height="35" rx="12" fill="#ffe4e6"/>
+          <rect x="25" y="95" width="475" height="15" fill="#ffe4e6"/>
+          <g font-size="9" fill="#e11d48" font-weight="700" font-family="system-ui">
+            <text x="40" y="98">Roll</text>
+            <text x="80" y="98">Student Name</text>
+            <text x="185" y="98">Theory</text>
+            <text x="235" y="98">Practical</text>
+            <text x="295" y="98">Internal</text>
+            <text x="355" y="98">Total</text>
+            <text x="405" y="98">Grade</text>
+            <text x="455" y="98">Status</text>
+          </g>
+
+          <!-- Data Row 1 - Complete -->
+          <rect x="25" y="110" width="475" height="35" fill="#fff"/>
+          <line x1="25" y1="145" x2="500" y2="145" stroke="#f1f5f9" stroke-width="1"/>
+          <text x="45" y="132" font-size="9" fill="#0f172a" font-family="system-ui">01</text>
+          <text x="80" y="132" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Aarav Sharma</text>
+          <rect x="180" y="120" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="192" y="135" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">72</text>
+          <rect x="230" y="120" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="242" y="135" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">18</text>
+          <rect x="290" y="120" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="305" y="135" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">8</text>
+          <rect x="350" y="120" width="40" height="22" rx="4" fill="#d1fae5"/>
+          <text x="362" y="135" font-size="9" fill="#10b981" font-weight="700" font-family="system-ui">98</text>
+          <rect x="400" y="120" width="35" height="22" rx="4" fill="#22c55e"/>
+          <text x="408" y="135" font-size="9" fill="#fff" font-weight="700" font-family="system-ui">A+</text>
+          <circle cx="470" cy="130" r="10" fill="#22c55e"/>
+          <path d="M465 130l4 4 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- Data Row 2 - Complete -->
+          <rect x="25" y="145" width="475" height="35" fill="#f8fafc"/>
+          <line x1="25" y1="180" x2="500" y2="180" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="45" y="167" font-size="9" fill="#0f172a" font-family="system-ui">02</text>
+          <text x="80" y="167" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Priya Gupta</text>
+          <rect x="180" y="155" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="192" y="170" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">68</text>
+          <rect x="230" y="155" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="242" y="170" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">16</text>
+          <rect x="290" y="155" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="305" y="170" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">8</text>
+          <rect x="350" y="155" width="40" height="22" rx="4" fill="#d1fae5"/>
+          <text x="362" y="170" font-size="9" fill="#10b981" font-weight="700" font-family="system-ui">92</text>
+          <rect x="400" y="155" width="35" height="22" rx="4" fill="#22c55e"/>
+          <text x="411" y="170" font-size="9" fill="#fff" font-weight="700" font-family="system-ui">A</text>
+          <circle cx="470" cy="165" r="10" fill="#22c55e"/>
+          <path d="M465 165l4 4 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- Data Row 3 - Error -->
+          <rect x="25" y="180" width="475" height="35" fill="#fff"/>
+          <line x1="25" y1="215" x2="500" y2="215" stroke="#f1f5f9" stroke-width="1"/>
+          <text x="45" y="202" font-size="9" fill="#0f172a" font-family="system-ui">03</text>
+          <text x="80" y="202" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Rahul Kumar</text>
+          <rect x="180" y="190" width="40" height="22" rx="4" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+          <text x="192" y="205" font-size="9" fill="#ef4444" font-weight="600" font-family="system-ui">85</text>
+          <rect x="230" y="190" width="40" height="22" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="242" y="205" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">16</text>
+          <rect x="290" y="190" width="40" height="22" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="305" y="205" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">7</text>
+          <rect x="350" y="190" width="40" height="22" rx="4" fill="#fee2e2"/>
+          <text x="358" y="205" font-size="9" fill="#ef4444" font-weight="700" font-family="system-ui">108</text>
+          <rect x="400" y="190" width="35" height="22" rx="4" fill="#e2e8f0"/>
+          <text x="412" y="205" font-size="9" fill="#64748b" font-family="system-ui">--</text>
+          <circle cx="470" cy="200" r="10" fill="#ef4444"/>
+          <text x="466" y="205" font-size="11" fill="#fff" font-weight="700" font-family="system-ui">!</text>
+
+          <!-- Data Row 4 - Partial Entry -->
+          <rect x="25" y="215" width="475" height="35" fill="#f8fafc"/>
+          <line x1="25" y1="250" x2="500" y2="250" stroke="#e2e8f0" stroke-width="1"/>
+          <text x="45" y="237" font-size="9" fill="#0f172a" font-family="system-ui">04</text>
+          <text x="80" y="237" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Maya Singh</text>
+          <rect x="180" y="225" width="40" height="22" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="192" y="240" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">65</text>
+          <rect x="230" y="225" width="40" height="22" rx="4" fill="#fff" stroke="#e11d48" stroke-width="2" stroke-dasharray="3,2"/>
+          <text x="245" y="240" font-size="9" fill="#94a3b8" font-family="system-ui">--</text>
+          <rect x="290" y="225" width="40" height="22" rx="4" fill="#f8fafc" stroke="#e2e8f0"/>
+          <text x="305" y="240" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">6</text>
+          <rect x="350" y="225" width="40" height="22" rx="4" fill="#fef3c7"/>
+          <text x="362" y="240" font-size="9" fill="#f59e0b" font-weight="600" font-family="system-ui">71+</text>
+          <rect x="400" y="225" width="35" height="22" rx="4" fill="#e2e8f0"/>
+          <text x="412" y="240" font-size="9" fill="#64748b" font-family="system-ui">--</text>
+          <circle cx="470" cy="235" r="10" fill="#f59e0b"/>
+          <text x="467" y="240" font-size="9" fill="#fff" font-weight="700" font-family="system-ui">?</text>
+
+          <!-- Data Row 5 - Complete -->
+          <rect x="25" y="250" width="475" height="35" fill="#fff"/>
+          <line x1="25" y1="285" x2="500" y2="285" stroke="#f1f5f9" stroke-width="1"/>
+          <text x="45" y="272" font-size="9" fill="#0f172a" font-family="system-ui">05</text>
+          <text x="80" y="272" font-size="9" fill="#0f172a" font-weight="500" font-family="system-ui">Rohan Patel</text>
+          <rect x="180" y="260" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="192" y="275" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">58</text>
+          <rect x="230" y="260" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="242" y="275" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">14</text>
+          <rect x="290" y="260" width="40" height="22" rx="4" fill="#f8fafc" stroke="#d1fae5" stroke-width="1.5"/>
+          <text x="305" y="275" font-size="9" fill="#0f172a" font-weight="600" font-family="system-ui">6</text>
+          <rect x="350" y="260" width="40" height="22" rx="4" fill="#d1fae5"/>
+          <text x="362" y="275" font-size="9" fill="#10b981" font-weight="700" font-family="system-ui">78</text>
+          <rect x="400" y="260" width="35" height="22" rx="4" fill="#f59e0b"/>
+          <text x="408" y="275" font-size="9" fill="#fff" font-weight="700" font-family="system-ui">B+</text>
+          <circle cx="470" cy="270" r="10" fill="#22c55e"/>
+          <path d="M465 270l4 4 6-6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- Bottom Panel: Validation & Actions -->
+          <rect x="25" y="315" width="230" height="85" rx="10" fill="#fee2e2" stroke="#fecaca"/>
+          <text x="45" y="340" font-size="11" fill="#dc2626" font-weight="700" font-family="system-ui">Validation Errors (2)</text>
+
+          <rect x="40" y="352" width="200" height="18" rx="4" fill="#fff"/>
+          <circle cx="52" cy="361" r="4" fill="#ef4444"/>
+          <text x="62" y="365" font-size="8" fill="#0f172a" font-family="system-ui">Roll 03: Theory marks exceed max (80)</text>
+
+          <rect x="40" y="375" width="200" height="18" rx="4" fill="#fff"/>
+          <circle cx="52" cy="384" r="4" fill="#f59e0b"/>
+          <text x="62" y="388" font-size="8" fill="#0f172a" font-family="system-ui">Roll 04: Practical marks missing</text>
+
+          <!-- Grade Scale Reference -->
+          <rect x="265" y="315" width="110" height="85" rx="10" fill="#f1f5f9" stroke="#e2e8f0"/>
+          <text x="280" y="335" font-size="10" fill="#0f172a" font-weight="700" font-family="system-ui">Grade Scale</text>
+          <g font-size="7" fill="#64748b" font-family="system-ui">
+            <text x="280" y="352">A+ : 90-100</text>
+            <text x="330" y="352">A : 80-89</text>
+            <text x="280" y="367">B+ : 70-79</text>
+            <text x="330" y="367">B : 60-69</text>
+            <text x="280" y="382">C+ : 50-59</text>
+            <text x="330" y="382">C : 40-49</text>
+            <text x="280" y="397">D : Below 40</text>
+          </g>
+
+          <!-- Action Buttons -->
+          <rect x="385" y="315" width="115" height="85" rx="10" fill="#fff" stroke="#e2e8f0"/>
+          <rect x="395" y="328" width="95" height="28" rx="6" fill="#f1f5f9" stroke="#e2e8f0"/>
+          <text x="410" y="347" font-size="9" fill="#64748b" font-weight="500" font-family="system-ui">Auto-Calculate</text>
+
+          <rect x="395" y="365" width="95" height="28" rx="6" fill="#e11d48"/>
+          <text x="403" y="384" font-size="9" fill="#fff" font-weight="600" font-family="system-ui">Submit for Review</text>
+        </svg>
+      </div>
+      <div class="feature-content">
+        <span class="feature-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Validated Entry
+        </span>
+        <h2>Marks Entry</h2>
+        <div class="description">
+          <p>Enter examination marks in a familiar, Excel-like spreadsheet interface designed for speed and accuracy. The intelligent validation engine checks each entry in real-time, immediately flagging errors such as marks exceeding maximum values, missing entries, or inconsistent data patterns. Teachers can quickly navigate using keyboard shortcuts, and the auto-save feature ensures no data is lost even during unexpected disconnections.</p>
+          <p>Grade calculation happens automatically based on your institution's configured grading scale, with support for multiple assessment components including theory, practical, and internal marks. Bulk import from Excel spreadsheets streamlines data migration from existing systems, while the multi-level approval workflow (Teacher to HOD to Exam Controller) ensures thorough verification before results are published to students and parents.</p>
+        </div>
+        <ul class="feature-highlights">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Excel-like spreadsheet interface with keyboard navigation
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Real-time validation with instant error highlighting
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Automatic grade calculation with configurable scales
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Multi-level approval workflow before publishing
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Bulk Excel import and auto-save functionality
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- ==================== REPORT CARDS TAB ==================== -->
+<div class="tab-content" data-panel="reports" id="panel-reports" role="tabpanel" aria-hidden="true">
+
+<!-- Feature 4: Report Cards & Analytics -->
+<section class="feature-section reverse reveal">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-illustration">
+        <svg viewBox="0 0 520 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background container -->
+          <rect x="10" y="10" width="500" height="420" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Header bar -->
+          <rect x="10" y="10" width="500" height="50" rx="16" fill="#e11d48"/>
+          <rect x="10" y="45" width="500" height="15" fill="#e11d48"/>
+          <circle cx="34" cy="35" r="6" fill="#fecdd3"/>
+          <circle cx="54" cy="35" r="6" fill="#fda4af"/>
+          <circle cx="74" cy="35" r="6" fill="#fb7185"/>
+          <text x="100" y="40" font-size="14" fill="#fff" font-weight="700" font-family="Plus Jakarta Sans,system-ui">Report Card Generator</text>
+
+          <!-- Template selector -->
+          <rect x="380" y="22" width="110" height="26" rx="6" fill="rgba(255,255,255,0.2)"/>
+          <text x="395" y="40" font-size="9" fill="#fff" font-weight="500" font-family="system-ui">Template: Classic</text>
+
+          <!-- Main Report Card Preview -->
+          <rect x="25" y="75" width="230" height="345" rx="12" fill="#fff" stroke="#e11d48" stroke-width="3"/>
+
+          <!-- Report Card Header -->
+          <rect x="25" y="75" width="230" height="55" rx="12" fill="#e11d48"/>
+          <rect x="25" y="115" width="230" height="15" fill="#e11d48"/>
+
+          <!-- School Emblem -->
+          <circle cx="58" cy="102" r="20" fill="#fecdd3"/>
+          <rect x="48" y="94" width="20" height="16" rx="3" fill="#be123c"/>
+          <path d="M53 99 L58 104 L68 94" stroke="#fecdd3" stroke-width="2" fill="none"/>
+
+          <text x="90" y="97" font-size="9" fill="#fff" font-weight="700" font-family="system-ui">DELHI PUBLIC SCHOOL</text>
+          <text x="90" y="112" font-size="13" fill="#fff" font-weight="800" font-family="system-ui">PROGRESS REPORT</text>
+          <text x="90" y="125" font-size="7" fill="rgba(255,255,255,0.9)" font-family="system-ui">Academic Session 2025-26 | Term 2</text>
+
+          <!-- Student Info Section -->
+          <rect x="35" y="140" width="210" height="45" rx="6" fill="#ffe4e6"/>
+          <circle cx="60" cy="162" r="18" fill="#fda4af"/>
+          <ellipse cx="60" cy="157" rx="8" ry="6" fill="#fecdd3"/>
+          <rect x="52" y="166" width="16" height="10" rx="3" fill="#fecdd3"/>
+
+          <text x="88" y="152" font-size="7" fill="#94a3b8" font-family="system-ui">Student Name</text>
+          <text x="88" y="164" font-size="10" fill="#0f172a" font-weight="700" font-family="system-ui">Aarav Sharma</text>
+          <text x="88" y="178" font-size="7" fill="#64748b" font-family="system-ui">Class X-A | Roll No: 12 | Adm: DPS/2021/10245</text>
+
+          <!-- Grades Table -->
+          <rect x="35" y="195" width="210" height="22" rx="4" fill="#ffe4e6"/>
+          <g font-size="7" fill="#e11d48" font-weight="700" font-family="system-ui">
+            <text x="45" y="210">Subject</text>
+            <text x="115" y="210">Theory</text>
+            <text x="148" y="210">Prac</text>
+            <text x="175" y="210">Total</text>
+            <text x="210" y="210">Grade</text>
+          </g>
+
+          <!-- Subject Rows -->
+          <g font-size="7" font-family="system-ui">
+            <rect x="35" y="217" width="210" height="18" fill="#fff"/>
+            <text x="45" y="230" fill="#0f172a" font-weight="500">Mathematics</text>
+            <text x="120" y="230" fill="#0f172a">72</text>
+            <text x="150" y="230" fill="#0f172a">18</text>
+            <text x="178" y="230" fill="#0f172a" font-weight="700">90</text>
+            <rect x="207" y="222" width="28" height="12" rx="3" fill="#22c55e"/>
+            <text x="214" y="231" fill="#fff" font-weight="700">A+</text>
+
+            <rect x="35" y="235" width="210" height="18" fill="#f8fafc"/>
+            <text x="45" y="248" fill="#0f172a" font-weight="500">Science</text>
+            <text x="120" y="248" fill="#0f172a">68</text>
+            <text x="150" y="248" fill="#0f172a">18</text>
+            <text x="178" y="248" fill="#0f172a" font-weight="700">86</text>
+            <rect x="207" y="240" width="28" height="12" rx="3" fill="#22c55e"/>
+            <text x="216" y="249" fill="#fff" font-weight="700">A</text>
+
+            <rect x="35" y="253" width="210" height="18" fill="#fff"/>
+            <text x="45" y="266" fill="#0f172a" font-weight="500">English</text>
+            <text x="120" y="266" fill="#0f172a">65</text>
+            <text x="150" y="266" fill="#0f172a">17</text>
+            <text x="178" y="266" fill="#0f172a" font-weight="700">82</text>
+            <rect x="207" y="258" width="28" height="12" rx="3" fill="#22c55e"/>
+            <text x="216" y="267" fill="#fff" font-weight="700">A</text>
+
+            <rect x="35" y="271" width="210" height="18" fill="#f8fafc"/>
+            <text x="45" y="284" fill="#0f172a" font-weight="500">Hindi</text>
+            <text x="120" y="284" fill="#0f172a">58</text>
+            <text x="150" y="284" fill="#0f172a">16</text>
+            <text x="178" y="284" fill="#0f172a" font-weight="700">74</text>
+            <rect x="207" y="276" width="28" height="12" rx="3" fill="#f59e0b"/>
+            <text x="214" y="285" fill="#fff" font-weight="700">B+</text>
+
+            <rect x="35" y="289" width="210" height="18" fill="#fff"/>
+            <text x="45" y="302" fill="#0f172a" font-weight="500">Social Science</text>
+            <text x="120" y="302" fill="#0f172a">62</text>
+            <text x="150" y="302" fill="#0f172a">16</text>
+            <text x="178" y="302" fill="#0f172a" font-weight="700">78</text>
+            <rect x="207" y="294" width="28" height="12" rx="3" fill="#f59e0b"/>
+            <text x="214" y="303" fill="#fff" font-weight="700">B+</text>
+          </g>
+
+          <!-- Total & Percentage -->
+          <rect x="35" y="312" width="210" height="25" rx="4" fill="#ffe4e6"/>
+          <text x="45" y="329" font-size="9" fill="#e11d48" font-weight="700" font-family="system-ui">GRAND TOTAL</text>
+          <text x="150" y="329" font-size="10" fill="#e11d48" font-weight="800" font-family="system-ui">410/500</text>
+          <text x="205" y="329" font-size="10" fill="#e11d48" font-weight="800" font-family="system-ui">82%</text>
+
+          <!-- Rank & GPA -->
+          <rect x="35" y="345" width="100" height="35" rx="6" fill="#d1fae5"/>
+          <text x="50" y="360" font-size="7" fill="#065f46" font-family="system-ui">Class Rank</text>
+          <text x="50" y="375" font-size="16" fill="#10b981" font-weight="800" font-family="system-ui">3rd</text>
+          <text x="85" y="375" font-size="8" fill="#064e3b" font-family="system-ui">/ 45</text>
+
+          <rect x="145" y="345" width="100" height="35" rx="6" fill="#dbeafe"/>
+          <text x="160" y="360" font-size="7" fill="#1e40af" font-family="system-ui">Grade Point Avg</text>
+          <text x="160" y="375" font-size="16" fill="#3b82f6" font-weight="800" font-family="system-ui">8.6</text>
+          <text x="195" y="375" font-size="8" fill="#1e40af" font-family="system-ui">/ 10</text>
+
+          <!-- Remarks Section -->
+          <rect x="35" y="388" width="210" height="25" rx="6" fill="#f1f5f9"/>
+          <text x="45" y="400" font-size="7" fill="#64748b" font-family="system-ui">Class Teacher's Remarks:</text>
+          <text x="45" y="410" font-size="7" fill="#0f172a" font-weight="500" font-family="system-ui" font-style="italic">Excellent performance. Keep it up!</text>
+
+          <!-- Right Panel: Analytics -->
+          <rect x="270" y="75" width="225" height="160" rx="12" fill="#ffe4e6" stroke="#fecdd3"/>
+          <text x="290" y="100" font-size="12" fill="#0f172a" font-weight="700" font-family="system-ui">Performance Trend</text>
+
+          <!-- Performance Chart Area -->
+          <rect x="285" y="110" width="195" height="110" rx="6" fill="#fff"/>
+
+          <!-- Y-axis labels -->
+          <text x="295" y="125" font-size="6" fill="#94a3b8" font-family="system-ui">100</text>
+          <text x="298" y="150" font-size="6" fill="#94a3b8" font-family="system-ui">75</text>
+          <text x="298" y="175" font-size="6" fill="#94a3b8" font-family="system-ui">50</text>
+          <text x="298" y="200" font-size="6" fill="#94a3b8" font-family="system-ui">25</text>
+
+          <!-- Grid lines -->
+          <line x1="315" y1="120" x2="465" y2="120" stroke="#f1f5f9" stroke-width="1"/>
+          <line x1="315" y1="145" x2="465" y2="145" stroke="#f1f5f9" stroke-width="1"/>
+          <line x1="315" y1="170" x2="465" y2="170" stroke="#f1f5f9" stroke-width="1"/>
+          <line x1="315" y1="195" x2="465" y2="195" stroke="#f1f5f9" stroke-width="1"/>
+
+          <!-- Performance Line -->
+          <polyline points="325,165 355,155 385,160 415,145 445,135 465,125" fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- Data Points -->
+          <circle cx="325" cy="165" r="5" fill="#fff" stroke="#e11d48" stroke-width="2"/>
+          <circle cx="355" cy="155" r="5" fill="#fff" stroke="#e11d48" stroke-width="2"/>
+          <circle cx="385" cy="160" r="5" fill="#fff" stroke="#e11d48" stroke-width="2"/>
+          <circle cx="415" cy="145" r="5" fill="#fff" stroke="#e11d48" stroke-width="2"/>
+          <circle cx="445" cy="135" r="5" fill="#fff" stroke="#e11d48" stroke-width="2"/>
+          <circle cx="465" cy="125" r="6" fill="#22c55e" stroke="#fff" stroke-width="2"/>
+
+          <!-- X-axis labels -->
+          <g font-size="7" fill="#64748b" font-family="system-ui">
+            <text x="318" y="215">Term 1</text>
+            <text x="348" y="215">Term 2</text>
+            <text x="378" y="215">Term 3</text>
+            <text x="408" y="215">Term 4</text>
+            <text x="438" y="215">Term 5</text>
+            <text x="458" y="215" fill="#22c55e" font-weight="700">Now</text>
+          </g>
+
+          <!-- Subject Performance Bars -->
+          <rect x="270" y="245" width="225" height="175" rx="12" fill="#fff" stroke="#e2e8f0"/>
+          <text x="290" y="270" font-size="12" fill="#0f172a" font-weight="700" font-family="system-ui">Subject-wise Analysis</text>
+
+          <!-- Bar Chart -->
+          <g font-size="8" font-family="system-ui">
+            <text x="290" y="295" fill="#64748b">Mathematics</text>
+            <rect x="290" y="300" width="180" height="14" rx="3" fill="#f1f5f9"/>
+            <rect x="290" y="300" width="162" height="14" rx="3" fill="#e11d48"/>
+            <text x="460" y="311" fill="#0f172a" font-weight="600">90%</text>
+
+            <text x="290" y="330" fill="#64748b">Science</text>
+            <rect x="290" y="335" width="180" height="14" rx="3" fill="#f1f5f9"/>
+            <rect x="290" y="335" width="155" height="14" rx="3" fill="#fb7185"/>
+            <text x="460" y="346" fill="#0f172a" font-weight="600">86%</text>
+
+            <text x="290" y="365" fill="#64748b">English</text>
+            <rect x="290" y="370" width="180" height="14" rx="3" fill="#f1f5f9"/>
+            <rect x="290" y="370" width="148" height="14" rx="3" fill="#f59e0b"/>
+            <text x="460" y="381" fill="#0f172a" font-weight="600">82%</text>
+
+            <text x="290" y="400" fill="#64748b">Hindi</text>
+            <rect x="290" y="405" width="180" height="14" rx="3" fill="#f1f5f9"/>
+            <rect x="290" y="405" width="133" height="14" rx="3" fill="#fbbf24"/>
+            <text x="460" y="416" fill="#0f172a" font-weight="600">74%</text>
+          </g>
+
+          <!-- Quick Stats -->
+          <rect x="270" y="75" width="55" height="40" rx="6" fill="#d1fae5" transform="translate(170, 285)"/>
+          <text x="450" y="368" font-size="7" fill="#065f46" font-family="system-ui">Highest</text>
+          <text x="450" y="382" font-size="12" fill="#10b981" font-weight="800" font-family="system-ui">90</text>
+
+          <rect x="270" y="75" width="55" height="40" rx="6" fill="#fee2e2" transform="translate(170, 330)"/>
+          <text x="450" y="413" font-size="7" fill="#dc2626" font-family="system-ui">Lowest</text>
+          <text x="450" y="427" font-size="12" fill="#ef4444" font-weight="800" font-family="system-ui">74</text>
+        </svg>
+      </div>
+      <div class="feature-content">
+        <span class="feature-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg>
+          Complete Analytics
+        </span>
+        <h2>Report Cards & Analytics</h2>
+        <div class="description">
+          <p>Generate visually stunning, professionally designed report cards that reflect your institution's identity. Choose from multiple customizable templates featuring your school logo, colors, and branding elements. Each report card includes comprehensive grades, teacher remarks, attendance summaries, and co-curricular achievements. The intuitive template editor allows non-technical staff to modify layouts, fonts, and sections without any coding knowledge.</p>
+          <p>Unlock deep insights into student performance with powerful analytics dashboards. Track progress across multiple terms with trend visualizations, identify subjects needing attention through comparative analysis, and celebrate improvements with data-driven recognition. Class rankings, percentile calculations, and grade point averages are computed automatically. Parents access detailed analytics through the portal, while teachers receive actionable insights to personalize instruction and support struggling students effectively.</p>
+        </div>
+        <ul class="feature-highlights">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Multiple customizable report card templates
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Multi-term performance trend visualization
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Automatic class rankings and percentiles
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Subject-wise comparative analysis charts
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            One-click PDF export and parent portal sharing
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<!-- Module CTA -->
+<section class="module-cta">
+  <div class="container">
+    <h2>Ready to Simplify Examinations?</h2>
+    <p>Join hundreds of institutions already using PaperBook's Exam module to manage the complete exam lifecycle from scheduling to report cards.</p>
+    <div class="btn-group">
+      <a href="#" class="btn btn-white btn-lg">Start Free Trial</a>
+      <a href="#" class="btn btn-white-outline btn-lg">Schedule a Demo</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" aria-label="Site footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="../index.html" class="nav-brand">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" role="img"><defs><linearGradient id="ftBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#ftBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#ftBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+          PaperBook
+        </a>
+        <p>The complete education management platform that simplifies administration, enhances teaching, and connects parents.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col"><h4>Product</h4><a href="../index.html#features">Features</a><a href="../index.html#pricing">Pricing</a><a href="#">Integrations</a><a href="#">Mobile App</a></div>
+      <div class="footer-col"><h4>Resources</h4><a href="#">Documentation</a><a href="#">Help Center</a><a href="#">Blog</a><a href="#">API Reference</a></div>
+      <div class="footer-col"><h4>Company</h4><a href="#">About Us</a><a href="#">Careers</a><a href="#">Contact</a><a href="#">Privacy Policy</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 PaperBook. All rights reserved.</span>
+      <span>Made with care for educators across India</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+<script>
+// Tab Navigation
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.module-tab');
+  const panels = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabId = tab.dataset.tab;
+
+      // Update tabs
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+
+      // Update panels
+      panels.forEach(panel => {
+        const isActive = panel.dataset.panel === tabId;
+        panel.classList.toggle('active', isActive);
+        panel.setAttribute('aria-hidden', !isActive);
+      });
+
+      // Update URL
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tabId);
+      window.history.pushState({}, '', url);
+
+      // Scroll to content
+      document.querySelector('.module-tabs-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Handle URL state
+  const params = new URLSearchParams(window.location.search);
+  const tabId = params.get('tab');
+  if (tabId) {
+    const targetTab = document.querySelector(`.module-tab[data-tab="${tabId}"]`);
+    if (targetTab) targetTab.click();
+  }
+
+  // Back/forward navigation
+  window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(window.location.search);
+    const tabId = params.get('tab');
+    if (tabId) {
+      const targetTab = document.querySelector(`.module-tab[data-tab="${tabId}"]`);
+      if (targetTab) targetTab.click();
+    }
+  });
+
+  // Feature section reveal
+  const featureSections = document.querySelectorAll('.feature-section');
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.2 }
+  );
+  featureSections.forEach(section => observer.observe(section));
+});
+</script>
+</body>
+</html>

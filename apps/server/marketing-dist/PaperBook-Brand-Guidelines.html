@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PaperBook Brand Guidelines</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0f172a; line-height: 1.6; background: #fff; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+
+    /* Cover Page */
+    .cover { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%); color: #fff; padding: 100px 40px; text-align: center; margin-bottom: 60px; }
+    .cover h1 { font-size: 48px; font-weight: 800; margin-bottom: 16px; }
+    .cover p { font-size: 20px; opacity: 0.9; }
+    .cover .version { margin-top: 40px; font-size: 14px; opacity: 0.7; }
+
+    /* Section Styles */
+    .section { margin-bottom: 60px; page-break-inside: avoid; }
+    .section h2 { font-size: 28px; font-weight: 700; color: #6d28d9; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 3px solid #ede9fe; }
+    .section h3 { font-size: 20px; font-weight: 600; margin: 24px 0 16px; color: #0f172a; }
+    .section p { color: #64748b; margin-bottom: 16px; }
+
+    /* Color Swatches */
+    .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0; }
+    .color-swatch { border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .color-swatch .preview { height: 80px; }
+    .color-swatch .info { padding: 12px; background: #fff; }
+    .color-swatch .name { font-weight: 600; font-size: 14px; color: #0f172a; }
+    .color-swatch .hex { font-size: 12px; color: #64748b; font-family: monospace; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px 16px; text-align: left; border: 1px solid #e2e8f0; }
+    th { background: #f8fafc; font-weight: 600; color: #0f172a; }
+    td { color: #64748b; }
+    code { background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-family: 'SF Mono', Monaco, monospace; font-size: 13px; }
+
+    /* Logo Section */
+    .logo-display { background: #f8fafc; padding: 40px; border-radius: 16px; text-align: center; margin: 24px 0; }
+    .logo-display svg { max-width: 120px; }
+    .logo-variations { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 24px 0; }
+    .logo-variation { padding: 30px; border-radius: 12px; text-align: center; }
+    .logo-variation.light { background: #fff; border: 1px solid #e2e8f0; }
+    .logo-variation.dark { background: #0f172a; }
+    .logo-variation.gradient { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%); }
+    .logo-variation p { margin-top: 12px; font-size: 12px; color: #64748b; }
+    .logo-variation.dark p, .logo-variation.gradient p { color: rgba(255,255,255,0.7); }
+
+    /* Gradient Previews */
+    .gradient-preview { height: 60px; border-radius: 12px; margin: 12px 0; }
+
+    /* Typography Samples */
+    .type-sample { margin: 16px 0; padding: 20px; background: #f8fafc; border-radius: 12px; }
+    .type-sample .label { font-size: 12px; color: #64748b; margin-bottom: 8px; }
+
+    /* Animation Cards */
+    .animation-card { background: #f8fafc; padding: 20px; border-radius: 12px; margin: 12px 0; }
+    .animation-card .name { font-weight: 600; color: #0f172a; margin-bottom: 8px; }
+    .animation-card .usage { font-size: 14px; color: #64748b; }
+
+    /* Button Examples */
+    .button-examples { display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+    .btn-example { padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; }
+    .btn-primary { background: #6d28d9; color: #fff; box-shadow: 0 4px 14px rgba(109,40,217,0.25); }
+    .btn-outline { background: #fff; color: #0f172a; border: 2px solid #e2e8f0; }
+    .btn-white { background: #fff; color: #6d28d9; }
+
+    /* Module Colors Grid */
+    .module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
+    .module-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; }
+    .module-item .dot { width: 24px; height: 24px; border-radius: 6px; }
+    .module-item .name { font-weight: 500; font-size: 14px; }
+    .module-item .hex { font-size: 12px; color: #64748b; font-family: monospace; }
+
+    /* Print Styles */
+    @media print {
+      .cover { page-break-after: always; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover">
+  <svg width="80" height="80" viewBox="0 0 32 32" fill="none">
+    <rect width="32" height="32" rx="8" fill="rgba(255,255,255,0.2)"/>
+    <path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/>
+    <path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="rgba(255,255,255,0.3)"/>
+    <polygon points="19,25 27,25 23,18" fill="#FF9933"/>
+  </svg>
+  <h1>PaperBook</h1>
+  <p>Brand Guidelines & Design System</p>
+  <div class="version">Version 1.0 — February 2026</div>
+</div>
+
+<div class="container">
+
+<!-- Table of Contents -->
+<div class="section">
+  <h2>Table of Contents</h2>
+  <table>
+    <tr><td>1. Logo & Brand Mark</td><td>Page 2</td></tr>
+    <tr><td>2. Primary Color Palette</td><td>Page 3</td></tr>
+    <tr><td>3. Secondary & Accent Colors</td><td>Page 4</td></tr>
+    <tr><td>4. Module-Specific Colors</td><td>Page 5</td></tr>
+    <tr><td>5. Gradients</td><td>Page 6</td></tr>
+    <tr><td>6. Typography</td><td>Page 7</td></tr>
+    <tr><td>7. Shadows & Elevation</td><td>Page 8</td></tr>
+    <tr><td>8. Animations & Motion</td><td>Page 9</td></tr>
+    <tr><td>9. UI Components</td><td>Page 10</td></tr>
+    <tr><td>10. Illustration Guidelines</td><td>Page 11</td></tr>
+  </table>
+</div>
+
+<!-- 1. Logo & Brand Mark -->
+<div class="section">
+  <h2>1. Logo & Brand Mark</h2>
+
+  <h3>Primary Logo</h3>
+  <p>The PaperBook logo consists of a stylized "P" lettermark with an orange saffron triangle accent, representing growth and progress in education.</p>
+
+  <div class="logo-display">
+    <svg width="120" height="120" viewBox="0 0 32 32" fill="none">
+      <defs>
+        <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#7c3aed"/>
+          <stop offset="1" stop-color="#5b21b6"/>
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+      <path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/>
+      <path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#logoGrad)"/>
+      <polygon points="19,25 27,25 23,18" fill="#FF9933"/>
+    </svg>
+  </div>
+
+  <h3>Logo Anatomy</h3>
+  <table>
+    <tr><th>Element</th><th>Description</th><th>Color</th></tr>
+    <tr><td>Background</td><td>Rounded rectangle (8px radius)</td><td>Purple gradient</td></tr>
+    <tr><td>P Lettermark</td><td>White stylized letter P</td><td>#FFFFFF</td></tr>
+    <tr><td>P Inner Bowl</td><td>Cutout showing gradient</td><td>Background gradient</td></tr>
+    <tr><td>Triangle Accent</td><td>Acute triangle pointing up</td><td>#FF9933 (Saffron)</td></tr>
+  </table>
+
+  <h3>Triangle Specifications</h3>
+  <p>The triangle accent is an acute isoceles triangle with:</p>
+  <table>
+    <tr><th>Point</th><th>Coordinates</th><th>Description</th></tr>
+    <tr><td>Bottom-left</td><td>(19, 25)</td><td>Aligned with P's bottom</td></tr>
+    <tr><td>Bottom-right</td><td>(27, 25)</td><td>8 units from left point</td></tr>
+    <tr><td>Apex</td><td>(23, 18)</td><td>Centered, pointing straight up</td></tr>
+  </table>
+
+  <h3>Logo Variations</h3>
+  <div class="logo-variations">
+    <div class="logo-variation light">
+      <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
+        <defs><linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs>
+        <rect width="32" height="32" rx="8" fill="url(#lg1)"/>
+        <path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/>
+        <path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#lg1)"/>
+        <polygon points="19,25 27,25 23,18" fill="#FF9933"/>
+      </svg>
+      <p>Light Background</p>
+    </div>
+    <div class="logo-variation dark">
+      <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
+        <defs><linearGradient id="lg2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs>
+        <rect width="32" height="32" rx="8" fill="url(#lg2)"/>
+        <path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/>
+        <path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#lg2)"/>
+        <polygon points="19,25 27,25 23,18" fill="#FF9933"/>
+      </svg>
+      <p>Dark Background</p>
+    </div>
+    <div class="logo-variation gradient">
+      <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="rgba(255,255,255,0.2)"/>
+        <path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/>
+        <path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="rgba(255,255,255,0.3)"/>
+        <polygon points="19,25 27,25 23,18" fill="#FF9933"/>
+      </svg>
+      <p>On Brand Gradient</p>
+    </div>
+  </div>
+
+  <h3>Minimum Clear Space</h3>
+  <p>Maintain clear space equal to the height of the "P" lettermark around all sides of the logo. Never place other elements within this zone.</p>
+</div>
+
+<!-- 2. Primary Color Palette -->
+<div class="section">
+  <h2>2. Primary Color Palette</h2>
+  <p>Our primary palette is built around a rich purple that conveys trust, innovation, and premium quality in education technology.</p>
+
+  <h3>Primary Purple</h3>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="preview" style="background: #6d28d9;"></div>
+      <div class="info"><div class="name">Primary</div><div class="hex">#6d28d9</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #5b21b6;"></div>
+      <div class="info"><div class="name">Primary Dark</div><div class="hex">#5b21b6</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #7c3aed;"></div>
+      <div class="info"><div class="name">Primary Vivid</div><div class="hex">#7c3aed</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #ede9fe;"></div>
+      <div class="info"><div class="name">Primary Light</div><div class="hex">#ede9fe</div></div>
+    </div>
+  </div>
+
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="preview" style="background: #f5f3ff;"></div>
+      <div class="info"><div class="name">Primary 50</div><div class="hex">#f5f3ff</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #4f46e5;"></div>
+      <div class="info"><div class="name">Indigo</div><div class="hex">#4f46e5</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #a855f7;"></div>
+      <div class="info"><div class="name">Purple Light</div><div class="hex">#a855f7</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #8b5cf6;"></div>
+      <div class="info"><div class="name">Violet</div><div class="hex">#8b5cf6</div></div>
+    </div>
+  </div>
+
+  <h3>Brand Accent — Saffron Orange</h3>
+  <p>The saffron orange represents warmth, energy, and the Indian heritage of PaperBook. Used sparingly for accents and the logo triangle.</p>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="preview" style="background: #FF9933;"></div>
+      <div class="info"><div class="name">Saffron</div><div class="hex">#FF9933</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #f59e0b;"></div>
+      <div class="info"><div class="name">Amber</div><div class="hex">#f59e0b</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #f97316;"></div>
+      <div class="info"><div class="name">Orange</div><div class="hex">#f97316</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #fef3c7;"></div>
+      <div class="info"><div class="name">Accent Light</div><div class="hex">#fef3c7</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Secondary & Accent Colors -->
+<div class="section">
+  <h2>3. Secondary & Accent Colors</h2>
+  <p>Secondary colors provide variety for illustrations, status indicators, and module differentiation.</p>
+
+  <h3>Semantic Colors</h3>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="preview" style="background: #22c55e;"></div>
+      <div class="info"><div class="name">Green (Success)</div><div class="hex">#22c55e</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #e11d48;"></div>
+      <div class="info"><div class="name">Rose (Error)</div><div class="hex">#e11d48</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #f59e0b;"></div>
+      <div class="info"><div class="name">Amber (Warning)</div><div class="hex">#f59e0b</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #0ea5e9;"></div>
+      <div class="info"><div class="name">Sky (Info)</div><div class="hex">#0ea5e9</div></div>
+    </div>
+  </div>
+
+  <h3>Extended Palette</h3>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="preview" style="background: #06b6d4;"></div>
+      <div class="info"><div class="name">Cyan</div><div class="hex">#06b6d4</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #ec4899;"></div>
+      <div class="info"><div class="name">Pink</div><div class="hex">#ec4899</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #14b8a6;"></div>
+      <div class="info"><div class="name">Teal</div><div class="hex">#14b8a6</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #10b981;"></div>
+      <div class="info"><div class="name">Emerald</div><div class="hex">#10b981</div></div>
+    </div>
+  </div>
+
+  <h3>Neutral Colors</h3>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="preview" style="background: #0f172a;"></div>
+      <div class="info"><div class="name">Foreground</div><div class="hex">#0f172a</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #64748b;"></div>
+      <div class="info"><div class="name">Muted</div><div class="hex">#64748b</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #e2e8f0;"></div>
+      <div class="info"><div class="name">Border</div><div class="hex">#e2e8f0</div></div>
+    </div>
+    <div class="color-swatch">
+      <div class="preview" style="background: #f8fafc;"></div>
+      <div class="info"><div class="name">Alt Background</div><div class="hex">#f8fafc</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Module-Specific Colors -->
+<div class="section">
+  <h2>4. Module-Specific Colors</h2>
+  <p>Each PaperBook module has a designated primary color for visual distinction and easy navigation.</p>
+
+  <div class="module-grid">
+    <div class="module-item">
+      <div class="dot" style="background: #6d28d9;"></div>
+      <div><div class="name">Academic Core</div><div class="hex">#6d28d9</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #4f46e5;"></div>
+      <div><div class="name">Admissions</div><div class="hex">#4f46e5</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #f59e0b;"></div>
+      <div><div class="name">Finance</div><div class="hex">#f59e0b</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #0d9488;"></div>
+      <div><div class="name">Operations</div><div class="hex">#0d9488</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #10b981;"></div>
+      <div><div class="name">LMS</div><div class="hex">#10b981</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #e11d48;"></div>
+      <div><div class="name">Examination</div><div class="hex">#e11d48</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #f97316;"></div>
+      <div><div class="name">Behavior</div><div class="hex">#f97316</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #0ea5e9;"></div>
+      <div><div class="name">Communication</div><div class="hex">#0ea5e9</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #ec4899;"></div>
+      <div><div class="name">Parent Portal</div><div class="hex">#ec4899</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #64748b;"></div>
+      <div><div class="name">Hostel</div><div class="hex">#64748b</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #06b6d4;"></div>
+      <div><div class="name">Alumni</div><div class="hex">#06b6d4</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #78716c;"></div>
+      <div><div class="name">Documents</div><div class="hex">#78716c</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #84cc16;"></div>
+      <div><div class="name">Visitors</div><div class="hex">#84cc16</div></div>
+    </div>
+    <div class="module-item">
+      <div class="dot" style="background: #8b5cf6;"></div>
+      <div><div class="name">Integrations</div><div class="hex">#8b5cf6</div></div>
+    </div>
+  </div>
+
+  <h3>Module Light Backgrounds</h3>
+  <p>Each module has a corresponding light background color for hero sections and accents:</p>
+  <table>
+    <tr><th>Module</th><th>Primary</th><th>Light BG</th></tr>
+    <tr><td>Academic Core</td><td>#6d28d9</td><td>#f5f3ff</td></tr>
+    <tr><td>Admissions</td><td>#4f46e5</td><td>#e0e7ff</td></tr>
+    <tr><td>Finance</td><td>#f59e0b</td><td>#fef3c7</td></tr>
+    <tr><td>Operations</td><td>#0d9488</td><td>#ccfbf1</td></tr>
+    <tr><td>LMS</td><td>#10b981</td><td>#d1fae5</td></tr>
+    <tr><td>Examination</td><td>#e11d48</td><td>#ffe4e6</td></tr>
+    <tr><td>Behavior</td><td>#f97316</td><td>#fff7ed</td></tr>
+    <tr><td>Communication</td><td>#0ea5e9</td><td>#e0f2fe</td></tr>
+    <tr><td>Parent Portal</td><td>#ec4899</td><td>#fce7f3</td></tr>
+    <tr><td>Hostel</td><td>#64748b</td><td>#f1f5f9</td></tr>
+    <tr><td>Alumni</td><td>#06b6d4</td><td>#e0f7fa</td></tr>
+    <tr><td>Documents</td><td>#78716c</td><td>#f5f5f4</td></tr>
+    <tr><td>Visitors</td><td>#84cc16</td><td>#f7fee7</td></tr>
+    <tr><td>Integrations</td><td>#8b5cf6</td><td>#f3e8ff</td></tr>
+  </table>
+</div>
+
+<!-- 5. Gradients -->
+<div class="section">
+  <h2>5. Gradients</h2>
+  <p>Gradients add depth and visual interest to key UI elements like CTAs, hero sections, and buttons.</p>
+
+  <h3>Primary Brand Gradient</h3>
+  <div class="gradient-preview" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%);"></div>
+  <code>linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #4f46e5 100%)</code>
+  <p style="margin-top: 12px;">Usage: Primary buttons, CTA sections, hero text highlights</p>
+
+  <h3>Mesh Background Gradient</h3>
+  <div class="gradient-preview" style="background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 25%, #e0e7ff 50%, #fef3c7 75%, #f5f3ff 100%);"></div>
+  <code>linear-gradient(135deg, #ede9fe 0%, #f5f3ff 25%, #e0e7ff 50%, #fef3c7 75%, #f5f3ff 100%)</code>
+  <p style="margin-top: 12px;">Usage: Hero section backgrounds (animated with background-position)</p>
+
+  <h3>Module Gradients</h3>
+  <p>Each module uses a 3-stop gradient at 135° angle:</p>
+  <table>
+    <tr><th>Module</th><th>Gradient CSS</th></tr>
+    <tr><td>Academic</td><td><code>linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%)</code></td></tr>
+    <tr><td>Admissions</td><td><code>linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%)</code></td></tr>
+    <tr><td>Finance</td><td><code>linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)</code></td></tr>
+    <tr><td>Operations</td><td><code>linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%)</code></td></tr>
+    <tr><td>LMS</td><td><code>linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%)</code></td></tr>
+    <tr><td>Examination</td><td><code>linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%)</code></td></tr>
+  </table>
+</div>
+
+<!-- 6. Typography -->
+<div class="section">
+  <h2>6. Typography</h2>
+
+  <h3>Primary Typeface</h3>
+  <p><strong>Plus Jakarta Sans</strong> — A modern, geometric sans-serif with excellent legibility for both display and body text.</p>
+  <p>Google Fonts: <code>https://fonts.google.com/specimen/Plus+Jakarta+Sans</code></p>
+
+  <h3>Font Stack</h3>
+  <code>'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif</code>
+
+  <h3>Type Scale</h3>
+  <div class="type-sample">
+    <div class="label">H1 — 3.5rem / 56px / Weight 800</div>
+    <div style="font-size: 40px; font-weight: 800; line-height: 1.15; letter-spacing: -0.025em;">Transform Your Institution</div>
+  </div>
+  <div class="type-sample">
+    <div class="label">H2 — 2.25rem / 36px / Weight 700</div>
+    <div style="font-size: 32px; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em;">Powerful Features</div>
+  </div>
+  <div class="type-sample">
+    <div class="label">H3 — 1.25rem / 20px / Weight 600</div>
+    <div style="font-size: 20px; font-weight: 600; line-height: 1.4;">Feature Card Title</div>
+  </div>
+  <div class="type-sample">
+    <div class="label">Body — 1rem / 16px / Weight 400</div>
+    <div style="font-size: 16px; font-weight: 400; line-height: 1.6; color: #64748b;">Streamline your educational institution with our comprehensive management platform designed for modern schools, colleges, and coaching institutes.</div>
+  </div>
+  <div class="type-sample">
+    <div class="label">Small — 0.875rem / 14px / Weight 400-600</div>
+    <div style="font-size: 14px; font-weight: 500; color: #64748b;">Labels, captions, and secondary text</div>
+  </div>
+
+  <h3>Font Weights</h3>
+  <table>
+    <tr><th>Weight</th><th>Value</th><th>Usage</th></tr>
+    <tr><td>Regular</td><td>400</td><td>Body text, paragraphs</td></tr>
+    <tr><td>Medium</td><td>500</td><td>Navigation links, labels</td></tr>
+    <tr><td>Semibold</td><td>600</td><td>Subheadings, buttons, emphasis</td></tr>
+    <tr><td>Bold</td><td>700</td><td>Section headings (H2)</td></tr>
+    <tr><td>Extrabold</td><td>800</td><td>Hero headings (H1), stats</td></tr>
+  </table>
+</div>
+
+<!-- 7. Shadows & Elevation -->
+<div class="section">
+  <h2>7. Shadows & Elevation</h2>
+  <p>Shadows create depth and hierarchy. Our shadows use the primary purple as a subtle tint for brand consistency.</p>
+
+  <table>
+    <tr><th>Name</th><th>CSS Value</th><th>Usage</th></tr>
+    <tr><td>Shadow SM</td><td><code>0 1px 2px rgba(109,40,217,0.06)</code></td><td>Subtle elevation, scrolled navbar</td></tr>
+    <tr><td>Shadow MD</td><td><code>0 4px 6px -1px rgba(109,40,217,0.08), 0 2px 4px -2px rgba(109,40,217,0.08)</code></td><td>Cards on hover</td></tr>
+    <tr><td>Shadow LG</td><td><code>0 10px 15px -3px rgba(109,40,217,0.08), 0 4px 6px -4px rgba(109,40,217,0.08)</code></td><td>Elevated cards, dropdowns</td></tr>
+    <tr><td>Shadow XL</td><td><code>0 20px 25px -5px rgba(109,40,217,0.1), 0 8px 10px -6px rgba(109,40,217,0.1)</code></td><td>Modals, featured cards</td></tr>
+  </table>
+
+  <h3>Border Radius</h3>
+  <table>
+    <tr><th>Name</th><th>Value</th><th>Usage</th></tr>
+    <tr><td>Button Radius</td><td>0.625rem (10px)</td><td>Buttons, inputs, small elements</td></tr>
+    <tr><td>Card Radius</td><td>1rem (16px)</td><td>Cards, modals, larger containers</td></tr>
+    <tr><td>Pill Radius</td><td>9999px</td><td>Badges, tags, pill buttons</td></tr>
+  </table>
+
+  <h3>Glassmorphism</h3>
+  <table>
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Glass Background</td><td><code>rgba(255, 255, 255, 0.7)</code></td></tr>
+    <tr><td>Glass Border</td><td><code>rgba(255, 255, 255, 0.3)</code></td></tr>
+    <tr><td>Backdrop Filter</td><td><code>blur(12px)</code></td></tr>
+  </table>
+</div>
+
+<!-- 8. Animations & Motion -->
+<div class="section">
+  <h2>8. Animations & Motion</h2>
+  <p>Animations enhance user experience with subtle feedback and visual delight. Always respect <code>prefers-reduced-motion</code>.</p>
+
+  <h3>Standard Transitions</h3>
+  <table>
+    <tr><th>Property</th><th>Duration</th><th>Easing</th></tr>
+    <tr><td>Color, Background</td><td>0.2s</td><td>ease</td></tr>
+    <tr><td>Transform, Box-shadow</td><td>0.3s</td><td>ease</td></tr>
+    <tr><td>Opacity (reveal)</td><td>0.6s</td><td>ease</td></tr>
+  </table>
+
+  <h3>Keyframe Animations</h3>
+
+  <div class="animation-card">
+    <div class="name">Mesh Move</div>
+    <div class="usage">Hero background gradient animation — 15s infinite ease</div>
+    <code>0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; }</code>
+  </div>
+
+  <div class="animation-card">
+    <div class="name">Float Gentle</div>
+    <div class="usage">Hero illustrations — 6s infinite ease-in-out</div>
+    <code>0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); }</code>
+  </div>
+
+  <div class="animation-card">
+    <div class="name">Float Blob</div>
+    <div class="usage">Background decorative blobs — 8s infinite alternate ease-in-out</div>
+    <code>0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, -20px) scale(1.1); }</code>
+  </div>
+
+  <div class="animation-card">
+    <div class="name">Featured Glow</div>
+    <div class="usage">Featured pricing card — 3s infinite ease-in-out</div>
+    <code>0%, 100% { box-shadow: 0 20px 25px -5px rgba(109,40,217,0.2); } 50% { box-shadow: 0 20px 40px -5px rgba(109,40,217,0.3); }</code>
+  </div>
+
+  <div class="animation-card">
+    <div class="name">Fade In</div>
+    <div class="usage">Content reveal, panel switching — 0.3-0.4s ease</div>
+    <code>from { opacity: 0; } to { opacity: 1; }</code>
+  </div>
+
+  <h3>Hover Effects</h3>
+  <table>
+    <tr><th>Element</th><th>Effect</th></tr>
+    <tr><td>Buttons</td><td><code>transform: translateY(-2px)</code> + enhanced shadow</td></tr>
+    <tr><td>Cards</td><td><code>transform: scale(1.02) translateY(-6px)</code> + shadow-xl</td></tr>
+    <tr><td>Stat Items</td><td><code>transform: translateY(-4px)</code> + shadow-md</td></tr>
+    <tr><td>Integration Cards</td><td>Gradient border reveal (opacity 0 → 1)</td></tr>
+  </table>
+</div>
+
+<!-- 9. UI Components -->
+<div class="section">
+  <h2>9. UI Components</h2>
+
+  <h3>Buttons</h3>
+  <div class="button-examples">
+    <button class="btn-example btn-primary">Primary Button</button>
+    <button class="btn-example btn-outline">Outline Button</button>
+    <button class="btn-example btn-white">White Button</button>
+  </div>
+
+  <table>
+    <tr><th>Variant</th><th>Background</th><th>Text</th><th>Shadow</th></tr>
+    <tr><td>Primary</td><td>#6d28d9</td><td>#ffffff</td><td>0 4px 14px rgba(109,40,217,0.25)</td></tr>
+    <tr><td>Outline</td><td>#ffffff</td><td>#0f172a</td><td>Border: 2px solid #e2e8f0</td></tr>
+    <tr><td>White</td><td>#ffffff</td><td>#6d28d9</td><td>0 4px 14px rgba(255,255,255,0.25)</td></tr>
+    <tr><td>White Outline</td><td>transparent</td><td>#ffffff</td><td>Border: 2px solid rgba(255,255,255,0.4)</td></tr>
+  </table>
+
+  <h3>Button Sizes</h3>
+  <table>
+    <tr><th>Size</th><th>Padding</th><th>Font Size</th></tr>
+    <tr><td>Default</td><td>0.75rem 1.5rem</td><td>0.9375rem</td></tr>
+    <tr><td>Large (btn-lg)</td><td>0.875rem 2rem</td><td>1rem</td></tr>
+    <tr><td>Nav Button</td><td>0.5rem 1rem</td><td>0.875rem</td></tr>
+  </table>
+
+  <h3>Cards</h3>
+  <table>
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Background</td><td>#ffffff or glassmorphic</td></tr>
+    <tr><td>Border</td><td>1px solid #e2e8f0</td></tr>
+    <tr><td>Border Radius</td><td>1rem (16px)</td></tr>
+    <tr><td>Padding</td><td>1.5rem - 2rem</td></tr>
+    <tr><td>Hover Shadow</td><td>shadow-xl</td></tr>
+    <tr><td>Hover Transform</td><td>scale(1.02) translateY(-6px)</td></tr>
+  </table>
+
+  <h3>Section Labels (Pills)</h3>
+  <table>
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Background</td><td>#f5f3ff (primary-50)</td></tr>
+    <tr><td>Text Color</td><td>#6d28d9 (primary)</td></tr>
+    <tr><td>Font Size</td><td>0.875rem</td></tr>
+    <tr><td>Font Weight</td><td>600</td></tr>
+    <tr><td>Padding</td><td>0.25rem 0.75rem</td></tr>
+    <tr><td>Border Radius</td><td>9999px (pill)</td></tr>
+  </table>
+</div>
+
+<!-- 10. Illustration Guidelines -->
+<div class="section">
+  <h2>10. Illustration Guidelines</h2>
+  <p>Illustrations are custom SVG graphics that represent dashboard interfaces, features, and concepts.</p>
+
+  <h3>Style Characteristics</h3>
+  <ul style="color: #64748b; margin-left: 20px; margin-bottom: 20px;">
+    <li>Flat design with subtle shadows</li>
+    <li>Dashboard/UI mockup style</li>
+    <li>Rounded corners (4-16px based on element size)</li>
+    <li>Module accent colors for key elements</li>
+    <li>White backgrounds with light gray (#f8fafc) sidebars</li>
+    <li>Window controls (red, yellow, green circles)</li>
+  </ul>
+
+  <h3>Illustration Elements</h3>
+  <table>
+    <tr><th>Element</th><th>Style</th></tr>
+    <tr><td>Main Frame</td><td>White fill, 2px #e2e8f0 stroke, 16px radius</td></tr>
+    <tr><td>Header Bar</td><td>#f8fafc fill, window controls</td></tr>
+    <tr><td>Sidebar</td><td>#f5f3ff (module light) fill</td></tr>
+    <tr><td>Data Cards</td><td>Rounded rects with module colors</td></tr>
+    <tr><td>Charts</td><td>Simple bar/line charts with gradients</td></tr>
+    <tr><td>Icons</td><td>2px stroke, module primary color</td></tr>
+    <tr><td>Text Placeholders</td><td>Rounded rectangles, varying widths</td></tr>
+  </table>
+
+  <h3>Color Usage in Illustrations</h3>
+  <table>
+    <tr><th>Purpose</th><th>Colors</th></tr>
+    <tr><td>Backgrounds</td><td>#ffffff, #f8fafc, #f5f3ff</td></tr>
+    <tr><td>Borders</td><td>#e2e8f0</td></tr>
+    <tr><td>Primary Actions</td><td>Module primary color</td></tr>
+    <tr><td>Data Visualization</td><td>Module color + complementary palette</td></tr>
+    <tr><td>Success States</td><td>#22c55e, #d1fae5</td></tr>
+    <tr><td>Highlight/Active</td><td>Module primary with 0.1-0.3 opacity</td></tr>
+  </table>
+
+  <h3>Illustration Animation</h3>
+  <p>Hero illustrations use the <code>floatGentle</code> animation (6s ease-in-out infinite) for subtle movement. Feature illustrations fade and slide in on scroll reveal.</p>
+</div>
+
+<!-- Footer -->
+<div style="margin-top: 80px; padding-top: 40px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b;">
+  <p><strong>PaperBook Brand Guidelines</strong></p>
+  <p>Version 1.0 — February 2026</p>
+  <p style="margin-top: 16px; font-size: 14px;">For questions or additional assets, contact the design team.</p>
+</div>
+
+</div>
+
+</body>
+</html>

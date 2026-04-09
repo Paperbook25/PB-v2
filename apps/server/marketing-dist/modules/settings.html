@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings &amp; Integrations — PaperBook</title>
+  <meta name="description" content="Configure SMS, email, payment gateways, biometric devices, and all integrations for your school platform.">
+  <meta name="author" content="PaperBook">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#64748b">
+  <link rel="canonical" href="https://paperbook.app/modules/settings.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://paperbook.app/modules/settings.html">
+  <meta property="og:title" content="Settings &amp; Integrations — PaperBook">
+  <meta property="og:description" content="Configure SMS, email, payment gateways, biometric devices, and all integrations for your school platform.">
+  <meta property="og:image" content="https://paperbook.app/og-image.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Settings &amp; Integrations — PaperBook">
+  <meta name="twitter:description" content="Configure SMS, email, payment gateways, biometric devices, and all integrations for your school platform.">
+  <meta name="twitter:image" content="https://paperbook.app/og-image.png">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/module-pages.css">
+  <script src="../js/analytics.js" defer></script>
+</head>
+<body class="page-settings">
+<style>.page-settings { --module-primary: #64748b; --module-light: #f1f5f9; --module-gradient: linear-gradient(135deg, #94a3b8 0%, #64748b 50%, #475569 100%); }</style>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<nav id="navbar" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <a href="../index.html" class="nav-brand">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" role="img"><title>PaperBook Logo</title><defs><linearGradient id="navBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#navBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#navBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+      PaperBook
+    </a>
+    <div class="nav-links">
+      <div class="nav-dropdown">
+        <a href="../index.html#features" class="nav-dropdown-trigger">
+          Products
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu products-mega-menu">
+          <div class="mega-menu-grid">
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Core</div>
+              <a href="dashboard.html">
+                <span class="dropdown-icon" style="background: #f5f3ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span>
+                <div><strong>Dashboard</strong><span>Overview & analytics</span></div>
+              </a>
+              <a href="people.html">
+                <span class="dropdown-icon" style="background: #e0e7ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+                <div><strong>People</strong><span>Students, staff, attendance</span></div>
+              </a>
+              <a href="admissions.html">
+                <span class="dropdown-icon" style="background: #fce7f3;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M10 13h4M10 17h4M8 13h.01M8 17h.01"/></svg></span>
+                <div><strong>Admissions</strong><span>Applications, enrollment</span></div>
+              </a>
+            </div>
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Academic</div>
+              <a href="library.html">
+                <span class="dropdown-icon" style="background: #fef3c7;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z"/></svg></span>
+                <div><strong>Library</strong><span>Books, digital resources</span></div>
+              </a>
+              <a href="lms.html">
+                <span class="dropdown-icon" style="background: #d1fae5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+                <div><strong>LMS</strong><span>Online courses, lectures</span></div>
+              </a>
+              <a href="exam.html">
+                <span class="dropdown-icon" style="background: #ffe4e6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+                <div><strong>Exams</strong><span>Scheduling, report cards</span></div>
+              </a>
+            </div>
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Operations</div>
+              <a href="finance.html">
+                <span class="dropdown-icon" style="background: #dcfce7;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+                <div><strong>Finance</strong><span>Fees, payroll, accounts</span></div>
+              </a>
+              <a href="operations.html">
+                <span class="dropdown-icon" style="background: #ccfbf1;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+                <div><strong>Operations</strong><span>Transport, hostel, assets</span></div>
+              </a>
+              <a href="management.html">
+                <span class="dropdown-icon" style="background: #e0f7fa;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                <div><strong>Management</strong><span>Schedule, docs, alumni</span></div>
+              </a>
+            </div>
+            <div class="mega-menu-column">
+              <div class="mega-menu-heading">Communication</div>
+              <a href="communication.html">
+                <span class="dropdown-icon" style="background: #e0f2fe;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+                <div><strong>Communication</strong><span>Messages, announcements</span></div>
+              </a>
+              <a href="reports.html">
+                <span class="dropdown-icon" style="background: #f3e8ff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M21 21H3V3"/><path d="M18 9l-5 5-4-4-3 3"/></svg></span>
+                <div><strong>Reports</strong><span>Analytics & insights</span></div>
+              </a>
+              <a href="settings.html">
+                <span class="dropdown-icon" style="background: #f1f5f9;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+                <div><strong>Settings</strong><span>Configuration, integrations</span></div>
+              </a>
+              <a href="parent.html">
+                <span class="dropdown-icon" style="background: #fff7ed;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <div><strong>Parent Portal</strong><span>PTM, reports, messaging</span></div>
+              </a>
+            </div>
+          </div>
+          <div class="dropdown-footer">
+            <a href="../index.html#features">View all features →</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="../index.html#integrations" class="nav-dropdown-trigger">
+          Integrations
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0f4ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg></span>
+            <div><strong>Razorpay</strong><span>UPI, cards, net banking</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0fdf4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+            <div><strong>Cashfree</strong><span>Payouts, subscriptions</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #f0fdf4;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></span>
+            <div><strong>WhatsApp</strong><span>Alerts & notifications</span></div>
+          </a>
+          <a href="../index.html#integrations">
+            <span class="dropdown-icon" style="background: #fef2f2;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea4335" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg></span>
+            <div><strong>Google Workspace</strong><span>Calendar, Meet, Sheets</span></div>
+          </a>
+          <div class="dropdown-footer">
+            <a href="../index.html#integrations">View all integrations →</a>
+          </div>
+        </div>
+      </div>
+      <a href="../index.html#testimonials">Testimonials</a>
+      <a href="../index.html#pricing">Pricing</a>
+      <div class="nav-dropdown">
+        <a href="../about.html" class="nav-dropdown-trigger">
+          About
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="nav-dropdown-menu">
+          <a href="../about.html">
+            <span class="dropdown-icon" style="background: #f5f3ff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+            <div><strong>About Us</strong><span>Our story, mission & team</span></div>
+          </a>
+          <a href="../index.html#contact">
+            <span class="dropdown-icon" style="background: #e0f2fe;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></span>
+            <div><strong>Contact Us</strong><span>Get in touch with us</span></div>
+          </a>
+        </div>
+      </div>
+      <a href="../faq.html">FAQ</a>
+    </div>
+    <div class="nav-actions">
+      <a href="#" class="btn btn-outline">Sign In</a>
+      <a href="#" class="btn btn-primary">Get Started Free</a>
+    </div>
+    <button id="menu-btn" aria-label="Toggle menu">
+      <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+  <div id="mobile-menu">
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        Products
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Core</div>
+          <div class="mobile-category-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="people.html">People</a>
+            <a href="admissions.html">Admissions</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Academic</div>
+          <div class="mobile-category-links">
+            <a href="library.html">Library</a>
+            <a href="lms.html">LMS</a>
+            <a href="exam.html">Exams</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Operations</div>
+          <div class="mobile-category-links">
+            <a href="finance.html">Finance</a>
+            <a href="operations.html">Operations</a>
+            <a href="management.html">Management</a>
+          </div>
+        </div>
+        <div class="mobile-mega-category">
+          <div class="mobile-category-heading">Communication</div>
+          <div class="mobile-category-links">
+            <a href="communication.html">Communication</a>
+            <a href="reports.html">Reports</a>
+            <a href="settings.html">Settings</a>
+            <a href="parent.html">Parent Portal</a>
+          </div>
+        </div>
+        <a href="../index.html#features" class="view-all">View all features →</a>
+      </div>
+    </div>
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        Integrations
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <a href="../index.html#integrations">Razorpay</a>
+        <a href="../index.html#integrations">Cashfree</a>
+        <a href="../index.html#integrations">WhatsApp</a>
+        <a href="../index.html#integrations">Google Workspace</a>
+        <a href="../index.html#integrations" class="view-all">View all integrations →</a>
+      </div>
+    </div>
+    <a href="../index.html#testimonials">Testimonials</a>
+    <a href="../index.html#pricing">Pricing</a>
+    <div class="mobile-dropdown">
+      <button class="mobile-dropdown-trigger">
+        About
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="mobile-dropdown-menu">
+        <a href="../about.html">About Us</a>
+        <a href="../index.html#contact">Contact Us</a>
+      </div>
+    </div>
+    <a href="../faq.html">FAQ</a>
+    <a href="#" class="btn btn-outline">Sign In</a>
+    <a href="#" class="btn btn-primary">Get Started Free</a>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<section class="module-page-hero">
+  <div class="container">
+    <a href="../index.html#features" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Features
+    </a>
+    <div class="module-hero-grid">
+      <div class="module-hero-text">
+        <h1><span>Settings</span> — Configure Your Institution</h1>
+        <p class="tagline">Set up your school profile, manage academic years, configure communication channels, and connect third-party integrations all in one place.</p>
+        <div class="module-hero-actions">
+          <a href="#" class="btn btn-module btn-lg">Start Free Trial</a>
+          <a href="#" class="btn btn-outline btn-lg">Schedule Demo</a>
+        </div>
+      </div>
+      <div class="module-hero-illustration">
+        <svg viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="480" height="360" rx="16" fill="#fff" stroke="#e2e8f0" stroke-width="2"/>
+          <rect x="10" y="10" width="480" height="44" rx="16" fill="#f8fafc"/>
+          <circle cx="34" cy="32" r="6" fill="#fca5a5"/><circle cx="54" cy="32" r="6" fill="#fde68a"/><circle cx="74" cy="32" r="6" fill="#86efac"/>
+          <text x="30" y="80" font-size="12" fill="#0f172a" font-weight="600" font-family="system-ui">Settings</text>
+
+          <!-- General Settings -->
+          <rect x="30" y="100" width="220" height="100" rx="8" fill="#f1f5f9" stroke="#e2e8f0"/>
+          <text x="45" y="125" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">General</text>
+          <rect x="45" y="135" width="100" height="8" rx="4" fill="#64748b"/>
+          <rect x="45" y="150" width="80" height="6" rx="3" fill="#94a3b8"/>
+          <rect x="45" y="165" width="120" height="6" rx="3" fill="#94a3b8"/>
+          <rect x="45" y="180" width="60" height="6" rx="3" fill="#94a3b8"/>
+
+          <!-- Communication Settings -->
+          <rect x="260" y="100" width="210" height="100" rx="8" fill="#e0f2fe" stroke="#bae6fd"/>
+          <text x="275" y="125" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Communication</text>
+          <rect x="275" y="140" width="25" height="15" rx="8" fill="#0ea5e9"/>
+          <text x="310" y="152" font-size="8" fill="#0f172a" font-family="system-ui">SMS Enabled</text>
+          <rect x="275" y="162" width="25" height="15" rx="8" fill="#22c55e"/>
+          <text x="310" y="174" font-size="8" fill="#0f172a" font-family="system-ui">Email Enabled</text>
+          <rect x="275" y="184" width="25" height="15" rx="8" fill="#e2e8f0"/>
+          <text x="310" y="196" font-size="8" fill="#64748b" font-family="system-ui">WhatsApp Off</text>
+
+          <!-- Integrations -->
+          <rect x="30" y="215" width="440" height="130" rx="8" fill="#f1f5f9" stroke="#e2e8f0"/>
+          <text x="45" y="240" font-size="10" fill="#0f172a" font-weight="600" font-family="system-ui">Integrations</text>
+
+          <rect x="45" y="255" width="90" height="70" rx="6" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+          <text x="65" y="290" font-size="9" fill="#22c55e" font-weight="600" font-family="system-ui">Razorpay</text>
+          <text x="67" y="305" font-size="7" fill="#22c55e" font-family="system-ui">Connected</text>
+
+          <rect x="145" y="255" width="90" height="70" rx="6" fill="#fff" stroke="#22c55e" stroke-width="2"/>
+          <text x="170" y="290" font-size="9" fill="#22c55e" font-weight="600" font-family="system-ui">SMS</text>
+          <text x="167" y="305" font-size="7" fill="#22c55e" font-family="system-ui">Connected</text>
+
+          <rect x="245" y="255" width="90" height="70" rx="6" fill="#fff" stroke="#e2e8f0"/>
+          <text x="260" y="290" font-size="9" fill="#64748b" font-weight="600" font-family="system-ui">Biometric</text>
+          <text x="265" y="305" font-size="7" fill="#64748b" font-family="system-ui">Not Setup</text>
+
+          <rect x="345" y="255" width="90" height="70" rx="6" fill="#fff" stroke="#f59e0b" stroke-width="2"/>
+          <text x="358" y="290" font-size="9" fill="#f59e0b" font-weight="600" font-family="system-ui">WhatsApp</text>
+          <text x="368" y="305" font-size="7" fill="#f59e0b" font-family="system-ui">Pending</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="module-tabs-section">
+  <div class="container">
+    <div class="module-primary-tabs" role="tablist" aria-label="Settings module sections">
+      <button class="tab-btn active" data-tab="general" role="tab" aria-selected="true" aria-controls="panel-general">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        General
+      </button>
+      <button class="tab-btn" data-tab="communication" role="tab" aria-selected="false" aria-controls="panel-communication">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Communication
+      </button>
+      <button class="tab-btn" data-tab="integrations" role="tab" aria-selected="false" aria-controls="panel-integrations">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        Integrations
+      </button>
+    </div>
+
+    <div class="tab-panels">
+      <!-- General Panel -->
+      <div class="tab-panel active" data-panel="general" id="panel-general" role="tabpanel" aria-hidden="false">
+        <div class="module-subtabs" role="tablist" aria-label="General settings">
+          <button class="subtab-btn active" data-subtab="school-profile" role="tab" aria-selected="true">School Profile</button>
+          <button class="subtab-btn" data-subtab="academic-years" role="tab" aria-selected="false">Academic Years</button>
+          <button class="subtab-btn" data-subtab="classes" role="tab" aria-selected="false">Classes</button>
+          <button class="subtab-btn" data-subtab="users" role="tab" aria-selected="false">Users</button>
+        </div>
+        <div class="subtab-panels">
+          <div class="subtab-panel active" data-subtab-panel="school-profile" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>School Profile</h3><p class="tagline">Institution information</p><div class="description"><p>Configure your school's basic information including name, logo, address, contact details, and affiliation. This information appears on reports and certificates.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>School name and logo</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Contact information</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Board affiliation details</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f1f5f9; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">School Profile Preview</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="academic-years" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Academic Years</h3><p class="tagline">Year and term management</p><div class="description"><p>Set up academic years with start/end dates. Configure terms, semesters, and holidays. Switch between years for historical data.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Year-wise data management</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Term configuration</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Holiday calendar</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">Academic Years Preview</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="classes" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Class Management</h3><p class="tagline">Class and section setup</p><div class="description"><p>Create classes, sections, and subjects. Assign class teachers and configure class-specific settings.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Class and section creation</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Subject mapping</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">Classes Preview</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="users" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>User Management</h3><p class="tagline">Roles and permissions</p><div class="description"><p>Manage admin users, define roles, and set permissions. Control who can access what features in the system.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Role-based access</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Permission management</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">Users Preview</div></div></div></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Communication Panel -->
+      <div class="tab-panel" data-panel="communication" id="panel-communication" role="tabpanel" aria-hidden="true">
+        <div class="module-subtabs" role="tablist" aria-label="Communication settings">
+          <button class="subtab-btn active" data-subtab="announcements" role="tab" aria-selected="true">Announcements</button>
+          <button class="subtab-btn" data-subtab="messages" role="tab" aria-selected="false">Messages</button>
+          <button class="subtab-btn" data-subtab="circulars" role="tab" aria-selected="false">Circulars</button>
+          <button class="subtab-btn" data-subtab="surveys" role="tab" aria-selected="false">Surveys</button>
+        </div>
+        <div class="subtab-panels">
+          <div class="subtab-panel active" data-subtab-panel="announcements" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Announcement Settings</h3><p class="tagline">Broadcast configuration</p><div class="description"><p>Configure announcement templates, default recipients, and delivery channels. Set up recurring announcements.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Templates</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Scheduling</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #e0f2fe; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #0ea5e9; font-size: 12px;">Announcements Preview</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="messages" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Message Settings</h3><p class="tagline">Direct messaging configuration</p><div class="description"><p>Configure messaging permissions between teachers, parents, and students. Set up auto-replies and message templates.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Permission rules</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Auto-replies</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">Messages Preview</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="circulars" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Circular Templates</h3><p class="tagline">Official communication formats</p><div class="description"><p>Create circular templates with school letterhead. Manage approval workflows for official communications.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Letterhead templates</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Approval workflow</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">Circulars Preview</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="surveys" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Survey Settings</h3><p class="tagline">Feedback collection</p><div class="description"><p>Create survey templates and configure feedback collection settings. Anonymity options and response analysis.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Survey templates</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Response analytics</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; min-height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">Surveys Preview</div></div></div></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integrations Panel -->
+      <div class="tab-panel" data-panel="integrations" id="panel-integrations" role="tabpanel" aria-hidden="true">
+        <div class="module-subtabs" role="tablist" aria-label="Integrations settings">
+          <button class="subtab-btn active" data-subtab="sms" role="tab" aria-selected="true">SMS</button>
+          <button class="subtab-btn" data-subtab="email" role="tab" aria-selected="false">Email</button>
+          <button class="subtab-btn" data-subtab="payment" role="tab" aria-selected="false">Payment</button>
+          <button class="subtab-btn" data-subtab="whatsapp" role="tab" aria-selected="false">WhatsApp</button>
+          <button class="subtab-btn" data-subtab="biometric" role="tab" aria-selected="false">Biometric</button>
+        </div>
+        <div class="subtab-panels">
+          <div class="subtab-panel active" data-subtab-panel="sms" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>SMS Integration</h3><p class="tagline">Text message notifications</p><div class="description"><p>Connect with SMS providers for instant notifications. Track delivery status and manage SMS credits.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Multiple provider support</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Delivery tracking</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Credit management</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; padding: 16px;">
+<svg viewBox="0 0 340 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+  <!-- API Config Card -->
+  <rect x="8" y="8" width="152" height="88" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="20" y="26" font-size="9" fill="#64748b" font-family="system-ui" font-weight="600">SMS Provider</text>
+  <rect x="20" y="32" width="80" height="6" rx="3" fill="#f3f4f6"/>
+  <rect x="20" y="44" width="60" height="5" rx="2.5" fill="#e2e8f0"/>
+  <rect x="20" y="56" width="120" height="24" rx="5" fill="#6d28d9"/>
+  <text x="56" y="72" font-size="8" fill="#fff" font-family="system-ui" font-weight="600">MSG91</text>
+  <rect x="20" y="84" width="50" height="6" rx="3" fill="#d8b4fe"/>
+  <!-- API Key Card -->
+  <rect x="172" y="8" width="160" height="44" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="184" y="24" font-size="9" fill="#64748b" font-family="system-ui" font-weight="600">API Key</text>
+  <rect x="184" y="30" width="110" height="16" rx="4" fill="#f3f4f6"/>
+  <text x="192" y="42" font-size="7" fill="#94a3b8" font-family="monospace">••••••••••••••••••</text>
+  <!-- Credits Card -->
+  <rect x="172" y="60" width="76" height="36" rx="8" fill="#f5f3ff" stroke="#ede9fe" stroke-width="1.5"/>
+  <text x="184" y="74" font-size="8" fill="#6d28d9" font-family="system-ui" font-weight="600">Credits</text>
+  <text x="184" y="88" font-size="13" fill="#6d28d9" font-family="system-ui" font-weight="700">4,820</text>
+  <!-- Delivery Card -->
+  <rect x="256" y="60" width="76" height="36" rx="8" fill="#f0fdf4" stroke="#dcfce7" stroke-width="1.5"/>
+  <text x="268" y="74" font-size="8" fill="#22c55e" font-family="system-ui" font-weight="600">Delivered</text>
+  <text x="268" y="88" font-size="13" fill="#22c55e" font-family="system-ui" font-weight="700">98.4%</text>
+  <!-- SMS Log -->
+  <rect x="8" y="104" width="324" height="88" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="20" y="120" font-size="9" fill="#0f172a" font-family="system-ui" font-weight="600">Recent SMS</text>
+  <!-- Row 1 -->
+  <rect x="20" y="128" width="300" height="18" rx="4" fill="#f8fafc"/>
+  <circle cx="32" cy="137" r="5" fill="#22c55e"/>
+  <text x="44" y="141" font-size="8" fill="#374151" font-family="system-ui">Fee reminder sent to Parent of Arun Kumar</text>
+  <text x="290" y="141" font-size="7" fill="#94a3b8" font-family="system-ui">10:32</text>
+  <!-- Row 2 -->
+  <rect x="20" y="150" width="300" height="18" rx="4" fill="#f8fafc"/>
+  <circle cx="32" cy="159" r="5" fill="#22c55e"/>
+  <text x="44" y="163" font-size="8" fill="#374151" font-family="system-ui">Attendance alert — Class 9B absence</text>
+  <text x="290" y="163" font-size="7" fill="#94a3b8" font-family="system-ui">09:15</text>
+  <!-- Row 3 -->
+  <rect x="20" y="172" width="300" height="16" rx="4" fill="#f8fafc"/>
+  <circle cx="32" cy="180" r="5" fill="#f59e0b"/>
+  <text x="44" y="184" font-size="8" fill="#374151" font-family="system-ui">Exam schedule notification — pending</text>
+  <text x="290" y="184" font-size="7" fill="#94a3b8" font-family="system-ui">08:45</text>
+</svg>
+</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="email" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Email Integration</h3><p class="tagline">Email notifications</p><div class="description"><p>Configure SMTP settings or connect with email services. Manage email templates and tracking.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>SMTP configuration</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Email templates</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; padding: 16px;">
+<svg viewBox="0 0 340 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+  <!-- SMTP Config Card -->
+  <rect x="8" y="8" width="200" height="84" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="20" y="24" font-size="9" fill="#64748b" font-family="system-ui" font-weight="600">SMTP Configuration</text>
+  <text x="20" y="40" font-size="8" fill="#94a3b8" font-family="system-ui">Host</text>
+  <rect x="20" y="44" width="150" height="12" rx="3" fill="#f3f4f6"/>
+  <text x="28" y="54" font-size="7" fill="#374151" font-family="monospace">smtp.resend.com</text>
+  <text x="20" y="68" font-size="8" fill="#94a3b8" font-family="system-ui">From Address</text>
+  <rect x="20" y="72" width="150" height="12" rx="3" fill="#f3f4f6"/>
+  <text x="28" y="82" font-size="7" fill="#374151" font-family="monospace">noreply@school.com</text>
+  <!-- Status -->
+  <rect x="216" y="8" width="116" height="40" rx="8" fill="#f0fdf4" stroke="#dcfce7" stroke-width="1.5"/>
+  <circle cx="232" cy="28" r="6" fill="#22c55e"/>
+  <path d="M229 28l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="244" y="24" font-size="9" fill="#22c55e" font-family="system-ui" font-weight="600">Connected</text>
+  <text x="244" y="36" font-size="8" fill="#86efac" font-family="system-ui">Verified domain</text>
+  <!-- Stats row -->
+  <rect x="216" y="56" width="54" height="36" rx="8" fill="#f5f3ff" stroke="#ede9fe" stroke-width="1.5"/>
+  <text x="228" y="70" font-size="8" fill="#6d28d9" font-family="system-ui" font-weight="600">Sent</text>
+  <text x="224" y="84" font-size="13" fill="#6d28d9" font-family="system-ui" font-weight="700">1.2K</text>
+  <rect x="278" y="56" width="54" height="36" rx="8" fill="#fef3c7" stroke="#fde68a" stroke-width="1.5"/>
+  <text x="290" y="70" font-size="8" fill="#f59e0b" font-family="system-ui" font-weight="600">Open</text>
+  <text x="288" y="84" font-size="13" fill="#f59e0b" font-family="system-ui" font-weight="700">68%</text>
+  <!-- Template preview -->
+  <rect x="8" y="100" width="324" height="92" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="8" y="100" width="324" height="20" rx="8" fill="#6d28d9"/>
+  <rect x="8" y="112" width="324" height="8" fill="#6d28d9"/>
+  <text x="20" y="114" font-size="8" fill="#fff" font-family="system-ui" font-weight="600">PaperBook</text>
+  <text x="22" y="132" font-size="9" fill="#0f172a" font-family="system-ui" font-weight="600">Fee Payment Reminder</text>
+  <rect x="22" y="138" width="200" height="5" rx="2" fill="#e2e8f0"/>
+  <rect x="22" y="148" width="160" height="5" rx="2" fill="#e2e8f0"/>
+  <rect x="120" y="160" width="80" height="20" rx="5" fill="#6d28d9"/>
+  <text x="143" y="174" font-size="8" fill="#fff" font-family="system-ui" font-weight="600">Pay Now</text>
+</svg>
+</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="payment" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Payment Gateway</h3><p class="tagline">Online fee collection</p><div class="description"><p>Connect with Razorpay, Cashfree, or other payment gateways for online fee collection. Track transactions and settlements.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Razorpay, Cashfree support</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Transaction tracking</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; padding: 16px;">
+<svg viewBox="0 0 340 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+  <!-- Gateway selector -->
+  <rect x="8" y="8" width="152" height="88" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="20" y="24" font-size="9" fill="#64748b" font-family="system-ui" font-weight="600">Gateway</text>
+  <rect x="20" y="30" width="128" height="24" rx="5" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="44" y="46" font-size="9" fill="#2563eb" font-family="system-ui" font-weight="700">Razorpay</text>
+  <rect x="20" y="60" width="128" height="24" rx="5" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="44" y="76" font-size="9" fill="#64748b" font-family="system-ui">Cashfree</text>
+  <!-- Key IDs -->
+  <rect x="172" y="8" width="160" height="88" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="184" y="24" font-size="9" fill="#64748b" font-family="system-ui" font-weight="600">API Credentials</text>
+  <text x="184" y="38" font-size="8" fill="#94a3b8" font-family="system-ui">Key ID</text>
+  <rect x="184" y="42" width="136" height="12" rx="3" fill="#f3f4f6"/>
+  <text x="192" y="52" font-size="7" fill="#374151" font-family="monospace">rzp_live_••••••••••</text>
+  <text x="184" y="66" font-size="8" fill="#94a3b8" font-family="system-ui">Key Secret</text>
+  <rect x="184" y="70" width="136" height="12" rx="3" fill="#f3f4f6"/>
+  <text x="192" y="80" font-size="7" fill="#374151" font-family="monospace">••••••••••••••••</text>
+  <!-- Transaction Summary -->
+  <rect x="8" y="104" width="155" height="88" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="20" y="120" font-size="9" fill="#0f172a" font-family="system-ui" font-weight="600">This Month</text>
+  <text x="20" y="148" font-size="18" fill="#22c55e" font-weight="700" font-family="system-ui">₹4.2L</text>
+  <text x="20" y="160" font-size="8" fill="#64748b" font-family="system-ui">Collected online</text>
+  <rect x="20" y="168" width="60" height="16" rx="4" fill="#dcfce7"/>
+  <text x="30" y="180" font-size="8" fill="#22c55e" font-family="system-ui" font-weight="600">↑ 12%</text>
+  <!-- Transaction List -->
+  <rect x="172" y="104" width="160" height="88" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="184" y="120" font-size="9" fill="#0f172a" font-family="system-ui" font-weight="600">Recent Transactions</text>
+  <rect x="184" y="126" width="136" height="14" rx="3" fill="#f8fafc"/>
+  <text x="192" y="137" font-size="7" fill="#374151" font-family="system-ui">Aryan Mehta — ₹15,000</text>
+  <circle cx="308" cy="133" r="4" fill="#22c55e"/>
+  <rect x="184" y="144" width="136" height="14" rx="3" fill="#f8fafc"/>
+  <text x="192" y="155" font-size="7" fill="#374151" font-family="system-ui">Priya Sharma — ₹12,500</text>
+  <circle cx="308" cy="151" r="4" fill="#22c55e"/>
+  <rect x="184" y="162" width="136" height="14" rx="3" fill="#f8fafc"/>
+  <text x="192" y="173" font-size="7" fill="#374151" font-family="system-ui">Ravi Nair — ₹8,000</text>
+  <circle cx="308" cy="169" r="4" fill="#f59e0b"/>
+</svg>
+</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="whatsapp" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>WhatsApp Business</h3><p class="tagline">WhatsApp notifications</p><div class="description"><p>Send notifications via WhatsApp Business API. Rich media messages with images and documents.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Business API</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Rich media support</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f0fdf4; padding: 16px;">
+<svg viewBox="0 0 340 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+  <!-- WA Config Card -->
+  <rect x="8" y="8" width="152" height="88" rx="8" fill="#fff" stroke="#dcfce7" stroke-width="1.5"/>
+  <text x="20" y="24" font-size="9" fill="#64748b" font-family="system-ui" font-weight="600">WhatsApp Business</text>
+  <rect x="20" y="30" width="48" height="48" rx="8" fill="#25d366"/>
+  <path d="M44 42c-5.5 0-10 4.5-10 10 0 1.8.5 3.5 1.4 5L34 62l5.2-1.4c1.4.8 3 1.2 4.8 1.2 5.5 0 10-4.5 10-10S49.5 42 44 42zm5.5 14c-.2.6-1.2 1.2-1.7 1.3-.4.1-.9.1-1.4-.1-.3-.1-.8-.3-1.3-.5-2.4-1-3.9-3.4-4-3.5-.1-.2-1-1.3-1-2.5 0-1.2.6-1.8 1-2 .3-.3.6-.3.9-.3h.7c.2 0 .4.1.5.4.2.4.8 1.9.8 2s0 .3-.1.4c-.1.2-.2.3-.3.4l-.4.5c-.1.2-.3.3-.1.6.2.3.9 1.5 2 2.3.9.6 1.7.8 2 1 .3.1.5 0 .6-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.7-.1l2.1.9c.3.1.4.2.4.4z" fill="#fff"/>
+  <rect x="76" y="30" width="64" height="16" rx="4" fill="#f0fdf4"/>
+  <text x="88" y="42" font-size="8" fill="#22c55e" font-family="system-ui" font-weight="600">Connected</text>
+  <rect x="76" y="52" width="64" height="12" rx="3" fill="#f3f4f6"/>
+  <text x="84" y="62" font-size="7" fill="#374151" font-family="system-ui">+91 98765 43210</text>
+  <!-- Message Stats -->
+  <rect x="172" y="8" width="78" height="44" rx="8" fill="#fff" stroke="#dcfce7" stroke-width="1.5"/>
+  <text x="184" y="24" font-size="8" fill="#64748b" font-family="system-ui">Sent today</text>
+  <text x="184" y="42" font-size="16" fill="#25d366" font-weight="700" font-family="system-ui">284</text>
+  <rect x="258" y="8" width="74" height="44" rx="8" fill="#fff" stroke="#dcfce7" stroke-width="1.5"/>
+  <text x="270" y="24" font-size="8" fill="#64748b" font-family="system-ui">Read rate</text>
+  <text x="270" y="42" font-size="16" fill="#25d366" font-weight="700" font-family="system-ui">94%</text>
+  <!-- Chat window -->
+  <rect x="172" y="60" width="160" height="132" rx="8" fill="#e5ddd5"/>
+  <rect x="172" y="60" width="160" height="24" rx="8" fill="#075e54"/>
+  <rect x="172" y="76" width="160" height="8" fill="#075e54"/>
+  <circle cx="188" cy="72" r="8" fill="#25d366"/>
+  <text x="200" y="76" font-size="8" fill="#fff" font-family="system-ui" font-weight="600">PaperBook School</text>
+  <!-- Messages -->
+  <rect x="184" y="92" width="120" height="30" rx="6" fill="#fff"/>
+  <text x="192" y="105" font-size="7" fill="#374151" font-family="system-ui">Dear Parent, fee of</text>
+  <text x="192" y="116" font-size="7" fill="#374151" font-family="system-ui">₹15,000 is due by Apr 15.</text>
+  <rect x="196" y="128" width="100" height="30" rx="6" fill="#dcf8c6"/>
+  <text x="204" y="141" font-size="7" fill="#374151" font-family="system-ui">Thank you! Will pay</text>
+  <text x="204" y="152" font-size="7" fill="#374151" font-family="system-ui">online today.</text>
+  <!-- Template card -->
+  <rect x="8" y="104" width="152" height="88" rx="8" fill="#fff" stroke="#dcfce7" stroke-width="1.5"/>
+  <text x="20" y="120" font-size="9" fill="#0f172a" font-family="system-ui" font-weight="600">Templates</text>
+  <rect x="20" y="126" width="128" height="16" rx="4" fill="#f0fdf4"/>
+  <text x="30" y="138" font-size="7" fill="#25d366" font-family="system-ui">Fee Reminder</text>
+  <rect x="20" y="146" width="128" height="16" rx="4" fill="#f3f4f6"/>
+  <text x="30" y="158" font-size="7" fill="#374151" font-family="system-ui">Attendance Alert</text>
+  <rect x="20" y="166" width="128" height="16" rx="4" fill="#f3f4f6"/>
+  <text x="30" y="178" font-size="7" fill="#374151" font-family="system-ui">Exam Notification</text>
+</svg>
+</div></div></div></div></div></div>
+          </div>
+          <div class="subtab-panel" data-subtab-panel="biometric" role="tabpanel">
+            <div class="subtab-content"><div class="container"><div class="subtab-content-grid"><div class="subtab-text"><h3>Biometric Devices</h3><p class="tagline">Automated attendance</p><div class="description"><p>Connect fingerprint, face recognition, or RFID devices for automated attendance capture.</p></div><ul class="subtab-highlights"><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Multiple device support</li><li><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Real-time sync</li></ul></div><div class="subtab-illustration"><div class="dashboard-mockup"><div class="mockup-header"><span class="mockup-dot red"></span><span class="mockup-dot yellow"></span><span class="mockup-dot green"></span></div><div class="mockup-body" style="background: #f8fafc; padding: 16px;">
+<svg viewBox="0 0 340 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+  <!-- Device Card -->
+  <rect x="8" y="8" width="140" height="108" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="20" y="24" font-size="9" fill="#64748b" font-family="system-ui" font-weight="600">Device Status</text>
+  <!-- Fingerprint icon -->
+  <rect x="20" y="30" width="60" height="60" rx="8" fill="#f5f3ff"/>
+  <!-- Fingerprint SVG paths -->
+  <path d="M50 45c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10" stroke="#6d28d9" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M42 55c0-4.4 3.6-8 8-8s8 3.6 8 8c0 4-2.5 7-6 8" stroke="#6d28d9" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M46 55c0-2.2 1.8-4 4-4s4 1.8 4 4v2" stroke="#6d28d9" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M50 59v4" stroke="#6d28d9" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="88" y="46" font-size="8" fill="#0f172a" font-family="system-ui" font-weight="600">Device 1</text>
+  <circle cx="88" cy="58" r="4" fill="#22c55e"/>
+  <text x="96" y="62" font-size="7" fill="#22c55e" font-family="system-ui">Online</text>
+  <text x="88" y="74" font-size="7" fill="#94a3b8" font-family="system-ui">Main Gate</text>
+  <text x="88" y="86" font-size="7" fill="#94a3b8" font-family="system-ui">48 scans today</text>
+  <!-- Sync status -->
+  <rect x="20" y="98" width="108" height="12" rx="4" fill="#ede9fe"/>
+  <text x="30" y="108" font-size="7" fill="#6d28d9" font-family="system-ui" font-weight="600">Last sync: 2 min ago</text>
+  <!-- Attendance log -->
+  <rect x="160" y="8" width="172" height="108" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="172" y="24" font-size="9" fill="#0f172a" font-family="system-ui" font-weight="600">Live Attendance</text>
+  <!-- Log rows -->
+  <rect x="172" y="30" width="148" height="16" rx="3" fill="#f0fdf4"/>
+  <circle cx="184" cy="38" r="5" fill="#22c55e"/>
+  <text x="196" y="42" font-size="8" fill="#374151" font-family="system-ui">Ravi Kumar  —  07:58 AM</text>
+  <rect x="172" y="50" width="148" height="16" rx="3" fill="#f0fdf4"/>
+  <circle cx="184" cy="58" r="5" fill="#22c55e"/>
+  <text x="196" y="62" font-size="8" fill="#374151" font-family="system-ui">Anita Singh  —  08:02 AM</text>
+  <rect x="172" y="70" width="148" height="16" rx="3" fill="#f0fdf4"/>
+  <circle cx="184" cy="78" r="5" fill="#22c55e"/>
+  <text x="196" y="82" font-size="8" fill="#374151" font-family="system-ui">Mohit Rao  —  08:06 AM</text>
+  <rect x="172" y="90" width="148" height="16" rx="3" fill="#fef3c7"/>
+  <circle cx="184" cy="98" r="5" fill="#f59e0b"/>
+  <text x="196" y="102" font-size="8" fill="#374151" font-family="system-ui">Deepa Nair  —  08:11 AM</text>
+  <!-- Stats row -->
+  <rect x="8" y="124" width="64" height="68" rx="8" fill="#f5f3ff" stroke="#ede9fe" stroke-width="1.5"/>
+  <text x="20" y="140" font-size="8" fill="#6d28d9" font-family="system-ui" font-weight="600">Present</text>
+  <text x="20" y="164" font-size="22" fill="#6d28d9" font-weight="700" font-family="system-ui">186</text>
+  <rect x="80" y="124" width="64" height="68" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+  <text x="92" y="140" font-size="8" fill="#ef4444" font-family="system-ui" font-weight="600">Absent</text>
+  <text x="96" y="164" font-size="22" fill="#ef4444" font-weight="700" font-family="system-ui">14</text>
+  <rect x="152" y="124" width="84" height="68" rx="8" fill="#f0fdf4" stroke="#dcfce7" stroke-width="1.5"/>
+  <text x="164" y="140" font-size="8" fill="#22c55e" font-family="system-ui" font-weight="600">Attendance</text>
+  <text x="164" y="164" font-size="22" fill="#22c55e" font-weight="700" font-family="system-ui">93%</text>
+  <!-- Device types -->
+  <rect x="244" y="124" width="88" height="68" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="256" y="140" font-size="8" fill="#64748b" font-family="system-ui" font-weight="600">Devices</text>
+  <text x="256" y="156" font-size="8" fill="#374151" font-family="system-ui">• Fingerprint (2)</text>
+  <text x="256" y="168" font-size="8" fill="#374151" font-family="system-ui">• Face ID (1)</text>
+  <text x="256" y="180" font-size="8" fill="#374151" font-family="system-ui">• RFID (1)</text>
+</svg>
+</div></div></div></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="module-cta">
+  <div class="container">
+    <h2>Ready to configure your institution?</h2>
+    <p>Join 500+ institutions using PaperBook with seamless integrations and easy configuration.</p>
+    <div class="btn-group">
+      <a href="#" class="btn btn-white btn-lg">Start Free Trial</a>
+      <a href="#" class="btn btn-white-outline btn-lg">Schedule Demo</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" aria-label="Site footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="../index.html" class="nav-brand">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" role="img"><title>PaperBook Logo</title><defs><linearGradient id="ftBg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#ftBg)"/><path d="M11 7h6.5a5.5 5.5 0 010 11H15v7h-4V7z" fill="#ffffff"/><path d="M15 11h2.5a1.5 1.5 0 010 3H15v-3z" fill="url(#ftBg)"/><polygon points="19,25 27,25 23,18" fill="#FF9933"/></svg>
+          PaperBook
+        </a>
+        <p>The complete education management platform that simplifies administration, enhances teaching, and connects parents — for educators across India.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../index.html#integrations">Integrations</a>
+        <a href="#">Changelog</a>
+        <a href="#">Mobile App</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#">Documentation</a>
+        <a href="#">Help Center</a>
+        <a href="#">Blog</a>
+        <a href="#">Video Tutorials</a>
+        <a href="#">API Reference</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Careers</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 PaperBook. All rights reserved.</span>
+      <span>Made with care for educators across India</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

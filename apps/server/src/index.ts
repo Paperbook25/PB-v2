@@ -139,6 +139,29 @@ app.use('/api', routes)
 app.use('/uploads', express.static(resolve(process.cwd(), 'public/uploads')))
 
 // ---------------------------------------------------------------------------
+// Production: serve the PaperBook marketing website (paperbook.app apex)
+// ---------------------------------------------------------------------------
+if (env.isProd) {
+  const marketingDist = resolve(__dirname, '../marketing-dist')
+  if (existsSync(marketingDist)) {
+    app.use((req, res, next) => {
+      const host = (req.hostname || '').toLowerCase()
+      // Serve marketing site when host is exactly the apex domain (no subdomain)
+      if (host === env.APP_DOMAIN) {
+        const filePath = req.path === '/' ? 'index.html' : req.path.slice(1)
+        const fullPath = resolve(marketingDist, filePath)
+        if (existsSync(fullPath) && !fullPath.includes('..')) {
+          return res.sendFile(fullPath)
+        }
+        // Fallback to index.html for clean URLs
+        return res.sendFile(resolve(marketingDist, 'index.html'))
+      }
+      next()
+    })
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Production: serve the Gravity Portal (admin) SPA
 // ---------------------------------------------------------------------------
 if (env.isProd) {

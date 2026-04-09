@@ -67,6 +67,7 @@ COPY --from=builder /app/apps/server/node_modules ./apps/server/node_modules
 # Built frontend assets (served by Express in production)
 COPY --from=builder /app/apps/school/dist ./apps/server/client-dist
 COPY --from=builder /app/apps/admin/dist ./apps/server/admin-dist
+COPY --from=builder /app/apps/server/marketing-dist ./apps/server/marketing-dist
 
 # Shared packages (exports raw .ts source, no dist)
 COPY --from=builder /app/packages/shared/src ./packages/shared/src

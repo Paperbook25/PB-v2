@@ -297,6 +297,72 @@ router.get('/public/validate-activation', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
+// --- Admin forgot/reset password (unauthenticated) ---
+router.post('/admin/auth/forgot-password', async (req, res, next) => {
+  try {
+    const { prisma } = await import('../config/db.js')
+    const { default: jwt } = await import('jsonwebtoken')
+    const { sendEmail } = await import('../services/email.service.js')
+    const { email } = req.body
+    if (!email) return res.status(400).json({ message: 'email is required' })
+
+    const user = await prisma.betterAuthUser.findFirst({ where: { email: String(email).toLowerCase() } })
+    // Always return 200 to prevent email enumeration
+    if (!user) return res.json({ success: true })
+
+    const token = jwt.sign({ userId: user.id, email: user.email, purpose: 'admin_password_reset' }, process.env.JWT_SECRET!, { expiresIn: '15m' })
+    const appDomain = process.env.APP_DOMAIN || 'paperbook.app'
+    const resetUrl = `https://gravity.${appDomain}/reset-password?token=${token}`
+
+    await sendEmail({
+      to: user.email,
+      subject: 'Gravity Portal — Reset your password',
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+          <h2 style="color:#1e1b4b;margin-bottom:8px">Reset your Gravity Portal password</h2>
+          <p style="color:#6b7280;margin-bottom:24px">Hi ${user.name || 'Admin'},<br/>We received a request to reset your password. Click the button below to set a new one. This link expires in 15 minutes.</p>
+          <a href="${resetUrl}" style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px">Reset Password</a>
+          <p style="color:#9ca3af;font-size:12px;margin-top:24px">If you didn't request this, ignore this email. Your password will not change.</p>
+        </div>
+      `,
+    }, 'admin_password_reset').catch(() => {})
+
+    res.json({ success: true })
+  } catch (err) { next(err) }
+})
+
+router.post('/admin/auth/reset-password', async (req, res, next) => {
+  try {
+    const { prisma } = await import('../config/db.js')
+    const { default: jwt } = await import('jsonwebtoken')
+    const { scrypt, randomBytes } = await import('node:crypto')
+    const { promisify } = await import('node:util')
+    const { token, password } = req.body
+    if (!token || !password) return res.status(400).json({ message: 'token and password are required' })
+    if (String(password).length < 8) return res.status(400).json({ message: 'Password must be at least 8 characters' })
+
+    let payload: any
+    try {
+      payload = jwt.verify(String(token), process.env.JWT_SECRET!)
+    } catch {
+      return res.status(401).json({ message: 'Reset link is invalid or has expired' })
+    }
+    if (payload.purpose !== 'admin_password_reset') return res.status(401).json({ message: 'Invalid token' })
+
+    const s = promisify<string, Buffer, number, Buffer>(scrypt)
+    const salt = randomBytes(16)
+    const key = await s(String(password), salt, 64)
+    const hash = `${salt.toString('hex')}:${key.toString('hex')}`
+
+    await prisma.betterAuthAccount.updateMany({
+      where: { userId: payload.userId, providerId: 'credential' },
+      data: { password: hash },
+    })
+
+    res.json({ success: true })
+  } catch (err) { next(err) }
+})
+
 // --- User profile (authenticated, no tenant required) ---
 router.use('/profile', profileRoutes)
 

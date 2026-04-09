@@ -9,6 +9,7 @@ import { PageLoader } from '@/components/ui/lazy-loader'
 
 // Eagerly load LoginPage for fast initial render
 import { LoginPage } from './features/auth/pages/LoginPage'
+import { ResetPasswordPage } from './features/auth/pages/ResetPasswordPage'
 
 // Lazy load all other pages for code splitting
 const DashboardPage = lazy(() => import('./features/dashboard/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
@@ -56,6 +57,7 @@ export default function App() {
           <ErrorBoundary>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route element={<AdminProtectedRoute />}>
               <Route element={<AdminShell />}>
                 <Route index element={<DashboardPage />} />

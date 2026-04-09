@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ShieldCheck, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { ShieldCheck, Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react'
 import { useAdminAuthStore } from '../../../stores/useAdminAuthStore'
 
 export function LoginPage() {
@@ -11,6 +11,31 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [mode, setMode] = useState<'login' | 'forgot'>('login')
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setIsLoading(true)
+    try {
+      const res = await fetch('/api/admin/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.message || 'Failed to send reset email')
+      }
+      setForgotSent(true)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,6 +83,80 @@ export function LoginPage() {
     window.location.href = `/api/auth/sign-in/social?provider=google&callbackURL=${encodeURIComponent(window.location.origin)}`
   }
 
+  if (mode === 'forgot') {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="w-full max-w-md">
+          <div className="mb-8 flex flex-col items-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
+              <ShieldCheck className="h-7 w-7 text-primary-foreground" />
+            </div>
+            <h1 className="mt-4 text-2xl font-bold text-foreground">Reset Password</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Enter your email to receive a reset link
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
+            {forgotSent ? (
+              <div className="text-center space-y-4">
+                <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                  Reset link sent! Check your email inbox.
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  The link expires in 15 minutes. If you don't see it, check your spam folder.
+                </p>
+                <button
+                  onClick={() => { setMode('login'); setForgotSent(false); setForgotEmail('') }}
+                  className="flex items-center gap-1.5 text-sm text-primary hover:underline mx-auto"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Back to Sign In
+                </button>
+              </div>
+            ) : (
+              <>
+                {error && (
+                  <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div>
+                    <label htmlFor="forgot-email" className="mb-1.5 block text-sm font-medium text-foreground">
+                      Email address
+                    </label>
+                    <input
+                      id="forgot-email"
+                      type="email"
+                      required
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      placeholder="admin@paperbook.io"
+                      className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60 disabled:pointer-events-none"
+                  >
+                    {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</> : 'Send Reset Link'}
+                  </button>
+                </form>
+                <button
+                  onClick={() => { setMode('login'); setError('') }}
+                  className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mx-auto"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Back to Sign In
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
@@ -97,9 +196,18 @@ export function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-foreground">
-                Password
-              </label>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label htmlFor="password" className="text-sm font-medium text-foreground">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => { setMode('forgot'); setForgotEmail(email); setError('') }}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <div className="relative">
                 <input
                   id="password"

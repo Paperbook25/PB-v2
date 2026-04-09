@@ -139,9 +139,10 @@ app.use('/api', routes)
 app.use('/uploads', express.static(resolve(process.cwd(), 'public/uploads')))
 
 // ---------------------------------------------------------------------------
-// Production: serve the PaperBook marketing website (paperbook.app apex)
+// Serve the PaperBook marketing website (paperbook.app apex)
+// Served in all environments when marketing-dist exists (pre-built static bundle)
 // ---------------------------------------------------------------------------
-if (env.isProd) {
+{
   const marketingDist = resolve(__dirname, '../marketing-dist')
   if (existsSync(marketingDist)) {
     app.use((req, res, next) => {

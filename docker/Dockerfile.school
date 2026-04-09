@@ -5,14 +5,11 @@
 # For production, build the static assets and serve via Nginx/CDN instead.
 # =============================================================================
 
-FROM node:20-alpine AS base
-# canvas native build dependencies (needed by server package in the monorepo)
-RUN apk add --no-cache \
-    cairo-dev pango-dev jpeg-dev giflib-dev librsvg-dev pixman-dev \
-    pkgconfig python3 make g++
+# node:20-slim (Debian) — canvas has prebuilt glibc binaries here.
+# node:20-alpine (musl) has NO prebuilt canvas binaries and compiling from source
+# requires Python + native libs which bloat the image and often fail.
+FROM node:20-slim AS base
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
-# Skip canvas native compilation — school is a frontend-only container
-ENV CANVAS_SKIP_BUILD=true
 WORKDIR /app
 
 # Copy workspace config

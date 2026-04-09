@@ -22,7 +22,7 @@ router.get('/hostels', adminRoles, async (req, res, next) => {
 })
 router.get('/hostels/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await hostelService.getHostelById(req.schoolId!, req.params.id)
+    const data = await hostelService.getHostelById(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -34,13 +34,13 @@ router.post('/hostels', adminRoles, async (req, res, next) => {
 })
 router.put('/hostels/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await hostelService.updateHostel(req.schoolId!, req.params.id, req.body)
+    const data = await hostelService.updateHostel(req.schoolId!, String(req.params.id), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/hostels/:id', adminRoles, async (req, res, next) => {
   try {
-    const result = await hostelService.deleteHostel(req.schoolId!, req.params.id)
+    const result = await hostelService.deleteHostel(req.schoolId!, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 })
@@ -114,7 +114,7 @@ router.post('/fees', adminRoles, async (req, res, next) => {
 })
 router.patch('/fees/:id/pay', adminRoles, async (req, res, next) => {
   try {
-    const data = await hostelService.payHostelFee(req.schoolId!, req.params.id, req.body.paymentRef)
+    const data = await hostelService.payHostelFee(req.schoolId!, String(req.params.id), req.body.paymentRef)
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -137,13 +137,13 @@ router.patch('/allocations/:id/transfer', adminRoles, async (req, res, next) => 
   try {
     const { prisma } = await import('../config/db.js')
     const allocation = await prisma.hostelAllocation.findFirst({
-      where: { id: req.params.id, organizationId: req.schoolId! },
+      where: { id: String(req.params.id), organizationId: req.schoolId! },
     })
     if (!allocation) { res.status(404).json({ error: 'Allocation not found' }); return }
     // HostelAllocation only has roomId — transfer updates the room assignment
     const newRoomId = (req.body.newRoomId as string | undefined) ?? allocation.roomId
     const updated = await prisma.hostelAllocation.update({
-      where: { id: req.params.id },
+      where: { id: String(req.params.id) },
       data: { roomId: newRoomId },
     })
     res.json({ data: updated })

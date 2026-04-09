@@ -57,7 +57,7 @@ router.get('/actions', adminRoles, async (req, res, next) => {
 })
 router.get('/actions/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await behaviorService.getDisciplinaryActionById(req.schoolId!, req.params.id)
+    const data = await behaviorService.getDisciplinaryActionById(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -69,7 +69,7 @@ router.post('/actions', adminRoles, async (req, res, next) => {
 })
 router.put('/actions/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await behaviorService.updateDisciplinaryAction(req.schoolId!, req.params.id, req.body)
+    const data = await behaviorService.updateDisciplinaryAction(req.schoolId!, String(req.params.id), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -102,13 +102,13 @@ router.post('/detentions', adminRoles, async (req, res, next) => {
 })
 router.put('/detentions/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await behaviorService.updateDetention(req.schoolId!, req.params.id, req.body)
+    const data = await behaviorService.updateDetention(req.schoolId!, String(req.params.id), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/detentions/:id', strictAdmin, async (req, res, next) => {
   try {
-    const result = await behaviorService.deleteDetention(req.schoolId!, req.params.id)
+    const result = await behaviorService.deleteDetention(req.schoolId!, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 })

@@ -32,7 +32,7 @@ router.get('/assets', adminRoles, async (req, res, next) => {
 })
 router.get('/assets/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await inventoryService.getAssetById(req.schoolId!, req.params.id)
+    const data = await inventoryService.getAssetById(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -44,13 +44,13 @@ router.post('/assets', adminRoles, async (req, res, next) => {
 })
 router.put('/assets/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await inventoryService.updateAsset(req.schoolId!, req.params.id, req.body)
+    const data = await inventoryService.updateAsset(req.schoolId!, String(req.params.id), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/assets/:id', adminRoles, async (req, res, next) => {
   try {
-    const result = await inventoryService.deleteAsset(req.schoolId!, req.params.id)
+    const result = await inventoryService.deleteAsset(req.schoolId!, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 })
@@ -80,7 +80,7 @@ router.get('/vendors', adminRoles, async (req, res, next) => {
 })
 router.get('/vendors/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await inventoryService.getVendorById(req.schoolId!, req.params.id)
+    const data = await inventoryService.getVendorById(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -92,7 +92,7 @@ router.post('/vendors', adminRoles, async (req, res, next) => {
 })
 router.put('/vendors/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await inventoryService.updateVendor(req.schoolId!, req.params.id, req.body)
+    const data = await inventoryService.updateVendor(req.schoolId!, String(req.params.id), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -112,7 +112,7 @@ router.get('/purchase-orders', adminRoles, async (req, res, next) => {
 })
 router.get('/purchase-orders/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await inventoryService.getPurchaseOrderById(req.schoolId!, req.params.id)
+    const data = await inventoryService.getPurchaseOrderById(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -124,13 +124,13 @@ router.post('/purchase-orders', adminRoles, async (req, res, next) => {
 })
 router.patch('/purchase-orders/:id/status', adminRoles, async (req, res, next) => {
   try {
-    const data = await inventoryService.updatePurchaseOrderStatus(req.schoolId!, req.params.id, req.body.status)
+    const data = await inventoryService.updatePurchaseOrderStatus(req.schoolId!, String(req.params.id), req.body.status)
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/purchase-orders/:id', adminRoles, async (req, res, next) => {
   try {
-    const result = await inventoryService.deletePurchaseOrder(req.schoolId!, req.params.id)
+    const result = await inventoryService.deletePurchaseOrder(req.schoolId!, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 })

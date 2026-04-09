@@ -177,7 +177,7 @@ router.patch('/concessions/:id/approve', adminRoles, async (req, res, next) => {
   try {
     const user = (req as any).user
     const data = await financeExtrasService.approveConcession(
-      req.schoolId!, req.params.id,
+      req.schoolId!, String(req.params.id),
       user?.userId ?? 'unknown', user?.name ?? 'Unknown',
       req.body.remarks
     )
@@ -186,7 +186,7 @@ router.patch('/concessions/:id/approve', adminRoles, async (req, res, next) => {
 })
 router.patch('/concessions/:id/reject', adminRoles, async (req, res, next) => {
   try {
-    const data = await financeExtrasService.rejectConcession(req.schoolId!, req.params.id, req.body.remarks)
+    const data = await financeExtrasService.rejectConcession(req.schoolId!, String(req.params.id), req.body.remarks)
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -208,19 +208,19 @@ router.post('/discount-rules', adminRoles, async (req, res, next) => {
 })
 router.put('/discount-rules/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await financeExtrasService.updateDiscountRule(req.schoolId!, req.params.id, req.body)
+    const data = await financeExtrasService.updateDiscountRule(req.schoolId!, String(req.params.id), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.patch('/discount-rules/:id/toggle', adminRoles, async (req, res, next) => {
   try {
-    const data = await financeExtrasService.toggleDiscountRule(req.schoolId!, req.params.id)
+    const data = await financeExtrasService.toggleDiscountRule(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/discount-rules/:id', adminRoles, async (req, res, next) => {
   try {
-    const result = await financeExtrasService.deleteDiscountRule(req.schoolId!, req.params.id)
+    const result = await financeExtrasService.deleteDiscountRule(req.schoolId!, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 })
@@ -244,7 +244,7 @@ router.get('/installment-plans', adminRoles, async (req, res, next) => {
 })
 router.get('/installment-plans/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await financeExtrasService.getInstallmentPlan(req.schoolId!, req.params.id)
+    const data = await financeExtrasService.getInstallmentPlan(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -256,13 +256,13 @@ router.post('/installment-plans', adminRoles, async (req, res, next) => {
 })
 router.patch('/installment-plans/:id/toggle', adminRoles, async (req, res, next) => {
   try {
-    const data = await financeExtrasService.toggleInstallmentPlan(req.schoolId!, req.params.id)
+    const data = await financeExtrasService.toggleInstallmentPlan(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/installment-plans/:id', adminRoles, async (req, res, next) => {
   try {
-    const result = await financeExtrasService.deleteInstallmentPlan(req.schoolId!, req.params.id)
+    const result = await financeExtrasService.deleteInstallmentPlan(req.schoolId!, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 })

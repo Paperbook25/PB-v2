@@ -24,7 +24,7 @@ router.delete('/achievements/:id', adminRoles, alumniController.deleteAchievemen
 // ==================== Contributions ====================
 router.get('/contributions', adminRoles, async (req, res, next) => {
   try {
-    const { alumniId, status, page, limit } = req.query
+    const { alumniId, status, page, limit } = req.query as Record<string, string | undefined>
     const result = await alumniService.listContributions(req.schoolId!, {
       alumniId: alumniId as string | undefined,
       status: status as string | undefined,
@@ -42,13 +42,13 @@ router.post('/contributions', adminRoles, async (req, res, next) => {
 })
 router.patch('/contributions/:id/status', adminRoles, async (req, res, next) => {
   try {
-    const data = await alumniService.updateContributionStatus(req.schoolId!, req.params.id, req.body.status)
+    const data = await alumniService.updateContributionStatus(req.schoolId!, String(req.params.id), req.body.status)
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/contributions/:id', adminRoles, async (req, res, next) => {
   try {
-    const result = await alumniService.deleteContribution(req.schoolId!, req.params.id)
+    const result = await alumniService.deleteContribution(req.schoolId!, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 })
@@ -56,7 +56,7 @@ router.delete('/contributions/:id', adminRoles, async (req, res, next) => {
 // ==================== Alumni Events ====================
 router.get('/events', adminRoles, async (req, res, next) => {
   try {
-    const { type, status, page, limit } = req.query
+    const { type, status, page, limit } = req.query as Record<string, string | undefined>
     const result = await alumniService.listAlumniEvents(req.schoolId!, {
       type: type as string | undefined,
       status: status as string | undefined,
@@ -68,7 +68,7 @@ router.get('/events', adminRoles, async (req, res, next) => {
 })
 router.get('/events/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await alumniService.getAlumniEventById(req.schoolId!, req.params.id)
+    const data = await alumniService.getAlumniEventById(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -80,37 +80,37 @@ router.post('/events', adminRoles, async (req, res, next) => {
 })
 router.put('/events/:id', adminRoles, async (req, res, next) => {
   try {
-    const data = await alumniService.updateAlumniEvent(req.schoolId!, req.params.id, req.body)
+    const data = await alumniService.updateAlumniEvent(req.schoolId!, String(req.params.id), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.patch('/events/:id/status', adminRoles, async (req, res, next) => {
   try {
-    const data = await alumniService.updateAlumniEventStatus(req.schoolId!, req.params.id, req.body.status)
+    const data = await alumniService.updateAlumniEventStatus(req.schoolId!, String(req.params.id), req.body.status)
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/events/:id', adminRoles, async (req, res, next) => {
   try {
-    const result = await alumniService.deleteAlumniEvent(req.schoolId!, req.params.id)
+    const result = await alumniService.deleteAlumniEvent(req.schoolId!, String(req.params.id))
     res.json(result)
   } catch (err) { next(err) }
 })
 router.get('/events/:eventId/registrations', adminRoles, async (req, res, next) => {
   try {
-    const data = await alumniService.getEventRegistrations(req.schoolId!, req.params.eventId)
+    const data = await alumniService.getEventRegistrations(req.schoolId!, String(req.params.eventId))
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.post('/events/:eventId/register', adminRoles, async (req, res, next) => {
   try {
-    const data = await alumniService.registerForEvent(req.schoolId!, req.params.eventId, req.body.alumniId)
+    const data = await alumniService.registerForEvent(req.schoolId!, String(req.params.eventId), req.body.alumniId)
     res.status(201).json({ data })
   } catch (err) { next(err) }
 })
 router.delete('/events/:eventId/register/:alumniId', adminRoles, async (req, res, next) => {
   try {
-    const result = await alumniService.cancelEventRegistration(req.schoolId!, req.params.eventId, req.params.alumniId)
+    const result = await alumniService.cancelEventRegistration(req.schoolId!, String(req.params.eventId), String(req.params.alumniId))
     res.json(result)
   } catch (err) { next(err) }
 })

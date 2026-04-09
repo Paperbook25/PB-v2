@@ -45,7 +45,7 @@ router.post('/salary/process', adminPrincipal, async (req, res, next) => {
 })
 router.patch('/salary-slips/:slipId/pay', adminPrincipal, async (req, res, next) => {
   try {
-    const data = await salaryService.markSalaryPaid(req.schoolId!, req.params.slipId, req.body.paymentRef)
+    const data = await salaryService.markSalaryPaid(req.schoolId!, String(req.params.slipId), req.body.paymentRef)
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -133,13 +133,13 @@ router.patch('/:id/onboarding/tasks/:taskId', adminPrincipal, validate(updateOnb
 // Salary Structure (per-staff)
 router.get('/:id/salary-structure', adminPrincipal, async (req, res, next) => {
   try {
-    const data = await salaryService.getSalaryStructure(req.schoolId!, req.params.id)
+    const data = await salaryService.getSalaryStructure(req.schoolId!, String(req.params.id))
     res.json({ data })
   } catch (err) { next(err) }
 })
 router.put('/:id/salary-structure', adminPrincipal, async (req, res, next) => {
   try {
-    const data = await salaryService.updateSalaryStructure(req.schoolId!, req.params.id, req.body)
+    const data = await salaryService.updateSalaryStructure(req.schoolId!, String(req.params.id), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })
@@ -147,9 +147,9 @@ router.put('/:id/salary-structure', adminPrincipal, async (req, res, next) => {
 // Salary slips (per-staff)
 router.get('/:id/salary-slips', readRoles, async (req, res, next) => {
   try {
-    const { month, year, status, page, limit } = req.query
+    const { month, year, status, page, limit } = req.query as Record<string, string | undefined>
     const result = await salaryService.getSalarySlips(req.schoolId!, {
-      staffId: req.params.id,
+      staffId: String(req.params.id),
       month: month ? Number(month) : undefined,
       year: year ? Number(year) : undefined,
       status: status as string | undefined,
@@ -163,9 +163,9 @@ router.get('/:id/salary-slips', readRoles, async (req, res, next) => {
 // Per-staff payroll deductions
 router.get('/:id/payroll-deductions', adminPrincipal, async (req, res, next) => {
   try {
-    const { month, year } = req.query
+    const { month, year } = req.query as Record<string, string | undefined>
     const data = await salaryService.getPayrollDeductions(req.schoolId!, {
-      staffId: req.params.id,
+      staffId: String(req.params.id),
       month: month ? Number(month) : undefined,
       year: year ? Number(year) : undefined,
     })
@@ -180,7 +180,7 @@ router.post('/:id/payroll-deductions', adminPrincipal, async (req, res, next) =>
 })
 router.put('/:id/payroll-deductions/:deductionId', adminPrincipal, async (req, res, next) => {
   try {
-    const data = await salaryService.updatePayrollDeduction(req.schoolId!, req.params.deductionId, req.body)
+    const data = await salaryService.updatePayrollDeduction(req.schoolId!, String(req.params.deductionId), req.body)
     res.json({ data })
   } catch (err) { next(err) }
 })

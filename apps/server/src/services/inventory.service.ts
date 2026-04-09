@@ -1,4 +1,5 @@
 import { prisma } from '../config/db.js'
+import { AppError } from '../utils/errors.js'
 
 // ==================== Inventory: List ====================
 

@@ -18,5 +18,20 @@
   "devDependencies": {
     "turbo": "^2.3.0"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "prisma",
+      "esbuild",
+      "@esbuild/linux-x64",
+      "@esbuild/linux-arm64",
+      "@esbuild/darwin-x64",
+      "@esbuild/darwin-arm64",
+      "@esbuild/win32-x64",
+      "better-sqlite3",
+      "msw",
+      "sharp"
+    ]
+  }
 }

@@ -32,6 +32,9 @@ COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/tsconfig/package.json ./packages/tsconfig/
 
 RUN pnpm install --frozen-lockfile
+# canvas is excluded from onlyBuiltDependencies to fix Alpine frontend builds;
+# explicitly rebuild it here where all native libs (cairo, pango, etc.) are present
+RUN pnpm rebuild canvas
 
 # ---------- Build everything ----------
 FROM deps AS builder

@@ -33,6 +33,8 @@ COPY packages/tsconfig/package.json ./packages/tsconfig/
 
 # Install all dependencies
 RUN pnpm install --frozen-lockfile
+# Explicitly rebuild canvas native bindings (excluded from onlyBuiltDependencies globally)
+RUN pnpm rebuild canvas
 
 # ---------- Build shared packages ----------
 FROM deps AS builder

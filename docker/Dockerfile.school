@@ -11,6 +11,8 @@ RUN apk add --no-cache \
     cairo-dev pango-dev jpeg-dev giflib-dev librsvg-dev pixman-dev \
     pkgconfig python3 make g++
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+# Skip canvas native compilation — school is a frontend-only container
+ENV CANVAS_SKIP_BUILD=true
 WORKDIR /app
 
 # Copy workspace config

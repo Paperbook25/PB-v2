@@ -43,7 +43,7 @@ export function LoginPage() {
     setIsLoading(true)
 
     try {
-      const res = await fetch('/api/auth/sign-in/email', {
+      const res = await fetch('/api/admin/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -56,19 +56,14 @@ export function LoginPage() {
       }
 
       const data = await res.json()
-      const user = data.user || data
-
-      // Verify the user has admin role
-      if (user.role !== 'admin' && user.role !== 'super_admin') {
-        throw new Error('Access denied. Admin privileges required.')
-      }
+      const user = data.user
 
       setUser({
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
-        avatar: user.image || user.avatar,
+        avatar: user.avatar || null,
       })
 
       navigate('/')

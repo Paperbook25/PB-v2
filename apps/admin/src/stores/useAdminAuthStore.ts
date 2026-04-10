@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { signOut } from '@/lib/auth-client'
 
 interface AdminUser {
   id: string
@@ -30,10 +29,9 @@ export const useAdminAuthStore = create<AdminAuthState>()(
 
       logout: async () => {
         try {
-          await signOut()
+          await fetch('/api/admin/auth/logout', { method: 'POST', credentials: 'include' })
         } catch {
-          // Even if server logout fails, clear local state so the user
-          // is not stuck in a broken authenticated state.
+          // Even if server logout fails, clear local state
         } finally {
           set({ user: null, isAuthenticated: false })
         }
@@ -44,7 +42,7 @@ export const useAdminAuthStore = create<AdminAuthState>()(
 
         set({ isCheckingSession: true })
         try {
-          const res = await fetch('/api/auth/get-session', {
+          const res = await fetch('/api/admin/auth/me', {
             credentials: 'include',
           })
 
@@ -62,7 +60,7 @@ export const useAdminAuthStore = create<AdminAuthState>()(
                 name: data.user.name,
                 email: data.user.email,
                 role: data.user.role,
-                avatar: data.user.image ?? data.user.avatar,
+                avatar: data.user.avatar ?? null,
               },
               isAuthenticated: true,
               isCheckingSession: false,

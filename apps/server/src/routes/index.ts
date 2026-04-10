@@ -297,6 +297,128 @@ router.get('/public/validate-activation', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
+// ---------------------------------------------------------------------------
+// Custom Gravity Portal admin auth — bypasses better-auth origin check
+// ---------------------------------------------------------------------------
+
+function parseCookie(cookieHeader: string | undefined, name: string): string | null {
+  if (!cookieHeader) return null
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`))
+  return match ? decodeURIComponent(match[1]) : null
+}
+
+const GRAVITY_COOKIE = 'gravity_admin_token'
+const GRAVITY_PURPOSE = 'gravity_admin_v1'
+
+router.post('/admin/auth/login', async (req, res, next) => {
+  try {
+    const { default: jwt } = await import('jsonwebtoken')
+    const { scrypt, timingSafeEqual } = await import('node:crypto')
+    const { promisify } = await import('node:util')
+    const scryptAsync = promisify<Buffer | string, Buffer | string, number, object, Buffer>(scrypt as any)
+
+    const { email, password } = req.body
+    if (!email || !password) return res.status(400).json({ message: 'Email and password are required' })
+
+    const user = await prisma.betterAuthUser.findFirst({ where: { email: String(email).toLowerCase().trim() } })
+    if (!user) return res.status(401).json({ message: 'Invalid email or password' })
+
+    // Load credential account (password hash)
+    const account = await prisma.betterAuthAccount.findFirst({
+      where: { userId: user.id, providerId: 'credential' },
+    })
+    if (!account?.password) return res.status(401).json({ message: 'Invalid email or password' })
+
+    // Hash format: saltHex:keyHex (same as better-auth and our reset-password)
+    const [saltHex, keyHex] = account.password.split(':')
+    if (!saltHex || !keyHex) return res.status(401).json({ message: 'Invalid email or password' })
+
+    // Verify with better-auth scrypt params: N=16384, r=16, p=1, dkLen=64
+    const salt = Buffer.from(saltHex, 'hex')
+    const storedKey = Buffer.from(keyHex, 'hex')
+    // Normalize password (NFKC) to match better-auth
+    const normalizedPw = String(password).normalize('NFKC')
+    const derivedKey = await scryptAsync(normalizedPw, salt, 64, { N: 16384, r: 16, p: 1 }) as Buffer
+    const match = storedKey.length === derivedKey.length && timingSafeEqual(storedKey, derivedKey)
+    if (!match) return res.status(401).json({ message: 'Invalid email or password' })
+
+    // Check admin role
+    if ((user as any).role !== 'admin' && (user as any).role !== 'super_admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' })
+    }
+
+    // Load gravity admin record
+    let gravityRole = 'admin'
+    try {
+      const gravityAdmin = await prisma.gravityAdmin.findUnique({ where: { userId: user.id } })
+      if (gravityAdmin) {
+        if (!gravityAdmin.isActive) return res.status(403).json({ message: 'Your admin account has been deactivated' })
+        gravityRole = gravityAdmin.role
+      }
+    } catch { /* table may not exist */ }
+
+    // Issue JWT
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, name: user.name, role: gravityRole, purpose: GRAVITY_PURPOSE },
+      process.env.JWT_SECRET!,
+      { expiresIn: '7d' }
+    )
+
+    const isProd = process.env.NODE_ENV === 'production'
+    res.cookie(GRAVITY_COOKIE, token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    })
+
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: gravityRole,
+        avatar: (user as any).image || null,
+      },
+    })
+  } catch (err) { next(err) }
+})
+
+router.get('/admin/auth/me', async (req, res, next) => {
+  try {
+    const { default: jwt } = await import('jsonwebtoken')
+    const token = parseCookie(req.headers.cookie, GRAVITY_COOKIE)
+    if (!token) return res.status(401).json({ message: 'Not authenticated' })
+
+    let payload: any
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET!)
+    } catch {
+      return res.status(401).json({ message: 'Session expired' })
+    }
+    if (payload.purpose !== GRAVITY_PURPOSE) return res.status(401).json({ message: 'Invalid session' })
+
+    const user = await prisma.betterAuthUser.findUnique({ where: { id: payload.userId } })
+    if (!user) return res.status(401).json({ message: 'User not found' })
+
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: payload.role,
+        avatar: (user as any).image || null,
+      },
+    })
+  } catch (err) { next(err) }
+})
+
+router.post('/admin/auth/logout', (req, res) => {
+  res.clearCookie(GRAVITY_COOKIE, { path: '/' })
+  res.json({ success: true })
+})
+
 // --- Admin forgot/reset password (unauthenticated) ---
 router.post('/admin/auth/forgot-password', async (req, res, next) => {
   try {
@@ -349,9 +471,11 @@ router.post('/admin/auth/reset-password', async (req, res, next) => {
     }
     if (payload.purpose !== 'admin_password_reset') return res.status(401).json({ message: 'Invalid token' })
 
-    const s = promisify<string, Buffer, number, Buffer>(scrypt)
+    const s = promisify<Buffer | string, Buffer | string, number, object, Buffer>(scrypt as any)
     const salt = randomBytes(16)
-    const key = await s(String(password), salt, 64)
+    // Use same params as better-auth: N=16384, r=16, p=1, NFKC normalization
+    const normalizedPw = String(password).normalize('NFKC')
+    const key = await s(normalizedPw, salt, 64, { N: 16384, r: 16, p: 1 })
     const hash = `${salt.toString('hex')}:${key.toString('hex')}`
 
     await prisma.betterAuthAccount.updateMany({

@@ -65,8 +65,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-paperbook-jwt-secret-change-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-paperbook-jwt-refresh-secret-change-in-production}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-paperbook-better-auth-secret-change-in-production}
-      BETTER_AUTH_URL: http://localhost:${SERVER_PORT:-3001}
-      CORS_ORIGIN: http://localhost:${SCHOOL_PORT:-5173}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       LLM_PROVIDER: ${LLM_PROVIDER:-ollama}

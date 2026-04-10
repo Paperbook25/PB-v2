@@ -317,14 +317,15 @@ router.post('/admin/auth/login', async (req, res, next) => {
     const { promisify } = await import('node:util')
     const scryptAsync = promisify<Buffer | string, Buffer | string, number, object, Buffer>(scrypt as any)
 
+    const { prisma: db } = await import('../config/db.js')
     const { email, password } = req.body
     if (!email || !password) return res.status(400).json({ message: 'Email and password are required' })
 
-    const user = await prisma.betterAuthUser.findFirst({ where: { email: String(email).toLowerCase().trim() } })
+    const user = await db.betterAuthUser.findFirst({ where: { email: String(email).toLowerCase().trim() } })
     if (!user) return res.status(401).json({ message: 'Invalid email or password' })
 
     // Load credential account (password hash)
-    const account = await prisma.betterAuthAccount.findFirst({
+    const account = await db.betterAuthAccount.findFirst({
       where: { userId: user.id, providerId: 'credential' },
     })
     if (!account?.password) return res.status(401).json({ message: 'Invalid email or password' })
@@ -350,7 +351,7 @@ router.post('/admin/auth/login', async (req, res, next) => {
     // Load gravity admin record
     let gravityRole = 'admin'
     try {
-      const gravityAdmin = await prisma.gravityAdmin.findUnique({ where: { userId: user.id } })
+      const gravityAdmin = await db.gravityAdmin.findUnique({ where: { userId: user.id } })
       if (gravityAdmin) {
         if (!gravityAdmin.isActive) return res.status(403).json({ message: 'Your admin account has been deactivated' })
         gravityRole = gravityAdmin.role
@@ -399,7 +400,8 @@ router.get('/admin/auth/me', async (req, res, next) => {
     }
     if (payload.purpose !== GRAVITY_PURPOSE) return res.status(401).json({ message: 'Invalid session' })
 
-    const user = await prisma.betterAuthUser.findUnique({ where: { id: payload.userId } })
+    const { prisma: db2 } = await import('../config/db.js')
+    const user = await db2.betterAuthUser.findUnique({ where: { id: payload.userId } })
     if (!user) return res.status(401).json({ message: 'User not found' })
 
     res.json({

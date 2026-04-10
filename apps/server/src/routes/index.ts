@@ -339,7 +339,7 @@ router.post('/admin/auth/login', async (req, res, next) => {
     const storedKey = Buffer.from(keyHex, 'hex')
     // Normalize password (NFKC) to match better-auth
     const normalizedPw = String(password).normalize('NFKC')
-    const derivedKey = await scryptAsync(normalizedPw, salt, 64, { N: 16384, r: 16, p: 1 }) as Buffer
+    const derivedKey = await scryptAsync(normalizedPw, salt, 64, { N: 16384, r: 16, p: 1, maxmem: 64 * 1024 * 1024 }) as Buffer
     const match = storedKey.length === derivedKey.length && timingSafeEqual(storedKey, derivedKey)
     if (!match) return res.status(401).json({ message: 'Invalid email or password' })
 
@@ -477,7 +477,7 @@ router.post('/admin/auth/reset-password', async (req, res, next) => {
     const salt = randomBytes(16)
     // Use same params as better-auth: N=16384, r=16, p=1, NFKC normalization
     const normalizedPw = String(password).normalize('NFKC')
-    const key = await s(normalizedPw, salt, 64, { N: 16384, r: 16, p: 1 })
+    const key = await s(normalizedPw, salt, 64, { N: 16384, r: 16, p: 1, maxmem: 64 * 1024 * 1024 })
     const hash = `${salt.toString('hex')}:${key.toString('hex')}`
 
     await prisma.betterAuthAccount.updateMany({

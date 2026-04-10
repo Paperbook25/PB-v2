@@ -54,6 +54,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.server
+      target: development
     container_name: paperbook-server
     restart: unless-stopped
     ports:

@@ -74,8 +74,8 @@ COPY --from=builder /app/apps/server/prisma ./apps/server/prisma
 COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
 COPY --from=builder /app/packages/ ./packages/
 
-# Re-generate Prisma client for the production stage
-COPY --from=deps /app/apps/server/node_modules/.prisma ./apps/server/node_modules/.prisma
+# Copy Prisma client generated in builder stage
+COPY --from=builder /app/apps/server/node_modules/.prisma ./apps/server/node_modules/.prisma
 
 WORKDIR /app/apps/server
 EXPOSE 3001

@@ -121,7 +121,7 @@ async function autoBlogWriter() {
           type: 'blog_published',
           title: 'New Blog Auto-Published',
           message: `SEO Bot published: "${post.title}"`,
-          link: '/website',
+          link: '/website?tab=blog',
         },
       })
     } catch {}
@@ -162,7 +162,7 @@ async function weeklySeqAudit() {
           type: 'alert',
           title: `SEO Score Alert: ${result.grade} (${result.score}/100)`,
           message: `${result.issues.filter(i => i.severity === 'critical').length} critical issues found. ${result.recommendations[0] || ''}`,
-          link: '/website',
+          link: '/website?tab=seo',
         },
       })
       console.log('[SEO Bot] Low SEO score alert sent')

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { adminApi } from '../../../lib/api'
 import { format } from 'date-fns'
@@ -40,7 +41,11 @@ const statusColors: Record<string, string> = {
 // ─── Component ──────────────────────────────────────────────────────────────
 export function WebsiteManagementPage() {
   const qc = useQueryClient()
-  const [tab, setTab] = useState<TabKey>('pricing')
+  const [searchParams] = useSearchParams()
+  const initialTab = searchParams.get('tab') as TabKey
+  const [tab, setTab] = useState<TabKey>(
+    TABS.some(t => t.key === initialTab) ? initialTab : 'pricing'
+  )
 
   return (
     <div className="space-y-6">

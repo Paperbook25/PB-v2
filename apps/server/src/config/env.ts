@@ -23,6 +23,7 @@ export const env = {
   OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'qwen2.5:14b',
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
 
   // better-auth
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET || process.env.JWT_SECRET!,

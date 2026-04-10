@@ -10,13 +10,11 @@
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#6d28d9">
   <link rel="canonical" href="https://paperbook.app/blog.html">
-
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://paperbook.app/blog.html">
   <meta property="og:title" content="Blog — PaperBook | School Management Tips &amp; Insights">
   <meta property="og:description" content="Expert insights on school management, fee collection, admissions, attendance automation, and education technology in India.">
   <meta property="og:image" content="https://paperbook.app/og-image.png">
-
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Blog — PaperBook | School Management Tips &amp; Insights">
   <meta name="twitter:description" content="Expert insights on school management, fee collection, admissions, attendance automation, and education technology in India.">
@@ -27,31 +25,143 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    .blog-hero { padding: 6rem 0 3rem; text-align: center; background: linear-gradient(135deg, #f5f3ff, #ede9fe); }
-    .blog-hero h1 { font-size: 2.5rem; font-weight: 800; color: #111827; }
-    .blog-hero p { font-size: 1.1rem; color: #6b7280; margin-top: 0.5rem; max-width: 600px; margin-left: auto; margin-right: auto; }
-    .blog-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem; padding: 3rem 0; }
-    @media (min-width: 768px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
+    /* Hero */
+    .blog-hero {
+      padding: 5rem 0 3rem;
+      text-align: center;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .blog-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+    }
+    .blog-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: -40px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
+    }
+    .blog-hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #7c3aed; background: rgba(124,58,237,0.1); padding: 4px 14px; border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    .blog-hero h1 { font-size: 2.75rem; font-weight: 800; color: #111827; margin: 0; line-height: 1.2; }
+    .blog-hero p { font-size: 1.05rem; color: #6b7280; margin: 0.75rem auto 0; max-width: 520px; }
+    .blog-hero-stats { display: flex; justify-content: center; gap: 2rem; margin-top: 2rem; }
+    .blog-hero-stat { text-align: center; }
+    .blog-hero-stat strong { display: block; font-size: 1.4rem; font-weight: 800; color: #7c3aed; }
+    .blog-hero-stat span { font-size: 0.75rem; color: #9ca3af; font-weight: 500; }
+
+    /* Filter bar */
+    .blog-filter-bar {
+      padding: 1.5rem 0 0.5rem;
+      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+    }
+    .blog-filter-label { font-size: 0.75rem; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+    .blog-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .blog-tag {
+      padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;
+      border: 1.5px solid #e5e7eb; color: #4b5563; cursor: pointer;
+      transition: all 0.15s; background: #fff; white-space: nowrap;
+      text-decoration: none; display: inline-block;
+    }
+    .blog-tag:hover { border-color: #7c3aed; color: #7c3aed; background: #f5f3ff; }
+    .blog-tag.active { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+
+    /* Active filter banner */
+    .blog-active-filter {
+      display: none; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem;
+      background: #f5f3ff; border-radius: 8px; font-size: 0.82rem; color: #7c3aed;
+      font-weight: 500; margin-bottom: 0.5rem;
+    }
+    .blog-active-filter.visible { display: flex; }
+    .blog-active-filter button {
+      background: none; border: none; cursor: pointer; color: #9ca3af;
+      font-size: 1rem; line-height: 1; padding: 0 0 0 4px;
+    }
+    .blog-active-filter button:hover { color: #374151; }
+
+    /* Grid */
+    .blog-section { padding: 2rem 0 4rem; }
+    .blog-grid {
+      display: grid; grid-template-columns: repeat(1, 1fr); gap: 1.5rem;
+    }
+    @media (min-width: 640px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1024px) { .blog-grid { grid-template-columns: repeat(3, 1fr); } }
-    .blog-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; cursor: pointer; }
-    .blog-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
-    .blog-card-image { width: 100%; height: 200px; background: linear-gradient(135deg, #ede9fe, #ddd6fe); display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 3rem; }
-    .blog-card-body { padding: 1.25rem; }
-    .blog-card-category { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #7c3aed; background: #f5f3ff; padding: 2px 8px; border-radius: 4px; display: inline-block; }
-    .blog-card-title { font-size: 1rem; font-weight: 700; color: #111827; margin-top: 0.5rem; line-height: 1.4; }
-    .blog-card-excerpt { font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .blog-card-meta { font-size: 0.75rem; color: #9ca3af; margin-top: 0.75rem; display: flex; justify-content: space-between; }
-    .blog-empty { text-align: center; padding: 4rem 0; color: #9ca3af; }
+
+    /* Card */
+    .blog-card {
+      background: #fff; border-radius: 14px; border: 1px solid #f0eaff;
+      overflow: hidden; transition: box-shadow 0.2s, transform 0.2s;
+      cursor: pointer; display: flex; flex-direction: column;
+      text-decoration: none; color: inherit;
+    }
+    .blog-card:hover { box-shadow: 0 12px 40px rgba(124,58,237,0.1); transform: translateY(-3px); border-color: #ddd6fe; }
+    .blog-card-image {
+      width: 100%; height: 180px;
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 50%, #c4b5fd 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; position: relative; overflow: hidden;
+    }
+    .blog-card-image img { width: 100%; height: 100%; object-fit: cover; }
+    .blog-card-category-badge {
+      position: absolute; top: 12px; left: 12px;
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      color: #7c3aed; background: rgba(255,255,255,0.92); padding: 3px 9px; border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+    .blog-card-body { padding: 1.25rem 1.25rem 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .blog-card-title {
+      font-size: 1rem; font-weight: 700; color: #111827; line-height: 1.45;
+      margin: 0 0 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .blog-card-excerpt {
+      font-size: 0.83rem; color: #6b7280; line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      flex: 1; margin: 0;
+    }
+    .blog-card-footer {
+      margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;
+      padding-top: 0.75rem; border-top: 1px solid #f3f4f6;
+    }
+    .blog-card-meta { font-size: 0.72rem; color: #9ca3af; }
+    .blog-card-read {
+      font-size: 0.75rem; font-weight: 600; color: #7c3aed;
+      display: flex; align-items: center; gap: 3px;
+    }
+
+    /* States */
+    .blog-empty { text-align: center; padding: 5rem 0; color: #9ca3af; }
+    .blog-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .blog-empty p { margin: 0.25rem 0; }
+    .blog-empty p:first-of-type { font-size: 1.1rem; font-weight: 600; color: #374151; }
     .blog-loading { text-align: center; padding: 4rem 0; color: #7c3aed; }
-    .blog-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; padding: 0 0 1rem; }
-    .blog-tag { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; border: 1px solid #e5e7eb; color: #374151; cursor: pointer; transition: all 0.2s; }
-    .blog-tag:hover, .blog-tag.active { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+    .blog-loading-dots span {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: #7c3aed; margin: 0 3px;
+      animation: blink 1.2s infinite both;
+    }
+    .blog-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .blog-loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+
+    /* Post count */
+    .blog-count { font-size: 0.8rem; color: #9ca3af; margin-bottom: 1.25rem; }
   </style>
   <script src="js/analytics.js" defer></script>
 </head>
 <body>
 
-<!-- Navbar (simplified) -->
 <nav id="navbar" style="background:#fff; border-bottom: 1px solid #e5e7eb; position:sticky; top:0; z-index:50;">
   <div class="container" style="display:flex; align-items:center; justify-content:space-between; height:64px;">
     <a href="/" style="display:flex; align-items:center; gap:8px; text-decoration:none; font-weight:800; font-size:1.2rem; color:#111827;">
@@ -67,38 +177,69 @@
   </div>
 </nav>
 
-<!-- Hero -->
 <div class="blog-hero">
-  <div class="container">
+  <div class="container" style="position:relative; z-index:1;">
+    <div class="blog-hero-badge">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="6"/></svg>
+      EdTech Insights
+    </div>
     <h1>PaperBook Blog</h1>
-    <p>Insights, tips, and best practices for school management and EdTech</p>
+    <p>Practical guides and insights for school administrators and education leaders in India</p>
+    <div class="blog-hero-stats">
+      <div class="blog-hero-stat">
+        <strong id="stat-posts">—</strong>
+        <span>Articles</span>
+      </div>
+      <div class="blog-hero-stat">
+        <strong>6</strong>
+        <span>Categories</span>
+      </div>
+      <div class="blog-hero-stat">
+        <strong>Free</strong>
+        <span>Always</span>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Category Tags -->
 <div class="container">
-  <div class="blog-tags" id="blog-tags">
-    <span class="blog-tag active" data-category="">All</span>
-    <span class="blog-tag" data-category="technology">Technology</span>
-    <span class="blog-tag" data-category="finance">Finance</span>
-    <span class="blog-tag" data-category="academics">Academics</span>
-    <span class="blog-tag" data-category="operations">Operations</span>
-    <span class="blog-tag" data-category="communication">Communication</span>
-    <span class="blog-tag" data-category="industry">Industry</span>
+  <div class="blog-filter-bar">
+    <span class="blog-filter-label">Filter:</span>
+    <div class="blog-tags" id="blog-tags">
+      <a class="blog-tag active" href="/blog.html" data-category="">All</a>
+      <a class="blog-tag" href="/blog.html?category=technology" data-category="technology">Technology</a>
+      <a class="blog-tag" href="/blog.html?category=finance" data-category="finance">Finance</a>
+      <a class="blog-tag" href="/blog.html?category=academics" data-category="academics">Academics</a>
+      <a class="blog-tag" href="/blog.html?category=operations" data-category="operations">Operations</a>
+      <a class="blog-tag" href="/blog.html?category=communication" data-category="communication">Communication</a>
+      <a class="blog-tag" href="/blog.html?category=industry" data-category="industry">Industry</a>
+    </div>
+  </div>
+
+  <div id="active-filter-banner" class="blog-active-filter">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="7" r="7"/></svg>
+    <span id="active-filter-text">Filtered by tag</span>
+    <button onclick="clearTagFilter()" title="Clear filter">&times;</button>
   </div>
 </div>
 
-<!-- Blog Grid -->
-<div class="container">
-  <div id="blog-loading" class="blog-loading">Loading posts...</div>
+<div class="container blog-section">
+  <div id="blog-count" class="blog-count" style="display:none;"></div>
+  <div id="blog-loading" class="blog-loading">
+    <div class="blog-loading-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <p style="margin-top:0.75rem; font-size:0.9rem;">Loading articles...</p>
+  </div>
   <div id="blog-grid" class="blog-grid" style="display:none;"></div>
   <div id="blog-empty" class="blog-empty" style="display:none;">
-    <p style="font-size:1.2rem;">No blog posts yet</p>
-    <p>Check back soon for insights on school management and EdTech.</p>
+    <div class="blog-empty-icon">📝</div>
+    <p>No articles found</p>
+    <p style="font-size:0.85rem; color:#9ca3af; margin-top:0.25rem;">Try a different category or <a href="/blog.html" style="color:#7c3aed;">view all posts</a></p>
   </div>
 </div>
 
-<footer class="footer" style="margin-top:4rem;">
+<footer class="footer" style="margin-top:2rem;">
   <div class="container">
     <div class="footer-bottom" style="padding:1.5rem 0;">
       <span>&copy; 2026 PaperBook. All rights reserved.</span>
@@ -113,44 +254,115 @@
     ? 'http://localhost:3001/api'
     : 'https://paperbook.app/api';
 
-  var currentCategory = '';
+  var params = new URLSearchParams(window.location.search);
+  var currentCategory = params.get('category') || '';
+  var currentTag = params.get('tag') || '';
+
   var grid = document.getElementById('blog-grid');
   var loading = document.getElementById('blog-loading');
   var empty = document.getElementById('blog-empty');
+  var countEl = document.getElementById('blog-count');
+  var banner = document.getElementById('active-filter-banner');
+  var bannerText = document.getElementById('active-filter-text');
+  var statPosts = document.getElementById('stat-posts');
 
-  function loadPosts(category) {
-    currentCategory = category;
+  // Mark active category tab
+  if (currentCategory) {
+    document.querySelectorAll('.blog-tag').forEach(function(t) {
+      t.classList.remove('active');
+      if (t.dataset.category === currentCategory) t.classList.add('active');
+    });
+  }
+
+  // Show tag filter banner
+  if (currentTag) {
+    banner.classList.add('visible');
+    bannerText.textContent = 'Showing posts tagged: "' + currentTag + '"';
+  }
+
+  window.clearTagFilter = function() {
+    window.location.href = '/blog.html' + (currentCategory ? '?category=' + currentCategory : '');
+  };
+
+  // Intercept category tag clicks (prevent full reload, use pushState)
+  document.querySelectorAll('.blog-tag').forEach(function(tag) {
+    tag.addEventListener('click', function(e) {
+      e.preventDefault();
+      var cat = tag.dataset.category || '';
+      document.querySelectorAll('.blog-tag').forEach(function(t) { t.classList.remove('active'); });
+      tag.classList.add('active');
+      currentCategory = cat;
+      currentTag = '';
+      banner.classList.remove('visible');
+      var url = '/blog.html' + (cat ? '?category=' + cat : '');
+      history.pushState({}, '', url);
+      loadPosts(cat, '');
+    });
+  });
+
+  function estimateReadTime(text) {
+    var words = (text || '').split(/\s+/).length;
+    var mins = Math.max(1, Math.round(words / 200));
+    return mins + ' min read';
+  }
+
+  function categoryIcon(cat) {
+    var icons = { technology: '💻', finance: '💰', academics: '📚', operations: '⚙️', communication: '📢', industry: '🏫', admissions: '🎓', general: '📝' };
+    return icons[cat] || '📝';
+  }
+
+  function loadPosts(category, tag) {
     loading.style.display = 'block';
     grid.style.display = 'none';
     empty.style.display = 'none';
+    countEl.style.display = 'none';
 
-    var url = BASE + '/public/blog' + (category ? '?category=' + category : '');
+    var url = BASE + '/public/blog';
+    var qs = [];
+    if (category) qs.push('category=' + encodeURIComponent(category));
+    if (tag) qs.push('tag=' + encodeURIComponent(tag));
+    if (qs.length) url += '?' + qs.join('&');
+
     fetch(url)
       .then(function(r) { return r.json(); })
       .then(function(result) {
         loading.style.display = 'none';
         var posts = result.data || [];
 
+        // Update hero stat
+        if (result.meta) statPosts.textContent = result.meta.total || posts.length;
+
         if (posts.length === 0) {
           empty.style.display = 'block';
           return;
         }
 
+        // Post count
+        countEl.textContent = posts.length + ' article' + (posts.length !== 1 ? 's' : '') + (category || tag ? ' found' : '');
+        countEl.style.display = 'block';
+
         grid.style.display = 'grid';
         grid.innerHTML = posts.map(function(post) {
           var date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-          return '<div class="blog-card" onclick="window.location.href=\'/blog-post.html?slug=' + post.slug + '\'">' +
-            '<div class="blog-card-image">' + (post.coverImage ? '<img src="' + post.coverImage + '" style="width:100%;height:100%;object-fit:cover;" alt="' + post.title + '">' : '📝') + '</div>' +
+          var readTime = estimateReadTime(post.excerpt);
+          var icon = categoryIcon(post.category);
+          var imageHtml = post.coverImage
+            ? '<img src="' + post.coverImage + '" alt="' + post.title.replace(/"/g, '') + '">'
+            : '<span style="opacity:0.6;">' + icon + '</span>';
+          return '<a class="blog-card" href="/blog-post.html?slug=' + post.slug + '">' +
+            '<div class="blog-card-image">' +
+              imageHtml +
+              '<span class="blog-card-category-badge">' + (post.category || 'general') + '</span>' +
+            '</div>' +
             '<div class="blog-card-body">' +
-              '<span class="blog-card-category">' + (post.category || 'general') + '</span>' +
               '<h3 class="blog-card-title">' + post.title + '</h3>' +
               '<p class="blog-card-excerpt">' + (post.excerpt || '') + '</p>' +
-              '<div class="blog-card-meta">' +
-                '<span>' + (post.author || 'PaperBook Team') + '</span>' +
-                '<span>' + date + '</span>' +
+              '<div class="blog-card-footer">' +
+                '<span class="blog-card-meta">' + (post.author || 'PaperBook Team') + ' &middot; ' + date + '</span>' +
+                '<span class="blog-card-read">' + readTime + ' &rarr;</span>' +
               '</div>' +
             '</div>' +
-          '</div>';
+          '</a>';
         }).join('');
       })
       .catch(function(err) {
@@ -160,17 +372,8 @@
       });
   }
 
-  // Category tag clicks
-  document.querySelectorAll('.blog-tag').forEach(function(tag) {
-    tag.addEventListener('click', function() {
-      document.querySelectorAll('.blog-tag').forEach(function(t) { t.classList.remove('active'); });
-      tag.classList.add('active');
-      loadPosts(tag.dataset.category || '');
-    });
-  });
-
   // Initial load
-  loadPosts('');
+  loadPosts(currentCategory, currentTag);
 })();
 </script>
 </body>

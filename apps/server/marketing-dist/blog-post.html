@@ -9,39 +9,154 @@
   <meta property="og:type" content="article">
   <meta property="og:title" id="og-title" content="">
   <meta property="og:description" id="og-description" content="">
+  <meta property="og:image" id="og-image" content="https://paperbook.app/og-image.png">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    .post-container { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem; }
+    /* Reading progress bar */
+    .reading-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, #7c3aed, #6366f1);
+      z-index: 100; transition: width 0.1s linear;
+    }
+
+    /* Layout */
+    .post-wrapper { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    /* Back link */
+    .post-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.82rem; font-weight: 600; color: #7c3aed;
+      text-decoration: none; margin-bottom: 2rem;
+      padding: 6px 14px; border-radius: 8px; border: 1.5px solid #ede9fe;
+      background: #f5f3ff; transition: all 0.15s;
+    }
+    .post-back:hover { background: #ede9fe; }
+
+    /* Header */
     .post-header { margin-bottom: 2rem; }
-    .post-back { font-size: 0.85rem; color: #7c3aed; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 1.5rem; }
-    .post-back:hover { text-decoration: underline; }
-    .post-category { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #7c3aed; background: #f5f3ff; padding: 3px 10px; border-radius: 4px; display: inline-block; }
-    .post-title { font-size: 2rem; font-weight: 800; color: #111827; margin-top: 0.75rem; line-height: 1.3; }
-    .post-meta { font-size: 0.85rem; color: #9ca3af; margin-top: 0.75rem; display: flex; gap: 1.5rem; }
-    .post-cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin: 1.5rem 0; }
-    .post-content { font-size: 1.05rem; line-height: 1.8; color: #374151; }
-    .post-content h2 { font-size: 1.4rem; font-weight: 700; color: #111827; margin: 2rem 0 0.75rem; }
-    .post-content h3 { font-size: 1.15rem; font-weight: 600; color: #111827; margin: 1.5rem 0 0.5rem; }
-    .post-content p { margin-bottom: 1rem; }
-    .post-content ul, .post-content ol { margin-bottom: 1rem; padding-left: 1.5rem; }
-    .post-content li { margin-bottom: 0.5rem; }
-    .post-content a { color: #7c3aed; text-decoration: underline; }
-    .post-content blockquote { border-left: 3px solid #7c3aed; padding-left: 1rem; margin: 1.5rem 0; color: #6b7280; font-style: italic; }
-    .post-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; }
-    .post-tag { padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; background: #f3f4f6; color: #374151; }
-    .post-keywords { margin-top: 1rem; font-size: 0.8rem; color: #9ca3af; }
-    .post-loading { text-align: center; padding: 6rem 0; color: #7c3aed; font-size: 1rem; }
+    .post-category-badge {
+      display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #7c3aed; background: #f5f3ff;
+      padding: 4px 12px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+    .post-title {
+      font-size: 2.1rem; font-weight: 800; color: #111827; line-height: 1.3;
+      margin: 0 0 1rem;
+    }
+    @media (max-width: 640px) { .post-title { font-size: 1.6rem; } }
+
+    /* Meta row */
+    .post-meta-row {
+      display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+      font-size: 0.82rem; color: #9ca3af; margin-bottom: 1.75rem;
+    }
+    .post-meta-row .dot { margin: 0 8px; }
+    .post-meta-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #6366f1);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 0.75rem; font-weight: 700; margin-right: 8px;
+    }
+
+    /* Cover */
+    .post-cover {
+      width: 100%; max-height: 420px; object-fit: cover;
+      border-radius: 16px; margin-bottom: 2.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .post-cover-placeholder {
+      width: 100%; height: 280px; border-radius: 16px; margin-bottom: 2.5rem;
+      background: linear-gradient(135deg, #ede9fe, #ddd6fe, #c4b5fd);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem;
+    }
+
+    /* Content */
+    .post-content { font-size: 1.05rem; line-height: 1.85; color: #374151; }
+    .post-content h2 { font-size: 1.45rem; font-weight: 800; color: #111827; margin: 2.5rem 0 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f3f4f6; }
+    .post-content h3 { font-size: 1.15rem; font-weight: 700; color: #1f2937; margin: 2rem 0 0.6rem; }
+    .post-content p { margin-bottom: 1.2rem; }
+    .post-content ul, .post-content ol { margin-bottom: 1.2rem; padding-left: 1.75rem; }
+    .post-content li { margin-bottom: 0.6rem; }
+    .post-content a { color: #7c3aed; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+    .post-content a:hover { color: #5b21b6; }
+    .post-content blockquote {
+      border-left: 4px solid #7c3aed; padding: 1rem 1.25rem;
+      margin: 1.75rem 0; color: #4b5563; font-style: italic;
+      background: #f5f3ff; border-radius: 0 8px 8px 0;
+    }
+    .post-content strong { color: #111827; }
+
+    /* Footer section */
+    .post-footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #f0e8ff; }
+
+    /* Tags */
+    .post-footer-section { margin-bottom: 1.5rem; }
+    .post-footer-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin-bottom: 0.6rem; }
+    .post-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .post-tag {
+      padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 500;
+      background: #f3f4f6; color: #374151; text-decoration: none;
+      border: 1.5px solid #e5e7eb; transition: all 0.15s;
+      display: inline-block;
+    }
+    .post-tag:hover { background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe; }
+
+    /* Keywords */
+    .post-keywords { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .post-keyword {
+      padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 500;
+      background: #eff6ff; color: #2563eb; text-decoration: none;
+      border: 1px solid #dbeafe; transition: all 0.15s;
+      display: inline-block;
+    }
+    .post-keyword:hover { background: #dbeafe; }
+
+    /* Share */
+    .post-share { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #f0e8ff; }
+    .post-share-label { font-size: 0.82rem; font-weight: 600; color: #6b7280; margin-right: 0.25rem; }
+    .share-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+      text-decoration: none; transition: all 0.15s; cursor: pointer;
+    }
+    .share-btn.twitter { background: #000; color: #fff; }
+    .share-btn.twitter:hover { background: #333; }
+    .share-btn.linkedin { background: #0a66c2; color: #fff; }
+    .share-btn.linkedin:hover { background: #094fa3; }
+    .share-btn.whatsapp { background: #25d366; color: #fff; }
+    .share-btn.whatsapp:hover { background: #1da851; }
+    .share-btn.copy { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+    .share-btn.copy:hover { background: #e5e7eb; }
+
+    /* CTA */
+    .post-cta {
+      margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+      border-radius: 16px; text-align: center; border: 1px solid #ddd6fe;
+    }
+    .post-cta h3 { font-size: 1.2rem; font-weight: 800; color: #111827; margin: 0 0 0.5rem; }
+    .post-cta p { font-size: 0.88rem; color: #6b7280; margin: 0 0 1.25rem; }
+    .post-cta a {
+      display: inline-block; background: #7c3aed; color: #fff;
+      padding: 10px 24px; border-radius: 10px; font-weight: 700; font-size: 0.9rem;
+      text-decoration: none; transition: background 0.15s;
+    }
+    .post-cta a:hover { background: #5b21b6; }
+
+    /* States */
+    .post-loading { text-align: center; padding: 6rem 0; color: #7c3aed; }
     .post-error { text-align: center; padding: 6rem 0; color: #ef4444; }
   </style>
   <script src="js/analytics.js" defer></script>
 </head>
 <body>
 
-<!-- Navbar -->
+<div class="reading-progress" id="reading-progress"></div>
+
 <nav id="navbar" style="background:#fff; border-bottom: 1px solid #e5e7eb; position:sticky; top:0; z-index:50;">
   <div class="container" style="display:flex; align-items:center; justify-content:space-between; height:64px;">
     <a href="/" style="display:flex; align-items:center; gap:8px; text-decoration:none; font-weight:800; font-size:1.2rem; color:#111827;">
@@ -56,28 +171,78 @@
   </div>
 </nav>
 
-<div class="post-container">
+<div class="post-wrapper">
   <div id="post-loading" class="post-loading">Loading article...</div>
-  <div id="post-error" class="post-error" style="display:none;">Post not found. <a href="/blog.html">Back to Blog</a></div>
-  <article id="post-content" style="display:none;">
+  <div id="post-error" class="post-error" style="display:none;">
+    Post not found. <a href="/blog.html" style="color:#7c3aed;">Back to Blog</a>
+  </div>
+
+  <article id="post-article" style="display:none;">
+    <a href="/blog.html" class="post-back">&#8592; Back to Blog</a>
+
     <div class="post-header">
-      <a href="/blog.html" class="post-back">&larr; Back to Blog</a>
-      <span class="post-category" id="post-category"></span>
+      <span class="post-category-badge" id="post-category"></span>
       <h1 class="post-title" id="post-title"></h1>
-      <div class="post-meta">
+      <div class="post-meta-row">
+        <span class="post-meta-avatar" id="post-avatar"></span>
         <span id="post-author"></span>
+        <span class="dot">·</span>
         <span id="post-date"></span>
+        <span class="dot">·</span>
+        <span id="post-read-time"></span>
+        <span class="dot">·</span>
         <span id="post-views"></span>
       </div>
     </div>
-    <img id="post-cover" class="post-cover" style="display:none;" alt="">
+
+    <div id="post-cover-wrapper"></div>
     <div class="post-content" id="post-body"></div>
-    <div class="post-tags" id="post-tags"></div>
-    <div class="post-keywords" id="post-keywords"></div>
+
+    <div class="post-footer">
+      <!-- Tags -->
+      <div class="post-footer-section" id="tags-section" style="display:none;">
+        <div class="post-footer-label">Tags</div>
+        <div class="post-tags" id="post-tags"></div>
+      </div>
+
+      <!-- Keywords -->
+      <div class="post-footer-section" id="keywords-section" style="display:none;">
+        <div class="post-footer-label">Related Topics</div>
+        <div class="post-keywords" id="post-keywords"></div>
+      </div>
+
+      <!-- Share -->
+      <div class="post-share">
+        <span class="post-share-label">Share:</span>
+        <a id="share-twitter" class="share-btn twitter" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.402 6.231H2.744l7.737-8.84L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X / Twitter
+        </a>
+        <a id="share-linkedin" class="share-btn linkedin" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a id="share-whatsapp" class="share-btn whatsapp" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        <button id="share-copy" class="share-btn copy" onclick="copyLink()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy Link
+        </button>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="post-cta">
+      <h3>Ready to transform your school management?</h3>
+      <p>Join hundreds of Indian schools using PaperBook to automate fees, attendance, and communication.</p>
+      <a href="/signup.html">Start Free 14-Day Trial &rarr;</a>
+    </div>
   </article>
 </div>
 
-<footer class="footer" style="margin-top:4rem;">
+<footer class="footer" style="margin-top:2rem;">
   <div class="container">
     <div class="footer-bottom" style="padding:1.5rem 0;">
       <span>&copy; 2026 PaperBook. All rights reserved.</span>
@@ -92,6 +257,36 @@
     ? 'http://localhost:3001/api'
     : 'https://paperbook.app/api';
 
+  // Reading progress bar
+  window.addEventListener('scroll', function() {
+    var el = document.getElementById('reading-progress');
+    var doc = document.documentElement;
+    var scrollTop = doc.scrollTop || document.body.scrollTop;
+    var scrollHeight = doc.scrollHeight - doc.clientHeight;
+    var pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    el.style.width = Math.min(pct, 100) + '%';
+  });
+
+  // Copy link
+  window.copyLink = function() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+      var btn = document.getElementById('share-copy');
+      btn.textContent = '✓ Copied!';
+      setTimeout(function() { btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy Link'; }, 2000);
+    });
+  };
+
+  function categoryIcon(cat) {
+    var icons = { technology: '💻', finance: '💰', academics: '📚', operations: '⚙️', communication: '📢', industry: '🏫', admissions: '🎓', general: '📝' };
+    return icons[cat] || '📝';
+  }
+
+  function estimateReadTime(content) {
+    var text = (content || '').replace(/<[^>]+>/g, '');
+    var words = text.split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.round(words / 200)) + ' min read';
+  }
+
   var slug = new URLSearchParams(window.location.search).get('slug');
   if (!slug) {
     document.getElementById('post-loading').style.display = 'none';
@@ -99,74 +294,113 @@
     return;
   }
 
-  fetch(BASE + '/public/blog/' + slug)
+  fetch(BASE + '/public/blog/' + encodeURIComponent(slug))
     .then(function(r) {
       if (!r.ok) throw new Error('Not found');
       return r.json();
     })
     .then(function(post) {
       document.getElementById('post-loading').style.display = 'none';
-      document.getElementById('post-content').style.display = 'block';
+      document.getElementById('post-article').style.display = 'block';
 
-      // Set content
+      // Title & category
       document.getElementById('post-title').textContent = post.title;
-      document.getElementById('post-category').textContent = post.category || 'General';
-      document.getElementById('post-author').textContent = post.author || 'PaperBook Team';
-      document.getElementById('post-date').textContent = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+      document.getElementById('post-category').textContent = (post.category || 'general').charAt(0).toUpperCase() + (post.category || 'general').slice(1);
+
+      // Meta
+      var authorName = post.author || 'PaperBook Team';
+      var initials = authorName.split(' ').map(function(w) { return w[0]; }).join('').slice(0,2).toUpperCase();
+      document.getElementById('post-avatar').textContent = initials;
+      document.getElementById('post-author').textContent = authorName;
+      document.getElementById('post-date').textContent = post.publishedAt
+        ? new Date(post.publishedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })
+        : '';
+      document.getElementById('post-read-time').textContent = estimateReadTime(post.content);
       document.getElementById('post-views').textContent = (post.views || 0) + ' views';
 
-      // Cover image
+      // Cover image or placeholder
+      var coverWrapper = document.getElementById('post-cover-wrapper');
       if (post.coverImage) {
-        var img = document.getElementById('post-cover');
+        var img = document.createElement('img');
+        img.className = 'post-cover';
         img.src = post.coverImage;
         img.alt = post.title;
-        img.style.display = 'block';
+        coverWrapper.appendChild(img);
+      } else {
+        var placeholder = document.createElement('div');
+        placeholder.className = 'post-cover-placeholder';
+        placeholder.textContent = categoryIcon(post.category);
+        coverWrapper.appendChild(placeholder);
       }
 
-      // Body content (render HTML)
+      // Body
       document.getElementById('post-body').innerHTML = post.content;
 
-      // Tags
+      // Tags — clickable, link to blog.html?tag=...
       var tags = post.tags || [];
       if (tags.length > 0) {
+        document.getElementById('tags-section').style.display = 'block';
         document.getElementById('post-tags').innerHTML = tags.map(function(t) {
-          return '<span class="post-tag">' + t + '</span>';
+          return '<a class="post-tag" href="/blog.html?tag=' + encodeURIComponent(t) + '">#' + t + '</a>';
         }).join('');
       }
 
-      // Keywords (for SEO display)
+      // Keywords — clickable, link to blog.html?tag=...
       var keywords = post.keywords || [];
-      if (keywords.length > 0) {
-        document.getElementById('post-keywords').textContent = 'Keywords: ' + keywords.join(', ');
+      // Exclude keywords already shown as tags
+      var tagSet = new Set(tags.map(function(t) { return t.toLowerCase(); }));
+      var extraKw = keywords.filter(function(k) { return !tagSet.has(k.toLowerCase()); });
+      if (extraKw.length > 0) {
+        document.getElementById('keywords-section').style.display = 'block';
+        document.getElementById('post-keywords').innerHTML = extraKw.map(function(k) {
+          return '<a class="post-keyword" href="/blog.html?tag=' + encodeURIComponent(k) + '">' + k + '</a>';
+        }).join('');
       }
 
-      // Update page SEO
-      document.title = (post.metaTitle || post.title) + ' — PaperBook Blog';
-      document.getElementById('page-title').textContent = document.title;
+      // Share buttons
+      var pageUrl = encodeURIComponent(window.location.href);
+      var pageTitle = encodeURIComponent(post.title + ' — PaperBook Blog');
+      document.getElementById('share-twitter').href =
+        'https://twitter.com/intent/tweet?text=' + pageTitle + '&url=' + pageUrl;
+      document.getElementById('share-linkedin').href =
+        'https://www.linkedin.com/sharing/share-offsite/?url=' + pageUrl;
+      document.getElementById('share-whatsapp').href =
+        'https://wa.me/?text=' + pageTitle + '%20' + pageUrl;
 
-      // Set canonical URL
+      // SEO meta
+      var title = (post.metaTitle || post.title) + ' — PaperBook Blog';
+      document.title = title;
+      document.getElementById('page-title').textContent = title;
+      var desc = post.metaDescription || post.excerpt || '';
+      document.getElementById('page-description').setAttribute('content', desc);
+      document.getElementById('og-title').setAttribute('content', post.metaTitle || post.title);
+      document.getElementById('og-description').setAttribute('content', desc);
+      if (post.coverImage) {
+        document.getElementById('og-image').setAttribute('content', post.coverImage);
+      }
+
+      // Canonical URL
       var canonical = document.createElement('link');
       canonical.rel = 'canonical';
-      canonical.href = 'https://paperbook.in/blog-post.html?slug=' + slug;
+      canonical.href = 'https://paperbook.app/blog-post.html?slug=' + encodeURIComponent(slug);
       document.head.appendChild(canonical);
-      var desc = post.metaDescription || post.excerpt || '';
-      document.getElementById('page-description').content = desc;
-      document.getElementById('og-title').content = post.metaTitle || post.title;
-      document.getElementById('og-description').content = desc;
 
-      // Add structured data for article
-      var script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.textContent = JSON.stringify({
+      // Structured data (Article schema)
+      var sd = document.createElement('script');
+      sd.type = 'application/ld+json';
+      sd.textContent = JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'Article',
         'headline': post.title,
-        'author': { '@type': 'Person', 'name': post.author || 'PaperBook Team' },
+        'author': { '@type': 'Person', 'name': authorName },
+        'publisher': { '@type': 'Organization', 'name': 'PaperBook', 'url': 'https://paperbook.app' },
         'datePublished': post.publishedAt,
         'description': desc,
-        'keywords': keywords.join(', ')
+        'keywords': (post.keywords || []).join(', '),
+        'url': 'https://paperbook.app/blog-post.html?slug=' + slug,
+        'image': post.coverImage || 'https://paperbook.app/og-image.png',
       });
-      document.head.appendChild(script);
+      document.head.appendChild(sd);
     })
     .catch(function() {
       document.getElementById('post-loading').style.display = 'none';

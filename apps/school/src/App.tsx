@@ -19,6 +19,7 @@ import { DevRoleSwitcher } from '@/components/dev/DevRoleSwitcher'
 // Eagerly load LoginPage for fast initial render
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { RegisterSchoolPage } from '@/features/auth/pages/RegisterSchoolPage'
+import { ActivationPage } from '@/features/auth/pages/ActivationPage'
 
 // Lazy load onboarding & invite pages
 const AcceptInvitePage = lazy(() => import('@/features/auth/pages/AcceptInvitePage').then(m => ({ default: m.AcceptInvitePage })))
@@ -310,6 +311,7 @@ export default function App() {
           {/* Public routes (no layout) */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterSchoolPage />} />
+          <Route path="/activate" element={<ActivationPage />} />
           <Route path="/accept-invite" element={<LazyRoute><AcceptInvitePage /></LazyRoute>} />
           <Route path="/apply" element={<LazyRoute><PublicApplicationPage /></LazyRoute>} />
           <Route path="/s/blog" element={<LazyRoute><PublicBlogPage /></LazyRoute>} />

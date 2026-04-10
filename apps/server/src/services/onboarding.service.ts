@@ -18,6 +18,7 @@ export interface RegisterSchoolInput {
   state?: string
   affiliationBoard?: 'CBSE' | 'ICSE' | 'State' | 'IB' | 'Other'
   institutionType?: string
+  activationToken?: string
 }
 
 export interface OnboardingStatus {
@@ -64,9 +65,9 @@ export async function registerSchool(input: RegisterSchoolInput) {
   const betterAuthPasswordHash = await betterAuthHash(input.adminPassword)
   const legacyPasswordHash = await bcrypt.hash(input.adminPassword, 12)
 
-  // 14-day trial
+  // 15-day trial
   const trialEndsAt = new Date()
-  trialEndsAt.setDate(trialEndsAt.getDate() + 14)
+  trialEndsAt.setDate(trialEndsAt.getDate() + 15)
 
   // Create everything in a transaction
   const result = await prisma.$transaction(async (tx) => {
@@ -171,13 +172,41 @@ export async function registerSchool(input: RegisterSchoolInput) {
     (err) => console.error('[Onboarding] Failed to create default policies:', err)
   )
 
-  // Send welcome email (non-blocking)
-  sendWelcomeEmail(input.adminName, input.adminEmail, input.schoolName, slug).catch(
-    (err) => console.error('[Onboarding] Failed to send welcome email:', err)
-  )
+  // Send welcome or activated email (non-blocking)
+  if (input.activationToken) {
+    ;(async () => {
+      try {
+        const { isEmailEventEnabled, sendEmail: _sendEmail, schoolActivatedEmail } = await import('./email.service.js')
+        if (await isEmailEventEnabled('school_activated')) {
+          const loginUrl = `https://${slug}.${env.APP_DOMAIN}`
+          const opts = { ...schoolActivatedEmail(input.adminName, input.schoolName, loginUrl), to: input.adminEmail }
+          _sendEmail(opts, 'school_activated').catch(() => {})
+        }
+      } catch (err) {
+        console.error('[Onboarding] Failed to send school activated email:', err)
+      }
+    })()
+  } else {
+    sendWelcomeEmail(input.adminName, input.adminEmail, input.schoolName, slug).catch(
+      (err) => console.error('[Onboarding] Failed to send welcome email:', err)
+    )
+  }
 
-  // Auto-create or update lead in Gravity CRM as "won"
+  // Mark lead as won — prefer leadId from activationToken JWT, fall back to email match
   ;(async () => {
+    if (input.activationToken) {
+      try {
+        const jwt = await import('jsonwebtoken')
+        const payload = jwt.default.verify(input.activationToken, env.JWT_SECRET) as any
+        if (payload?.leadId) {
+          await prisma.lead.updateMany({
+            where: { id: payload.leadId, status: { not: 'lead_won' } },
+            data: { status: 'lead_won', convertedSchoolId: result.org.id },
+          })
+          return
+        }
+      } catch { /* token expired or invalid — fall through to email match */ }
+    }
     const existingLead = await prisma.lead.findFirst({ where: { contactEmail: input.adminEmail } })
     if (existingLead) {
       await prisma.lead.update({

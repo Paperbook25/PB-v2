@@ -24,6 +24,12 @@ interface School {
   maxStudents: number
   addonCount?: number
   createdAt: string
+  trialEndsAt?: string | null
+}
+
+function trialDaysLeft(endsAt?: string | null): number | null {
+  if (!endsAt) return null
+  return Math.ceil((new Date(endsAt).getTime() - Date.now()) / 86400000)
 }
 
 export function SchoolsPage() {
@@ -104,7 +110,20 @@ export function SchoolsPage() {
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => {
+        const school = row.original
+        const days = school.status === 'trial' ? trialDaysLeft(school.trialEndsAt) : null
+        const chipColor = days === null ? '' : days <= 0 ? 'bg-red-100 text-red-700' : days <= 5 ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'
+        const chipLabel = days === null ? '' : days <= 0 ? 'Expired' : `${days}d left`
+        return (
+          <div className="flex items-center gap-1.5">
+            <StatusBadge status={school.status} />
+            {days !== null && (
+              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${chipColor}`}>{chipLabel}</span>
+            )}
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'planTier',

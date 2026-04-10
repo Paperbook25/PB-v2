@@ -35,7 +35,12 @@ export const auth = betterAuth({
       `http://*.${env.APP_DOMAIN}:5173`,
       `http://*.${env.APP_DOMAIN}:5174`,
     ] : []),
+    `https://${env.APP_DOMAIN}`,
+    `https://gravity.${env.APP_DOMAIN}`,
+    `https://admin.${env.APP_DOMAIN}`,
     `https://*.${env.APP_DOMAIN}`,
+    // Also trust any origins explicitly listed in CORS_ORIGIN env var
+    ...env.CORS_ORIGIN.split(',').map(o => o.trim()).filter(o => o.startsWith('http')),
   ],
   advanced: {
     crossSubDomainCookies: env.isProd

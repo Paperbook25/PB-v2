@@ -154,9 +154,16 @@ export async function updatePlatformIntegration(id: string, data: {
   if (data.settings !== undefined) updateData.settings = data.settings
 
   if (data.credentials) {
-    // Merge with existing credentials so partial updates work
+    // Merge with existing credentials so partial updates work.
+    // Skip masked values (contain •) — those are display-only placeholders the user didn't change.
     const existingCreds = decryptCredentials(JSON.stringify(existing.credentials))
-    const merged = { ...existingCreds, ...data.credentials }
+    const cleanIncoming: Record<string, string> = {}
+    for (const [key, value] of Object.entries(data.credentials)) {
+      if (typeof value === 'string' && !value.includes('•') && value.trim() !== '') {
+        cleanIncoming[key] = value
+      }
+    }
+    const merged = { ...existingCreds, ...cleanIncoming }
     const encrypted = encryptCredentials(merged)
     updateData.credentials = JSON.parse(encrypted)
   }

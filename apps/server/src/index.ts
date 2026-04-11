@@ -152,9 +152,12 @@ app.use('/uploads', express.static(resolve(process.cwd(), 'public/uploads')))
         const filePath = req.path === '/' ? 'index.html' : req.path.slice(1)
         const fullPath = resolve(marketingDist, filePath)
         if (existsSync(fullPath) && !fullPath.includes('..')) {
+          // No-cache for HTML so browsers always re-validate
+          res.setHeader('Cache-Control', 'no-cache, must-revalidate')
           return res.sendFile(fullPath)
         }
         // Fallback to index.html for clean URLs
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate')
         return res.sendFile(resolve(marketingDist, 'index.html'))
       }
       next()

@@ -148,7 +148,8 @@ app.use('/uploads', express.static(resolve(process.cwd(), 'public/uploads')))
     app.use((req, res, next) => {
       const host = (req.hostname || '').toLowerCase()
       // Serve marketing site when host is exactly the apex domain (no subdomain)
-      if (host === env.APP_DOMAIN) {
+      // Skip API / auth paths — let them fall through to the API router
+      if (host === env.APP_DOMAIN && !req.path.startsWith('/api/') && !req.path.startsWith('/auth/')) {
         const filePath = req.path === '/' ? 'index.html' : req.path.slice(1)
         const fullPath = resolve(marketingDist, filePath)
         if (existsSync(fullPath) && !fullPath.includes('..')) {

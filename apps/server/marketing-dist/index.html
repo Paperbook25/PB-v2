@@ -3088,7 +3088,7 @@
 (function() {
   var BASE = window.location.hostname === 'localhost'
     ? 'http://localhost:3001/api'
-    : 'https://paperbook.app/api';
+    : '/api';
 
   fetch(BASE + '/public/website')
     .then(function(r) { return r.json(); })
@@ -3201,7 +3201,7 @@
   // PaperBook API server URL — auto-detects environment
   var API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3001/api/public/lead-signup'
-    : 'https://paperbook.app/api/public/lead-signup';
+    : '/api/public/lead-signup';
 
   var form = document.getElementById('lead-signup-form');
   var btn = document.getElementById('lead-submit-btn');

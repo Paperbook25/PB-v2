@@ -252,7 +252,7 @@
 (function() {
   var BASE = window.location.hostname === 'localhost'
     ? 'http://localhost:3001/api'
-    : 'https://paperbook.app/api';
+    : '/api';
 
   var params = new URLSearchParams(window.location.search);
   var currentCategory = params.get('category') || '';
@@ -324,7 +324,10 @@
     if (qs.length) url += '?' + qs.join('&');
 
     fetch(url)
-      .then(function(r) { return r.json(); })
+      .then(function(r) {
+        if (!r.ok) throw new Error('API error: ' + r.status);
+        return r.json();
+      })
       .then(function(result) {
         loading.style.display = 'none';
         var posts = result.data || [];
@@ -368,7 +371,7 @@
       .catch(function(err) {
         loading.style.display = 'none';
         empty.style.display = 'block';
-        console.log('[Blog] Failed to load:', err.message);
+        console.error('[Blog] Failed to load posts:', err.message, '| URL:', url);
       });
   }
 

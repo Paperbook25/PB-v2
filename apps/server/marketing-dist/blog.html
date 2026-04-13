@@ -250,9 +250,7 @@
 
 <script>
 (function() {
-  var BASE = window.location.hostname === 'localhost'
-    ? 'http://localhost:3001/api'
-    : '/api';
+  var BASE = '/api';
 
   var params = new URLSearchParams(window.location.search);
   var currentCategory = params.get('category') || '';
@@ -284,7 +282,6 @@
     window.location.href = '/blog.html' + (currentCategory ? '?category=' + currentCategory : '');
   };
 
-  // Intercept category tag clicks (prevent full reload, use pushState)
   document.querySelectorAll('.blog-tag').forEach(function(tag) {
     tag.addEventListener('click', function(e) {
       e.preventDefault();
@@ -302,13 +299,39 @@
 
   function estimateReadTime(text) {
     var words = (text || '').split(/\s+/).length;
-    var mins = Math.max(1, Math.round(words / 200));
-    return mins + ' min read';
+    return Math.max(1, Math.round(words / 200)) + ' min read';
   }
 
   function categoryIcon(cat) {
     var icons = { technology: '💻', finance: '💰', academics: '📚', operations: '⚙️', communication: '📢', industry: '🏫', admissions: '🎓', general: '📝' };
     return icons[cat] || '📝';
+  }
+
+  function renderResult(result, category, tag) {
+    loading.style.display = 'none';
+    var posts = result.data || [];
+    if (result.meta && statPosts) statPosts.textContent = result.meta.total || posts.length;
+    if (posts.length === 0) { empty.style.display = 'block'; return; }
+    countEl.textContent = posts.length + ' article' + (posts.length !== 1 ? 's' : '') + ((category || tag) ? ' found' : '');
+    countEl.style.display = 'block';
+    grid.style.display = 'grid';
+    grid.innerHTML = posts.map(function(post) {
+      var date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+      var icon = categoryIcon(post.category);
+      var imageHtml = post.coverImage
+        ? '<img src="' + post.coverImage + '" alt="' + (post.title || '').replace(/"/g, '') + '" loading="lazy">'
+        : '<span style="opacity:0.6;">' + icon + '</span>';
+      return '<a class="blog-card" href="/blog-post.html?slug=' + post.slug + '">' +
+        '<div class="blog-card-image">' + imageHtml + '<span class="blog-card-category-badge">' + (post.category || 'general') + '</span></div>' +
+        '<div class="blog-card-body">' +
+          '<h3 class="blog-card-title">' + (post.title || '') + '</h3>' +
+          '<p class="blog-card-excerpt">' + (post.excerpt || '') + '</p>' +
+          '<div class="blog-card-footer">' +
+            '<span class="blog-card-meta">' + (post.author || 'PaperBook Team') + ' &middot; ' + date + '</span>' +
+            '<span class="blog-card-read">' + estimateReadTime(post.excerpt) + ' &rarr;</span>' +
+          '</div>' +
+        '</div></a>';
+    }).join('');
   }
 
   function loadPosts(category, tag) {
@@ -324,59 +347,21 @@
     if (qs.length) url += '?' + qs.join('&');
 
     fetch(url)
-      .then(function(r) {
-        if (!r.ok) throw new Error('API error: ' + r.status);
-        return r.json();
-      })
-      .then(function(result) {
-        loading.style.display = 'none';
-        var posts = result.data || [];
-
-        // Update hero stat
-        if (result.meta) statPosts.textContent = result.meta.total || posts.length;
-
-        if (posts.length === 0) {
-          empty.style.display = 'block';
-          return;
-        }
-
-        // Post count
-        countEl.textContent = posts.length + ' article' + (posts.length !== 1 ? 's' : '') + (category || tag ? ' found' : '');
-        countEl.style.display = 'block';
-
-        grid.style.display = 'grid';
-        grid.innerHTML = posts.map(function(post) {
-          var date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-          var readTime = estimateReadTime(post.excerpt);
-          var icon = categoryIcon(post.category);
-          var imageHtml = post.coverImage
-            ? '<img src="' + post.coverImage + '" alt="' + post.title.replace(/"/g, '') + '">'
-            : '<span style="opacity:0.6;">' + icon + '</span>';
-          return '<a class="blog-card" href="/blog-post.html?slug=' + post.slug + '">' +
-            '<div class="blog-card-image">' +
-              imageHtml +
-              '<span class="blog-card-category-badge">' + (post.category || 'general') + '</span>' +
-            '</div>' +
-            '<div class="blog-card-body">' +
-              '<h3 class="blog-card-title">' + post.title + '</h3>' +
-              '<p class="blog-card-excerpt">' + (post.excerpt || '') + '</p>' +
-              '<div class="blog-card-footer">' +
-                '<span class="blog-card-meta">' + (post.author || 'PaperBook Team') + ' &middot; ' + date + '</span>' +
-                '<span class="blog-card-read">' + readTime + ' &rarr;</span>' +
-              '</div>' +
-            '</div>' +
-          '</a>';
-        }).join('');
-      })
+      .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(result) { renderResult(result, category, tag); })
       .catch(function(err) {
         loading.style.display = 'none';
         empty.style.display = 'block';
-        console.error('[Blog] Failed to load posts:', err.message, '| URL:', url);
+        console.error('[Blog] fetch failed:', err.message, url);
       });
   }
 
-  // Initial load
-  loadPosts(currentCategory, currentTag);
+  // Server-side injected data (fast path — no fetch needed for initial load)
+  if (window.__BLOG_DATA__ && !currentCategory && !currentTag) {
+    renderResult(window.__BLOG_DATA__, '', '');
+  } else {
+    loadPosts(currentCategory, currentTag);
+  }
 })();
 </script>
 </body>

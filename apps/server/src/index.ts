@@ -145,6 +145,33 @@ app.use('/uploads', express.static(resolve(process.cwd(), 'public/uploads')))
 {
   const marketingDist = resolve(__dirname, '../marketing-dist')
   if (existsSync(marketingDist)) {
+
+    // ---------------------------------------------------------------------------
+    // SSR: /blog.html — server injects published posts into the page HTML
+    // This guarantees posts render even if client-side JS fetch were to fail.
+    // ---------------------------------------------------------------------------
+    app.get('/blog.html', async (req, res, next) => {
+      const host = (req.hostname || '').toLowerCase()
+      if (host !== env.APP_DOMAIN) return next()
+      try {
+        const { getPublicBlogList } = await import('./services/admin-website.service.js')
+        const { category, tag, page } = req.query as Record<string, string>
+        const result = await getPublicBlogList({ category, tag, page: page ? Number(page) : undefined })
+        const template = readFileSync(resolve(marketingDist, 'blog.html'), 'utf-8')
+        // Escape JSON to prevent XSS
+        const safeJson = JSON.stringify(result)
+          .replace(/</g, '\\u003c').replace(/>/g, '\\u003e')
+          .replace(/&/g, '\\u0026').replace(/'/g, '\\u0027')
+        const html = template.replace('</head>', `<script>window.__BLOG_DATA__=${safeJson};</script></head>`)
+        res.setHeader('Content-Type', 'text/html; charset=utf-8')
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate')
+        return res.send(html)
+      } catch (err) {
+        console.error('[Blog SSR] Failed to inject posts:', err)
+        next() // Fall through to static file serving
+      }
+    })
+
     app.use((req, res, next) => {
       const host = (req.hostname || '').toLowerCase()
       // Serve marketing site when host is exactly the apex domain (no subdomain)

@@ -457,10 +457,116 @@ export async function updateMarketingAddons(items: any[]): Promise<any[]> {
   return items
 }
 
+// ==================== Landing Page Sections (CMS-controlled) ====================
+
+const DEFAULT_HERO = {
+  badge: 'For Schools · Colleges · Coaching Centers · Universities',
+  h1Prefix: 'Run Your Entire Institution',
+  h1Highlight: 'From One Platform',
+  subheadline: 'PaperBook brings fees, admissions, attendance, exams, library, transport, and parent communication under one roof — so your team spends less time on paperwork and more time on education. Built for institutions of every kind, anywhere in the world.',
+  cta1Text: 'Start 15-Day Free Trial',
+  cta1Link: '#contact',
+  cta2Text: 'Explore All Modules',
+  cta2Link: '#features',
+}
+
+const DEFAULT_STATS = [
+  { eyebrow: 'Platform Depth', number: '28', description: 'Modules built and ready to use' },
+  { eyebrow: 'Institution Types', number: '4+', description: 'Schools, colleges, coaching centers & more' },
+  { eyebrow: 'Free Trial', number: '15', description: 'Days to explore everything, no card needed' },
+  { eyebrow: 'Time to Launch', number: '<5', unit: 'min', description: 'From sign-up to operational' },
+]
+
+const DEFAULT_FEATURES_HEADER = {
+  label: 'Modules',
+  title: '28 Modules. One Platform. Zero Switching.',
+  subtitle: 'From fees to library, admissions to transport — every operation your institution needs, purpose-built and connected. Works for schools, colleges, coaching centers, and universities alike.',
+  badgeText: '28 modules — Core ERP + Add-ons · Any institution type',
+}
+
+const DEFAULT_HOW_IT_WORKS = [
+  { title: 'Sign Up Your Institution', description: 'Create your account and configure your institution profile in under 5 minutes.' },
+  { title: 'Invite Your Team', description: 'Add teachers, staff, and admins with role-based access controls.' },
+  { title: 'Start Managing', description: "Begin managing learners, attendance, fees, and operations — whether you're a 200-student school or a 5,000-student college." },
+]
+
+const DEFAULT_EARLY_ACCESS = {
+  label: 'Limited Access',
+  title: 'Be Among Our First 100 Institutions',
+  subtitle: "We're onboarding a select group of institutions who'll get direct access to our team, influence the product roadmap, and lock in founding pricing — forever.",
+  ctaText: 'Apply for Early Access →',
+  ctaLink: '#contact',
+  cards: [
+    { icon: '👤', title: 'Founder Access', description: 'Direct line to the product team. Your feedback shapes what we build next.' },
+    { icon: '🔒', title: 'Founding Price', description: 'Lock in your pricing forever. Early members never pay full rate.' },
+    { icon: '🗺️', title: 'Shape the Roadmap', description: 'Vote on features. Request custom modules. Be part of building the future.' },
+  ],
+}
+
+async function getOrSeedJsonSetting(key: string, fallback: any): Promise<any> {
+  const cfg = await getWebsiteConfig()
+  const raw = (cfg as any)[key]
+  if (raw) {
+    try { return JSON.parse(raw) } catch { return fallback }
+  }
+  await updateWebsiteConfig({ [key]: JSON.stringify(fallback) })
+  return fallback
+}
+
+export async function getHeroContent(): Promise<any> {
+  return getOrSeedJsonSetting('hero', DEFAULT_HERO)
+}
+export async function updateHeroContent(data: any): Promise<any> {
+  await updateWebsiteConfig({ hero: JSON.stringify(data) })
+  return data
+}
+
+export async function getStatsContent(): Promise<any[]> {
+  return getOrSeedJsonSetting('stats', DEFAULT_STATS)
+}
+export async function updateStatsContent(items: any[]): Promise<any[]> {
+  await updateWebsiteConfig({ stats: JSON.stringify(items) })
+  return items
+}
+
+export async function getFeaturesHeader(): Promise<any> {
+  return getOrSeedJsonSetting('featuresHeader', DEFAULT_FEATURES_HEADER)
+}
+export async function updateFeaturesHeader(data: any): Promise<any> {
+  await updateWebsiteConfig({ featuresHeader: JSON.stringify(data) })
+  return data
+}
+
+export async function getHowItWorksContent(): Promise<any[]> {
+  return getOrSeedJsonSetting('howitworks', DEFAULT_HOW_IT_WORKS)
+}
+export async function updateHowItWorksContent(items: any[]): Promise<any[]> {
+  await updateWebsiteConfig({ howitworks: JSON.stringify(items) })
+  return items
+}
+
+export async function getEarlyAccessContent(): Promise<any> {
+  return getOrSeedJsonSetting('earlyAccess', DEFAULT_EARLY_ACCESS)
+}
+export async function updateEarlyAccessContent(data: any): Promise<any> {
+  await updateWebsiteConfig({ earlyAccess: JSON.stringify(data) })
+  return data
+}
+
+export async function getFooterTagline(): Promise<string> {
+  const cfg = await getWebsiteConfig()
+  return (cfg as any)['footerTagline'] || 'Made for educators everywhere'
+}
+export async function updateFooterTagline(value: string): Promise<string> {
+  await updateWebsiteConfig({ footerTagline: value })
+  return value
+}
+
 // ==================== Public API (for marketing website) ====================
 
 export async function getPublicWebsiteData() {
-  const [plans, config, team, recentPosts, integrations, products, addons] = await Promise.all([
+  const [plans, config, team, recentPosts, integrations, products, addons,
+         hero, stats, featuresHeader, howitworks, earlyAccess] = await Promise.all([
     prisma.pricingPlan.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }),
     getWebsiteConfig(),
     prisma.teamMember.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }),
@@ -468,6 +574,11 @@ export async function getPublicWebsiteData() {
     getMarketingIntegrations(),
     getMarketingProducts(),
     getMarketingAddons(),
+    getHeroContent(),
+    getStatsContent(),
+    getFeaturesHeader(),
+    getHowItWorksContent(),
+    getEarlyAccessContent(),
   ])
 
   return {
@@ -518,6 +629,12 @@ export async function getPublicWebsiteData() {
     integrations,
     products,
     addons,
+    hero,
+    stats,
+    featuresHeader,
+    howitworks,
+    earlyAccess,
+    footerTagline: (config as any)['footerTagline'] || 'Made for educators everywhere',
   }
 }
 

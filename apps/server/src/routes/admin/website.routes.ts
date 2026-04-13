@@ -388,4 +388,47 @@ router.put('/addons-config', async (req: Request, res: Response, next: NextFunct
   try { res.json({ data: await ws.updateMarketingAddons(req.body.items || []) }) } catch (err) { next(err) }
 })
 
+// Landing page sections (CMS-controlled hero, stats, how-it-works, features header, early access, footer)
+router.get('/landing/hero', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.getHeroContent() }) } catch (err) { next(err) }
+})
+router.put('/landing/hero', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.updateHeroContent(req.body) }) } catch (err) { next(err) }
+})
+
+router.get('/landing/stats', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.getStatsContent() }) } catch (err) { next(err) }
+})
+router.put('/landing/stats', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.updateStatsContent(req.body.items || []) }) } catch (err) { next(err) }
+})
+
+router.get('/landing/features-header', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.getFeaturesHeader() }) } catch (err) { next(err) }
+})
+router.put('/landing/features-header', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.updateFeaturesHeader(req.body) }) } catch (err) { next(err) }
+})
+
+router.get('/landing/how-it-works', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.getHowItWorksContent() }) } catch (err) { next(err) }
+})
+router.put('/landing/how-it-works', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.updateHowItWorksContent(req.body.items || []) }) } catch (err) { next(err) }
+})
+
+router.get('/landing/early-access', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.getEarlyAccessContent() }) } catch (err) { next(err) }
+})
+router.put('/landing/early-access', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.updateEarlyAccessContent(req.body) }) } catch (err) { next(err) }
+})
+
+router.get('/landing/footer', async (_req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.getFooterTagline() }) } catch (err) { next(err) }
+})
+router.put('/landing/footer', async (req: Request, res: Response, next: NextFunction) => {
+  try { res.json({ data: await ws.updateFooterTagline(req.body.tagline || '') }) } catch (err) { next(err) }
+})
+
 export default router

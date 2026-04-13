@@ -294,6 +294,20 @@ export const adminApi = {
   getMarketingAddons: () => adminFetch<any>('/website/addons-config').then((r: any) => r.data),
   updateMarketingAddons: (items: any[]) => adminFetch<any>('/website/addons-config', { method: 'PUT', body: JSON.stringify({ items }) }),
 
+  // Landing page sections
+  getLandingHero: () => adminFetch<any>('/website/landing/hero').then((r: any) => r.data),
+  updateLandingHero: (data: any) => adminFetch<any>('/website/landing/hero', { method: 'PUT', body: JSON.stringify(data) }).then((r: any) => r.data),
+  getLandingStats: () => adminFetch<any>('/website/landing/stats').then((r: any) => r.data),
+  updateLandingStats: (items: any[]) => adminFetch<any>('/website/landing/stats', { method: 'PUT', body: JSON.stringify({ items }) }).then((r: any) => r.data),
+  getLandingFeaturesHeader: () => adminFetch<any>('/website/landing/features-header').then((r: any) => r.data),
+  updateLandingFeaturesHeader: (data: any) => adminFetch<any>('/website/landing/features-header', { method: 'PUT', body: JSON.stringify(data) }).then((r: any) => r.data),
+  getLandingHowItWorks: () => adminFetch<any>('/website/landing/how-it-works').then((r: any) => r.data),
+  updateLandingHowItWorks: (items: any[]) => adminFetch<any>('/website/landing/how-it-works', { method: 'PUT', body: JSON.stringify({ items }) }).then((r: any) => r.data),
+  getLandingEarlyAccess: () => adminFetch<any>('/website/landing/early-access').then((r: any) => r.data),
+  updateLandingEarlyAccess: (data: any) => adminFetch<any>('/website/landing/early-access', { method: 'PUT', body: JSON.stringify(data) }).then((r: any) => r.data),
+  getLandingFooter: () => adminFetch<any>('/website/landing/footer').then((r: any) => r.data),
+  updateLandingFooter: (tagline: string) => adminFetch<any>('/website/landing/footer', { method: 'PUT', body: JSON.stringify({ tagline }) }).then((r: any) => r.data),
+
   // File Upload
   uploadFile: (file: File) => {
     return new Promise<{ url: string }>((resolve, reject) => {

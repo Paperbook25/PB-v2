@@ -22,6 +22,12 @@
       if (data.addons && data.addons.length) applyAddons(data.addons);
       if (data.seo) applyMetaTags(data.seo);
       if (data.about || data.team) applyAboutPage(data.about || {}, data.team || []);
+      if (data.hero) applyHero(data.hero);
+      if (data.stats && data.stats.length) applyStats(data.stats);
+      if (data.featuresHeader) applyFeaturesHeader(data.featuresHeader);
+      if (data.howitworks && data.howitworks.length) applyHowItWorks(data.howitworks);
+      if (data.earlyAccess) applyEarlyAccess(data.earlyAccess);
+      if (data.footerTagline) applyFooterTagline(data.footerTagline);
     } catch (e) {
       console.warn('[PaperBook CMS]', e);
     }
@@ -252,6 +258,108 @@
         }).join('');
       }
     }
+  }
+
+  // ─── Hero Section ────────────────────────────────────────────────────────────
+
+  function applyHero(h) {
+    var badge = document.querySelector('.hero-badge');
+    if (badge && h.badge) badge.textContent = h.badge;
+
+    var h1 = document.querySelector('.hero-content h1');
+    if (h1 && h.h1Prefix) {
+      h1.innerHTML = escHtml(h.h1Prefix) + ' <span>' + escHtml(h.h1Highlight || '') + '</span>';
+    }
+
+    var sub = document.querySelector('.hero-content > p');
+    if (sub && h.subheadline) sub.textContent = h.subheadline;
+
+    var cta1 = document.querySelector('.hero-actions .btn-primary');
+    if (cta1) {
+      if (h.cta1Text) cta1.textContent = h.cta1Text;
+      if (h.cta1Link) cta1.href = h.cta1Link;
+    }
+    var cta2 = document.querySelector('.hero-actions .btn-outline');
+    if (cta2) {
+      if (h.cta2Text) cta2.textContent = h.cta2Text;
+      if (h.cta2Link) cta2.href = h.cta2Link;
+    }
+  }
+
+  // ─── Stats Strip ─────────────────────────────────────────────────────────────
+
+  function applyStats(items) {
+    var els = document.querySelectorAll('.stat-item');
+    items.forEach(function (s, i) {
+      if (!els[i]) return;
+      var eyebrow = els[i].querySelector('.stat-eyebrow');
+      var num     = els[i].querySelector('h3');
+      var desc    = els[i].querySelector('p');
+      if (eyebrow && s.eyebrow) eyebrow.textContent = s.eyebrow;
+      if (num) num.innerHTML = escHtml(s.number) + (s.unit ? '<span class="stat-unit"> ' + escHtml(s.unit) + '</span>' : '');
+      if (desc && s.description) desc.textContent = s.description;
+    });
+  }
+
+  // ─── Features Section Header ──────────────────────────────────────────────────
+
+  function applyFeaturesHeader(fh) {
+    var label = document.querySelector('#features .section-label');
+    var title = document.querySelector('#features .section-title');
+    var sub   = document.querySelector('#features .section-subtitle');
+    var badge = document.querySelector('.module-count-badge span');
+    if (label && fh.label)    label.textContent = fh.label;
+    if (title && fh.title)    title.textContent = fh.title;
+    if (sub   && fh.subtitle) sub.textContent   = fh.subtitle;
+    if (badge && fh.badgeText) badge.textContent = fh.badgeText;
+  }
+
+  // ─── How It Works Steps ───────────────────────────────────────────────────────
+
+  function applyHowItWorks(steps) {
+    var els = document.querySelectorAll('#how-it-works .step-item');
+    steps.forEach(function (s, i) {
+      if (!els[i]) return;
+      var t = els[i].querySelector('h3');
+      var d = els[i].querySelector('p');
+      if (t && s.title)       t.textContent = s.title;
+      if (d && s.description) d.textContent = s.description;
+    });
+  }
+
+  // ─── Early Access Section ─────────────────────────────────────────────────────
+
+  function applyEarlyAccess(ea) {
+    var label = document.querySelector('#early-access .section-label');
+    var title = document.querySelector('#early-access .section-title');
+    var sub   = document.querySelector('#early-access .section-subtitle');
+    var cta   = document.querySelector('#early-access .ea-cta');
+    if (label && ea.label)    label.textContent = ea.label;
+    if (title && ea.title)    title.textContent = ea.title;
+    if (sub   && ea.subtitle) sub.textContent   = ea.subtitle;
+    if (cta) {
+      if (ea.ctaText) cta.textContent = ea.ctaText;
+      if (ea.ctaLink) cta.href = ea.ctaLink;
+    }
+    if (ea.cards && ea.cards.length) {
+      var cards = document.querySelectorAll('#early-access .ea-card');
+      ea.cards.forEach(function (c, i) {
+        if (!cards[i]) return;
+        var icon = cards[i].querySelector('.ea-icon');
+        var t    = cards[i].querySelector('h3');
+        var d    = cards[i].querySelector('p');
+        if (icon && c.icon)        icon.textContent = c.icon;
+        if (t    && c.title)       t.textContent    = c.title;
+        if (d    && c.description) d.textContent    = c.description;
+      });
+    }
+  }
+
+  // ─── Footer Tagline ───────────────────────────────────────────────────────────
+
+  function applyFooterTagline(tagline) {
+    var el = document.querySelector('.footer-tagline');
+    if (el) el.textContent = tagline;
   }
 
   // ─── Utilities ───────────────────────────────────────────────────────────────

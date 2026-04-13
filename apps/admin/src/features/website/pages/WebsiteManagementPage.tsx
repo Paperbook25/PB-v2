@@ -7,7 +7,7 @@ import { toast } from '../../../hooks/use-toast'
 import {
   Globe, DollarSign, FileText, Users, Search, Plus, Trash2, Edit2,
   X, Check, AlertCircle, ExternalLink, Sparkles, Link2, TrendingUp,
-  Image, Share2, CheckCircle, XCircle, Download, Package, RotateCcw,
+  Image, Share2, CheckCircle, XCircle, Download, Package, RotateCcw, Layout,
 } from 'lucide-react'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -16,6 +16,7 @@ function toSlug(text: string) {
 }
 
 const TABS = [
+  { key: 'landing',      label: 'Landing Page',    icon: Layout },
   { key: 'pricing',      label: 'Pricing',         icon: DollarSign },
   { key: 'blog',         label: 'Blog',             icon: FileText },
   { key: 'contact',      label: 'Contact & Social', icon: Globe },
@@ -70,6 +71,7 @@ export function WebsiteManagementPage() {
         ))}
       </div>
 
+      {tab === 'landing'      && <LandingPageTab qc={qc} />}
       {tab === 'pricing'      && <PricingTab qc={qc} />}
       {tab === 'blog'         && <BlogTab qc={qc} />}
       {tab === 'contact'      && <ContactTab qc={qc} />}
@@ -1885,6 +1887,284 @@ function AddonsTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
         </div>
       )}
     </div>
+  )
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// LANDING PAGE TAB
+// ═════════════════════════════════════════════════════════════════════════════
+function LandingPageTab({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
+  return (
+    <div className="space-y-6">
+      <HeroSection qc={qc} />
+      <StatsSection qc={qc} />
+      <FeaturesHeaderSection qc={qc} />
+      <HowItWorksSection qc={qc} />
+      <EarlyAccessSection qc={qc} />
+      <FooterTaglineSection qc={qc} />
+    </div>
+  )
+}
+
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border bg-card p-6 space-y-4">
+      <h3 className="text-base font-semibold text-foreground border-b pb-3">{title}</h3>
+      {children}
+    </div>
+  )
+}
+
+function SaveButton({ isPending }: { isPending: boolean }) {
+  return (
+    <button
+      type="submit"
+      disabled={isPending}
+      className="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+    >
+      {isPending ? 'Saving…' : 'Save'}
+    </button>
+  )
+}
+
+function HeroSection({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
+  const q = useQuery({ queryKey: ['landing', 'hero'], queryFn: () => adminApi.getLandingHero() })
+  const [form, setForm] = useState<any>(null)
+  const data = q.data
+
+  if (data && !form) setForm(data)
+
+  const mut = useMutation({
+    mutationFn: (d: any) => adminApi.updateLandingHero(d),
+    onSuccess: () => { toast({ title: 'Hero saved' }); qc.invalidateQueries({ queryKey: ['landing', 'hero'] }) },
+    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+  })
+
+  if (q.isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>
+
+  const f = form || {}
+  const set = (k: string) => (v: string) => setForm((p: any) => ({ ...p, [k]: v }))
+
+  return (
+    <SectionCard title="Hero Section">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="sm:col-span-2">
+          <Field label="Badge text" value={f.badge || ''} onChange={set('badge')} placeholder="For Schools · Colleges · Coaching Centers · Universities" />
+        </div>
+        <Field label="H1 Prefix" value={f.h1Prefix || ''} onChange={set('h1Prefix')} placeholder="Run Your Entire Institution" />
+        <Field label="H1 Highlighted text" value={f.h1Highlight || ''} onChange={set('h1Highlight')} placeholder="From One Platform" />
+        <div className="sm:col-span-2">
+          <Field label="Subheadline" value={f.subheadline || ''} onChange={set('subheadline')} textarea rows={3} />
+        </div>
+        <Field label="CTA 1 text" value={f.cta1Text || ''} onChange={set('cta1Text')} placeholder="Start 15-Day Free Trial" />
+        <Field label="CTA 1 link" value={f.cta1Link || ''} onChange={set('cta1Link')} placeholder="#contact" />
+        <Field label="CTA 2 text" value={f.cta2Text || ''} onChange={set('cta2Text')} placeholder="Explore All Modules" />
+        <Field label="CTA 2 link" value={f.cta2Link || ''} onChange={set('cta2Link')} placeholder="#features" />
+      </div>
+      <p className="text-xs text-muted-foreground">H1 renders as: <span className="font-medium">{f.h1Prefix || '…'}</span> <span className="text-primary font-bold">{f.h1Highlight || '…'}</span></p>
+      <div className="flex justify-end">
+        <form onSubmit={(e) => { e.preventDefault(); mut.mutate(f) }}>
+          <SaveButton isPending={mut.isPending} />
+        </form>
+      </div>
+    </SectionCard>
+  )
+}
+
+function StatsSection({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
+  const q = useQuery({ queryKey: ['landing', 'stats'], queryFn: () => adminApi.getLandingStats() })
+  const [items, setItems] = useState<any[] | null>(null)
+  const data = q.data
+
+  if (data && !items) setItems(data)
+
+  const mut = useMutation({
+    mutationFn: (d: any[]) => adminApi.updateLandingStats(d),
+    onSuccess: () => { toast({ title: 'Stats saved' }); qc.invalidateQueries({ queryKey: ['landing', 'stats'] }) },
+    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+  })
+
+  if (q.isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>
+
+  const rows = items || []
+  const setField = (i: number, k: string) => (v: string) =>
+    setItems((prev) => (prev || []).map((r, idx) => idx === i ? { ...r, [k]: v } : r))
+
+  return (
+    <SectionCard title="Stats Strip (4 metrics)">
+      <div className="space-y-4">
+        {rows.map((row: any, i: number) => (
+          <div key={i} className="grid gap-3 sm:grid-cols-4 items-end border rounded-lg p-3">
+            <Field label={`#${i + 1} Eyebrow`} value={row.eyebrow || ''} onChange={setField(i, 'eyebrow')} placeholder="Platform Depth" />
+            <Field label="Number / Value" value={row.number || ''} onChange={setField(i, 'number')} placeholder="28" />
+            <Field label="Unit (optional)" value={row.unit || ''} onChange={setField(i, 'unit')} placeholder="min" />
+            <Field label="Description" value={row.description || ''} onChange={setField(i, 'description')} placeholder="Modules built and ready" />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <form onSubmit={(e) => { e.preventDefault(); mut.mutate(rows) }}>
+          <SaveButton isPending={mut.isPending} />
+        </form>
+      </div>
+    </SectionCard>
+  )
+}
+
+function FeaturesHeaderSection({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
+  const q = useQuery({ queryKey: ['landing', 'featuresHeader'], queryFn: () => adminApi.getLandingFeaturesHeader() })
+  const [form, setForm] = useState<any>(null)
+  const data = q.data
+
+  if (data && !form) setForm(data)
+
+  const mut = useMutation({
+    mutationFn: (d: any) => adminApi.updateLandingFeaturesHeader(d),
+    onSuccess: () => { toast({ title: 'Features header saved' }); qc.invalidateQueries({ queryKey: ['landing', 'featuresHeader'] }) },
+    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+  })
+
+  if (q.isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>
+
+  const f = form || {}
+  const set = (k: string) => (v: string) => setForm((p: any) => ({ ...p, [k]: v }))
+
+  return (
+    <SectionCard title="Features Section Header">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Label pill" value={f.label || ''} onChange={set('label')} placeholder="Modules" />
+        <Field label="Badge text" value={f.badgeText || ''} onChange={set('badgeText')} placeholder="28 modules — Core ERP + Add-ons" />
+        <div className="sm:col-span-2">
+          <Field label="Title (h2)" value={f.title || ''} onChange={set('title')} placeholder="28 Modules. One Platform. Zero Switching." />
+        </div>
+        <div className="sm:col-span-2">
+          <Field label="Subtitle" value={f.subtitle || ''} onChange={set('subtitle')} textarea rows={2} />
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <form onSubmit={(e) => { e.preventDefault(); mut.mutate(f) }}>
+          <SaveButton isPending={mut.isPending} />
+        </form>
+      </div>
+    </SectionCard>
+  )
+}
+
+function HowItWorksSection({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
+  const q = useQuery({ queryKey: ['landing', 'howitworks'], queryFn: () => adminApi.getLandingHowItWorks() })
+  const [items, setItems] = useState<any[] | null>(null)
+  const data = q.data
+
+  if (data && !items) setItems(data)
+
+  const mut = useMutation({
+    mutationFn: (d: any[]) => adminApi.updateLandingHowItWorks(d),
+    onSuccess: () => { toast({ title: 'How It Works saved' }); qc.invalidateQueries({ queryKey: ['landing', 'howitworks'] }) },
+    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+  })
+
+  if (q.isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>
+
+  const rows = items || []
+  const setField = (i: number, k: string) => (v: string) =>
+    setItems((prev) => (prev || []).map((r, idx) => idx === i ? { ...r, [k]: v } : r))
+
+  return (
+    <SectionCard title="How It Works (3 Steps)">
+      <div className="space-y-3">
+        {rows.map((row: any, i: number) => (
+          <div key={i} className="grid gap-3 sm:grid-cols-2 border rounded-lg p-3">
+            <Field label={`Step ${i + 1} Title`} value={row.title || ''} onChange={setField(i, 'title')} />
+            <Field label="Description" value={row.description || ''} onChange={setField(i, 'description')} textarea rows={2} />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <form onSubmit={(e) => { e.preventDefault(); mut.mutate(rows) }}>
+          <SaveButton isPending={mut.isPending} />
+        </form>
+      </div>
+    </SectionCard>
+  )
+}
+
+function EarlyAccessSection({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
+  const q = useQuery({ queryKey: ['landing', 'earlyAccess'], queryFn: () => adminApi.getLandingEarlyAccess() })
+  const [form, setForm] = useState<any>(null)
+  const data = q.data
+
+  if (data && !form) setForm(data)
+
+  const mut = useMutation({
+    mutationFn: (d: any) => adminApi.updateLandingEarlyAccess(d),
+    onSuccess: () => { toast({ title: 'Early Access saved' }); qc.invalidateQueries({ queryKey: ['landing', 'earlyAccess'] }) },
+    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+  })
+
+  if (q.isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>
+
+  const f = form || {}
+  const cards: any[] = f.cards || []
+  const set = (k: string) => (v: string) => setForm((p: any) => ({ ...p, [k]: v }))
+  const setCard = (i: number, k: string) => (v: string) =>
+    setForm((p: any) => ({ ...p, cards: (p.cards || []).map((c: any, idx: number) => idx === i ? { ...c, [k]: v } : c) }))
+
+  return (
+    <SectionCard title="Early Access Section">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Label pill" value={f.label || ''} onChange={set('label')} placeholder="Limited Access" />
+        <Field label="CTA text" value={f.ctaText || ''} onChange={set('ctaText')} placeholder="Apply for Early Access →" />
+        <div className="sm:col-span-2">
+          <Field label="Title (h2)" value={f.title || ''} onChange={set('title')} placeholder="Be Among Our First 100 Institutions" />
+        </div>
+        <div className="sm:col-span-2">
+          <Field label="Subtitle" value={f.subtitle || ''} onChange={set('subtitle')} textarea rows={2} />
+        </div>
+        <Field label="CTA link" value={f.ctaLink || ''} onChange={set('ctaLink')} placeholder="#contact" />
+      </div>
+      <div className="space-y-3 mt-2">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Benefit Cards</p>
+        {cards.map((card: any, i: number) => (
+          <div key={i} className="grid gap-3 sm:grid-cols-3 border rounded-lg p-3">
+            <Field label={`Card ${i + 1} Icon (emoji)`} value={card.icon || ''} onChange={setCard(i, 'icon')} placeholder="👤" />
+            <Field label="Title" value={card.title || ''} onChange={setCard(i, 'title')} />
+            <Field label="Description" value={card.description || ''} onChange={setCard(i, 'description')} />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <form onSubmit={(e) => { e.preventDefault(); mut.mutate(f) }}>
+          <SaveButton isPending={mut.isPending} />
+        </form>
+      </div>
+    </SectionCard>
+  )
+}
+
+function FooterTaglineSection({ qc }: { qc: ReturnType<typeof useQueryClient> }) {
+  const q = useQuery({ queryKey: ['landing', 'footer'], queryFn: () => adminApi.getLandingFooter() })
+  const [value, setValue] = useState<string | null>(null)
+  const data = q.data
+
+  if (data !== undefined && value === null) setValue(typeof data === 'string' ? data : (data as any)?.tagline || '')
+
+  const mut = useMutation({
+    mutationFn: (v: string) => adminApi.updateLandingFooter(v),
+    onSuccess: () => { toast({ title: 'Footer tagline saved' }); qc.invalidateQueries({ queryKey: ['landing', 'footer'] }) },
+    onError: () => toast({ title: 'Save failed', variant: 'destructive' }),
+  })
+
+  if (q.isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>
+
+  return (
+    <SectionCard title="Footer Tagline">
+      <Field label="Tagline text" value={value || ''} onChange={(v) => setValue(v)} placeholder="Made for educators everywhere" />
+      <div className="flex justify-end">
+        <form onSubmit={(e) => { e.preventDefault(); mut.mutate(value || '') }}>
+          <SaveButton isPending={mut.isPending} />
+        </form>
+      </div>
+    </SectionCard>
   )
 }
 

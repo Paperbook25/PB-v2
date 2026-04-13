@@ -322,25 +322,67 @@ section { padding: 5rem 0; }
 .hero-badge svg { flex-shrink: 0; }
 
 /* ===========================================
-   8. Stats Bar — Enhanced Cards
+   8. Stats Strip — Dark Editorial
    =========================================== */
-.stats { padding: 3rem 0; background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; text-align: center; }
+.stats { padding: 0; background: #0f172a; border: none; }
+.stats-inner { display: flex; align-items: stretch; border-left: 1px solid rgba(255,255,255,0.06); }
 .stat-item {
-  padding: 1.25rem;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--border);
-  background: var(--card);
-  transition: transform 0.3s, box-shadow 0.3s;
-  border-top: 3px solid var(--border);
+  flex: 1;
+  padding: 3rem 2.5rem;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0;
+  border-top: none;
+  background: transparent;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
 }
-.stat-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-.stat-item:nth-child(1) { border-top-color: var(--primary); }
-.stat-item:nth-child(2) { border-top-color: var(--green); }
-.stat-item:nth-child(3) { border-top-color: var(--purple); }
-.stat-item:nth-child(4) { border-top-color: var(--orange); }
-.stat-item h3 { font-size: 1.75rem; font-weight: 800; color: var(--primary); }
-.stat-item p { font-size: 0.875rem; margin-top: 0.25rem; }
+.stat-item:hover { background: rgba(109,40,217,0.09); transform: none; box-shadow: none; }
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--primary-gradient);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.stat-item:hover::before { opacity: 1; }
+.stat-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #475569;
+  margin-bottom: 0.75rem;
+}
+.stat-item h3 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+.stat-unit {
+  font-size: 1.25rem;
+  font-weight: 600;
+  -webkit-text-fill-color: #a78bfa;
+}
+.stat-item p {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-top: 0;
+  max-width: 180px;
+  line-height: 1.5;
+}
+@media (max-width: 768px) {
+  .stats-inner { flex-direction: column; border-left: none; }
+  .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 2rem 1.5rem; }
+}
 
 /* ===========================================
    9. Features — Glassmorphic Cards
@@ -1504,4 +1546,92 @@ details .faq-answer {
   .about-hero-content h1 { font-size: 3.5rem; }
   .team-grid { grid-template-columns: repeat(4, 1fr); }
   .values-cards { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ─── Hero Badge ─────────────────────────────────────────────────────────────── */
+.hero-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  margin-bottom: 1.25rem;
+}
+
+/* ─── Module Count Badge ─────────────────────────────────────────────────────── */
+.module-count-badge {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  background: var(--primary-50);
+  border: 1px solid var(--primary-light);
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+}
+.module-count-badge span {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* ─── Early Access Section ───────────────────────────────────────────────────── */
+.early-access-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+.ea-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 2rem;
+  border-left: 4px solid var(--primary);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.ea-card:nth-child(2) { border-left-color: var(--green); }
+.ea-card:nth-child(3) { border-left-color: var(--amber); }
+.ea-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.ea-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.ea-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.ea-card p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .early-access-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── About Institution-Type Pills ───────────────────────────────────────────── */
+.about-pillars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.about-pillars span {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
 }

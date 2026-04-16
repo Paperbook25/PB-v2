@@ -188,9 +188,9 @@ export const adminApi = {
   // Communication Log
   listCommunicationLogs: (params?: Record<string, string>) => {
     const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-    return adminFetch<any>(`/communication-log${qs}`)
+    return adminFetch<any>(`/communication-logs${qs}`)
   },
-  logCommunication: (data: any) => adminFetch<any>('/communication-log', { method: 'POST', body: JSON.stringify(data) }),
+  logCommunication: (data: any) => adminFetch<any>('/communication-logs', { method: 'POST', body: JSON.stringify(data) }),
 
   // Feature Usage
   backfillFeatureUsage: () => adminFetch<any>('/feature-usage/backfill', { method: 'POST' }),

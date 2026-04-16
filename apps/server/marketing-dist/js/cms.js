@@ -8,8 +8,10 @@
   'use strict';
 
   // Shared fetch promise — reused by analytics.js to avoid duplicate network request
+  // Use relative URL so this works for any domain (paperbook.app, klintro.com, etc.)
+  var _cmsApiBase = window.location.hostname === 'localhost' ? 'http://localhost:3001/api' : '/api';
   window.__pbCmsPromise = window.__pbCmsPromise ||
-    fetch('https://api.paperbook.app/api/public/website')
+    fetch(_cmsApiBase + '/public/website')
       .then(function (r) { return r.ok ? r.json() : null; })
       .catch(function () { return null; });
 

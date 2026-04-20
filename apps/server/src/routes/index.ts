@@ -228,6 +228,24 @@ router.post('/public/lead-signup', leadSignupLimiter, async (req, res, next) => 
       where: { contactEmail },
     })
     if (existing) {
+      // Log re-signup attempt as an activity on the existing lead
+      await prisma.leadActivity.create({
+        data: {
+          leadId: existing.id,
+          type: 'note',
+          content: `Re-signup attempt via website form.${message ? ` Message: ${message}` : ''}`,
+          createdBy: null,
+        },
+      })
+      // Add re_signup tag if not already present and bump updatedAt
+      const existingTags: string[] = (existing.tags as string[]) || []
+      await prisma.lead.update({
+        where: { id: existing.id },
+        data: {
+          tags: existingTags.includes('re_signup') ? existingTags : [...existingTags, 're_signup'],
+          updatedAt: new Date(),
+        },
+      })
       return res.status(200).json({ success: true, message: 'Already registered', leadId: existing.id })
     }
 

@@ -246,6 +246,7 @@ function formatLead(lead: any) {
     expectedPlan: lead.expectedPlan,
     assignedTo: lead.assignedTo,
     notes: lead.notes,
+    tags: (lead.tags as string[]) || [],
     lostReason: lead.lostReason,
     convertedSchoolId: lead.convertedSchoolId,
     nextFollowUp: lead.nextFollowUp?.toISOString() || null,

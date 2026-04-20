@@ -143,13 +143,18 @@ export function LeadsPage() {
                     {lead.expectedRevenue && (
                       <div className="text-xs font-medium text-green-600 mt-1">{formatCurrency(lead.expectedRevenue)}</div>
                     )}
-                    <div className="flex items-center gap-1 mt-2">
+                    <div className="flex items-center gap-1 mt-2 flex-wrap">
                       <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
                         {SOURCE_LABELS[lead.source] || lead.source}
                       </span>
                       {lead.city && (
                         <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
                           <MapPin className="h-2.5 w-2.5" />{lead.city}
+                        </span>
+                      )}
+                      {(lead.tags || []).includes('re_signup') && (
+                        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700">
+                          Re-signup
                         </span>
                       )}
                     </div>

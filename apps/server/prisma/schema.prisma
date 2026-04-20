@@ -3794,6 +3794,7 @@ model Lead {
   expectedPlan    PlanTier?  @map("expected_plan")
   assignedTo      String?    @map("assigned_to")
   notes           String?    @db.Text
+  tags            String[]   @default([])
   lostReason      String?    @map("lost_reason")
   convertedSchoolId String?  @map("converted_school_id")
   nextFollowUp    DateTime?  @map("next_follow_up")

@@ -221,9 +221,21 @@ function emailWrapper(content: string): string {
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
         <!-- Header -->
         <tr>
-          <td style="background:${BRAND_COLOR};padding:24px 32px;">
-            <p style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">${BRAND_NAME}</p>
-            <p style="margin:4px 0 0;color:rgba(255,255,255,0.8);font-size:12px;">School Management Platform</p>
+          <td style="background:${BRAND_COLOR};padding:20px 32px;">
+            <table cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td style="vertical-align:middle;">
+                  <img src="https://paperbook.app/favicon.svg" alt="${BRAND_NAME}" width="36" height="36"
+                    style="display:inline-block;vertical-align:middle;border-radius:8px;background:#fff;padding:4px;margin-right:12px;" />
+                  <span style="color:#ffffff;font-size:20px;font-weight:700;vertical-align:middle;">${BRAND_NAME}</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top:4px;">
+                  <p style="margin:0;color:rgba(255,255,255,0.8);font-size:12px;padding-left:48px;">School Management Platform</p>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
         <!-- Body -->
